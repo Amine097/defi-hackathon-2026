@@ -9,19 +9,19 @@ Date: 2026-10-10. Source of truth: [official PDF](BelemCapital_EPFL-Hackathon_De
 | P1 | Automatically identify the underlying dependencies of a DeFi position | PASS | PASS | Discovery is fully on-chain: Pendle market/SY, USDC, Morpho market (oracle, IRM, LLTV). Live tests pass. |
 | P2 | Model how a failure propagates through those dependencies | PASS | PASS | Best-path propagation with dependence bounds. A shared node is counted once (R10). |
 | P3 | Quantify economic impact on the position | PARTIAL: point estimate, independence presented as exact | PASS | Central value plus a low/high band, with each parameter classed observed / calibrated / assumption. Liquidation impact is computed for real borrowers (R06–R09). |
-| P4 | Compare staying risk with real exit cost, including slippage | PARTIAL: indicative quote, no carry | PASS (local) | The SDK quote is re-executed on-chain (gap 0). Carry forgone is included, and since the coherence fix every displayed number uses the same exit side: execution + carry. This covers the margin, break-even, scenarios, stress table, sensitivity and book. The fix is **not yet deployed** (see B, G11). |
-| P5 | Actionable, explainable signal for a PM | PARTIAL: binary STAY/EXIT presented as firm | PASS (local) | STAY / EXIT / REVIEW with a lean, bands and reasons. REVIEW is shown amber, with the lean and the cause of uncertainty. Tests cover STAY, EXIT and both REVIEW leans (`tests/test_decision_coherence.py`, `tests/js/decision_view.test.mjs`). Production still shows the contradictory "+$371 stay costs more" until redeployed. |
-| P6 | Working demo on real on-chain data, no mock presented as real | PASS (labelled) | PASS | Local e2e on live block 26162781 (after the fix). Production (`a2d10c1`) tested on live block 26162693: HTTP, API, stress scenario, visual rendering. The snapshot fallback is labelled "not fresh". |
+| P4 | Compare staying risk with real exit cost, including slippage | PARTIAL: indicative quote, no carry | PASS | SDK quote re-executed on-chain (gap 0). Carry forgone included; every displayed number (margin, break-even, scenarios, stress table, sensitivity, book) uses the same exit side = execution + carry. Verified in production on `0e58f2c` (live block 26162848): execution $1,300 + carry $3,688 = $4,988; margin −$3,330 = loss − exit side; 0 incoherent rows across 4 scenarios, 10 stress rows, 3 sensitivity rows, 10 book pockets. |
+| P5 | Actionable, explainable signal for a PM | PARTIAL: binary STAY/EXIT presented as firm | PASS | STAY / EXIT / REVIEW with lean, bands and reasons. Production X-Ray: REVIEW amber, margin −$3.3k amber (`xr-warn`), exit card 'execution $1.3k + carry $3.7k', 'lean STAY (conditional) … below x3.01'; scenario 'Underlying depeg' → EXIT, margin +$266k red. No 'stay costs more' / 'cheaper one wins' text. Tests: `tests/test_decision_coherence.py`, `tests/js/decision_view.test.mjs`. |
+| P6 | Working demo on real on-chain data, no mock presented as real | PASS (labelled) | PASS | Production `0e58f2c`: source=live, 109 live fetches / 0 cached, block 26162848, quote simulated, freshness fresh, borrower HF 1.0544; badge 'Live on-chain data'. Snapshot fallback labelled 'not fresh'. |
 
-The judging weights in the PDF are 30 / 30 / 25 / 15. All four criteria are covered locally. The deployment runs the code before the coherence fix (see B).
+The judging weights in the PDF are 30 / 30 / 25 / 15. All four criteria are covered, locally and on the deployment (`0e58f2c`).
 
 ## B. Phase 0.5 internal gates (not PDF requirements)
 
 | Gate | Status |
 |---|---|
 | G01–G10 | **PASS**: code reference, executed test, observed result and block are given in the evidence JSON |
-| G11 Deployment tested | **BLOCKED for the current code.** Exact deployed SHA, read from the GitHub Deployments API written by `vercel[bot]` (no Vercel login needed): the last successful Production deployment is **`a2d10c1`** (14:33:39 UTC, status `success`). The production alias serves `Last-Modified 14:34:42`. Hashes of `index.html`, `xray.html`, `api.js`, `xray.js`, `model.js`, `data.js` and `sample.json` served by production are byte-identical to `git show a2d10c1:public/...`. Every later push (`016f070`, `f070236`, `28eab7d`, and earlier `480860e`) has Vercel status **"Deployment was blocked"**: on this project only the owner's pushes deploy. The coherence fix is therefore **not in production**. R20 on `a2d10c1` (2026-10-10, 16:40–16:42) remains valid for that SHA: `/`, `/xray.html` 200; `/api/analyze?borrower=auto` 200 in 13–18 s, live, simulated, fresh, borrower_position; invalid inputs 400; stress 200; amber REVIEW. To close G11, the project owner must deploy the fix commit, then rerun R20 and check the X-Ray margin (expected: negative, amber, "lean STAY"). |
-| G12 Final audit | **PASS locally, not on the deployment.** Offline: 62 passed, 3 skipped. Live (`DEFIRISK_LIVE_TESTS=1`): 65 passed. Node: 7 passed. Local e2e (dashboard + X-Ray, live block 26162781) is coherent. Cannot be closed while G11 is blocked. |
+| G11 Deployment tested | **PASS (production alias; deviation recorded).** Exact SHA from the GitHub Deployments API (`vercel[bot]`, Production): deployment 6982681595 = **`0e58f2c`** (owner's empty commit on top of `6a61feb`, `git diff 6a61feb 0e58f2c` empty), status `success` at 2026-10-10T15:10:02Z; commit status 'Vercel: Deployment has completed'. Served `index.html`, `xray.html`, `api.js`, `xray.js`, `model.js`, `data.js`, `sample.json` are identical to the clean worktree at `0e58f2c`; backend fixes confirmed by the payload (`exit_total_usd`, `carry_usd`, `margin_usd_execution_only`, scenario `verdict_basis` 'execution + carry'). R20 (2026-10-10 ~17:15): `/` 200 0.14 s, `/xray.html` 200 0.10 s, `/api/analyze?value_usd=5` 400, `?borrower=0xbad` 400, `?borrower=auto` 200 15.3 s (live, simulated, fresh, borrower_position), `?shock=usd_usdc&severity=1` 200 11.5 s (conditional $720,343 vs exit side $4,981 → EXIT). Visual: X-Ray and dashboard checked in browser (see P4/P5). Deviation: the immutable deployment URL is behind Vercel SSO (302 to vercel.com/sso-api), so the test ran on the production alias, which serves this exact deployment. |
+| G12 Final audit | **PASS.** After the last changes, at `0e58f2c`: offline 62 passed / 3 skipped (live-gated); live (`DEFIRISK_LIVE_TESTS=1`) 65 passed in 59 s; node 7 passed. Production payload coherence script: 0 errors. |
 
 ## C. Changes since Phase 0
 
@@ -57,16 +57,16 @@ The judging weights in the PDF are 30 / 30 / 25 / 15. All four criteria are cove
 | Severity | Item | Required action |
 |---|---|---|
 | ~~P1~~ closed | Deployment not tested (G11) on `a2d10c1` | Closed on 2026-10-10 by R20 on the production URL (see B) |
-| ~~P1~~ fixed locally | Margin / exit figures used execution only while the verdict used execution + carry, so "+$371 stay costs more" appeared next to REVIEW / lean STAY. Same issue in scenarios, stress, sensitivity and book. | Fixed and tested (C.1). **Not deployed.** |
-| **P1 open (blocking)** | Production runs `a2d10c1`, without the coherence fix. Non-owner pushes are blocked by Vercel. | The project owner deploys the fix commit; then R20 is rerun and the X-Ray margin checked. |
+| ~~P1~~ fixed | Margin / exit figures used execution only while the verdict used execution + carry ('+$371 stay costs more' next to REVIEW / lean STAY); same in scenarios, stress, sensitivity, book | Fixed and tested (C.1); verified in production on `0e58f2c` |
+| ~~P1~~ closed | Production lacked the coherence fix | Deployed by the owner as `0e58f2c`; R20 rerun and coherence verified (B, G11) |
 | Limit | The borrower deleverage decision (`liquidation.decision`) compares with execution cost only | Labelled in its `rule` ("carry not counted"). Borrower carry (PT yield − borrow rate on equity) is out of Phase 0.5 scope. |
 | Limit | Wide high band, so REVIEW is frequent | Traced; better priors would narrow it (out of Phase 0.5 scope) |
 | Limit | Normal PT volatility not modelled | REVIEW is forced for borrowers whose distance to liquidation is below 10 % |
 
 ## E. Verdict
 
-**PDF requirements: 6/6 verified locally** (with tests and live e2e). On the deployment, P1–P3 and P6 are verified on `a2d10c1`. P4 and P5 are only verified locally, because production predates the coherence fix.
+**PDF requirements: 6/6 PASS, verified locally and on the deployment `0e58f2c`.**
 
-**Phase 0.5 internal gates: 10/12 PASS. G11 is BLOCKED (fix not deployed), and G12 is PASS locally only. Overall verdict: NO-GO (blocked on deployment).**
-- No code issue remains open locally.
-- To switch to GO: the project owner deploys the commit containing C.1. Then R20 is rerun on that SHA (verified via the GitHub Deployments API) and the X-Ray margin is checked: negative, amber, "lean STAY".
+**Phase 0.5 internal gates: 12/12 PASS. Verified compliance on mandatory requirements: 100 % (6/6 PDF, 12/12 gates). Verdict: GO.**
+- No blocking finding open. Remaining items are documented limits (D), not compliance gaps.
+- Phase 0.5 is closed; new feature work (vault analysis by address) may start.

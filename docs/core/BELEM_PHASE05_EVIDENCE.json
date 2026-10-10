@@ -78,6 +78,36 @@
       "cmd": "browser canvas X-Ray + dashboard (local, after fix)",
       "exit_code": 0,
       "result": "X-Ray: REVIEW amber, Cost if EXIT $4.9k 'execution $1.3k + carry $3.7k', margin -$3.3k class xr-warn hint 'central values only · bands overlap or inputs not firm · lean STAY'; scenario 'Underlying depeg' EXIT margin +$266k; dashboard Exit cost (incl. carry) $4,949, book pockets incl. carry"
+    },
+    {
+      "cmd": "gh api repos/:owner/:repo/deployments + statuses",
+      "exit_code": 0,
+      "result": "6982681595 0e58f2c success 15:10:02Z; 6982650245 6a61feb failure"
+    },
+    {
+      "cmd": "gh api repos/:owner/:repo/commits/0e58f2c/status",
+      "exit_code": 0,
+      "result": "Vercel success 'Deployment has completed'"
+    },
+    {
+      "cmd": "compare prod public files vs worktree @0e58f2c",
+      "exit_code": 0,
+      "result": "7/7 identical"
+    },
+    {
+      "cmd": "$env:PYTHONPATH='src'; python -m pytest -q (@0e58f2c)",
+      "exit_code": 0,
+      "result": "62 passed, 3 skipped"
+    },
+    {
+      "cmd": "$env:DEFIRISK_LIVE_TESTS='1'; python -m pytest -q (@0e58f2c)",
+      "exit_code": 0,
+      "result": "65 passed in 59.07s"
+    },
+    {
+      "cmd": "node --test tests/js/decision_view.test.mjs",
+      "exit_code": 0,
+      "result": "7 passed"
     }
   ],
   "live_cases": [
@@ -182,7 +212,7 @@
         "tests/test_decision_coherence.py (8)",
         "tests/js/decision_view.test.mjs (7)"
       ],
-      "deployed": false
+      "deployed": "0e58f2c"
     }
   ],
   "gates": {
@@ -192,7 +222,7 @@
       "tests": [
         "full suite"
       ],
-      "notes": "65/65 live, 62+3 skipped offline, 7 node; dev server serves UI and API"
+      "notes": "65/65 live, 62+3 skipped offline, 7 node at 0e58f2c; dev server and production serve UI and API"
     },
     "G02": {
       "status": "PASS",
@@ -284,37 +314,38 @@
       "notes": "graph -> shock -> borrower liquidation -> loss -> exit -> REVIEW, live block data"
     },
     "G11": {
-      "status": "BLOCKED",
+      "status": "PASS",
       "condition": "real deployment tested (not just a build), without action on funds",
       "tests": [
         "R20 smoke test on https://faultline-sandy-three.vercel.app"
       ],
-      "notes": "R20 PASS on a2d10c1 (exact SHA verified); coherence fix not deployed: non-owner pushes blocked by Vercel"
+      "notes": "SHA 0e58f2c verified (Deployments API + file identity); R20 post-fix PASS on production alias (immutable URL behind Vercel SSO, deviation recorded)"
     },
     "G12": {
-      "status": "PASS_LOCAL_ONLY",
+      "status": "PASS",
       "condition": "docs/evidence current, tests pass, zero P0/P1, H01-H06 closed",
       "tests": [
         "full suite offline 54 passed/3 skipped",
         "live 57 passed"
       ],
-      "notes": "62+3 skipped offline, 65 live, 7 node; cannot close while G11 blocked"
+      "notes": "62+3 skipped offline, 65 live, 7 node at 0e58f2c; production coherence script 0 errors"
     }
   },
   "summary": {
-    "gates_pass": 10,
-    "gates_blocked": 1,
-    "gates_pass_local_only": 1,
+    "gates_pass": 12,
+    "gates_blocked": 0,
     "open_p0": 0,
-    "open_p1": 1,
+    "open_p1": 0,
     "open_p2": 0,
-    "verdict": "NO-GO (blocked on deployment)",
-    "verdict_note": "all checks pass locally; GO once the owner deploys the fix and R20 passes on that SHA"
+    "pdf_requirements_pass": "6/6",
+    "verified_compliance_pct": 100,
+    "verdict": "GO",
+    "verdict_note": "all mandatory requirements verified locally and on deployment 0e58f2c"
   },
   "deployment": {
     "url": "https://faultline-sandy-three.vercel.app",
-    "type": "production alias (existing deployment), not a separate preview",
-    "deployed_code_check": "Exact SHA read from the GitHub Deployments API (creator vercel[bot], environment Production): last status 'success' = a2d10c1 at 2026-10-10T14:33:39Z; production alias Last-Modified 14:34:42 GMT. SHA-256 of served index.html, xray.html, assets/js/api.js, xray.js, xray/model.js, xray/data.js, data/sample.json == git show a2d10c1:public/... (byte-identical after CRLF normalisation). Later pushes 480860e, 016f070, f070236, 28eab7d: Vercel commit status 'failure - Deployment was blocked' (only the project owner's pushes deploy).",
+    "type": "production alias of deployment 6982681595 (immutable URL behind Vercel SSO: 302 to vercel.com/sso-api)",
+    "deployed_code_check": "GitHub Deployments API (vercel[bot], Production): deployment 6982681595 sha 0e58f2c state success 2026-10-10T15:10:02Z; commit status 'Vercel success - Deployment has completed'. 0e58f2c is an empty owner commit over 6a61feb (git diff empty). Served index.html, xray.html, assets/js/api.js, xray.js, xray/model.js, xray/data.js, data/sample.json identical to clean worktree at 0e58f2c. Backend fix present: payload exposes decision.exit_total_usd, carry_usd, margin_usd_execution_only; scenario verdict_basis 'execution + carry'.",
     "funds_action": "none (read-only GET requests; eth_call simulations only)",
     "tests": [
       {
@@ -342,22 +373,39 @@
           "browser /?borrower=auto": "verdict card class 'review', colour rgb(251,191,36), signal line with bands/carry/quote/freshness/borrower HF, badge 'live on-chain data'",
           "browser /xray.html": "badge REVIEW class 'xr-vbadge review', amber, 10 dependencies, why-text with bands and lean, badge 'Live on-chain data'"
         }
+      },
+      {
+        "by": "agent (post-fix R20)",
+        "at": "2026-10-10T17:15+02:00",
+        "sha": "0e58f2c",
+        "results": {
+          "/": "200 0.14s",
+          "/xray.html": "200 0.10s",
+          "/api/analyze?value_usd=5": "400 'value_usd must be within [1e3, 1e8]'",
+          "/api/analyze?borrower=0xbad": "400 explicit validation message",
+          "/api/analyze?borrower=auto": "200 15.3s; source=live (109 live fetches, 0 cached), carry ref block 26162848; REVIEW, point STAY, lean STAY x3.01; loss $1,657; execution $1,300 + carry $3,688 (=1e6 x 4.4867% x 30/365) = exit side $4,988; margin -$3,330 (= loss - exit side; execution-only +$357 kept in margin_usd_execution_only); breakeven 3.0093 = exit side / loss; quote simulated; freshness fresh; borrower_position HF 1.05439",
+          "/api/analyze?shock=usd_usdc&severity=1": "200 11.5s; conditional $720,343 vs exit side $4,981 -> EXIT, basis 'execution + carry'",
+          "coherence script": "0 errors: 4 scenarios, 10 stress rows, 3 sensitivity rows (x0.5 STAY, x2 STAY, x5.08 EXIT), 10 book pockets; exit_total = execution + carry, margin sign = verdict",
+          "browser /xray.html": "REVIEW amber; Cost if EXIT $5.0k 'execution $1.3k + carry $3.7k'; margin -$3.3k xr-warn amber; 'lean STAY (conditional)'; no 'stay costs more' / 'cheaper one wins'; scenario Underlying depeg -> EXIT, margin +$266k red; badge 'Live on-chain data'",
+          "browser /?borrower=auto": "verdict card 'review'; 'EXIT COST (INCL. CARRY) $4,984'; signal 'Point comparison incl. carry: STAY (execution cost only: EXIT)'; live on-chain data"
+        }
       }
     ],
-    "deployed_sha": "a2d10c1427fbd8dff69207043e9d08eac3b6e4c6",
-    "coherence_fix_deployed": false,
-    "next_step": "project owner deploys the commit with the coherence fix; rerun R20 on that SHA (check via GitHub Deployments API) and verify X-Ray margin negative/amber/'lean STAY'"
+    "deployed_sha": "0e58f2c27c282930ef93ae9ed264d4eecdf81e3c",
+    "coherence_fix_deployed": true
   },
   "open_findings": [
     {
-      "severity": "P1",
-      "item": "production (a2d10c1) lacks the coherence fix; shows '+$371 stay costs more' next to REVIEW / lean STAY",
-      "fix": "project owner deploys; rerun R20",
-      "blocking": true
+      "severity": "Limit",
+      "item": "borrower deleverage decision compares with execution cost only (labelled 'carry not counted')"
     },
     {
       "severity": "Limit",
-      "item": "borrower deleverage decision compares with execution cost only (labelled 'carry not counted')"
+      "item": "wide high loss band makes REVIEW frequent"
+    },
+    {
+      "severity": "Limit",
+      "item": "normal PT volatility not modelled (REVIEW forced when distance to liquidation < 10%)"
     }
   ]
 }

@@ -9,12 +9,12 @@ Updated 2026-10-10 16:45. The Phase 0.5 changes are in commit `480860e`, pushed 
 | H01 Risk model | DONE | `uncertainty.py`, `decide_robust`; parameter classes, loss/exit bands, carry, correlated scenario; R10–R15 |
 | H04 Historical replay | DONE | `scripts/replay_h04.py` → `data/fixtures/replay_h04.json` (SVB 2023, Morpho liquidation); R16 |
 | H05 Freshness / provenance | DONE | `freshness.py`; TTLs, blockers, labels; API validation; R17–R18 |
-| H06 Demo / deployment | BLOCKED | Local e2e passes (live block 26162781, after the coherence fix). Production runs **`a2d10c1`**: the SHA comes from the GitHub Deployments API (`vercel[bot]`) and was confirmed by hashing the served files. R20 passed on that SHA. Later pushes are "Deployment was blocked" by Vercel (non-owner). The coherence fix needs a deployment by the project owner, then R20 must be rerun. |
-| Coherence fix (margin / exit side incl. carry) | DONE locally | See compliance report §C.1; `tests/test_decision_coherence.py`, `tests/js/decision_view.test.mjs` |
+| H06 Demo / deployment | DONE | Local e2e passes. Production deployment `0e58f2c` (owner's empty commit over `6a61feb`) has its SHA verified through the GitHub Deployments API and file comparison. R20 passed on 2026-10-10 at about 17:15: HTTP, API, live data, stress, X-Ray and dashboard visuals, with coherence holding across every payload section. Deviation: the test ran on the production alias, because the immutable deployment URL is behind Vercel SSO. |
+| Coherence fix (margin / exit side incl. carry) | DONE | See compliance report §C.1. Verified in production. |
 
 ## Open items
 
-- **P1 (blocking):** deploy the coherence fix (project owner), then rerun R20 on the new SHA. Expected X-Ray result: margin ≈ −$3.3k, amber, "lean STAY"; exit card "execution $1.3k + carry $3.7k".
+- None blocking. Documented limits are listed in the compliance report §D. **Phase 0.5: GO (12/12).**
 
 ## Log
 
@@ -37,4 +37,4 @@ Updated 2026-10-10 16:45. The Phase 0.5 changes are in commit `480860e`, pushed 
    - `decisionView` in `model.js` drives the UI (REVIEW shown amber, with its lean).
    - Tests: offline 62 passed / 3 skipped; live 65 passed; node 7 passed.
    - Local live check on block 26162781 gives a margin of −$3,339. With execution only, the margin was +$342: this was the bug.
-   - Not deployed yet: production is `a2d10c1`.
+   - Deployed as `0e58f2c` (owner) on 2026-10-10 at 15:10Z. R20 rerun: PASS. After the deployment: offline 62 passed / 3 skipped, live 65 passed, node 7 passed.
