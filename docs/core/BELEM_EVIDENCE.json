@@ -1,0 +1,375 @@
+{
+  "source": "BelemCapital_EPFL-Hackathon_DeFi-Risk-Dependency-Challenge_EN_v1.pdf",
+  "source_page": 1,
+  "project": "FAULTLINE",
+  "commit": "1eba2c8 + uncommitted Phase 2 fixes",
+  "verdict": "COMPLIANCE DEMONSTRATED WITHIN THE TESTED SCOPE",
+  "verdict_initial": "COMPLIANCE NOT DEMONSTRATED",
+  "mandatory_verified_pct": 100.0,
+  "mandatory_verified_pct_initial": 12.5,
+  "requirements": [
+    {
+      "id": "M01",
+      "status": "VERIFIED",
+      "status_initial": "VERIFIED",
+      "evidence": [
+        "src/defirisk/cli.py",
+        "api/analyze.py",
+        "scripts/dev_server.py",
+        "public/index.html",
+        "public/xray.html"
+      ],
+      "tests": [
+        "T01",
+        "T14",
+        "tests/test_pipeline.py"
+      ],
+      "blockers": [],
+      "priority": null
+    },
+    {
+      "id": "M02",
+      "status": "VERIFIED",
+      "status_initial": "PARTIAL",
+      "evidence": [
+        "src/defirisk/discovery.py::discover_real"
+      ],
+      "tests": [
+        "T02",
+        "T03",
+        "tests/test_compliance.py::test_live_discovery_matches_chain"
+      ],
+      "blockers": [],
+      "priority": null
+    },
+    {
+      "id": "M03",
+      "status": "VERIFIED",
+      "status_initial": "PARTIAL",
+      "evidence": [
+        "src/defirisk/discovery.py",
+        "src/defirisk/propagation.py::best_paths"
+      ],
+      "tests": [
+        "T03",
+        "T05"
+      ],
+      "blockers": [],
+      "priority": null,
+      "limits": [
+        "Transmission factors and LGF are disclosed assumptions",
+        "LTV-based liquidation not modeled (debt-free position)"
+      ]
+    },
+    {
+      "id": "M04",
+      "status": "VERIFIED",
+      "status_initial": "PARTIAL",
+      "evidence": [
+        "src/defirisk/scenarios.py::shock",
+        "src/defirisk/propagation.py::simulate"
+      ],
+      "tests": [
+        "T04",
+        "T05",
+        "T06",
+        "tests/test_compliance.py::test_shock_any_node_direct_vs_indirect_and_monotone"
+      ],
+      "blockers": [],
+      "priority": null
+    },
+    {
+      "id": "M05",
+      "status": "VERIFIED",
+      "status_initial": "FAIL",
+      "evidence": [
+        "src/defirisk/decision.py::decide"
+      ],
+      "tests": [
+        "T09",
+        "tests/test_compliance.py::test_verdict_flips_with_exit_cost"
+      ],
+      "blockers": [],
+      "priority": null
+    },
+    {
+      "id": "M06",
+      "status": "VERIFIED",
+      "status_initial": "FAIL",
+      "evidence": [
+        "src/defirisk/decision.py::quote_exit",
+        "src/defirisk/decision.py::exit_cost_for"
+      ],
+      "tests": [
+        "T08",
+        "T09",
+        "tests/test_compliance.py::test_quote_exit_uses_token_decimals_and_counts_gas"
+      ],
+      "blockers": [],
+      "priority": null,
+      "limits": [
+        "Pendle fees assumed to be included in the quote amount (UNVERIFIED on-chain)"
+      ]
+    },
+    {
+      "id": "M07",
+      "status": "VERIFIED",
+      "status_initial": "PARTIAL",
+      "evidence": [
+        "src/defirisk/sources.py",
+        "src/defirisk/http.py::provenance"
+      ],
+      "tests": [
+        "T03",
+        "T11",
+        "T12",
+        "T13"
+      ],
+      "blockers": [],
+      "priority": null
+    },
+    {
+      "id": "M08",
+      "status": "VERIFIED",
+      "status_initial": "PARTIAL",
+      "evidence": [
+        "src/defirisk/api_payload.py::build_payload",
+        "public/assets/js/xray.js"
+      ],
+      "tests": [
+        "T14",
+        "T15"
+      ],
+      "blockers": [],
+      "priority": null,
+      "limits": [
+        "Vercel deployment not performed (UNVERIFIED; not required by the PDF)"
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "id": "T01",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T02",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T03",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T04",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T05",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T06",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T07",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T08",
+      "status": "VERIFIED",
+      "limits": "fees assumed included in the quote"
+    },
+    {
+      "id": "T09",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T10",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T11",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T12",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T13",
+      "status": "VERIFIED",
+      "limits": "cache age displayed; no blocking freshness threshold"
+    },
+    {
+      "id": "T14",
+      "status": "VERIFIED"
+    },
+    {
+      "id": "T15",
+      "status": "VERIFIED"
+    }
+  ],
+  "automated_tests": {
+    "command": "DEFIRISK_LIVE_TESTS=1 python -m pytest -q",
+    "result": "20 passed in 22.42s"
+  },
+  "real_data_case": {
+    "chain": "ethereum",
+    "chain_id": 1,
+    "block_number": 26162220,
+    "pendle_market": "0x13285bcbc27f92b47b4edb99d744c07b48c977c0",
+    "morpho_market": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64",
+    "pt": "0xecfafdc7741323a945a163ed068b5a3c43483957",
+    "pt_decimals": 6,
+    "loan_token": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "oracle": "0x217d6ddcdb95112c51657f6270e8c079cfdb51f0",
+    "lltv": 0.915,
+    "onchain_checks": {
+      "morpho_idToMarketParams": "loan=USDC, collateral=PT, oracle=0x217d…51f0, lltv=0.915 — match",
+      "pendle_readTokens": "SY 0x9487…1648, PT 0xecfa…3957, YT 0xa8bd…63d7 — match"
+    },
+    "nodes": [
+      "pos",
+      "chain",
+      "issuer",
+      "underlying",
+      "usd_usdc",
+      "amm",
+      "oracle",
+      "feed",
+      "lending",
+      "morpho"
+    ],
+    "provenance": {
+      "live": 43,
+      "cached": 0,
+      "mode": "live"
+    },
+    "runs": [
+      {
+        "value_usd": 1000000,
+        "horizon_days": 30,
+        "expected_loss_usd": 1653.55,
+        "exit_cost_usd": 978.46,
+        "exit_method": "pendle_sdk_quote",
+        "exit_gas_usd": 0.5,
+        "price_impact": -0.000815,
+        "verdict": "EXIT",
+        "breakeven_risk_multiplier": 0.592,
+        "sensitivity": {
+          "x0.5": {
+            "loss": 827.07,
+            "verdict": "STAY"
+          },
+          "x2": {
+            "loss": 3304.75,
+            "verdict": "EXIT"
+          },
+          "x5.1": {
+            "loss": 8408.59,
+            "verdict": "EXIT"
+          }
+        },
+        "conditional_scenarios_usd": {
+          "underlying_depeg": 271072,
+          "oracle_failure": 321029,
+          "liquidity_crisis": 500710
+        }
+      },
+      {
+        "value_usd": 5000000,
+        "horizon_days": 30,
+        "expected_loss_usd": 8267.75,
+        "exit_cost_usd": 15336.41,
+        "exit_method": "pendle_sdk_quote",
+        "verdict": "STAY",
+        "breakeven_risk_multiplier": 1.855
+      },
+      {
+        "value_usd": 5000000,
+        "shock": "oracle",
+        "severity": 0.6,
+        "conditional_loss_usd": 2400000,
+        "verdict": "EXIT",
+        "note": "approx., via /api/analyze"
+      }
+    ]
+  },
+  "blocking_findings": [],
+  "resolved_findings": [
+    {
+      "id": "F1",
+      "priority": "P0",
+      "title": "Mock/cache labeled live in the UI"
+    },
+    {
+      "id": "F2",
+      "priority": "P0",
+      "title": "Constant-product exit cost 40× too high, reversing the verdict"
+    },
+    {
+      "id": "F3",
+      "priority": "P0",
+      "title": "Base rate inflated about 10× by mixing cohorts"
+    },
+    {
+      "id": "F4",
+      "priority": "P1",
+      "title": "Incorrect edge, issuer double-counting, and mismatched USDC"
+    },
+    {
+      "id": "F5",
+      "priority": "P1",
+      "title": "Conditional losses labeled expected"
+    },
+    {
+      "id": "F6",
+      "priority": "P1",
+      "title": "No configurable shock"
+    },
+    {
+      "id": "F7",
+      "priority": "P1",
+      "title": "Exit rate of 0.011 hard-coded in the frontend"
+    },
+    {
+      "id": "F8",
+      "priority": "P1",
+      "title": "Missing block/provenance; RPC errors cached"
+    },
+    {
+      "id": "F9",
+      "priority": "P2",
+      "title": "Noisy Monte Carlo expected loss; no sensitivity analysis"
+    }
+  ],
+  "open_findings": [
+    {
+      "priority": "P2",
+      "title": "LGF/transmission factors are assumptions"
+    },
+    {
+      "priority": "P2",
+      "title": "LTV-based liquidation not modeled"
+    },
+    {
+      "priority": "P2",
+      "title": "Fees included in quote: UNVERIFIED"
+    },
+    {
+      "priority": "P2",
+      "title": "No historical backtest"
+    },
+    {
+      "priority": "P2",
+      "title": "No cache expiration threshold"
+    },
+    {
+      "priority": "P2",
+      "title": "Vercel deployment UNVERIFIED"
+    }
+  ],
+  "audited_at": "2026-10-10T15:08:17+02:00"
+}

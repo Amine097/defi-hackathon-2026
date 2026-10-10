@@ -11,4 +11,6 @@ The core answers the challenge question: **what dependencies support a position,
 
 The [Official PDF](BelemCapital_EPFL-Hackathon_DeFi-Risk-Dependency-Challenge_EN_v1.pdf) is the source of truth. The [summary](belem.md) and [audit procedure](spec_compliance.md) help to read and verify the requirements without turning the examples in the PDF into obligations.
 
+Additional audit material: the [Belem compliance audit protocol](BELEM_SPEC_COMPLIANCE_AUDIT.md), the [recorded evidence snapshot](BELEM_EVIDENCE.json), and the [Phase 0.5 risk engine hardening plan](BELEM_PHASE_05_RISK_ENGINE_HARDENING.md). The evidence snapshot records a prior assessment; recheck its findings against the current commit before treating them as current results.
+
 **Expected validation:** Run a traceable real-data case, record sources and freshness, then follow the same data from position to recommendation. The API can return `mock-fallback` and the frontend includes samples; these demo modes do not prove real-data operation.
