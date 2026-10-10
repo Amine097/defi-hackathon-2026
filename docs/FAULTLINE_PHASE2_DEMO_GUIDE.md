@@ -115,6 +115,34 @@ the RPC is on loopback **and** the chain id is 31337 or 1337. Config: `rpc_url`,
 `engine` {`safety_margin`, `interest_horizon_s`, `ranking`, `preference`, `allow_partial`}, `scenarios[]`),
 `limits` (`max_gas_units`, `max_fee_per_gas_wei`, `receipt_timeout_s`). See `keeper_config_*.json` in the demo folder.
 
+## 5b. Dry run on a REAL mainnet borrower (LIVE + DRY-RUN, read-only)
+
+"What would the keeper do right now?" for a real Morpho Blue borrower on Ethereum mainnet. **LIVE**: the position
+(collateral, debt accrued to the block, LTV, LLTV, buffer) and the oracle's feeds with their freshness are read with
+`eth_call` at one pinned block (`ETH_RPC_URL` first, then public endpoints). **DRY-RUN**: no RescueVault exists for a
+real borrower, so the policy (same fields and units as the policy draft) and the reserves are hypothetical; the watcher's
+state rule and the same engine decide (WATCHING / DETECTED, candidates, chosen action, reasons, reserve needed per
+first hit). Nothing is signed or sent; the VALIDATING stage is skipped; the payload has no transaction field.
+
+```powershell
+$env:PYTHONPATH = 'src'
+.\.venv\Scripts\python.exe -m defirisk.countermove dry-run --market cbBTC/USDC --borrower auto            # largest borrower
+.\.venv\Scripts\python.exe -m defirisk.countermove dry-run --market weETH/USDC --rank 2 --set trigger_ltv=0.65 --set loan_reserve=500000 --json
+```
+
+HTTP (Vercel only routes `/api/countermove` itself, hence the query-string action):
+`/api/countermove?action=dry-run&market=<0x id | cbBTC/USDC | weETH/USDC>&borrower=<0x.. | auto>[&rank=1]` plus any of
+`strategies`, `trigger_ltv`, `min_ltv_after`, `max_repay_per_action`, `max_top_up_per_action`, `max_full_repay`,
+`max_repay_total`, `max_top_up_total`, `min_loan_reserve`, `min_collateral_reserve`, `valid_days`, `cooldown_s`,
+`loan_reserve`, `collateral_reserve`, `safety_margin`, `interest_horizon_s`, `follow_on_drop`, `follow_on_dependency`
+(`collateral`, a feed role such as `BASE_FEED_2`, or a feed description), `allow_partial`, `ranking`. Defaults are
+scaled to the position and listed in `hypothetical.defaults_used` (reserves 10% of debt / collateral, caps = reserves,
+trigger = LLTV − 4 pp, floor = min(40%, trigger − 10 pp), margin 1% of debt, follow-on −8% on the collateral price).
+`borrower=auto` takes the largest borrower by borrow shares from the Morpho API, then re-reads it on-chain. Errors are
+JSON `{"error": {"code", "status", "message", "field"}}`: 400 invalid input or policy (same rules as `setPolicy`), 404
+unknown market / no borrower, 503 mainnet RPC or Morpho API unavailable. Tests: `tests/test_countermove_dryrun.py`
+(offline, fake mainnet RPC; the live read runs with `DEFIRISK_LIVE_TESTS=1`).
+
 ## 6. Evidence
 
 ```powershell
