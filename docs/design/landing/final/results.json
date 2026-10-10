@@ -1,0 +1,330 @@
+{
+ "perf": {
+  "dcl": 644,
+  "load": 0,
+  "fcp": 400,
+  "frames": 300,
+  "median_ms": 6.1,
+  "p95_ms": 12.3,
+  "max_ms": 18.6,
+  "count": 16,
+  "kb": 989
+ },
+ "checks": [
+  {
+   "name": "route / -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /overview.html -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /countermove.html -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /xray.html -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /vault.html -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /soon.html?m=whale -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /landing.html -> 404",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "overview renders data",
+   "ok": true,
+   "detail": "$1.00M / REVIEW"
+  },
+  {
+   "name": "overview sidebar: Overview is current, brand goes to /",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "sidebar click -> X-Ray",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "brand click -> landing /",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "routes: only the expected 404s (no /api and no /exit-cost on a static server)",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "name": "CTA usable before the 3D scene loads",
+   "ok": true,
+   "detail": "{\"dcl\":644,\"load\":0,\"fcp\":400}"
+  },
+  {
+   "name": "hero 3D scene started",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "hero sequence advances on its own",
+   "ok": true,
+   "detail": "2 -> 3"
+  },
+  {
+   "name": "Pause click stops the sequence",
+   "ok": true,
+   "detail": "Play 4=4"
+  },
+  {
+   "name": "step click selects Propagation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no horizontal overflow 1440",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "tab click -> Defend capture",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "ArrowRight moves to Proof tab",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "nav becomes solid when scrolled",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Explore demo click -> Countermove, no wallet",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "landing: no console errors / failed requests",
+   "ok": true,
+   "detail": "[[],[]]"
+  },
+  {
+   "name": "no request is made on load",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Enter on the button opens the dialog",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no-provider message with install guidance",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Tab keeps focus inside the dialog",
+   "ok": true,
+   "detail": "true"
+  },
+  {
+   "name": "Escape closes and returns focus to the button",
+   "ok": true,
+   "detail": "BUTTON#walletBtn \"Connect wallet\""
+  },
+  {
+   "name": "provider discovered, nothing requested yet",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "dialog lists the announced provider",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "connected: full address shown",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "connected: chain shown as Ethereum",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "connected: says positions are not discovered and nothing is armed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "header button shows the short address",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "chainChanged -> Local fork (31337)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "accountsChanged -> new address",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "only account/chain methods were called",
+   "ok": true,
+   "detail": "eth_requestAccounts,eth_chainId"
+  },
+  {
+   "name": "Enter FaultLine -> Countermove",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Countermove shows the wallet chip",
+   "ok": true,
+   "detail": "0x71C7…976F"
+  },
+  {
+   "name": "Arm screen: position is not this wallet\\u2019s, status still Draft",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "chip -> landing with dialog open, session restored without prompt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Disconnect: session cleared, wording does NOT claim revocation (provider refused)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Disconnect with a provider that confirms revocation says so",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Rejected: message shown, not connected",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Arm the demo -> simulated, not armed for real",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "3D node click selects it",
+   "ok": true,
+   "detail": "Morpho market PT-reUSD-10DEC2026/USDCLending market"
+  },
+  {
+   "name": "Replay starts at DETECTED",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Next -> PLANNING, comparison appears",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Space advances to the result, shown as SIMULATED",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Proof: SIMULATED, demo fixture, 0 of 5 checks",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "countermove: no console errors / failed requests",
+   "ok": true,
+   "detail": "[[],[]]"
+  },
+  {
+   "name": "three demo captures refreshed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "reduced motion: no autoplay, toggle says Play",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "reduced motion: step drawings are complete",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "reduced motion: a step can still be shown on click",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "laptop-1280: landing no horizontal overflow",
+   "ok": true,
+   "detail": "1280/1280"
+  },
+  {
+   "name": "laptop-1280: Countermove no horizontal overflow",
+   "ok": true,
+   "detail": "1280/1280"
+  },
+  {
+   "name": "mobile-390: landing no horizontal overflow",
+   "ok": true,
+   "detail": "390/390"
+  },
+  {
+   "name": "mobile: dialog fits the viewport",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "mobile-390: Countermove no horizontal overflow",
+   "ok": true,
+   "detail": "390/390"
+  },
+  {
+   "name": "no WebGL: landing copy and CTAs present, canvas not shown",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no WebGL: Countermove falls back, path listed as text",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no WebGL: no uncaught errors",
+   "ok": true,
+   "detail": "[\"console.error: THREE.WebGLRenderer: A WebGL context could not be created. Reason:  disabled by enterprise policy or commandline switch\",\"console.err"
+  }
+ ]
+}

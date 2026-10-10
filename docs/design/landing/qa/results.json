@@ -1,0 +1,313 @@
+{
+ "perf": {
+  "fcp": 380,
+  "dcl": 683,
+  "req": 9,
+  "kb": 468,
+  "three": false,
+  "demo_median_ms": 6.1,
+  "demo_p95_ms": 6.3
+ },
+ "checks": [
+  {
+   "name": "route / -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /overview.html -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /countermove.html -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /xray.html -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /vault.html -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /soon.html?m=whale -> 200",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "route /landing.html -> 404",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "overview renders data",
+   "ok": true,
+   "detail": "$1.00M / REVIEW"
+  },
+  {
+   "name": "overview sidebar: Overview is current, brand goes to /",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "sidebar click -> X-Ray",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "brand click -> landing /",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "routes: only the expected 404s (no /api and no /exit-cost on a static server)",
+   "ok": true,
+   "detail": "[]"
+  },
+  {
+   "name": "hero: Three.js not loaded up front, no canvas in the hero",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "hero: no film control without a configured film",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "hero: artwork caption present",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "hero: headline and both CTAs inside the first screen",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "story moment 0",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "story moment 1",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "story moment 2",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "nav solid when scrolled",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "nav \"Prove\" jumps to the third moment",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "demo: graph loads on approach and is not under the header",
+   "ok": true,
+   "detail": "[320,900,900]"
+  },
+  {
+   "name": "demo: sequence plays",
+   "ok": true,
+   "detail": "2->4"
+  },
+  {
+   "name": "demo: Pause stops it",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Enter the demo -> Countermove, no wallet chip",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Explore demo -> Countermove",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "landing: no console errors / failed requests",
+   "ok": true,
+   "detail": "[[],[]]"
+  },
+  {
+   "name": "reduced motion: story is a plain stacked section, all three readable",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "reduced motion: demo does not auto-play",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no request is made on load",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Enter on the button opens the dialog",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no-provider message with install guidance",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Tab keeps focus inside the dialog",
+   "ok": true,
+   "detail": "true"
+  },
+  {
+   "name": "Escape closes and returns focus to the button",
+   "ok": true,
+   "detail": "BUTTON#walletBtn \"Connect wallet\""
+  },
+  {
+   "name": "provider discovered, nothing requested yet",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "dialog lists the announced provider",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "connected: full address shown",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "connected: chain shown as Ethereum",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "connected: says positions are not discovered and nothing is armed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "header button shows the short address",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "chainChanged -> Local fork (31337)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "accountsChanged -> new address",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "only account/chain methods were called",
+   "ok": true,
+   "detail": "eth_requestAccounts,eth_chainId"
+  },
+  {
+   "name": "Enter FaultLine -> Countermove",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Countermove shows the wallet chip",
+   "ok": true,
+   "detail": "0x71C7…976F"
+  },
+  {
+   "name": "Arm screen: position is not this wallet\\u2019s, status still Draft",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "chip -> landing with dialog open, session restored without prompt",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Disconnect: session cleared, wording does NOT claim revocation (provider refused)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Disconnect with a provider that confirms revocation says so",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Rejected: message shown, not connected",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Arm the demo -> simulated, not armed for real",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "3D node click selects it",
+   "ok": true,
+   "detail": "Morpho market PT-reUSD-10DEC2026/USDCLending market"
+  },
+  {
+   "name": "Replay starts at DETECTED",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Next -> PLANNING, comparison appears",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Space advances to the result, shown as SIMULATED",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Proof: SIMULATED, demo fixture, 0 of 5 checks",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "countermove: no console errors / failed requests",
+   "ok": true,
+   "detail": "[[],[]]"
+  },
+  {
+   "name": "no WebGL: hero intact, demo graph and its controls hidden",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no WebGL: Countermove falls back, path listed as text",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "no WebGL: no uncaught errors",
+   "ok": true,
+   "detail": "[\"console.error: THREE.WebGLRenderer: A WebGL context could not be created. Reason:  disabled by enterprise policy or commandline switch\",\"console.err"
+  }
+ ]
+}

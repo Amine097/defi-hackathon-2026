@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAULTLINE · Dark Cinematic (prototype)</title>
+<meta name="theme-color" content="#05080f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body data-variant="b">
+<canvas id="stage" tabindex="0" aria-label="3D view of the dependency structure. Drag to turn it, scroll to zoom, click a body to select it. The same dependencies are available in the list view."></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div id="labels" aria-hidden="true"></div>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 6h28l-8 17 8 6-6 12 4 17H6z" fill="#eef2f9"/><path d="M40 6h18v52H42l-4-17 6-12-8-6z" fill="#eef2f9"/><path d="M34 6l-8 17 8 6-6 12 4 17h6l-4-17 6-12-8-6 8-17z" fill="#ff5d47"/></svg>
+    <span>FAULTLINE</span>
+  </div>
+  <span class="vname">Variant B · Dark cinematic</span>
+  <span class="sp"></span>
+  <div class="seg" role="group" aria-label="Example data">
+    <button id="d11" aria-pressed="true">Live example</button>
+    <button id="d44" aria-pressed="false">Demo book</button>
+  </div>
+  <button class="ghost" id="viewList" aria-expanded="false" aria-controls="list">List view</button>
+  <button class="ghost" id="reset">Reset view</button>
+</header>
+
+<section class="lede">
+  <h1 id="headline">Loading the structure</h1>
+  <p id="sub"></p>
+</section>
+
+<section class="ctx" id="ctx" aria-live="polite"></section>
+<details class="legend" id="legend"></details>
+<nav class="list" id="list" aria-label="All dependencies" hidden></nav>
+<div id="status"></div>
+<pre id="perf"></pre>
+
+<!-- production formatting helpers, loaded read-only -->
+<script src="../../../../public/assets/js/api.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

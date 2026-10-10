@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAULTLINE · Living structure (feasibility prototype)</title>
+<meta name="theme-color" content="#bbc1cd">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+  /* Isolated feasibility prototype. Not part of the production frontend. */
+  :root {
+    --fog:#bbc1cd; --fog-deep:#8f96a6; --ink:#14161b; --ink-2:#2f3542; --ink-3:#474e5c;
+    --ice:#f3f5fa; --line:rgba(20,22,27,.16); --lime:#d5ff3f; --red:#d92f17;
+    --display:'Archivo',system-ui,sans-serif; --body:'Archivo',system-ui,sans-serif;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+  * { box-sizing:border-box; margin:0; }
+  html,body { height:100%; }
+  body { background:var(--fog); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.45; overflow:hidden; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums; }
+  ::selection { background:var(--lime); color:var(--ink); }
+  :focus-visible { outline:2px solid var(--ink); outline-offset:3px; border-radius:3px; }
+  button { font:inherit; color:inherit; cursor:pointer; }
+
+  #stage { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:grab; }
+  #stage.drag { cursor:grabbing; } #stage.hot { cursor:pointer; }
+  #labels { position:fixed; inset:0; pointer-events:none; overflow:hidden; }
+  .lbl { position:absolute; left:0; top:0; white-space:nowrap; font-size:14.5px; font-weight:580; color:var(--ink); padding:2px 8px; border-radius:3px; text-shadow:0 0 8px #c9ced9, 0 0 3px #c9ced9; will-change:transform; }
+  .lbl.sel { background:var(--ink); color:var(--ice); font-size:15px; text-shadow:none; }
+  .lbl.hit { background:var(--red); color:#fff; text-shadow:none; }
+  .lbl.pos { font-weight:760; }
+  .tier { position:absolute; right:28px; top:0; font-size:13px; color:var(--ink-3); font-weight:500; will-change:transform; text-align:right; }
+  .tier::after { content:''; display:inline-block; width:22px; height:1px; background:var(--ink-3); vertical-align:middle; margin-left:10px; opacity:.6; }
+
+  header { position:fixed; left:40px; right:40px; top:28px; display:flex; align-items:center; gap:16px; pointer-events:none; }
+  header > * { pointer-events:auto; }
+  .brand { display:flex; align-items:center; gap:10px; font-family:var(--display); font-stretch:125%; font-weight:800; font-size:15px; letter-spacing:.08em; }
+  .brand svg { width:24px; height:24px; }
+  .sp { flex:1; }
+  .seg { display:flex; border:1px solid var(--ink); border-radius:4px; overflow:hidden; }
+  .seg button { background:transparent; border:0; padding:8px 14px; font-size:14px; font-weight:560; }
+  .seg button + button { border-left:1px solid var(--ink); }
+  .seg button[aria-pressed="true"] { background:var(--ink); color:var(--ice); }
+  .ghost { background:transparent; border:1px solid var(--ink); border-radius:4px; padding:8px 14px; font-size:14px; font-weight:560; }
+  .ghost:hover, .seg button:hover:not([aria-pressed="true"]) { background:rgba(20,22,27,.08); }
+
+  .lede { position:fixed; left:40px; top:104px; width:min(430px, 34vw); pointer-events:none; }
+  h1 { font-family:var(--display); font-stretch:125%; font-weight:800; font-size:clamp(30px, 3.3vw, 50px); line-height:1.02; letter-spacing:-.015em; text-wrap:balance; }
+  .lede p { margin-top:16px; font-size:17px; color:var(--ink-2); max-width:34ch; }
+  .lede .src { margin-top:10px; font-size:14px; color:var(--ink-3); }
+
+  .ctx { position:fixed; left:40px; bottom:36px; width:min(430px, 34vw); max-height:calc(100vh - 446px); min-height:150px; overflow:auto; background:var(--ice); border-radius:4px; padding:22px 24px; box-shadow:0 18px 40px -18px rgba(20,22,27,.45); scrollbar-color:var(--fog-deep) transparent; }
+  .ctx h2 { font-family:var(--display); font-stretch:112%; font-weight:780; font-size:24px; line-height:1.12; letter-spacing:-.01em; }
+  .ctx .kind { font-size:14px; color:var(--ink-3); margin-bottom:4px; }
+  .ctx p { font-size:15px; color:var(--ink-2); margin-top:10px; }
+  .ctx dl { margin-top:14px; display:grid; grid-template-columns:auto 1fr; gap:6px 14px; font-size:15px; }
+  .ctx dt { color:var(--ink-3); } .ctx dd { font-weight:560; }
+  .ctx ol { list-style:none; padding:0; margin-top:14px; border-top:1px solid var(--line); }
+  .ctx li { display:flex; justify-content:space-between; gap:14px; padding:8px 0; border-bottom:1px solid var(--line); font-size:15px; }
+  .ctx li span:first-child { font-weight:560; } .ctx li small { display:block; font-size:13px; color:var(--ink-3); font-weight:400; }
+  .ctx li b { font-weight:700; white-space:nowrap; }
+  .ctx li.pos span:first-child::before { content:''; display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--red); margin-right:8px; }
+  .ctx .sum { margin-top:14px; font-size:15px; } .ctx .sum b { font-size:26px; font-family:var(--display); font-stretch:112%; font-weight:780; display:block; line-height:1.1; }
+  .ctx .note { font-size:13.5px; color:var(--ink-3); margin-top:12px; }
+  .row { display:flex; gap:10px; margin-top:18px; flex-wrap:wrap; }
+  .primary { background:var(--ink); color:var(--ice); border:1px solid var(--ink); border-radius:4px; padding:11px 18px; font-size:15px; font-weight:640; transition:background .18s var(--ease); }
+  .primary:hover { background:#2a2e38; }
+  .hint { display:flex; align-items:center; gap:12px; font-size:17px; font-weight:560; }
+  .hint svg { width:28px; height:28px; flex:none; }
+
+  .list { position:fixed; right:40px; top:84px; bottom:36px; width:320px; background:var(--ice); border-radius:4px; padding:18px 18px; overflow:auto; box-shadow:0 18px 40px -18px rgba(20,22,27,.45); }
+  .list[hidden] { display:none; }
+  .list h3 { font-size:13px; font-weight:560; color:var(--ink-3); margin:14px 0 6px; } .list h3:first-child { margin-top:0; }
+  .list button { display:block; width:100%; text-align:left; background:transparent; border:0; border-radius:3px; padding:8px 10px; font-size:15px; font-weight:520; }
+  .list button:hover { background:rgba(20,22,27,.07); } .list button[aria-current="true"] { background:var(--ink); color:var(--ice); }
+  #status { position:fixed; right:40px; bottom:36px; font-size:13px; color:var(--ink-3); text-align:right; pointer-events:none; }
+  #perf { position:fixed; right:40px; bottom:64px; font:12px ui-monospace,Consolas,monospace; color:var(--ink); background:var(--ice); padding:8px 10px; border-radius:3px; white-space:pre; }
+  #perf:empty { display:none; }
+
+  body.failing .lede p, body.failing .lede .src { display:none; }
+  body.failing .ctx { max-height:calc(100vh - 300px); }
+  body.no3d #stage, body.no3d #labels { display:none; }
+  body.no3d #status { right:380px; }
+  body.no3d .list { left:auto; }
+
+  @media (max-width:860px) {
+    body { overflow:auto; }
+    header { left:16px; right:16px; top:14px; gap:8px; } .brand span { display:none; } #viewList, #reset { display:none; }
+    .seg button { padding:8px 10px; font-size:13px; }
+    #stage { position:relative; height:54vh; } #labels { position:absolute; height:54vh; } .lbl { font-size:13px; max-width:70vw; overflow:hidden; text-overflow:ellipsis; }
+    .tier { display:none; }
+    .lede { position:static; width:auto; padding:0 16px; margin-top:18px; } .lede p { font-size:16px; }
+    h1 { font-size:28px; }
+    .ctx { position:static; width:auto; max-height:none; margin:16px; }
+    .list { position:static; width:auto; margin:0 16px 24px; display:block !important; }
+    #status { position:static; padding:0 16px 20px; text-align:left; }
+  }
+  @media (prefers-reduced-motion:reduce) { * { transition:none !important; } }
+</style>
+</head>
+<body>
+<canvas id="stage" tabindex="0" aria-label="3D view of the dependency structure. Drag to turn it, scroll to zoom, click a body to select a dependency. The same dependencies are available in the list view."></canvas>
+<div id="labels" aria-hidden="true"></div>
+
+<header>
+  <div class="brand">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 6h28l-8 17 8 6-6 12 4 17H6z" fill="#14161b"/><path d="M40 6h18v52H42l-4-17 6-12-8-6z" fill="#14161b"/><path d="M34 6l-8 17 8 6-6 12 4 17h6l-4-17 6-12-8-6 8-17z" fill="#d92f17"/></svg>
+    <span>FAULTLINE</span>
+  </div>
+  <span class="sp"></span>
+  <div class="seg" role="group" aria-label="Example data">
+    <button id="d11" aria-pressed="true">Live example</button>
+    <button id="d44" aria-pressed="false">Demo book</button>
+  </div>
+  <button class="ghost" id="viewList" aria-expanded="false" aria-controls="list">List view</button>
+  <button class="ghost" id="reset">Reset view</button>
+</header>
+
+<section class="lede">
+  <h1 id="headline">Loading the structure</h1>
+  <p id="sub"></p>
+  <div class="src" id="src"></div>
+</section>
+
+<section class="ctx" id="ctx" aria-live="polite"></section>
+<nav class="list" id="list" aria-label="All dependencies" hidden></nav>
+<div id="status"></div>
+<pre id="perf"></pre>
+
+<!-- production formatting helpers, loaded read-only so dollar figures are formatted exactly as in the app -->
+<script src="../../../../public/assets/js/api.js"></script>
+<script type="module" src="./app.js"></script>
+</body>
+</html>
