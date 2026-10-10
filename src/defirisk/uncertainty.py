@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import math
 
-from .core.models import DepGraph, channel_active, edge_weight
+from .core.models import DepGraph, channel_active
 from .core.propagation import best_paths
 
 CLASSES = ("observed", "calibrated", "protocol-derived", "scenario_assumption", "not_used", "unknown")
@@ -105,6 +105,25 @@ def classify_lgf(node) -> dict:
     return {"class": cls, "central": lgf, "low": lgf * lo, "high": min(1.0, lgf * hi), "why": src}
 
 
+def edge_key(src: str, dst: str) -> str:
+    return f"{src}->{dst}"
+
+
+def edge_band(g: DepGraph, e, which: str) -> float:
+    """Transmission of edge e at 'low' / 'central' / 'high' parameters. Measured on-chain weights: no band. A model
+    edge with an explicit band in position.meta['edge_bands'] (e.g. unindexed debt, oracle direction): that band,
+    widened by the generic expert range. Any other edge: +-25% (T_RANGE)."""
+    w = e.transmission
+    if not channel_active(getattr(e, "channel", "principal"), g.position):  # this path cannot reach the position
+        return 0.0
+    if which == "central" or e.reason.startswith("measured"):
+        return w
+    b = (g.position.meta.get("edge_bands") or {}).get(edge_key(e.src, e.dst))
+    if b:
+        return b["low"] * T_RANGE[0] if which == "low" else min(1.0, b["high"] * T_RANGE[1])
+    return w * T_RANGE[0] if which == "low" else min(1.0, w * T_RANGE[1])
+
+
 def inventory(g: DepGraph) -> dict:
     nodes = []
     for n in g.nodes:
@@ -112,12 +131,12 @@ def inventory(g: DepGraph) -> dict:
             continue
         nodes.append({"id": n.id, "label": n.label, "role": n.meta.get("role"), "mechanism": MECHANISM.get(n.meta.get("role"), "other"),
                       "p_fail_horizon": classify_p(n, g), "loss_given_failure": classify_lgf(n)})
+    bands = g.position.meta.get("edge_bands") or {}
     edges = [{"src": e.src, "dst": e.dst, "transmission": e.transmission, "channel": e.channel,
               "reaches_position": channel_active(e.channel, g.position),
               "class": "protocol-derived" if e.reason.startswith("measured") else "scenario_assumption",
-              "low": e.transmission if e.reason.startswith("measured") else e.transmission * T_RANGE[0],
-              "high": e.transmission if e.reason.startswith("measured") else min(1.0, e.transmission * T_RANGE[1]),
-              "why": e.reason}
+              "low": edge_band(g, e, "low"), "high": edge_band(g, e, "high"), "why": e.reason,
+              **({"band_why": bands[edge_key(e.src, e.dst)]["why"]} if edge_key(e.src, e.dst) in bands else {})}
              for e in g.edges]
     return {"nodes": nodes, "edges": edges,
             "classes": "observed = measured on public data for this asset; calibrated = public base rate adjusted by "
@@ -157,10 +176,7 @@ def _h_values(g: DepGraph, which: str) -> tuple[list[float], list[float], list[s
             tt = 1.0
             for a, b in zip(route, route[1:]):
                 e = next(e for e in g.edges if e.src == a and e.dst == b)
-                w = edge_weight(e, g.position)
-                if not e.reason.startswith("measured"):  # on-chain allocation weights carry no expert band
-                    w = {"low": w * T_RANGE[0], "high": min(1.0, w * T_RANGE[1])}.get(which, w)
-                tt *= w
+                tt *= edge_band(g, e, which)
             total += tt
         tmap[nid] = min(total, 1.0)
     ps, hs, ids = [], [], []

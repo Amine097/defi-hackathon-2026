@@ -4,9 +4,12 @@ bands, robust_signal, freshness, priors) - no second engine.
 
 P&L ownership (depositor of vault shares, hypothetical notional `value_usd`):
   * a borrower liquidation is NOT a depositor loss: suppliers lose only the BAD DEBT left after liquidations
-    (morpho.liquidation_outcome on every on-chain borrower position, at a jump drop of the collateral);
-  * an oracle that over-prices collateral lets borrowers drain the market's free liquidity against collateral worth
-    less than the debt: loss = liquidity x max(0, 1 - (1 - d) / LLTV); under-pricing only hurts borrowers (excluded);
+    (morpho.liquidation_outcome on every on-chain borrower position, at a jump drop of the collateral); debt the
+    indexer does not list gets a band (no bad debt / indexed rate shrunk toward the LLTV / at the LLTV);
+  * an oracle failure mis-prices collateral, direction unknown: over-pricing lets borrowers drain the market's free
+    liquidity against collateral worth less than the debt (recovered net of the liquidation incentive once corrected);
+    under-pricing makes Morpho liquidate at the false price and socialise the debt left once all collateral is seized
+    (zero for a mild error); central = mean of the two directions, band = milder .. worse direction;
   * Morpho Blue / vault contracts / chain: protocol priors (Phase 0.5) on the share of assets they hold;
   * the deposit asset (and EUR/USD for a EUR asset) is held whether the manager stays or redeems: decision-neutral,
     shown as context and as a what-if scenario, transmission 0 in the STAY/EXIT comparison.
@@ -50,7 +53,7 @@ def capacity(snap: dict, liquidity_factor: float = 1.0) -> dict:
     V2 forceDeallocate route (permissionless, adapter penalty <= 2%): every OTHER market's min(vault supply, free
         liquidity) can be moved to idle first. 'simulable' rows (Morpho market adapters, data = abi.encode(MarketParams))
         are confirmed only by a multicall simulation; other adapter types stay 'theoretical' (never called executable).
-    V1: idle + sum over the withdrawQueue of min(vault supply, market liquidity); no forceDeallocate on MetaMorpho V1."""
+    V1: sum over the withdrawQueue of min(vault supply, market liquidity); no forceDeallocate on MetaMorpho V1."""
     idle = snap["idle_raw"]
     rows = []
     if snap["version"] == "v2":
@@ -84,14 +87,15 @@ def capacity(snap: dict, liquidity_factor: float = 1.0) -> dict:
                 "force_simulable_raw": sum(r["available_raw"] for r in force_rows if r["route"] == "simulable"),
                 "force_rows": force_rows,
                 "rule": "idle + min(liquidity-adapter supply, free liquidity) of the liquidityData market (VaultV2 exit path)"}
-    ordinary = idle
+    ordinary = vr.idle_in_total_assets(snap)  # 0: MetaMorpho withdraws from the queue markets only
     for m in sorted(snap["markets"], key=lambda m: m.get("withdraw_queue_index", 0)):
         avail = min(m["vault_supply_raw"], int(m["liquidity_raw"] * liquidity_factor))
         ordinary += avail
         rows.append({"market": m["id"], "collateral": m["collateral_symbol"], "available_raw": avail,
                      "path": f"withdrawQueue[{m.get('withdraw_queue_index')}]"})
     return {"ordinary_raw": ordinary, "idle_raw": idle, "rows": rows, "force_raw": 0, "force_simulable_raw": 0, "force_rows": [],
-            "rule": "idle + sum over withdrawQueue of min(vault supply, free liquidity) (MetaMorpho V1)"}
+            "rule": "sum over withdrawQueue of min(vault supply, free liquidity) (MetaMorpho V1: a token balance held by "
+                    "the vault is outside totalAssets and is not used by withdrawals)"}
 
 
 FORCE_MARGIN = 0.001  # deallocate 0.1% more than the shortfall (interest accrued / rounding between reads)
@@ -232,10 +236,17 @@ def _strip(p: dict | None) -> dict | None:
 # ---- market loss mechanics (fractions of the market's total supply) ---------------------------------------------
 def bad_debt_fraction(m: dict, drop: float) -> dict:
     """Bad debt left to suppliers after a jump drop `drop` of the collateral (oracle tracks the drop), as a fraction
-    of the market's total supply. Borrowers not covered by the indexed list are assumed to sit AT the LLTV (worst)."""
+    of the market's total supply, with a band for the debt the indexer does not list (Morpho API = largest positions).
+    Indexed positions: Morpho Blue liquidation math on each (on-chain debt, oracle price). Unindexed debt U, at a rate
+    r (bad debt per unit of debt):
+      low     r = 0                      (the unlisted positions are all safe enough: strict lower bound)
+      central r = c r_idx + (1 - c) r_LLTV, c = indexed share of the debt: the indexed borrowers' rate, shrunk toward
+              the at-LLTV worst case in proportion to how much debt is NOT observed (no sample -> worst case)
+      high    r = max(r_LLTV, r_idx)     (every unlisted position at the LLTV: the previous single assumption)"""
     ts = m["total_supply_raw"]
     if not ts or not m["total_borrow_raw"] or not m["collateral_token"]:
-        return {"fraction": 0.0, "bad_debt_raw": 0, "liquidated": 0, "borrowers": 0, "assumed_at_lltv_raw": 0}
+        return {"fraction": 0.0, "fraction_low": 0.0, "fraction_high": 0.0, "bad_debt_raw": 0, "liquidated": 0,
+                "borrowers": 0, "unindexed_debt_raw": 0, "indexed_share": 1.0, "unindexed_rate": None}
     lif = m["lif"]
     bd, liq, n = 0.0, 0, 0
     b = m.get("borrowers") or {}
@@ -250,23 +261,46 @@ def bad_debt_fraction(m: dict, drop: float) -> dict:
         liq += o["liquidated"]
         n += 1
         covered += it["debt_raw"]
-    rest = max(m["total_borrow_raw"] - covered, 0)
-    if rest:
-        st = {"collateral_value_usd_oracle": rest / m["lltv"], "debt_value_usd": rest, "lltv": m["lltv"],
-              "liquidation_incentive_factor": lif}
-        bd += morpho.liquidation_outcome(st, drop)["lender_bad_debt_usd"]
-    return {"fraction": min(bd / ts, 1.0), "bad_debt_raw": int(bd), "liquidated": liq, "borrowers": n,
-            "assumed_at_lltv_raw": rest}
+    tb = m["total_borrow_raw"]
+    rest = max(tb - covered, 0)
+    c = min(covered / tb, 1.0)
+    r_lltv = morpho.liquidation_outcome({"collateral_value_usd_oracle": 1 / m["lltv"], "debt_value_usd": 1.0,
+                                         "lltv": m["lltv"], "liquidation_incentive_factor": lif}, drop)["lender_bad_debt_usd"]
+    r_idx = bd / covered if covered else None
+    r_c = r_lltv if r_idx is None else c * r_idx + (1 - c) * r_lltv
+    r_hi = max(r_lltv, r_idx or 0.0)
+    f = lambda r: min((bd + rest * r) / ts, 1.0)  # noqa: E731
+    return {"fraction": f(r_c), "fraction_low": f(0.0), "fraction_high": f(r_hi), "bad_debt_raw": int(bd + rest * r_c),
+            "liquidated": liq, "borrowers": n, "unindexed_debt_raw": rest, "indexed_share": c,
+            "unindexed_rate": {"low": 0.0, "central": r_c, "high": r_hi, "indexed": r_idx, "at_lltv": r_lltv}}
 
 
-def oracle_drain_fraction(m: dict, overpricing: float, liquidity_factor: float = 1.0) -> float:
-    """Oracle reports collateral worth 1/(1-d) x its value: borrowers can take the free liquidity L against collateral
-    truly worth L (1-d) / LLTV; suppliers lose L x max(0, 1 - (1-d)/LLTV)."""
+def oracle_failure_fraction(m: dict, error: float, liquidity_factor: float = 1.0) -> dict:
+    """Supplier loss (fraction of market supply) when the oracle mis-prices the collateral by `error`, direction
+    unknown. Explicit assumptions:
+      over-pricing (reports 1/(1-e) x the value): the free liquidity L is borrowed at once (no lag: one block,
+        flash-loanable) against collateral truly worth L (1-e)/LLTV. Once the price is corrected, Morpho Blue
+        liquidates those positions and the liquidator keeps the incentive: suppliers recover collateral / LIF, so
+        loss = L max(0, 1 - (1-e)/(LLTV LIF)). Low end: the collateral is recovered at full value (no incentive
+        paid, e.g. a curator/white-hat unwind): L max(0, 1 - (1-e)/LLTV). L is capped by today's free liquidity.
+      under-pricing (reports (1-e) x the value): Morpho Blue liquidates at the reported price. While reported
+        collateral x LIF covers the debt the liquidator repays it in full: borrowers lose, suppliers do not (why it
+        used to be excluded). Beyond that, all collateral is seized and the rest of the debt is socialised to
+        suppliers as bad debt, exactly as after a real drop of `error`: bad_debt_fraction(m, error) and its band.
+      central = mean of the two directions (no evidence on the direction of a failure); high = the worse direction
+      at its high end; low = the milder direction at its low end."""
     ts = m["total_supply_raw"]
     if not ts or not m["collateral_token"]:
-        return 0.0
+        return {"fraction": 0.0, "fraction_low": 0.0, "fraction_high": 0.0, "over": 0.0, "over_full_recovery": 0.0,
+                "under": 0.0, "under_low": 0.0, "under_high": 0.0}
     L = m["liquidity_raw"] * liquidity_factor
-    return min(L * max(0.0, 1 - (1 - overpricing) / m["lltv"]) / ts, 1.0)
+    lltv, lif = m["lltv"], m["lif"]
+    over = min(L * max(0.0, 1 - (1 - error) / (lltv * lif)) / ts, 1.0)
+    over_full = min(L * max(0.0, 1 - (1 - error) / lltv) / ts, 1.0)
+    u = bad_debt_fraction(m, error)
+    return {"fraction": (over + u["fraction"]) / 2, "fraction_low": min(over_full, u["fraction_low"]),
+            "fraction_high": max(over, u["fraction_high"]), "over": over, "over_full_recovery": over_full,
+            "under": u["fraction"], "under_low": u["fraction_low"], "under_high": u["fraction_high"]}
 
 
 # ---- graph -----------------------------------------------------------------------------------------------------
@@ -277,7 +311,9 @@ def _node(nid, layer, label, p, why, role, lgf, lgf_why, **meta):
 
 def build_graph(req: dict, snap: dict, pri: dict, sev: dict | None = None, liquidity_factor: float = 1.0) -> tuple[DepGraph, dict]:
     """Depositor dependency graph of THIS vault. sev: node id -> severity override (collateral drop / oracle
-    over-pricing / market loss): the mechanistic transmissions are recomputed at that severity (bad debt is convex)."""
+    mis-pricing / market loss): the mechanistic transmissions are recomputed at that severity (bad debt is convex).
+    Model edges with an explicit [low, high] transmission band register it in position.meta['edge_bands'] (read by
+    uncertainty.loss_band instead of the generic +-25%)."""
     sev = sev or {}
     H, V = req["horizon_days"], req["value_usd"]
     rates = pri["rates"]
@@ -285,14 +321,19 @@ def build_graph(req: dict, snap: dict, pri: dict, sev: dict | None = None, liqui
     blk = snap["as_of_block"]
     vid, pos = f"vault:{snap['address']}", "pos"
     meta = {"real": True, "block_number": blk, "block_timestamp": snap["block_timestamp"], "observed_at": snap["observed_at"],
-            "path_aggregation": "sum", "kind": "vault_depositor"}
+            "path_aggregation": "sum", "kind": "vault_depositor", "edge_bands": {}}
     g = DepGraph(Position(pos, f"{snap['symbol']} depositor (hypothetical ${V:,.0f})", "ethereum", V, H, meta), [], [])
     emeta: dict = {}
 
-    def E(s, d, t, reason, relation, source, conf, ttype):
-        g.edges.append(Edge(s, d, max(min(t, 1.0), 0.0), reason))
+    def E(s, d, t, reason, relation, source, conf, ttype, band=None):
+        t = max(min(t, 1.0), 0.0)
+        g.edges.append(Edge(s, d, t, reason))
         emeta[(s, d)] = {"relation_type": relation, "source": source, "as_of_block": blk, "confidence": conf,
                          "transmission_type": ttype}
+        if band:
+            b = {"low": min(max(band["low"], 0.0), t), "high": max(min(band["high"], 1.0), t), "why": band["why"]}
+            meta["edge_bands"][uncertainty.edge_key(s, d)] = b
+            emeta[(s, d)]["transmission_band"] = b
 
     def add(n):
         if not any(x.id == n.id for x in g.nodes):
@@ -334,14 +375,12 @@ def build_graph(req: dict, snap: dict, pri: dict, sev: dict | None = None, liqui
         E(aid, "fx:EURUSD", 0.0, "EUR-denominated: USD value moves with EUR/USD (decision-neutral unless converting to USD)",
           "valued_in", "Chainlink EUR/USD", "high", "mechanistic")
 
-    attributed = 0
     for ad in snap["adapters"]:
         aid_ = f"adapter:{ad['address']}" if snap["version"] == "v2" else None
-        mk = [m for m in snap["markets"] if snap["version"] == "v1" or m.get("holder") == ad["address"]]
+        mk = [m for m in snap["markets"] if (m.get("holder") or "").lower() == ad["address"].lower()]
         in_mk = sum(m["vault_supply_raw"] for m in mk)
         if not ad.get("supported"):
             continue
-        attributed += in_mk
         parent = vid
         if aid_:
             add(Node(aid_, "lending", f"Adapter {ad['type']}", 0.0, 0.0,
@@ -382,31 +421,45 @@ def build_graph(req: dict, snap: dict, pri: dict, sev: dict | None = None, liqui
                               address=m["collateral_token"], collateral_kind=ckind))
                 s = next(n for n in g.nodes if n.id == cid).loss_given_failure
                 bd = bad_debt_fraction(m, s)
+                tail = (f"; unindexed debt {1 - bd['indexed_share']:.1%} of the market's debt: central = indexed borrowers' "
+                        "bad-debt rate shrunk toward the at-LLTV worst case by the unindexed share, band = no bad debt .. "
+                        f"all at the LLTV ({bd['fraction_low']:.2%}-{bd['fraction_high']:.2%})" if bd["unindexed_debt_raw"] else "")
                 E(mid, cid, bd["fraction"] / s if s else 0.0,
                   f"model: a {s:.0%} jump drop leaves bad debt = {bd['fraction']:.2%} of market supply after liquidating "
                   f"{bd['liquidated']}/{bd['borrowers']} on-chain borrower positions (LIF {m['lif']:.3f}); transmission = bad "
-                  "debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+                  f"debt / (supply x drop). Liquidations alone cost suppliers nothing{tail}.",
                   "collateralized_by", "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
-                  "medium" if (m.get("borrowers") or {}).get("status") == "ok" else "low", "mechanistic")
+                  "medium" if (m.get("borrowers") or {}).get("status") == "ok" else "low", "mechanistic",
+                  band={"low": bd["fraction_low"] / s if s else 0.0, "high": bd["fraction_high"] / s if s else 0.0,
+                        "why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the "
+                               "LLTV (high)"})
                 if int(m["oracle"], 16):
                     oid = f"oracle:{m['oracle']}"
                     if oid not in [n.id for n in g.nodes]:
                         op, owhy = priors.p_oracle(rates, H, 1.0, ["vault oracle: feed quality not individually assessed (assumption x1.0)"])
                         add(_node(oid, "oracle", f"Oracle {m['oracle'][:10]}...", op, owhy, "oracle", sev.get(oid, ORACLE_SEVERITY),
-                                  f"assumption: oracle over-prices collateral by {ORACLE_SEVERITY:.0%} when it fails", address=m["oracle"]))
+                                  f"assumption: oracle mis-prices collateral by {ORACLE_SEVERITY:.0%} (direction unknown) "
+                                  "when it fails", address=m["oracle"]))
                     d = next(n for n in g.nodes if n.id == oid).loss_given_failure
-                    fr = oracle_drain_fraction(m, d, liquidity_factor)
-                    E(mid, oid, fr / d if d else 0.0,
-                      f"model: over-pricing by {d:.0%} lets borrowers drain free liquidity against collateral worth "
-                      f"(1-{d:.0%})/LLTV of the debt -> loss {fr:.2%} of market supply; under-pricing only hurts borrowers",
-                      "priced_by", "Morpho Blue idToMarketParams.oracle + market liquidity", "medium", "mechanistic")
-    un = max(TA - attributed - snap["idle_raw"], 0)
+                    o = oracle_failure_fraction(m, d, liquidity_factor)
+                    E(mid, oid, o["fraction"] / d if d else 0.0,
+                      f"model: oracle wrong by {d:.0%}, direction unknown -> central loss {o['fraction']:.2%} of market supply "
+                      f"= mean of over-pricing {o['over']:.2%} (free liquidity drained at once, positions liquidated after "
+                      f"correction, liquidator keeps LIF {m['lif']:.3f}) and under-pricing {o['under']:.2%} (liquidations at "
+                      "the false price: suppliers lose only the debt left once all collateral is seized, as after a real "
+                      f"drop); band {o['fraction_low']:.2%}-{o['fraction_high']:.2%}",
+                      "priced_by", "Morpho Blue idToMarketParams.oracle + market liquidity + borrower positions", "medium",
+                      "mechanistic",
+                      band={"low": o["fraction_low"] / d if d else 0.0, "high": o["fraction_high"] / d if d else 0.0,
+                            "why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt "
+                                   "safe); high = worse direction at its high end"})
+    un = vr.reconcile(snap)["unattributed_raw"]
     if un > TA * 1e-6:
         p, why = priors.p_protocol(rates, None, H)
         add(_node("unattributed", "protocol", "Unattributed allocation", p, why + " (unknown component: x1.5)", "unattributed",
                   1.0, "assumption: an unidentified allocation is lost entirely if it fails"))
         E(vid, "unattributed", un / TA, f"measured: {un / TA:.2%} of totalAssets not resolved to a known market (kept, not zero risk)",
-          "allocates_to", "totalAssets - resolved - idle", "low", "assumption")
+          "allocates_to", "totalAssets - credited market supply - idle counted in totalAssets", "low", "assumption")
     return g, emeta
 
 
@@ -482,12 +535,15 @@ def assess(req: dict, snap: dict, rd: dict, prov: dict) -> dict:
     if rec["coverage"] < COVERAGE_MIN:
         blockers.append(f"only {rec['coverage']:.1%} of totalAssets attributed (< {COVERAGE_MIN:.0%})")
     elif not rec["within_tolerance"]:
-        warnings.append(f"reconciliation gap {rec['gap_pct']:.2%} beyond {rec['tolerance']:.1%} tolerance")
+        bad = [r for r in rec["adapters"] if r.get("within_tolerance") is False]
+        warnings.append(f"reconciliation gap {rec['gap_pct']:.2%} (vault) beyond {rec['tolerance']:.1%} tolerance" if not bad else
+                        "reconciliation gap beyond {:.1%} tolerance on adapter(s) {}".format(
+                            rec["tolerance"], ", ".join(f"{r['adapter'][:10]} ({(r['gap_pct'] or 0):+.2%})" for r in bad)))
     for m in snap["markets"]:
         b = m.get("borrowers") or {}
         if m["total_borrow_raw"] and b.get("status") != "ok" and m["vault_supply_raw"] > 0.01 * TA:
-            warnings.append(f"borrower list unavailable for market {m['id'][:10]} ({m['collateral_symbol']}): all its debt "
-                            "assumed at the LLTV (conservative)")
+            warnings.append(f"borrower list unavailable for market {m['id'][:10]} ({m['collateral_symbol']}): no indexed "
+                            "sample, its debt is valued at the LLTV (central = worst case, conservative)")
 
     # --- allocations
     allocs = []
@@ -513,6 +569,7 @@ def assess(req: dict, snap: dict, rd: dict, prov: dict) -> dict:
                                                                                        "gap_raw": None if r["gap_raw"] is None else str(r["gap_raw"])}
                                                                                       for r in rec["adapters"]],
                                                                     "markets_raw": str(rec["markets_raw"]), "idle_raw": str(rec["idle_raw"]),
+                                                                    **{k: str(rec[k]) for k in ("credited_raw", "idle_outside_total_assets_raw") if k in rec},
                                                                     "total_assets_raw": str(rec["total_assets_raw"]),
                                                                     "unattributed_raw": str(rec["unattributed_raw"])},
                    "unit": snap["asset_symbol"], "decimals": ad, "displayed": "all markets (no truncation)"}
@@ -921,8 +978,9 @@ def scenarios(req, snap, rd, g, cap, A, ex, cr) -> list[dict]:
                              "suppliers only lose the residual bad debt", {coll.id: SCENARIO_CRASH}, cap=cap, A=A))
     if orc:
         out.append(_scenario(req, snap, rd, g, f"Oracle failure: {orc.label}",
-                             f"the oracle over-prices collateral by {SCENARIO_CRASH:.0%} (hypothesis); free liquidity is borrowed "
-                             "against overvalued collateral", {orc.id: SCENARIO_CRASH}, cap=cap, A=A))
+                             f"the oracle mis-prices collateral by {SCENARIO_CRASH:.0%}, direction unknown (hypothesis): "
+                             "over-pricing drains free liquidity against overvalued collateral, under-pricing triggers "
+                             "liquidations at the false price; loss = mean of the two directions", {orc.id: SCENARIO_CRASH}, cap=cap, A=A))
     if mk:
         out.append(_scenario(req, snap, rd, g, f"Market failure: {mk.label}",
                              f"isolated failure of the largest market (hypothesis: suppliers lose {MARKET_SEVERITY:.0%} of it)",
@@ -995,8 +1053,14 @@ ASSUMPTIONS = [
     "value_usd is a hypothetical exposure: converted to vault shares at the pinned share price; no holding is claimed",
     f"collateral 'failure' = {COLLATERAL_SEVERITY:.0%} jump drop (no time to liquidate before it); suppliers lose only the bad debt "
     "left after on-chain liquidations (Morpho Blue liquidation math, LIF from LLTV)",
-    "borrowers missing from the indexed list are assumed to sit at the LLTV (worst case)",
-    f"oracle failure = {ORACLE_SEVERITY:.0%} over-pricing; free liquidity drained against overvalued collateral",
+    "debt missing from the indexed borrower list (Morpho API, largest positions): central = the indexed borrowers' "
+    "bad-debt rate shrunk toward the at-LLTV worst case by the unindexed share of the debt (no list -> at the LLTV); "
+    "band = no bad debt .. all at the LLTV",
+    f"oracle failure = collateral mis-priced by {ORACLE_SEVERITY:.0%}, direction unknown. Over-pricing: free liquidity "
+    "drained at once (no lag), positions liquidated after correction with the liquidator keeping the incentive (low end: "
+    "full recovery). Under-pricing: liquidations at the false price; suppliers lose only the debt left once all "
+    "collateral is seized (zero for a mild error, otherwise as a real drop). Central = mean of the two directions; "
+    "band = milder .. worse direction",
     "vault contracts / curator and Morpho Blue share one Morpho protocol prior (x0.5 each, Phase 0.5 split); chain prior 0.5%/y",
     "deposit asset depeg and EUR/USD are decision-neutral (held after redeeming too): shown as context / what-if",
     "carry = on-chain net APY (supply APY of each market x share, net of fees) over the horizon, reference 0%, band +-50%",

@@ -32,6 +32,7 @@ USD_LIKE = {"USDC", "USDT", "DAI", "USDS", "PYUSD", "USD0", "USDE", "FRAX", "LUS
 RECON_TOL = 0.005  # 0.5%: interest accrued between components, rounding, V2 maxRate smoothing
 MAX_MARKETS = 40
 MAX_BORROWERS = 50
+V1_QUEUE = "MetaMorpho withdrawQueue"  # pseudo-adapter: a MetaMorpho V1 vault's own withdrawQueue
 SECONDS_PER_YEAR = 365 * 86400
 _SLOT_CACHE: dict = {}
 
@@ -149,7 +150,8 @@ def read_market(mid: str, holder: str, block: int, ts: int) -> dict:
 
 def borrowers(m: dict, block: int) -> dict:
     """Borrowers of a market (Morpho API list, largest first) valued with the ON-CHAIN totals and oracle price of
-    the pinned block. Debt not covered by the list is reported (the model assumes it sits at the LLTV: worst case)."""
+    the pinned block. Debt not covered by the list is reported (the model gives it a band: no bad debt / like the indexed
+    borrowers / at the LLTV; see vault_model.bad_debt_fraction)."""
     from .data.http import post_json
     out = {"items": [], "covered_borrow_raw": 0, "status": "ok", "source": "Morpho API marketPositions + on-chain totals/oracle"}
     if m["total_borrow_raw"] == 0 or not m["collateral_token"]:
@@ -289,38 +291,64 @@ def read_vault(address: str, version: str, block: int, ts: int) -> dict:
         snap["gates"] = {"withdraw_open": True, "note": "MetaMorpho V1 has no withdrawal gates"}
         snap["liquidity_adapter"] = snap["liquidity_market"] = None
         v1 = read_v1(address, block, ts)
-        snap["adapters"].append({"address": address, "type": "MetaMorpho withdrawQueue", "supported": v1["queue_complete"],
-                                 "market_ids": v1["market_ids"], "real_assets_raw": sum(m["vault_supply_raw"] for m in v1["markets"]),
+        # reported = the contract's own figure (MetaMorpho.totalAssets() = sum of expectedSupplyAssets over the
+        # withdrawQueue), NOT the sum of our market reads: otherwise the per-adapter check is a tautology
+        snap["adapters"].append({"address": address, "type": V1_QUEUE, "supported": v1["queue_complete"],
+                                 "market_ids": v1["market_ids"], "real_assets_raw": snap["total_assets_raw"],
                                  "force_deallocate_penalty": None})
         snap["markets"] = v1["markets"]
     snap["warnings"] = warnings
     return snap
 
 
+def idle_in_total_assets(snap: dict) -> int:
+    """Idle balance that the vault's totalAssets() counts. VaultV2: totalAssets = idle + sum of adapters' realAssets.
+    MetaMorpho V1: totalAssets = sum of its supply over the withdrawQueue only; a token balance held by a V1 vault is
+    outside totalAssets (and is not used to serve withdrawals)."""
+    return snap["idle_raw"] if snap["version"] == "v2" else 0
+
+
 def reconcile(snap: dict) -> dict:
-    """sum(identified market supply) + idle + unattributed == totalAssets, per adapter and for the vault."""
+    """Per adapter: the markets held by THAT adapter (strict holder match) vs what the adapter reports (V2 realAssets,
+    V2 -> V1 adapter: its assets in the inner vault, V1: MetaMorpho.totalAssets()). Vault level: sum(credited market
+    supply) + idle counted in totalAssets + unattributed == totalAssets. Each adapter is credited at most what it
+    reports, so a surplus read under one adapter can never fill a hole under another (no masked per-adapter gap)."""
     rows = []
-    attributed = 0
+    attributed = credited = 0
+    adapters_ok = True
     for ad in snap["adapters"]:
-        in_mk = sum(m["vault_supply_raw"] for m in snap["markets"] if m.get("holder") == ad["address"]
-                    or (snap["version"] == "v1"))
+        holder = ad["address"].lower()
+        in_mk = sum(m["vault_supply_raw"] for m in snap["markets"] if (m.get("holder") or "").lower() == holder)
         real = ad.get("real_assets_raw")
         if ad.get("type") == "MorphoVaultV1Adapter":
             real = ad.get("inner_assets_raw", real)
-        gap = (real - in_mk) if (real is not None and ad.get("supported")) else None
+        elif ad.get("type") == V1_QUEUE:
+            real = snap["total_assets_raw"]
+        supported = bool(ad.get("supported"))
+        gap = (real - in_mk) if (real is not None and supported) else None
+        gap_pct = (gap / real) if gap is not None and real else None
+        ok = gap is None or (abs(gap_pct) <= RECON_TOL if gap_pct is not None else gap == 0)
+        adapters_ok &= ok
         rows.append({"adapter": ad["address"], "type": ad.get("type"), "reported_raw": real, "markets_raw": in_mk,
-                     "gap_raw": gap, "gap_pct": (gap / real) if gap is not None and real else None})
-        attributed += in_mk if ad.get("supported") else 0
-    known = attributed + snap["idle_raw"]
+                     "gap_raw": gap, "gap_pct": gap_pct, "within_tolerance": ok})
+        if supported:
+            attributed += in_mk
+            credited += min(in_mk, real) if real is not None else in_mk
+    idle = idle_in_total_assets(snap)
     total = snap["total_assets_raw"]
+    known = credited + idle
     unattributed = max(total - known, 0)
-    gap_pct = (known - total) / total if total else 0.0
-    return {"adapters": rows, "markets_raw": attributed, "idle_raw": snap["idle_raw"], "total_assets_raw": total,
+    gap_pct = (attributed + idle - total) / total if total else 0.0
+    return {"adapters": rows, "markets_raw": attributed, "credited_raw": credited, "idle_raw": idle,
+            "idle_outside_total_assets_raw": snap["idle_raw"] - idle, "total_assets_raw": total,
             "unattributed_raw": unattributed, "unattributed_pct": unattributed / total if total else 0.0,
-            "gap_pct": gap_pct, "tolerance": RECON_TOL, "within_tolerance": abs(gap_pct) <= RECON_TOL,
+            "gap_pct": gap_pct, "tolerance": RECON_TOL, "adapters_within_tolerance": adapters_ok,
+            "within_tolerance": abs(gap_pct) <= RECON_TOL and adapters_ok,
             "coverage": min(known / total, 1.0) if total else 0.0,
-            "rule": "coverage = (idle + supply resolved in Morpho markets) / totalAssets; any shortfall is kept as an "
-                    "'unattributed' exposure with a conservative failure model (never zero risk)"}
+            "rule": "per adapter: markets held by that adapter vs its own reported assets (gap within tolerance); "
+                    "coverage = (idle counted in totalAssets + market supply credited up to each adapter's reported "
+                    "assets) / totalAssets; any shortfall is kept as an 'unattributed' exposure with a conservative "
+                    "failure model (never zero risk)"}
 
 
 # ---- prices --------------------------------------------------------------------------------------------------

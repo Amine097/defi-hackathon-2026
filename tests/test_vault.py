@@ -241,8 +241,8 @@ def test_v08_v1_withdraw_queue(fixtures, monkeypatch):
     p = run(fx, monkeypatch)
     rows = p["exit"]["capacity"]["rows"]
     assert [r["path"] for r in rows] == [f"withdrawQueue[{i}]" for i in range(len(rows))]
-    total = int(fx["snap"]["idle_raw"]) + sum(int(r["available_raw"]) for r in rows)
-    assert abs(total - p["exit"]["capacity"]["ordinary_assets"] * 10 ** 6) <= 1
+    total = sum(int(r["available_raw"]) for r in rows)  # MetaMorpho: the vault's own token balance is not withdrawable
+    assert int(fx["snap"]["idle_raw"]) > 0 and abs(total - p["exit"]["capacity"]["ordinary_assets"] * 10 ** 6) <= 1
     by_id = {m["id"]: m for m in fx["snap"]["markets"]}
     for r in rows:  # never more than the vault supplies nor than the market's free liquidity
         m = by_id[r["market"]]
@@ -329,12 +329,179 @@ def test_v12_liquidation_without_shortfall_costs_depositor_nothing(fixtures):
     assert vm.bad_debt_fraction(m, 0.5)["fraction"] > 0  # only a deep jump leaves bad debt
 
 
-def test_v12_unindexed_debt_assumed_at_lltv(fixtures):
+def test_v12_unindexed_debt_without_list_is_valued_at_lltv(fixtures):
+    """No indexed sample: central = high = every position at the LLTV (the previous rule), low = no bad debt."""
     m = copy.deepcopy(max(fixtures[BELEM]["snap"]["markets"], key=lambda m: m["vault_supply_raw"]))
     m["borrowers"] = {"status": "unavailable", "items": []}
     worst = vm.bad_debt_fraction(m, 0.3)
-    assert worst["assumed_at_lltv_raw"] == m["total_borrow_raw"]
+    assert worst["unindexed_debt_raw"] == m["total_borrow_raw"] and worst["indexed_share"] == 0
+    assert worst["fraction"] == worst["fraction_high"] > 0 and worst["fraction_low"] == 0
     assert worst["fraction"] >= vm.bad_debt_fraction(max(load(BELEM)["snap"]["markets"], key=lambda x: x["vault_supply_raw"]), 0.3)["fraction"]
+
+
+def _partial_list(m, keep):
+    """Synthetic partial coverage: drop the smallest indexed borrowers so they become unindexed debt."""
+    m = copy.deepcopy(m)
+    items = sorted(m["borrowers"]["items"], key=lambda i: -i["debt_raw"])[:keep]
+    m["borrowers"] = {**m["borrowers"], "items": items}
+    return m
+
+
+def test_v12_partial_coverage_band(fixtures):
+    """Item 2 (review H): unindexed debt is a band, not a point at the LLTV. low <= central <= high, high = the old
+    all-at-LLTV figure, central = indexed rate shrunk toward the LLTV by the unindexed share."""
+    full = max(fixtures[STEAKHOUSE_V1]["snap"]["markets"], key=lambda m: m["vault_supply_raw"])  # cbBTC, 50 borrowers
+    m = _partial_list(full, 10)
+    drop = 0.4
+    r = vm.bad_debt_fraction(m, drop)
+    assert 0 < r["indexed_share"] < 1 and r["unindexed_debt_raw"] > 0
+    assert r["fraction_low"] <= r["fraction"] <= r["fraction_high"]
+    # high reproduces the previous single assumption (all unindexed debt at the LLTV)
+    rest = r["unindexed_debt_raw"]
+    at_lltv = vm.morpho.liquidation_outcome({"collateral_value_usd_oracle": rest / m["lltv"], "debt_value_usd": rest,
+                                             "lltv": m["lltv"], "liquidation_incentive_factor": m["lif"]}, drop)["lender_bad_debt_usd"]
+    idx_bd = r["fraction_low"] * m["total_supply_raw"]
+    assert r["fraction_high"] == pytest.approx((idx_bd + at_lltv) / m["total_supply_raw"], rel=1e-9)
+    u = r["unindexed_rate"]
+    c = r["indexed_share"]
+    assert u["central"] == pytest.approx(c * u["indexed"] + (1 - c) * u["at_lltv"], rel=1e-12)
+    assert u["high"] >= u["central"] >= u["low"] == 0
+    # the band only spans the unindexed debt: width = unindexed debt x worst rate
+    assert r["fraction_high"] - r["fraction_low"] == pytest.approx(rest * u["high"] / m["total_supply_raw"], rel=1e-9)
+    more = vm.bad_debt_fraction(_partial_list(full, 30), drop)
+    assert more["indexed_share"] > c and more["unindexed_debt_raw"] < rest
+    # full list: no band from coverage
+    f = vm.bad_debt_fraction(full, drop)
+    if f["unindexed_debt_raw"] == 0:
+        assert f["fraction_low"] == f["fraction"] == f["fraction_high"]
+
+
+def test_v12_coverage_band_reaches_the_uncertainty_band(fixtures, monkeypatch):
+    """The band is reported through uncertainty.loss_band: the collateral edge carries an explicit [low, high]; the
+    high end of the loss band does not drop (worst case kept as the high end), the central does not rise."""
+    from defirisk import uncertainty
+    fx = fixtures[STEAKHOUSE_V1]
+    snap = copy.deepcopy(fx["snap"])
+    mi = max(range(len(snap["markets"])), key=lambda i: snap["markets"][i]["vault_supply_raw"])
+    snap["markets"][mi] = _partial_list(snap["markets"][mi], 10)
+    g, emeta = vm.build_graph(fx["req"], snap, fx["rd"]["priors"])
+    m = snap["markets"][mi]
+    key = uncertainty.edge_key(f"market:{m['id']}", f"collateral:{m['collateral_token']}")
+    band = g.position.meta["edge_bands"][key]
+    e = next(e for e in g.edges if uncertainty.edge_key(e.src, e.dst) == key)
+    assert band["low"] < e.transmission < band["high"]
+    assert emeta[(e.src, e.dst)]["transmission_band"] == band
+    assert uncertainty.edge_band(g, e, "low") == pytest.approx(band["low"] * uncertainty.T_RANGE[0])
+    assert uncertainty.edge_band(g, e, "high") == pytest.approx(min(1.0, band["high"] * uncertainty.T_RANGE[1]))
+    inv = next(x for x in uncertainty.inventory(g)["edges"] if (x["src"], x["dst"]) == (e.src, e.dst))
+    assert inv["band_why"] and inv["low"] < inv["transmission"] < inv["high"]
+    # previous behaviour = everything unindexed at the LLTV in the central, +-25% around it
+    old = copy.deepcopy(g)
+    old.position.meta["edge_bands"] = {}
+    for oe in old.edges:
+        if uncertainty.edge_key(oe.src, oe.dst) == key:
+            oe.transmission = band["high"]
+    new_b, old_b = uncertainty.loss_band(g), uncertainty.loss_band(old)
+    assert new_b["central_usd"] < old_b["central_usd"]
+    assert new_b["high_usd"] >= old_b["high_usd"] - 1e-9
+    assert new_b["low_usd"] <= new_b["central_usd"] <= new_b["high_usd"]
+
+
+# ---- item 3 (review H): oracle failure, both directions, explicit and bounded ---------------------------------------
+def test_v12_oracle_failure_both_directions(fixtures):
+    m = max(fixtures[STEAKHOUSE_V1]["snap"]["markets"], key=lambda m: m["vault_supply_raw"])
+    d = 0.4
+    o = vm.oracle_failure_fraction(m, d)
+    ts, L, lltv, lif = m["total_supply_raw"], m["liquidity_raw"], m["lltv"], m["lif"]
+    # over-pricing: free liquidity drained at once; recovery net of the liquidation incentive (central) / full (low)
+    assert o["over"] == pytest.approx(L * max(0, 1 - (1 - d) / (lltv * lif)) / ts, rel=1e-12)
+    assert o["over_full_recovery"] == pytest.approx(L * max(0, 1 - (1 - d) / lltv) / ts, rel=1e-12)
+    assert o["over_full_recovery"] < o["over"]  # the incentive is paid out of the drained collateral
+    # under-pricing: Morpho realises bad debt at the false price = a real drop of the same size
+    bd = vm.bad_debt_fraction(m, d)
+    assert (o["under"], o["under_low"], o["under_high"]) == (bd["fraction"], bd["fraction_low"], bd["fraction_high"])
+    assert o["fraction"] == pytest.approx((o["over"] + o["under"]) / 2)
+    assert o["fraction_low"] <= min(o["over"], o["under"]) <= o["fraction"] <= max(o["over"], o["under"]) <= o["fraction_high"]
+    # bounded: drain capped by today's free liquidity; liquidity exhausted -> only the under-pricing channel remains
+    dry = vm.oracle_failure_fraction(m, d, liquidity_factor=0.0)
+    assert dry["over"] == dry["over_full_recovery"] == 0 and dry["fraction"] == pytest.approx(o["under"] / 2)
+    assert o["fraction_high"] <= 1.0
+
+
+def test_v12_mild_underpricing_costs_suppliers_nothing(fixtures):
+    """Justification of the old exclusion, now a computed result: while reported collateral x LIF covers the debt, an
+    under-pricing only moves value from borrowers to liquidators; suppliers lose 0."""
+    m = max(fixtures[BELEM]["snap"]["markets"], key=lambda m: m["vault_supply_raw"])
+    mild = 0.15
+    assert vm.bad_debt_fraction(m, mild)["liquidated"] > 0
+    o = vm.oracle_failure_fraction(m, mild)
+    assert o["under"] == o["under_high"] == 0.0
+    # mild over-pricing below 1 - LLTV x LIF: no drain profit, no supplier loss either
+    assert vm.oracle_failure_fraction(m, (1 - m["lltv"] * m["lif"]) * 0.9)["over"] == 0.0
+
+
+def test_v12_oracle_edge_band_in_graph(fixtures):
+    from defirisk import uncertainty
+    fx = fixtures[STEAKHOUSE_V1]
+    g, emeta = vm.build_graph(fx["req"], fx["snap"], fx["rd"]["priors"])
+    oe = [e for e in g.edges if e.dst.startswith("oracle:")]
+    assert oe
+    for e in oe:
+        b = g.position.meta["edge_bands"][uncertainty.edge_key(e.src, e.dst)]
+        assert b["low"] <= e.transmission <= b["high"] and "direction unknown" in e.reason
+    oracle_nodes = [n for n in g.nodes if n.meta.get("role") == "oracle"]
+    assert all("direction unknown" in n.meta["lgf_source"] for n in oracle_nodes)
+
+
+# ---- item 1 (review H): reconciliation per adapter --------------------------------------------------------------------
+def test_v10_v1_reconciliation_is_not_a_tautology(fixtures):
+    """MetaMorpho V1: the pseudo-adapter is checked against the contract's totalAssets(), not against the sum of the
+    same market reads; the vault's idle token balance is outside totalAssets (MetaMorpho) and is not added."""
+    snap = copy.deepcopy(fixtures[STEAKHOUSE_V1]["snap"])
+    assert snap["idle_raw"] > 0
+    r = vr.reconcile(snap)
+    row = r["adapters"][0]
+    assert row["reported_raw"] == snap["total_assets_raw"] and row["within_tolerance"]
+    assert r["idle_raw"] == 0 and r["idle_outside_total_assets_raw"] == snap["idle_raw"]
+    assert r["gap_pct"] == pytest.approx(0.0, abs=1e-15) and r["within_tolerance"] and r["coverage"] == 1.0
+    # a market missing from our reads is now visible on the adapter row (it used to be reconciled against itself)
+    big = max(snap["markets"], key=lambda m: m["vault_supply_raw"])
+    snap["markets"] = [m for m in snap["markets"] if m is not big]
+    snap["adapters"][0]["real_assets_raw"] = sum(m["vault_supply_raw"] for m in snap["markets"])  # old tautological value
+    r = vr.reconcile(snap)
+    assert r["adapters"][0]["gap_raw"] == big["vault_supply_raw"] and not r["adapters"][0]["within_tolerance"]
+    assert not r["within_tolerance"] and r["unattributed_raw"] == big["vault_supply_raw"]
+
+
+def test_v10_per_adapter_gaps_not_masked():
+    """Two V2 adapters with opposite gaps: the vault-level sum balances, but each adapter is out of tolerance, and the
+    surplus read under one adapter does not fill the other's hole (unattributed stays)."""
+    mk = lambda holder, supply: {"id": "0x" + "1" * 64, "holder": holder, "vault_supply_raw": supply}  # noqa: E731
+    a, b = "0x" + "a" * 40, "0x" + "b" * 40
+    snap = {"version": "v2", "idle_raw": 0, "total_assets_raw": 2_000,
+            "adapters": [{"address": a, "type": "MorphoMarketV1AdapterV2", "real_assets_raw": 1_000, "supported": True},
+                         {"address": b, "type": "MorphoMarketV1AdapterV2", "real_assets_raw": 1_000, "supported": True}],
+            "markets": [mk(a, 800), mk(b, 1_200)]}
+    r = vr.reconcile(snap)
+    assert r["gap_pct"] == 0.0  # the old vault-level check passed
+    assert [x["gap_raw"] for x in r["adapters"]] == [200, -200]
+    assert not r["adapters_within_tolerance"] and not r["within_tolerance"]
+    assert r["unattributed_raw"] == 200 and r["coverage"] == pytest.approx(0.9)
+    # holder match is strict and case-insensitive
+    snap["markets"][0]["holder"] = a.upper().replace("0X", "0x")
+    assert vr.reconcile(snap)["adapters"][0]["markets_raw"] == 800
+
+
+def test_v10_adapter_gap_warning_and_unattributed_node(fixtures, monkeypatch):
+    fx = fixtures[CONFIDENTIAL]
+    snap = copy.deepcopy(fx["snap"])
+    ad = snap["adapters"][0]
+    ad["real_assets_raw"] = int(ad["real_assets_raw"]) * 102 // 100  # adapter reports 2% more than its markets
+    snap["total_assets_raw"] = int(snap["total_assets_raw"]) + int(ad["real_assets_raw"]) // 102 * 2
+    snap["reconciliation"] = vr.reconcile(snap)
+    p = run(fx, monkeypatch, snap=snap)
+    assert any("adapter(s)" in w for w in p["warnings"])
+    assert "unattributed" in {n["id"] for n in p["dependencies"]["nodes"]}
 
 
 # ---- V13 / V14: scenarios, bounds, monotonicity -------------------------------------------------------------------------
