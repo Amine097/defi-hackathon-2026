@@ -38,6 +38,46 @@
       "cmd": "npx vercel whoami",
       "exit_code": 1,
       "result": "Logged out"
+    },
+    {
+      "cmd": "gh api repos/:owner/:repo/deployments (+ /statuses)",
+      "exit_code": 0,
+      "result": "Production: 28eab7d failure, f070236 failure, 016f070 failure, a2d10c1 success, c12f3dc success, 480860e failure"
+    },
+    {
+      "cmd": "gh api repos/:owner/:repo/commits/28eab7d/status",
+      "exit_code": 0,
+      "result": "Vercel failure 'Deployment was blocked'"
+    },
+    {
+      "cmd": "sha256(prod public files) vs git show a2d10c1/28eab7d/worktree",
+      "exit_code": 0,
+      "result": "7/7 match a2d10c1; worktree differs (coherence fix not deployed)"
+    },
+    {
+      "cmd": "$env:PYTHONPATH='src'; python -m pytest -q",
+      "exit_code": 0,
+      "result": "62 passed, 3 skipped (after coherence fix)"
+    },
+    {
+      "cmd": "$env:DEFIRISK_LIVE_TESTS='1'; python -m pytest -q",
+      "exit_code": 0,
+      "result": "65 passed in 82.6s (after coherence fix)"
+    },
+    {
+      "cmd": "node --test tests/js/decision_view.test.mjs",
+      "exit_code": 0,
+      "result": "7 passed"
+    },
+    {
+      "cmd": "dev_server 8765 GET /api/analyze?borrower=auto",
+      "exit_code": 0,
+      "result": "200 in 34s, live block 26162781: REVIEW, point STAY, loss $1,657, execution $1,316, carry $3,680, exit side $4,996, margin -$3,339 (execution-only +$342 = the old bug), breakeven x3.01; scenarios EXIT vs exit side $4,996/$6,311"
+    },
+    {
+      "cmd": "browser canvas X-Ray + dashboard (local, after fix)",
+      "exit_code": 0,
+      "result": "X-Ray: REVIEW amber, Cost if EXIT $4.9k 'execution $1.3k + carry $3.7k', margin -$3.3k class xr-warn hint 'central values only · bands overlap or inputs not firm · lean STAY'; scenario 'Underlying depeg' EXIT margin +$266k; dashboard Exit cost (incl. carry) $4,949, book pockets incl. carry"
     }
   ],
   "live_cases": [
@@ -132,7 +172,18 @@
     "point_verdict computed without carry (now from robust_signal; execution-only kept separately)",
     "UI mapped every non-EXIT verdict to green STAY (REVIEW now amber)",
     "snapshot fallback could show 'Data fresh' (now 'saved snapshot, not fresh')",
-    "UI did not forward query string to API (borrower mode unreachable from UI)"
+    "UI did not forward query string to API (borrower mode unreachable from UI)",
+    {
+      "id": "coherence-carry",
+      "found_by": "user review of production X-Ray ('+$371 stay costs more' next to REVIEW / lean STAY)",
+      "root_cause": "verdict used execution + carry; margin, breakeven, exit KPI, scenario/stress/sensitivity/book verdicts used execution only",
+      "fix": "Decision.exit_total_usd/carry_usd; margin and breakeven incl. carry; payload verdicts use exit side incl. carry; decisionView in model.js; UI wording",
+      "tests": [
+        "tests/test_decision_coherence.py (8)",
+        "tests/js/decision_view.test.mjs (7)"
+      ],
+      "deployed": false
+    }
   ],
   "gates": {
     "G01": {
@@ -141,7 +192,7 @@
       "tests": [
         "full suite"
       ],
-      "notes": "57/57 live, 54+3 skipped offline; dev server serves UI and API"
+      "notes": "65/65 live, 62+3 skipped offline, 7 node; dev server serves UI and API"
     },
     "G02": {
       "status": "PASS",
@@ -233,36 +284,37 @@
       "notes": "graph -> shock -> borrower liquidation -> loss -> exit -> REVIEW, live block data"
     },
     "G11": {
-      "status": "PASS",
+      "status": "BLOCKED",
       "condition": "real deployment tested (not just a build), without action on funds",
       "tests": [
         "R20 smoke test on https://faultline-sandy-three.vercel.app"
       ],
-      "notes": "Deviation: tested on the existing production deployment instead of a separate preview; read-only, no funds action. Exact deployed SHA inferred from served code, not read from Vercel."
+      "notes": "R20 PASS on a2d10c1 (exact SHA verified); coherence fix not deployed: non-owner pushes blocked by Vercel"
     },
     "G12": {
-      "status": "PASS",
+      "status": "PASS_LOCAL_ONLY",
       "condition": "docs/evidence current, tests pass, zero P0/P1, H01-H06 closed",
       "tests": [
         "full suite offline 54 passed/3 skipped",
         "live 57 passed"
       ],
-      "notes": "No open P0/P1. One P2 open (X-Ray margin card / guide text use the execution-only comparison, see compliance report D)."
+      "notes": "62+3 skipped offline, 65 live, 7 node; cannot close while G11 blocked"
     }
   },
   "summary": {
-    "gates_pass": 12,
-    "gates_blocked": 0,
+    "gates_pass": 10,
+    "gates_blocked": 1,
+    "gates_pass_local_only": 1,
     "open_p0": 0,
-    "open_p1": 0,
-    "open_p2": 1,
-    "verdict": "GO",
-    "verdict_note": "G11 validated on production URL rather than a separate preview (deviation recorded)"
+    "open_p1": 1,
+    "open_p2": 0,
+    "verdict": "NO-GO (blocked on deployment)",
+    "verdict_note": "all checks pass locally; GO once the owner deploys the fix and R20 passes on that SHA"
   },
   "deployment": {
     "url": "https://faultline-sandy-three.vercel.app",
     "type": "production alias (existing deployment), not a separate preview",
-    "deployed_code_check": "served /assets/js/api.js contains signalDetails + REVIEW badge mapping; API returns Phase 0.5 fields (loss_band, exit_band, freshness, liquidation). Exact deployed SHA not readable without Vercel access; behaviour matches 480860e.",
+    "deployed_code_check": "Exact SHA read from the GitHub Deployments API (creator vercel[bot], environment Production): last status 'success' = a2d10c1 at 2026-10-10T14:33:39Z; production alias Last-Modified 14:34:42 GMT. SHA-256 of served index.html, xray.html, assets/js/api.js, xray.js, xray/model.js, xray/data.js, data/sample.json == git show a2d10c1:public/... (byte-identical after CRLF normalisation). Later pushes 480860e, 016f070, f070236, 28eab7d: Vercel commit status 'failure - Deployment was blocked' (only the project owner's pushes deploy).",
     "funds_action": "none (read-only GET requests; eth_call simulations only)",
     "tests": [
       {
@@ -291,13 +343,21 @@
           "browser /xray.html": "badge REVIEW class 'xr-vbadge review', amber, 10 dependencies, why-text with bands and lean, badge 'Live on-chain data'"
         }
       }
-    ]
+    ],
+    "deployed_sha": "a2d10c1427fbd8dff69207043e9d08eac3b6e4c6",
+    "coherence_fix_deployed": false,
+    "next_step": "project owner deploys the commit with the coherence fix; rerun R20 on that SHA (check via GitHub Deployments API) and verify X-Ray margin negative/amber/'lean STAY'"
   },
   "open_findings": [
     {
-      "severity": "P2",
-      "item": "X-Ray 'margin' card shows +$371 'stay costs more' in red and the guide says 'the cheaper one wins' (execution cost only, carry excluded); can read as contradicting the REVIEW / lean STAY signal",
-      "fix": "show margin incl. carry or label it 'execution cost only'; update guide text"
+      "severity": "P1",
+      "item": "production (a2d10c1) lacks the coherence fix; shows '+$371 stay costs more' next to REVIEW / lean STAY",
+      "fix": "project owner deploys; rerun R20",
+      "blocking": true
+    },
+    {
+      "severity": "Limit",
+      "item": "borrower deleverage decision compares with execution cost only (labelled 'carry not counted')"
     }
   ]
 }

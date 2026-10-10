@@ -78,6 +78,13 @@ API: api/analyze.py → api_payload.build_payload      UI: public/index.html, pu
 - **Point verdicts** are kept for transparency:
   - `point_verdict` compares central loss with exit cost **including carry**;
   - `point_verdict_execution_only` reproduces the Phase 0 rule.
+- **One basis for every displayed number:**
+  - exit side = `exit_total_usd` = execution (`exit_cost_usd`: slippage + fees + gas) + carry forgone (`carry_usd`);
+  - `margin_usd` = central loss − exit side (> 0 means staying costs more), so its sign always equals `point_verdict`;
+  - `breakeven_risk_multiplier` = exit side / central loss;
+  - scenario, custom shock, stress-table, sensitivity and book verdicts are conditional **point** comparisons against the same exit side (labelled as such);
+  - execution-only figures are kept in `*_execution_only` fields and never shown as the headline;
+  - UI: a REVIEW margin is amber and carries its lean, never "stay costs more" in red.
 
 ## 6. Observed live cases (Ethereum mainnet, 2026-10-10)
 
@@ -135,8 +142,9 @@ API: api/analyze.py → api_payload.build_payload      UI: public/index.html, pu
 ## 10. Reproduction
 
 ```powershell
-$env:PYTHONPATH="src"; python -m pytest -q                              # offline: 54 passed, 3 skipped
-$env:DEFIRISK_LIVE_TESTS="1"; python -m pytest -q                       # live:    57 passed
+$env:PYTHONPATH="src"; python -m pytest -q                              # offline: 62 passed, 3 skipped
+$env:DEFIRISK_LIVE_TESTS="1"; python -m pytest -q                       # live:    65 passed
+node --test tests\js\decision_view.test.mjs                             # node:    7 passed
 python scripts/replay_h04.py                                            # historical replays
 python scripts/dev_server.py 8765                                       # http://127.0.0.1:8765/?borrower=auto , /xray.html
 ```

@@ -25,8 +25,8 @@ SIM_TOLERANCE = 0.005  # SDK amount vs eth_call re-execution: >0.5% apart = mism
 class Decision:
     verdict: str
     expected_loss_usd: float
-    exit_cost_usd: float
-    margin_usd: float
+    exit_cost_usd: float  # execution only: swap fees + price impact + gas
+    margin_usd: float  # expected_loss_usd - exit_total_usd (> 0: staying costs more on central values)
     explanation: str
     loss_type: str = "expected"  # "expected" (probability-weighted) or "conditional" (given the shock happens)
     value_usd: float = 0.0
@@ -35,7 +35,7 @@ class Decision:
     exit_cost_pct: float = 0.0
     breakeven_risk_multiplier: float | None = None
     exit_method: str = ""
-    rule: str = "EXIT if loss from staying over the horizon > certain exit cost (slippage + fees + gas), else STAY"
+    rule: str = "EXIT if loss from staying over the horizon > exit side (execution: slippage + fees + gas, + carry forgone if known), else STAY"
     top_drivers: list = field(default_factory=list)
     point_verdict: str | None = None  # central comparison incl. carry (no uncertainty); verdict may be REVIEW
     point_verdict_execution_only: str | None = None  # legacy rule: loss vs execution cost, carry ignored
@@ -46,6 +46,10 @@ class Decision:
     exit_band: dict | None = None
     carry: dict | None = None
     freshness: dict | None = None
+    exit_total_usd: float | None = None  # exit side of the comparison: execution + carry forgone (central)
+    carry_usd: float | None = None  # excess carry forgone by exiting over the horizon (None = not counted)
+    margin_usd_execution_only: float | None = None  # legacy: loss - execution cost, carry ignored
+    breakeven_risk_multiplier_execution_only: float | None = None
 
 
 def approx_exit_cost(value_usd: float, pool_liquidity_usd: float, gas_usd: float = DEFAULT_GAS_USD) -> float:
@@ -187,27 +191,34 @@ def exit_cost_for(g: DepGraph, value_usd: float | None = None, liquidity_factor:
 
 
 def decide(g: DepGraph, sim: SimResult, cost, risk_aversion: float = 0.0, loss_type: str = "expected") -> Decision:
-    """risk_aversion blends mean loss with VaR95 (0 = mean only, 1 = VaR95). `cost` = float USD or exit_cost_for() dict."""
+    """risk_aversion blends mean loss with VaR95 (0 = mean only, 1 = VaR95). `cost` = float USD or exit_cost_for() dict.
+    If the dict carries `carry_usd` (excess yield forgone by exiting), it is added to the exit side of the comparison:
+    exit side = execution (swap fees + price impact + gas) + carry. margin = loss - exit side (> 0 means staying costs more)."""
     exit_info = cost if isinstance(cost, dict) else {"usd": float(cost), "method": "given"}
     c = exit_info["usd"]
+    carry = float(exit_info.get("carry_usd") or 0.0)
+    total = c + carry
     value = g.position.value_usd or 1.0
     loss = (1 - risk_aversion) * sim.expected_loss_usd + risk_aversion * sim.var95_usd
-    verdict = "EXIT" if loss > c else "STAY"
+    verdict = "EXIT" if loss > total else "STAY"
     labels = {n.id: n.label for n in g.nodes}
     top = sorted(sim.node_contrib.items(), key=lambda kv: -kv[1])[:3]
     drivers = [{"id": k, "label": labels.get(k, k), "usd": v} for k, v in top]
     why = ", ".join(f"{d['label']} (${d['usd']:,.0f})" for d in drivers)
-    mult = (c / loss) if loss > 0 else None
+    mult = (total / loss) if loss > 0 else None
     kind = "expected" if loss_type == "expected" else "conditional (if the shock happens)"
     if verdict == "STAY":
         flip = f"Risk would have to be x{mult:.1f} higher before exiting pays." if mult else "No modelled loss."
     else:
-        flip = f"Staying costs x{loss / c:.1f} the exit cost." if c > 0 else ""
+        flip = f"Staying costs x{loss / total:.1f} the exit side." if total > 0 else ""
+    side = (f"exit side ${total:,.0f} = exit cost ${c:,.0f} (execution: {c / value:.2%}, {exit_info.get('method')}) + "
+            f"carry forgone ${carry:,.0f}" if carry else
+            f"exit cost ${c:,.0f} (execution only: {c / value:.2%}, {exit_info.get('method')})")
     expl = (f"{verdict}: {kind} {g.position.horizon_days}d loss if we stay ${loss:,.0f} ({loss / value:.2%} of the "
-            f"${value:,.0f} position) vs certain exit cost ${c:,.0f} ({c / value:.2%}, {exit_info.get('method')}). {flip} "
-            f"Top risk drivers: {why}.")
-    return Decision(verdict, loss, c, loss - c, expl, loss_type, value, g.position.horizon_days, loss / value, c / value,
-                    mult, exit_info.get("method", ""), top_drivers=drivers)
+            f"${value:,.0f} position) vs {side}. {flip} Top risk drivers: {why}.")
+    return Decision(verdict, loss, c, loss - total, expl, loss_type, value, g.position.horizon_days, loss / value, c / value,
+                    mult, exit_info.get("method", ""), top_drivers=drivers, exit_total_usd=total,
+                    carry_usd=carry if carry else None)
 
 def decide_robust(g: DepGraph, sim: SimResult, ex: dict, prov: dict | None = None) -> Decision:
     """Point comparison (decide) + uncertainty bands + carry + freshness -> STAY / EXIT / REVIEW.
@@ -222,7 +233,14 @@ def decide_robust(g: DepGraph, sim: SimResult, ex: dict, prov: dict | None = Non
     fr = freshness.evaluate(g, ex, prov if prov is not None else http.provenance(), m.get("block_timestamp"))
     sig = uncertainty.robust_signal(lb, eb, cr, fr["blockers"])
     d.point_verdict_execution_only = d.verdict
+    d.margin_usd_execution_only = d.margin_usd
+    d.breakeven_risk_multiplier_execution_only = d.breakeven_risk_multiplier
     d.point_verdict, d.verdict = sig["point_verdict"], sig["verdict"]
+    # every headline number below is on the same basis as the verdict: central loss vs exit side incl. carry
+    d.exit_total_usd = eb["central_usd"]
+    d.carry_usd = cr["usd"] if cr.get("status") == "estimated" else None
+    d.margin_usd = lb["central_usd"] - eb["central_usd"]
+    d.breakeven_risk_multiplier = sig["breakeven_risk_multiplier_incl_carry"]
     d.confidence, d.lean, d.reasons = sig["confidence"], sig["lean"], sig["reasons"]
     d.loss_band, d.exit_band, d.carry, d.freshness = lb, eb, cr, fr
     d.rule = sig["rule"]

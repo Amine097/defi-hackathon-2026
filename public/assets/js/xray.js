@@ -1,5 +1,5 @@
 import { loadPayload, normalize } from './xray/data.js';
-import { buildIndex, cascade, positionLosses, concentration, breakEven, closure, pathTo, exitCostOf } from './xray/model.js';
+import { buildIndex, cascade, positionLosses, concentration, breakEven, closure, pathTo, exitCostOf, decisionView } from './xray/model.js';
 import { createGraph, LAYERS, layerColors } from './xray/graph.js';
 import { renderBreakEven } from './xray/chart.js';
 import { $, esc, usd, pct, clamp, countUp, reducedMotion } from './xray/util.js';
@@ -108,7 +108,7 @@ function start({ payload, kind, url }) {
   renderBook(m);
   const top = topRiskNode(m);
   S.beNode = top;
-  $('exitSlider').value = (exitTotalAll() / (m.totalValue || 1) * 100).toFixed(1);
+  $('exitSlider').value = ((exitTotalAll() / (m.totalValue || 1) - (m.carryRate || 0)) * 100).toFixed(1);
   baselineVerdict();
   renderBE();
   wireControls();
@@ -353,24 +353,34 @@ function refreshVerdict() {
 function baselineVerdict() {
   const m = S.m, d = m.decision;
   const overridden = S.exitOverride != null;
+  const dv = decisionView(d);
   const stay = d.expected_loss_usd || m.nodes.reduce((a, n) => a + n.contrib, 0);
-  const exit = overridden || !d.exit_cost_usd ? exitTotalAll() : d.exit_cost_usd;
+  const exit = overridden || !(dv.exit > 0) ? exitTotalAll() : dv.exit;
   const verdict = !overridden && d.verdict ? d.verdict : stay > exit ? 'EXIT' : 'STAY';
+  const point = !overridden && d.point_verdict ? d.point_verdict : stay > exit ? 'EXIT' : 'STAY';
   const top = topRiskNode(m);
   const share = top && S.conc ? top.contrib / S.conc.sumContrib : 0;
   const ratio = stay > 0 ? exit / stay : Infinity;
   const lb = d.loss_band, eb = d.exit_band;
-  const why = `Exiting costs <b>${usd(exit)}</b> for sure; staying loses <b>${usd(stay)}</b> in expectation over ${m.horizon} days (${pct(stay / (m.totalValue || 1))} of value).`
+  const carry = overridden ? (m.carryRate || 0) * (m.totalValue || 0) : dv.carry;
+  const exitTxt = carry > 0
+    ? `Exiting costs <b>${usd(exit)}</b>: execution ${usd(exit - carry)} + ${usd(carry)} of carry forgone over ${m.horizon} days`
+    : `Exiting costs <b>${usd(exit)}</b> (execution only, carry not counted)`;
+  const why = `${exitTxt}; staying loses <b>${usd(stay)}</b> in expectation (${pct(stay / (m.totalValue || 1))} of value).`
     + (top && top.contrib > 0 ? ` ${dot(top)}${nodeName(top)} drives <b>${pct(share)}</b> of that risk.` : '')
     + (verdict === 'REVIEW'
-      ? ` <b class="xr-warn">Review</b>: the uncertainty bands overlap or an input is not firm`
-        + (lb && eb ? ` (staying ${usd(lb.low_usd)}–${usd(lb.high_usd)} vs exit incl. carry ${usd(eb.low_usd)}–${usd(eb.high_usd)})` : '')
-        + `. ${esc(d.lean || '')}`
+      ? ` <b class="xr-warn">Review, not a firm call</b>: on central values ${point === 'STAY' ? 'exiting' : 'staying'} costs ${usd(Math.abs(stay - exit))} more, so the lean is <b>${esc(point)}</b>, but`
+        + (lb && eb && lb.high_usd >= eb.low_usd && eb.high_usd >= lb.low_usd
+          ? ` the uncertainty bands overlap (staying ${usd(lb.low_usd)}–${usd(lb.high_usd)} vs exit incl. carry ${usd(eb.low_usd)}–${usd(eb.high_usd)})`
+          : ' an input is not firm')
+        + (d.reasons && d.reasons.filter((r) => !/bands overlap/.test(r)).length ? `; ${esc(d.reasons.filter((r) => !/bands overlap/.test(r)).join('; '))}` : '')
+        + `. ${esc(d.lean || '')}.`
       : verdict === 'STAY'
-      ? ` The certain exit cost is <b>${ratio.toFixed(1)}×</b> the expected loss, so <b class="xr-green">stay</b>, but watch the top driver.`
-      : ` Expected loss exceeds the exit cost by <b>${usd(stay - exit)}</b>: <b class="xr-red">exit</b>.`);
-  setVerdict({ mode: overridden ? 'baseline · custom exit cost' : 'baseline', title: 'Decision', verdict, stay, exit, why,
+      ? ` The exit side is <b>${ratio.toFixed(1)}×</b> the expected loss${lb && eb ? ' and the bands do not overlap' : ''}, so <b class="xr-green">stay</b>, but watch the top driver.`
+      : ` Expected loss exceeds the exit side by <b>${usd(stay - exit)}</b>${lb && eb ? ' and the bands do not overlap' : ''}: <b class="xr-red">exit</b>.`);
+  setVerdict({ mode: overridden ? 'baseline · custom exit cost (point comparison)' : 'baseline', title: 'Decision', verdict, point, stay, exit, why,
     sub: `${m.horizon}-day horizon · all ${m.nodes.length - m.positions.length} dependencies at their base failure odds`,
+    exitSub: carry > 0 ? `execution ${usd(exit - carry)} + carry ${usd(carry)}` : 'execution only',
     server: d.explanation && !overridden ? `Model: ${esc(d.explanation)}` : '' });
 }
 
@@ -390,7 +400,7 @@ function failureVerdict(roots, res, c) {
   let why;
   if (!res.exposed.length) why = `${esc(names)} ${fails}, but no position depends on it: nothing to do.`;
   else {
-    why = `If ${nodeName({ label: names })} ${fails}, the shock reaches ${res.exposed.length} ${pluralPos(res.exposed.length)} (${pct(exposedVal / (m.totalValue || 1))} of book) in ${minHops} hop${minHops === 1 ? '' : 's'}. Staying loses <b class="xr-red">${usd(res.stay)}</b> if it happens; exiting costs <b>${usd(res.exit)}</b> for sure.`;
+    why = `If ${nodeName({ label: names })} ${fails}, the shock reaches ${res.exposed.length} ${pluralPos(res.exposed.length)} (${pct(exposedVal / (m.totalValue || 1))} of book) in ${minHops} hop${minHops === 1 ? '' : 's'}. Staying loses <b class="xr-red">${usd(res.stay)}</b> if it happens; exiting costs <b>${usd(res.exit)}</b> (execution + carry forgone).`;
     if (multi && res.exits.length) why += ` Best action: exit ${res.exits.map((r) => esc(r.p.label.split(' ')[0])).join(', ')}, stay elsewhere (total ${usd(res.optimal)}).`;
     if (roots.length === 1) {
       const be = breakEven(m, roots[0], S.failed.get(roots[0].id), res.exit);
@@ -401,25 +411,30 @@ function failureVerdict(roots, res, c) {
       }
     }
   }
-  setVerdict({ mode: 'simulated failure', title: 'If it happens', verdict, stay: res.stay, exit: res.exit, why, sub, stayLabel: ['Loss if STAY', 'if it happens'],
+  setVerdict({ mode: 'simulated failure · point comparison', title: 'If it happens', verdict, stay: res.stay, exit: res.exit, why, sub, stayLabel: ['Loss if STAY', 'if it happens'],
+    exitSub: 'execution + carry forgone',
     server: `Client-side propagation: loss = value × loss-if-fails × path transmission (best path), failure assumed certain.` });
 }
 
 function scenarioVerdict(sc, res) {
   const m = S.m;
-  const exit = S.exitOverride != null || !(sc.exit_cost_usd || m.decision.exit_cost_usd) ? exitTotalAll() : (+sc.exit_cost_usd || m.decision.exit_cost_usd);
+  const scExit = sc.exit_total_usd != null ? +sc.exit_total_usd : sc.exit_cost_usd != null ? +sc.exit_cost_usd + (m.carryRate || 0) * (m.totalValue || 0) : 0;
+  const exit = S.exitOverride != null || !(scExit > 0) ? exitTotalAll() : scExit;
   const stay = +(sc.conditional_loss_usd != null ? sc.conditional_loss_usd : sc.expected_loss_usd) || 0;
   const verdict = S.exitOverride != null ? (stay > exit ? 'EXIT' : 'STAY') : sc.verdict || (stay > exit ? 'EXIT' : 'STAY');
-  const why = `${esc(sc.description || sc.name)}. If this shock happens, staying loses <b class="xr-red">${usd(stay)}</b> over ${m.horizon} days vs a certain exit cost of <b>${usd(exit)}</b>${sc.exit && sc.exit.liquidity_factor < 1 ? ' (stressed exit liquidity)' : ''}`
-    + (verdict === 'EXIT' ? `: <b class="xr-red">exit</b> saves ${usd(stay - exit)}.` : `: <b class="xr-green">stay</b>, exiting would waste ${usd(exit - stay)}.`);
+  const why = `${esc(sc.description || sc.name)}. If this shock happens, staying loses <b class="xr-red">${usd(stay)}</b> over ${m.horizon} days vs an exit side of <b>${usd(exit)}</b> (execution${sc.exit && sc.exit.liquidity_factor < 1 ? ' under stressed liquidity' : ''} + carry forgone)`
+    + (verdict === 'EXIT' ? `: <b class="xr-red">exit</b> saves ${usd(stay - exit)}.` : `: <b class="xr-green">stay</b>, exiting would waste ${usd(exit - stay)}.`)
+    + ' Conditional point comparison: the shock is assumed to happen, so no probability band applies.';
   setVerdict({ mode: 'scenario · server model', title: sc.name, verdict, stay, exit, why, sub: `${pct(stay / (m.totalValue || 1))} of value at risk`,
     stayLabel: ['Loss if STAY', 'if the shock happens'],
+    exitSub: sc.carry_usd ? `execution ${usd(+sc.exit_cost_usd)} + carry ${usd(+sc.carry_usd)}` : 'execution + carry forgone',
     server: res ? `Client propagation check: ${usd(res.stay)} lost across ${res.exposed.length} ${pluralPos(res.exposed.length)} if the failure is certain.` : '' });
 }
 
-function setVerdict({ mode, title, verdict, stay, exit, why, sub, server, stayLabel = ['Expected loss if STAY', 'uncertain'] }) {
+function setVerdict({ mode, title, verdict, point, stay, exit, why, sub, server, exitSub = 'execution + carry forgone', stayLabel = ['Expected loss if STAY', 'uncertain'] }) {
   $('kStayL').textContent = stayLabel[0];
   $('kStayS').textContent = stayLabel[1];
+  $('kExitS').textContent = exitSub;
   $('vTitle').textContent = title;
   $('vMode').textContent = mode;
   const b = $('vBadge');
@@ -433,10 +448,10 @@ function setVerdict({ mode, title, verdict, stay, exit, why, sub, server, stayLa
   $('vSub').innerHTML = `<span>${esc(sub || '')}</span>`;
   countUp($('kStay'), stay, (v) => usd(v));
   countUp($('kExit'), exit, (v) => usd(v));
-  const margin = stay - exit;
-  countUp($('kMargin'), margin, (v) => usd(v, { sign: true }));
-  $('kMargin').className = margin > 0 ? 'xr-red' : 'xr-green';
-  $('kMarginHint').textContent = margin > 0 ? 'stay costs more' : 'exit costs more';
+  const v = decisionView({ verdict, point_verdict: point, expected_loss_usd: stay, exit_total_usd: exit });
+  countUp($('kMargin'), v.margin, (x) => usd(x, { sign: true }));
+  $('kMargin').className = v.cls === 'warn' ? 'xr-warn' : v.margin > 0 ? 'xr-red' : 'xr-green';
+  $('kMarginHint').textContent = v.hint;
   const mx = Math.max(stay, exit, 1);
   $('barStay').style.width = `${clamp(stay / mx * 100, 1, 100)}%`;
   $('barExit').style.width = `${clamp(exit / mx * 100, 1, 100)}%`;
@@ -481,7 +496,8 @@ function renderBE() {
   const p = S.beP ?? clamp(node.p_fail, 0, pMax);
   slider.value = (p * 100).toFixed(2);
   $('beP').textContent = pct(p, p < 0.01 ? 2 : 1);
-  $('beX').textContent = `${pct(exitTotal / (m.totalValue || 1), 1)} · ${usd(exitTotal)}`;
+  const carryAll = (m.carryRate || 0) * (m.totalValue || 0);
+  $('beX').textContent = `${pct(Math.max(0, exitTotal - carryAll) / (m.totalValue || 1), 1)} · ${usd(exitTotal)} incl. carry`;
   const v = renderBreakEven($('beChart'), be, p, pMax, node.label);
   let msg;
   if (!(be.L > 0)) msg = `No position depends on ${esc(node.label)}: its failure costs nothing here.`;
@@ -496,22 +512,22 @@ function renderBook(m) {
   const b = m.book;
   if (!b || !b.pockets.length) { $('bookCard').hidden = true; return; }
   const P = b.pockets;
-  const exitAll = P.reduce((a, p) => a + (+p.exit_cost_usd || 0), 0);
+  const exitAll = P.reduce((a, p) => a + (+(p.exit_total_usd || p.exit_cost_usd) || 0), 0);
   const affected = P.filter((p) => p.affected);
   const opts = [
     { k: 'Stay everywhere', v: +b.total_stay_loss_usd, d: 'expected loss, uncertain' },
     { k: 'Best action per pocket', v: +b.total_optimal_usd, d: `${pct(+b.pct_of_book, 2)} of book` },
-    { k: 'Exit whole book', v: exitAll, d: 'certain cost' },
+    { k: 'Exit whole book', v: exitAll, d: 'execution + carry forgone' },
   ];
   const best = Math.min(...opts.map((o) => o.v));
   $('bookPct').textContent = `${P.length} pockets`;
-  $('bookNote').innerHTML = `${esc(b.scenario || `Stress test: ${affected.length} of ${P.length} pockets hit by ${S.m.scenarios[0] ? `“${S.m.scenarios[0].name}”` : 'the stress scenario'}`)}. Exit is expensive but certain; staying is cheaper on average but uncertain.`;
+  $('bookNote').innerHTML = `${esc(b.scenario || `Stress test: ${affected.length} of ${P.length} pockets hit by ${S.m.scenarios[0] ? `“${S.m.scenarios[0].name}”` : 'the stress scenario'}`)}. Exit cost = execution (quoted, stressed for hit pockets) + carry forgone; staying is cheaper on average but uncertain. Point comparison per pocket.`;
   $('bookTotals').innerHTML = opts.map((o) => `<div class="xr-total ${o.v === best ? 'best' : ''}"><span>${o.k}</span><b>${usd(o.v)}</b><small>${o.d}</small></div>`).join('');
-  $('bookTable').innerHTML = `<thead><tr><th>Pocket</th><th class="num">Value</th><th class="num">Stay loss</th><th class="num">Exit cost</th><th>Call</th></tr></thead><tbody>
+  $('bookTable').innerHTML = `<thead><tr><th>Pocket</th><th class="num">Value</th><th class="num">Stay loss</th><th class="num">Exit cost (incl. carry)</th><th>Call</th></tr></thead><tbody>
     ${P.map((p) => {
       const node = S.m.positions.find((n) => n.label === p.label || n.id === p.label || n.label.split(' ')[0] === p.label);
       return `<tr class="${p.affected ? 'hit' : ''}" ${node ? `data-id="${esc(node.id)}"` : ''}><td>${p.affected ? '<i class="xr-hitdot" title="hit by the stress scenario"></i>' : '<i class="xr-hitdot off"></i>'}${esc(p.label)}</td>
-      <td class="num">${usd(+p.value_usd)}</td><td class="num ${p.affected ? 'xr-red' : ''}">${usd(+p.stay_loss_usd)}</td><td class="num">${usd(+p.exit_cost_usd)}</td>
+      <td class="num">${usd(+p.value_usd)}</td><td class="num ${p.affected ? 'xr-red' : ''}">${usd(+p.stay_loss_usd)}</td><td class="num" title="execution ${usd(+p.exit_cost_usd)} + carry ${usd(+p.carry_usd || 0)}">${usd(+(p.exit_total_usd || p.exit_cost_usd))}</td>
       <td><span class="xr-vb xr-vb-${String(p.verdict).toLowerCase()}">${esc(p.verdict)}</span></td></tr>`;
     }).join('')}</tbody>`;
   $('bookTable').querySelectorAll('tr[data-id]').forEach((tr) => tr.addEventListener('click', () => { select(tr.dataset.id); S.g.centerOn(tr.dataset.id); }));

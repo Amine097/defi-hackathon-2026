@@ -112,5 +112,6 @@ def _borrower_decision(g, st: dict) -> dict:
     point = "EXIT" if exp > cost else "STAY"
     return {"verdict": "REVIEW" if reasons else point, "point_verdict": point, "expected_loss_usd": exp,
             "exit_cost_usd": cost, "exit_method": method, "reasons": reasons,
-            "rule": f"borrower expected loss (price move + liquidation penalty, non-recourse) vs deleverage cost; REVIEW if "
+            "rule": f"borrower expected loss (price move + liquidation penalty, non-recourse) vs deleverage execution cost "
+                    f"(carry not counted); REVIEW if "
                     f"distance to liquidation < {MIN_DISTANCE:.0%} or interest alone liquidates"}

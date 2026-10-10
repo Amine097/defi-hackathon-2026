@@ -32,7 +32,7 @@ python -m http.server 8000 -d public
   - A plain-English "why" built from the numbers, including the top risk driver's share.
   - The model `explanation`.
 - **Break-even card:**
-  - Chart of EL(p) = base + p·L against the certain exit cost (of the exposed positions), with a marker. It states "Exit if P > X%".
+  - Chart of EL(p) = base + p·L against the exit side (execution + carry forgone, of the exposed positions), with a marker. It states "Exit if P > X%".
   - A P(incident) slider and an exit-cost (% slippage) slider; the exit slider overrides the cost client-side.
 - **Book:** `book.pockets` table with stay / best-per-pocket / exit-all totals. Clicking a row focuses that pocket if it is a graph node.
 - **Hidden concentration:** for each node, the number of positions that transitively depend on it and the % of book, with an "indirect" tag. Insights read like "P2 never touches Chainlink directly but depends on it via Aave (2 hops)". Clicking an item focuses the node and its dependents.

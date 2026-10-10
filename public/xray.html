@@ -62,7 +62,7 @@
         <ol>
           <li><b>The graph is your position's hidden dependency stack.</b> The orange hexagon is the position. Each arrow <i>A → B</i> means "A depends on B". Colours are the 5 layers: chain, yield source, oracle, AMM market, lending.</li>
           <li><b>Make something fail.</b> Click any node (or a scenario on the right, e.g. "Oracle failure"). The red wave shows how the failure travels to the position, hop by hop.</li>
-          <li><b>Read the verdict on the right.</b> <b>Stay</b> costs an uncertain expected loss, <b>Exit</b> costs a certain slippage. The cheaper one wins; the margin shows by how much.</li>
+          <li><b>Read the verdict on the right.</b> <b>Stay</b> costs an uncertain expected loss; <b>Exit</b> costs the execution (slippage + fees + gas) plus the extra yield you give up (carry). Both sides carry an uncertainty band: <b>EXIT</b> or <b>STAY</b> only when the bands do not overlap and the inputs are fresh, otherwise <b>REVIEW</b> with a lean. The margin compares central values (loss − exit side incl. carry).</li>
           <li><b>Stress-test it.</b> Use the Break-even sliders to see at which incident probability or exit cost the verdict flips.</li>
         </ol>
         <p class="xr-guide-note" id="guideNote"></p>
@@ -88,7 +88,7 @@
       </div>
       <div class="xr-kpis">
         <div class="xr-kpi"><span id="kStayL">Expected loss if STAY</span><b id="kStay">—</b><small id="kStayS">uncertain</small></div>
-        <div class="xr-kpi"><span>Cost if EXIT</span><b id="kExit">—</b><small>certain</small></div>
+        <div class="xr-kpi"><span>Cost if EXIT</span><b id="kExit">—</b><small id="kExitS">execution + carry forgone</small></div>
         <div class="xr-kpi"><span>Margin</span><b id="kMargin">—</b><small id="kMarginHint">stay − exit</small></div>
       </div>
       <div class="xr-scale" id="vScale" aria-hidden="true">
@@ -117,7 +117,7 @@
       <svg id="beChart" class="xr-be" viewBox="0 0 340 170" role="img" aria-label="Expected loss versus exit cost"></svg>
       <label class="xr-range"><span>P(incident) over horizon <b id="beP">0%</b></span>
         <input type="range" id="beSlider" min="0" max="10" step="0.05" value="1"></label>
-      <label class="xr-range"><span>Exit cost (slippage + gas) <b id="beX">0%</b></span>
+      <label class="xr-range"><span>Exit execution cost (slippage + gas; carry added) <b id="beX">0%</b></span>
         <input type="range" id="exitSlider" min="0" max="20" step="0.1" value="2"></label>
       <p class="xr-be-out" id="beOut"></p>
     </section>

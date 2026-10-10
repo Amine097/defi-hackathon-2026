@@ -23,27 +23,29 @@ class PocketResult:
     value_usd: float
     affected: bool
     stay_loss_usd: float  # loss if we stay: conditional on the scenario for affected pockets, expected otherwise
-    exit_cost_usd: float  # certain cost if we unwind (stressed for affected pockets if the scenario says so)
+    exit_cost_usd: float  # execution cost if we unwind (stressed for affected pockets if the scenario says so)
     verdict: str
     stay_loss_type: str = "expected"
     exit_method: str = ""
+    carry_usd: float = 0.0  # excess carry forgone by exiting over the horizon
+    exit_total_usd: float = 0.0  # exit side of the comparison = execution + carry
 
 
 @dataclass
 class BookResult:
     pockets: list
     total_stay_loss_usd: float  # if we stay in everything
-    total_optimal_usd: float  # sum of min(stay loss, exit cost) per pocket
+    total_optimal_usd: float  # sum of min(stay loss, exit side incl. carry) per pocket
     pct_of_book: float
     scenario: str = ""
 
 
 def evaluate_book(pockets: list[Pocket], book_usd: float, scenario: Scenario | None = None,
-                  affected: set[str] | None = None) -> BookResult:
+                  affected: set[str] | None = None, carry_rate: float = 0.0) -> BookResult:
     """scenario is applied only to pockets whose label is in `affected` (all if None).
 
     All amounts are USD; pct_of_book divides by the whole book (a pocket's exit cost of 11% on a 10% pocket
-    is 1.1% of the book)."""
+    is 1.1% of the book). carry_rate = carry forgone by exiting / position value (0 = execution cost only)."""
     results, stay_total, optimal = [], 0.0, 0.0
     for p in pockets:
         g = p.graph
@@ -51,10 +53,11 @@ def evaluate_book(pockets: list[Pocket], book_usd: float, scenario: Scenario | N
         hit = scenario is not None and (affected is None or p.label in affected)
         sim = simulate(apply(g, scenario) if hit else g)
         ex = exit_cost_for(g, g.position.value_usd, scenario.exit_liquidity_factor if hit else 1.0)
-        cost = ex["usd"]
+        carry = g.position.value_usd * carry_rate
+        cost = ex["usd"] + carry
         results.append(PocketResult(p.label, g.position.value_usd, hit, sim.expected_loss_usd,
-                                    cost, "EXIT" if sim.expected_loss_usd > cost else "STAY",
-                                    "conditional" if hit else "expected", ex["method"]))
+                                    ex["usd"], "EXIT" if sim.expected_loss_usd > cost else "STAY",
+                                    "conditional" if hit else "expected", ex["method"], carry, cost))
         stay_total += sim.expected_loss_usd
         optimal += min(sim.expected_loss_usd, cost)
     return BookResult(results, stay_total, optimal, optimal / book_usd, scenario.name if scenario else "")

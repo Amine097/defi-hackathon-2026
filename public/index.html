@@ -75,7 +75,7 @@
         <div class="grid g-kpi">
           <div class="card kpi"><span class="label">Position</span><span class="value" id="k-pos">—</span></div>
           <div class="card kpi"><span class="label">Expected loss (stay)</span><span class="value" id="k-loss">—</span></div>
-          <div class="card kpi"><span class="label">Exit cost</span><span class="value" id="k-exit">—</span></div>
+          <div class="card kpi"><span class="label">Exit cost (incl. carry)</span><span class="value" id="k-exit">—</span></div>
         </div>
         <div class="card">
           <h3>Top risk drivers</h3>
@@ -109,7 +109,7 @@
     <div class="card">
       <div class="tot" id="book-tot"></div>
       <div class="table-wrap"><table class="table">
-        <thead><tr><th>Pocket</th><th class="num">Value</th><th>Affected</th><th class="num">Loss if stay</th><th class="num">Exit cost</th><th>Best action</th></tr></thead>
+        <thead><tr><th>Pocket</th><th class="num">Value</th><th>Affected</th><th class="num">Loss if stay</th><th class="num">Exit cost (incl. carry)</th><th>Best action</th></tr></thead>
         <tbody id="book"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
       </table></div>
     </div>
@@ -167,8 +167,10 @@
   $('signal').innerHTML = F.signalDetails(d);
   $('k-pos').textContent = F.fmtUsd(d.position.value_usd);
   countUp($('k-loss'), dec.expected_loss_usd);
-  $('k-exit').title = (d.exit && d.exit.basis) || dec.exit_method || '';
-  countUp($('k-exit'), dec.exit_cost_usd);
+  const exitTotal = dec.exit_total_usd != null ? dec.exit_total_usd : dec.exit_cost_usd;
+  $('k-exit').title = 'execution ' + F.fmtUsd(dec.exit_cost_usd) + ' (' + ((d.exit && d.exit.basis) || dec.exit_method || '') + ')' +
+    (dec.carry_usd != null ? ' + carry forgone ' + F.fmtUsd(dec.carry_usd) : ' · carry not counted');
+  countUp($('k-exit'), exitTotal);
 
   const nodes = Object.fromEntries(d.nodes.map((n) => [n.id, n]));
   const top = Object.entries(d.node_contrib_usd || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 3);
@@ -191,7 +193,7 @@
     $('book').innerHTML = b.pockets.map((p) =>
       '<tr' + (p.affected ? ' class="hl"' : '') + '><td><b>' + F.esc(p.label) + '</b></td><td class="num">' + F.fmtUsd(p.value_usd) + '</td><td>' +
       (p.affected ? '<span class="badge badge-exit">HIT</span>' : '<span class="muted">—</span>') + '</td><td class="num">' + F.fmtUsd(p.stay_loss_usd) +
-      '</td><td class="num">' + F.fmtUsd(p.exit_cost_usd) + '</td><td>' + F.verdictBadge(p.verdict) + '</td></tr>').join('');
+      '</td><td class="num">' + F.fmtUsd(p.exit_total_usd || p.exit_cost_usd) + '</td><td>' + F.verdictBadge(p.verdict) + '</td></tr>').join('');
   }
 })();
 </script>

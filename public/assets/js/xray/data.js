@@ -95,6 +95,8 @@ export function normalize(p) {
   const decision = Object.assign({ verdict: '', expected_loss_usd: 0, exit_cost_usd: 0, margin_usd: 0, explanation: '' }, p.decision || {});
   const posValue = num(position.value_usd);
   const exitRate = posValue > 0 && decision.exit_cost_usd > 0 ? decision.exit_cost_usd / posValue : 0;
+  // carry forgone by exiting (PT excess yield), same basis as the backend verdict; 0 when unknown
+  const carryRate = posValue > 0 && decision.carry && decision.carry.status === 'estimated' ? num(decision.carry.usd) / posValue : 0;
   for (const n of positions) {
     const pk = pockets.find((b) => b.label === n.label || b.label === n.id);
     n.value = num(n.meta.value_usd) || (n.id === position.id ? posValue : 0) || num(pk && pk.value_usd) || posValue / positions.length;
@@ -102,7 +104,7 @@ export function normalize(p) {
   }
 
   return {
-    position, nodes, edges, byId, positions, decision, exitRate,
+    position, nodes, edges, byId, positions, decision, exitRate, carryRate,
     scenarios: Array.isArray(p.scenarios) ? p.scenarios : [],
     book: p.book && Array.isArray(p.book.pockets) ? p.book : null,
     totalValue: positions.reduce((s, n) => s + n.value, 0) || posValue,
