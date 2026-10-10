@@ -39,6 +39,7 @@
   .driver .amt { flex:0 0 70px; text-align:right; font-variant-numeric:tabular-nums; font-size:.9rem; }
   .layers { display:grid; grid-template-columns:repeat(5,1fr); gap:var(--space-3); }
   .layer { padding:var(--space-4); border-top:3px solid var(--c); }
+  .layer img { width:28px; height:28px; display:block; margin-bottom:8px; }
   .layer b { color:var(--c); font-size:.8rem; letter-spacing:.1em; }
   .layer h3 { font-size:1rem; margin:4px 0 6px; } .layer p { font-size:.85rem; color:var(--muted); margin:0; }
   details.card summary { cursor:pointer; font-weight:700; }
@@ -85,11 +86,11 @@
   <section id="how">
     <h2>How it works: five layers of dependency</h2>
     <div class="layers">
-      <div class="card layer" style="--c:var(--layer-chain)"><b>L1</b><h3>Settlement chain</h3><p>The chain the position settles on: halts, reorgs, congestion.</p></div>
-      <div class="card layer" style="--c:var(--layer-yield)"><b>L2</b><h3>Yield source &amp; issuer</h3><p>The underlying asset (e.g. sUSDe) and who issues it (Ethena): depeg, funding risk.</p></div>
-      <div class="card layer" style="--c:var(--layer-oracle)"><b>L3</b><h3>Oracle</h3><p>The price feed that values the asset: manipulation or stale prices.</p></div>
-      <div class="card layer" style="--c:var(--layer-amm)"><b>L4</b><h3>PT market &amp; AMM curve</h3><p>Where the PT trades and exits: liquidity depth and slippage.</p></div>
-      <div class="card layer" style="--c:var(--layer-lending)"><b>L5</b><h3>Lending market</h3><p>Morpho/Aave using it as collateral: liquidation cascades.</p></div>
+      <div class="card layer" style="--c:var(--layer-chain)"><img src="/assets/layers/chain.svg" alt=""><b>L1</b><h3>Settlement chain</h3><p>The chain the position settles on: halts, reorgs, congestion.</p></div>
+      <div class="card layer" style="--c:var(--layer-yield)"><img src="/assets/layers/yield.svg" alt=""><b>L2</b><h3>Yield source &amp; issuer</h3><p>The underlying asset (e.g. sUSDe) and who issues it (Ethena): depeg, funding risk.</p></div>
+      <div class="card layer" style="--c:var(--layer-oracle)"><img src="/assets/layers/oracle.svg" alt=""><b>L3</b><h3>Oracle</h3><p>The price feed that values the asset: manipulation or stale prices.</p></div>
+      <div class="card layer" style="--c:var(--layer-amm)"><img src="/assets/layers/amm.svg" alt=""><b>L4</b><h3>PT market &amp; AMM curve</h3><p>Where the PT trades and exits: liquidity depth and slippage.</p></div>
+      <div class="card layer" style="--c:var(--layer-lending)"><img src="/assets/layers/lending.svg" alt=""><b>L5</b><h3>Lending market</h3><p>Morpho/Aave using it as collateral: liquidation cascades.</p></div>
     </div>
   </section>
 

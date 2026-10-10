@@ -112,7 +112,7 @@ function renderHeader(m) {
 function renderLegend(m) {
   const present = new Set(m.nodes.map((n) => n.layer));
   $('legend').innerHTML = LAYERS.filter((l) => present.has(l.key))
-    .map((l) => `<span>${l.key === 'position' ? `<i class="xr-hex" style="--c:${COL.position}"></i>` : `<i class="xr-dot" style="--c:${COL[l.key]}"></i>`}${esc(l.name)}</span>`).join('')
+    .map((l) => `<span><img class="xr-layer-icon" src="/assets/layers/${l.key}.svg" alt="">${esc(l.name)}</span>`).join('')
     + `<span class="xr-leg-sep"></span><span><i class="xr-line"></i>A → B: A depends on B</span><span><i class="xr-line xr-line-dash"></i>weak link (&lt;50%)</span><span><i class="xr-line xr-line-red"></i>failure path</span>`;
 }
 

@@ -49,20 +49,48 @@ function abbrev(n) {
   return clean.length <= 7 ? clean : clean.slice(0, 6) + '…';
 }
 
-const LOGO_ALIAS = { ethereum: 'eth', weth: 'eth', tether: 'usdt', wsteth: 'steth', chainlink: 'link', wbtc: 'btc', bitcoin: 'btc' };
+const LOGO_ALIAS = {
+  ethereum: 'eth.svg', weth: 'eth.svg', arbitrum: 'arbitrum.webp',
+  tether: 'usdt.svg', circle: 'usdc.svg', wsteth: 'steth.svg', lido: 'lido.webp',
+  chainlink: 'link.svg', wbtc: 'btc.svg', bitcoin: 'btc.svg',
+  usde: 'ethena.webp', susde: 'ethena.webp', ethena: 'ethena.webp',
+  weeth: 'etherfi.webp', eeth: 'etherfi.webp', etherfi: 'etherfi.webp',
+  rseth: 'kelp.webp', kelp: 'kelp.webp',
+  usds: 'sky.svg', susds: 'sky.svg', ausdc: 'aave.svg',
+  morpho: 'morpho.webp', redstone: 'redstone.webp',
+  eigenlayer: 'eigenlayer.webp', eigencloud: 'eigenlayer.webp',
+  curve: 'curve.webp', euler: 'euler.webp',
+};
 const logoCache = new Map();
-function logoFor(n) {
-  if (n.isPos) return null;
-  const word = (n.label.split(/[\s/(]+/).filter(Boolean)[0] || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-  if (!word) return null;
-  const file = LOGO_ALIAS[word] || word;
-  if (!logoCache.has(file)) {
-    const img = new Image();
-    img.onerror = () => { img.failed = true; };
-    img.src = `assets/logos/${file}.svg`;
-    logoCache.set(file, img);
+function logoPath(n) {
+  const fallback = `/assets/layers/${n.layer}.svg`;
+  if (n.isPos) return { path: fallback, fallback };
+  const label = n.label.toLowerCase();
+  const provider = String(n.meta.provider || '').toLowerCase();
+  if (n.layer === 'oracle') {
+    if (label.includes('chainlink') || provider.includes('chainlink')) return { path: '/assets/logos/link.svg', fallback };
+    if (label.includes('redstone') || provider.includes('redstone')) return { path: '/assets/logos/redstone.webp', fallback };
+    if (label.includes('pendle') || /^pt[-\s]/.test(label)) return { path: '/assets/logos/pendle.svg', fallback };
+    return { path: fallback, fallback };
   }
-  const img = logoCache.get(file);
+  if (n.layer === 'amm' && /^pt[-\s]/.test(label)) return { path: '/assets/logos/pendle.svg', fallback };
+  const word = (n.label.split(/[\s/(]+/).filter(Boolean)[0] || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!word || ['cex', 'pt', 'position'].includes(word)) return { path: fallback, fallback };
+  return { path: `/assets/logos/${LOGO_ALIAS[word] || `${word}.svg`}`, fallback };
+}
+function logoFor(n) {
+  const { path, fallback } = logoPath(n);
+  const key = `${path}|${fallback}`;
+  if (!logoCache.has(key)) {
+    const img = new Image();
+    img.onerror = () => {
+      if (img.src.endsWith(fallback)) img.failed = true;
+      else img.src = fallback;
+    };
+    img.src = path;
+    logoCache.set(key, img);
+  }
+  const img = logoCache.get(key);
   return !img.failed && img.complete && img.naturalWidth ? img : null;
 }
 
