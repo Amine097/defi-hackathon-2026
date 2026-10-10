@@ -13,13 +13,13 @@ Output: dependency graph -> failure scenarios -> expected loss vs exit cost -> S
 1. Discovery (30%): Pendle API (market -> SY -> underlying yield source), oracle (Chainlink/Pendle oracle) via on-chain reads, lending market (Morpho/Aave), chain. Build with networkx.
 2. Impact (30%): per-node failure probability x loss-given-failure (depeg, oracle failure, exploit, liquidity crunch); propagate along edges; Monte Carlo (numpy).
 3. Decision (25%): exit cost = AMM slippage + gas; EXIT if expected loss (horizon) > exit cost. Show assumptions + sensitivity.
-4. Demo (15%): Streamlit page hosting the Pendle X-Ray node graph (see Visual direction) + verdict.
+4. Demo (15%): Vercel-hosted web app: static `public/index.html` (X-Ray node graph) + Python serverless API `api/analyze.py` (reuses src/defirisk). Streamlit dropped.
 
 ## Team (4)
 - A: data/discovery (Pendle, DefiLlama, RPC)
 - B: graph + propagation model
 - C: Monte Carlo + exit-cost/decision logic
-- D: Streamlit UI + node graph (port docs/mockups/pendle-xray-node-graph.html to real data), README, pitch deck/video
+- D: Web UI on Vercel (public/index.html: port the node graph to fetch /api/analyze), README, pitch deck/video
 
 ## Timeline (deadline tomorrow 11:00)
 - Now-+2h: pick position, agree on JSON graph schema (nodes, edges, tvl, p_fail, loss).
@@ -28,7 +28,9 @@ Output: dependency graph -> failure scenarios -> expected loss vs exit cost -> S
 - Morning: integrate, run on real data, polish, record demo by 09:30, submit by 10:30.
 
 ## Setup
-python -m venv .venv; .venv\Scripts\activate; pip install networkx numpy pandas requests streamlit web3 pyvis
+python -m venv .venv; .venv\Scripts\activate; pip install -r requirements-dev.txt
+
+Deploy: `npm i -g vercel; vercel` (static `public/` + Python function `api/analyze.py`). Local: `vercel dev`.
 
 ## Stretch (only if core runs on real data; target: tomorrow morning)
 Whale alert assistant (owner: D or A, ~2-3h):
@@ -45,8 +47,8 @@ Reference prototype: docs/mockups/pendle-xray-node-graph.html (open in a browser
 - Edges: "depends on", with a transmission factor.
 - Click a node (or scenario button) = it fails; failure spreads to dependents with delay, edges pulse red.
 - Side panel: loss if STAY vs cost if EXIT (11% unwind in the brief's example), per-pocket + overall verdict, hidden-concentration list (indirect deps).
-Implementation: Streamlit page embeds the graph via components.html, fed with JSON from the Python model
-(src/defirisk/viz.py: replace pyvis with this prototype, injecting DepGraph JSON + simulate() results).
+Implementation: Vercel. `public/index.html` is the prototype (mock data inline); next step is to replace its hardcoded N/E/POS
+arrays with the JSON from `GET /api/analyze` (src/defirisk/api_payload.py). May later migrate to Next.js if desired.
 Secondary (only if time): break-even chart (loss vs P(incident)), cascade timeline.
 Dropped: stack/tower diagram and Sankey.
 

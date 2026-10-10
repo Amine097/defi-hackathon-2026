@@ -27,8 +27,11 @@ def _cached(method: str, url: str, params=None, body=None, timeout: float = 8.0)
             r = requests.request(method, url, params=params, json=body, timeout=timeout)
             r.raise_for_status()
             data = r.json()
-            CACHE_DIR.mkdir(parents=True, exist_ok=True)
-            path.write_text(json.dumps({"url": url, "data": data}), encoding="utf-8")
+            try:
+                CACHE_DIR.mkdir(parents=True, exist_ok=True)
+                path.write_text(json.dumps({"url": url, "data": data}), encoding="utf-8")
+            except OSError:  # read-only filesystem (e.g. Vercel): skip caching, committed cache still read
+                pass
             return data
         except Exception as e:
             if not path.exists():

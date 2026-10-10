@@ -1,0 +1,102 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Pendle X-Ray mockup v3</title>
+<style>
+body{margin:0;background:#0a0d13;color:#eee;font-family:system-ui;display:flex;height:100vh;overflow:hidden}
+#main{flex:1;position:relative}canvas{width:100%;height:100%;display:block}
+#side{width:340px;background:#12161f;padding:14px;overflow:auto;border-left:1px solid #222}
+h1{font-size:16px;margin:0 0 2px}.sub{color:#888;font-size:12px;margin-bottom:10px}
+.hint{position:absolute;left:12px;top:10px;font-size:12px;color:#889;background:#0008;padding:6px 8px;border-radius:6px}
+.legend{position:absolute;left:12px;bottom:10px;font-size:11px;display:flex;gap:10px;flex-wrap:wrap;background:#0008;padding:6px 8px;border-radius:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.kpis{display:flex;gap:6px;margin:8px 0}.kpi{flex:1;background:#1b2130;border-radius:8px;padding:8px;text-align:center}
+.kpi span{font-size:10px;color:#999;display:block}.kpi b{font-size:17px}
+.stay{color:#4ade80}.exit{color:#f87171}
+button{background:#3b82f6;border:0;color:#fff;padding:7px 10px;border-radius:7px;margin:2px 2px 0 0;cursor:pointer;font-size:12px}
+button.r{background:#444}
+table{width:100%;font-size:12px;border-collapse:collapse;margin-top:6px}td,th{padding:3px 4px;text-align:right}td:first-child,th:first-child{text-align:left}th{color:#888;font-weight:500}
+#log{font-size:12px;color:#ccc;margin-top:8px;min-height:50px}
+.card{background:#1b2130;border-radius:8px;padding:9px;margin-top:10px;font-size:12px}
+h3{font-size:12px;color:#9ab;margin:14px 0 4px;letter-spacing:.5px}
+</style></head><body>
+<div id="main"><canvas id="c"></canvas>
+ <div class="hint">Click a node = make it fail. Drag to move. Hover for details.</div>
+ <div class="legend" id="legend"></div></div>
+<div id="side">
+ <h1>Pendle X-Ray</h1><div class="sub">Book $10M, 6 PT pockets. Mock data.</div>
+ <div id="sel" class="card">Pick an incident:<br>
+  <button onclick="fail('usde')">USDe depeg</button><button onclick="fail('cl')">Chainlink failure</button>
+  <button onclick="fail('morpho')">Morpho exploit</button><button onclick="fail('eth')">Chain halt</button>
+  <button class="r" onclick="reset()">Reset</button></div>
+ <h3>DECISION (cost to exit = 11% of pocket)</h3>
+ <div class="kpis"><div class="kpi"><span>Expected loss if STAY</span><b id="k1">$0</b></div>
+  <div class="kpi"><span>Cost if EXIT hit pockets</span><b id="k2">$0</b></div>
+  <div class="kpi"><span>Verdict</span><b id="k3">-</b></div></div>
+ <table><thead><tr><th>Pocket</th><th>Loss</th><th>Exit</th><th></th></tr></thead><tbody id="tb"></tbody></table>
+ <div id="log"></div>
+ <h3>HIDDEN CONCENTRATION</h3><div id="conc" class="card"></div>
+</div>
+<script>
+const COL={chain:'#7f8c9a',yield:'#2ecc71',oracle:'#f1c40f',amm:'#3498db',lending:'#b05cf0',pos:'#ff8a3d'};
+const LBL={chain:'L1 Chain',yield:'L2 Yield source / issuer',oracle:'L3 Oracle',amm:'L4 PT market / AMM',lending:'L5 Lending',pos:'Position'};
+const N=[ // id,label,layer
+['eth','Ethereum','chain'],
+['usde','USDe / Ethena','yield'],['steth','stETH / Lido','yield'],['eeth','weETH / EtherFi','yield'],['usds','USDS / Sky','yield'],
+['cl','Chainlink feeds','oracle'],['pto','Pendle PT oracle','oracle'],
+['m1','PT-sUSDe mkt','amm'],['m2','PT-USDe mkt','amm'],['m3','PT-wstETH mkt','amm'],['m4','PT-weETH mkt','amm'],['m5','PT-USDS mkt','amm'],
+['morpho','Morpho','lending'],['aave','Aave','lending'],
+['p0','Pocket P0','pos'],['p1','Pocket P1','pos'],['p2','Pocket P2','pos'],['p3','Pocket P3','pos'],['p4','Pocket P4','pos'],['p5','Pocket P5','pos']
+].map(a=>({id:a[0],label:a[1],layer:a[2],x:Math.random()*600+100,y:Math.random()*400+100,vx:0,vy:0,fail:0,t:0}));
+const byId=Object.fromEntries(N.map(n=>[n.id,n]));
+// src depends on dst; t = transmission
+const E=[['m1','usde',.9],['m2','usde',.9],['m3','steth',.9],['m4','eeth',.9],['m5','usds',.9],
+['eeth','steth',.6],['usde','cl',.3],
+['m1','eth',.3],['m2','eth',.3],['m3','eth',.3],['m4','eth',.3],['m5','eth',.3],['morpho','eth',.4],['aave','eth',.4],
+['morpho','pto',.8],['aave','cl',.8],['pto','m1',.7],['pto','m2',.7],['pto','m3',.7],['pto','cl',.5],['m3','cl',.3],
+['p0','m1',1],['p0','morpho',.8],['p1','m2',1],['p1','morpho',.8],['p2','m3',1],['p2','aave',.8],['p3','m4',1],['p3','aave',.8],['p4','m5',1],['p4','morpho',.6],['p5','m1',1],['p5','aave',.8]
+].map(a=>({s:byId[a[0]],d:byId[a[1]],t:a[2],pulse:0}));
+const POS=Object.fromEntries(N.filter(n=>n.layer=='pos').map(n=>[n.id,1e6*(10/6)]));
+const deps={};E.forEach(e=>{(deps[e.d.id]=deps[e.d.id]||[]).push(e)});
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');let W,H;
+function size(){W=cv.width=cv.clientWidth*devicePixelRatio;H=cv.height=cv.clientHeight*devicePixelRatio}size();addEventListener('resize',size);
+document.getElementById('legend').innerHTML=Object.entries(LBL).map(([k,v])=>`<span><i style="background:${COL[k]}"></i>${v}</span>`).join('');
+const rad=n=>(n.layer=='pos'?9:n.layer=='chain'?20:n.layer=='lending'?15:13)*devicePixelRatio+(n.fail?6*devicePixelRatio*n.fail:0);
+function step(){const cx=W/2,cy=H/2,k=devicePixelRatio;
+ for(const a of N){for(const b of N){if(a===b)continue;let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy+.1,f=9000*k*k/d2;const d=Math.sqrt(d2);a.vx+=dx/d*f;a.vy+=dy/d*f}
+  a.vx+=(cx-a.x)*.0009;a.vy+=(cy-a.y)*.0009}
+ for(const e of E){const dx=e.d.x-e.s.x,dy=e.d.y-e.s.y,d=Math.sqrt(dx*dx+dy*dy)+.1,f=(d-110*k)*.012;e.s.vx+=dx/d*f;e.s.vy+=dy/d*f;e.d.vx-=dx/d*f;e.d.vy-=dy/d*f}
+ for(const n of N){if(n===drag)continue;n.vx*=.82;n.vy*=.82;n.x+=n.vx;n.y+=n.vy;n.x=Math.max(30,Math.min(W-30,n.x));n.y=Math.max(30,Math.min(H-30,n.y))}}
+function draw(){ctx.clearRect(0,0,W,H);const k=devicePixelRatio;
+ for(const e of E){ctx.beginPath();ctx.moveTo(e.s.x,e.s.y);ctx.lineTo(e.d.x,e.d.y);
+  ctx.strokeStyle=e.pulse>0?`rgba(255,70,70,${.3+e.pulse*.7})`:(hov&&(hov===e.s||hov===e.d)?'#aab8':'#4a556655');ctx.lineWidth=(e.pulse>0?3:1+e.t*1.5)*k;ctx.stroke();e.pulse=Math.max(0,e.pulse-.008)}
+ for(const n of N){const r=rad(n);
+  if(n.fail){ctx.beginPath();ctx.arc(n.x,n.y,r+8*k+Math.sin(Date.now()/150)*3*k,0,7);ctx.fillStyle=`rgba(255,60,60,${.15+.25*n.fail})`;ctx.fill()}
+  ctx.beginPath();ctx.arc(n.x,n.y,r,0,7);ctx.fillStyle='#0a0d13';ctx.fill();ctx.lineWidth=3*k;ctx.strokeStyle=n.fail?'#ff4040':COL[n.layer];ctx.stroke();
+  if(n.layer!='pos'){ctx.beginPath();ctx.arc(n.x,n.y,r-5*k,0,7);ctx.fillStyle=n.fail?'#ff404055':COL[n.layer]+'55';ctx.fill()}
+  ctx.fillStyle='#cfd6e4';ctx.font=`${11*k}px system-ui`;ctx.textAlign='center';ctx.fillText(n.label,n.x,n.y+r+13*k)}
+ if(hov){const t=`${hov.label} - ${LBL[hov.layer]}`;ctx.font=`${12*k}px system-ui`;const w=ctx.measureText(t).width+16*k;ctx.fillStyle='#000c';ctx.fillRect(hov.x+14*k,hov.y-30*k,w,22*k);ctx.fillStyle='#fff';ctx.textAlign='left';ctx.fillText(t,hov.x+22*k,hov.y-14*k)}}
+let drag=null,hov=null;
+function pick(ev){const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)*devicePixelRatio,y=(ev.clientY-r.top)*devicePixelRatio;return N.find(n=>Math.hypot(n.x-x,n.y-y)<rad(n)+4)||null}
+let moved=false;
+cv.onmousedown=e=>{drag=pick(e);moved=false};cv.onmouseup=e=>{if(drag&&!moved&&drag.layer!='pos')fail(drag.id);drag=null};
+cv.onmousemove=e=>{hov=pick(e);if(drag){moved=true;const r=cv.getBoundingClientRect();drag.x=(e.clientX-r.left)*devicePixelRatio;drag.y=(e.clientY-r.top)*devicePixelRatio}};
+(function loop(){step();draw();requestAnimationFrame(loop)})();
+// propagation: BFS from failed node to dependents, damping by transmission
+let timers=[];
+function reset(){timers.forEach(clearTimeout);timers=[];N.forEach(n=>n.fail=0);E.forEach(e=>e.pulse=0);document.getElementById('k1').textContent='$0';document.getElementById('k2').textContent='$0';const k3=document.getElementById('k3');k3.textContent='-';k3.className='';document.getElementById('tb').innerHTML='';document.getElementById('log').innerHTML='';}
+function fail(id){reset();const root=byId[id];root.fail=1;const loss={},q=[[root,1,0]],seen={[id]:1};let log=`<b>T+0</b> ${root.label} fails<br>`;
+ while(q.length){const [n,s,depth]=q.shift();(deps[n.id]||[]).forEach(e=>{const ns=s*e.t;if(ns<.05||(seen[e.s.id]||0)>=ns)return;seen[e.s.id]=ns;
+  timers.push(setTimeout(()=>{e.pulse=1;e.s.fail=Math.max(e.s.fail,ns)},(depth+1)*650));
+  if(e.s.layer=='pos')loss[e.s.id]=ns;else q.push([e.s,ns,depth+1])})}
+ Object.keys(seen).forEach(i=>{if(i!==id&&byId[i].layer!='pos')log+=`&nbsp;&nbsp;-> ${byId[i].label} hit (${Math.round(seen[i]*100)}% transmitted)<br>`});
+ let totLoss=0,totExit=0,rows='';const LGF=.6;
+ Object.entries(loss).forEach(([p,s])=>{const v=POS[p],l=v*s*LGF,c=v*.11;totLoss+=l;totExit+=c;rows+=`<tr><td>${byId[p].label}</td><td>$${Math.round(l/1000)}k</td><td>$${Math.round(c/1000)}k</td><td class="${l>c?'exit':'stay'}">${l>c?'EXIT':'STAY'}</td></tr>`});
+ timers.push(setTimeout(()=>{Object.keys(loss).forEach(p=>{byId[p].fail=loss[p]})},5*650));
+ document.getElementById('tb').innerHTML=rows||'<tr><td colspan=4>No pocket exposed</td></tr>';
+ document.getElementById('k1').textContent='$'+Math.round(totLoss/1000)+'k';document.getElementById('k2').textContent='$'+Math.round(totExit/1000)+'k';
+ const k3=document.getElementById('k3');k3.textContent=totLoss>totExit?'EXIT':'STAY';k3.className=totLoss>totExit?'exit':'stay';
+ log+=`<b>Result</b>: ${Object.keys(loss).length}/6 pockets exposed (${Math.round(Object.keys(loss).length/6*100)}% of book).`;document.getElementById('log').innerHTML=log}
+// concentration: % of positions transitively depending on each node
+function exposure(id){let c=0;POSIDS.forEach(p=>{const st=[p],s=new Set();while(st.length){const x=st.pop();E.filter(e=>e.s.id===x).forEach(e=>{if(!s.has(e.d.id)){s.add(e.d.id);st.push(e.d.id)}})}if(s.has(id))c++});return c}
+const POSIDS=Object.keys(POS);
+document.getElementById('conc').innerHTML=['eth','usde','cl','morpho','aave','steth'].map(i=>{const c=exposure(i);return `${byId[i].label}: <b class="${c>=4?'exit':''}">${c}/6 pockets (${Math.round(c/6*100)}%)</b>`}).join('<br>')+'<br><span style="color:#889">Indirect: P2 never touches Chainlink directly, but depends on it via Aave.</span>';
+</script></body></html>

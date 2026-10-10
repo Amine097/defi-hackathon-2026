@@ -1,9 +1,3 @@
 networkx
 numpy
-pandas
 requests
-streamlit
-pyvis
-web3
-python-dotenv
-pytest
