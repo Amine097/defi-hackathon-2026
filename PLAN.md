@@ -15,6 +15,30 @@ Output: dependency graph -> failure scenarios -> expected loss vs exit cost -> S
 3. Decision (25%): exit cost = AMM slippage + gas; EXIT if expected loss (horizon) > exit cost. Show assumptions + sensitivity.
 4. Demo (15%): Vercel-hosted web app: static `public/index.html` (X-Ray node graph) + Python serverless API `api/analyze.py` (reuses src/defirisk). Streamlit dropped.
 
+## Status (updated 10 Oct ~14:00; deadline Sun 11 Oct 11:00)
+
+### Done
+- Python core `src/defirisk/`: models, propagation (Monte Carlo), decision (stay/exit), scenarios, portfolio (10 pockets), http cache.
+- Backend API `api/analyze.py` + `api_payload.py` (payload contract), Vercel config, tests (4 passing).
+- Frontend (pushed): FaultLine dashboard (`public/index.html`) + X-Ray node graph (`public/xray.html`): cascade animation,
+  decision panel, break-even sliders, hidden concentration, large-graph mode. Falls back to `public/data/sample*.json`.
+- Name FaultLine, brand logo, README/Vercel deploy steps, Belem brief insights.
+
+### Remaining (priority order, graded by Belem criteria)
+1. **Real discovery (30%)** - `discovery.py` real mode raises NotImplementedError. For ONE real PT position: Pendle API (market -> SY -> underlying),
+   oracle address/type, Morpho/Aave market, chain. Owner: A. BLOCKER for the real-data demo (15%).
+2. **Defensible numbers (30%)** - replace placeholder p_fail / loss_given_failure in `data/mock_graph.json` with sourced values
+   (past incidents, audits, TVL); show source in UI. Owner: B/C.
+3. **Real exit cost (25%)** - quote from Pendle AMM/swap instead of the constant-product approximation; stressed exit cost. Owner: C.
+4. Wire UI to live `/api/analyze`; pre-warm and commit `data/cache/`; set `DEFIRISK_OFFLINE=1` on Vercel for the demo. Owner: D.
+5. Backend payload extras requested by the UI (public/NOTES-xray.md): per-pocket nodes, oracle meta (twap, single feed, heartbeat), edge `lag_hours`, node tvl/address.
+6. Oracle feed-quality analysis and "how fast" timeline using real delays.
+7. Book mentor office hours (contact@belemcapital.com) to challenge assumptions.
+8. Submission: README update, 2-min demo video by 09:30, submit by 10:30.
+
+### Optional (only if 1-4 are done): exit-cost / liquidity-stress module
+Spec reviewed (whale-watcher-spec.md); build a trimmed version: market snapshot + exit curve, exit-queue scenario, forced sellers under a shock
+-> `exit_cost_stressed` feeding `decide()`; then validation on a few real past swaps. Skip live watcher, Telegram, replay, exit plan.
 ## Team (4)
 - A: data/discovery (Pendle, DefiLlama, RPC)
 - B: graph + propagation model
@@ -32,7 +56,7 @@ python -m venv .venv; .venv\Scripts\activate; pip install -r requirements-dev.tx
 
 Deploy: `npm i -g vercel; vercel` (static `public/` + Python function `api/analyze.py`). Local: `vercel dev`.
 
-## Stretch (only if core runs on real data; target: tomorrow morning)
+## Stretch (superseded by the optional module above; only if core runs on real data; target: tomorrow morning)
 Whale alert assistant (owner: D or A, ~2-3h):
 - Poll large transfers/swaps on the Pendle market + underlying token (RPC eth_getLogs or Etherscan).
 - Flag if > $500k or > 2% of pool liquidity.
@@ -42,7 +66,7 @@ Whale alert assistant (owner: D or A, ~2-3h):
 
 ## Visual direction: "Pendle X-Ray" NODE GRAPH (DECIDED)
 Main UI = interactive force-directed node graph (dark theme, nodes colored by layer L1-L5 + position pockets).
-Reference prototype: docs/mockups/pendle-xray-node-graph.html (open in a browser; mock data, vanilla JS).
+Implemented in public/xray.html. Original prototype kept in docs/mockups/pendle-xray-node-graph.html.
 - Nodes: chain, yield sources/issuers, oracles, PT markets (AMM), lending venues, position pockets.
 - Edges: "depends on", with a transmission factor.
 - Click a node (or scenario button) = it fails; failure spreads to dependents with delay, edges pulse red.
