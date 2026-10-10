@@ -49,6 +49,23 @@ function abbrev(n) {
   return clean.length <= 7 ? clean : clean.slice(0, 6) + '…';
 }
 
+const LOGO_ALIAS = { ethereum: 'eth', weth: 'eth', tether: 'usdt', wsteth: 'steth', chainlink: 'link', wbtc: 'btc', bitcoin: 'btc' };
+const logoCache = new Map();
+function logoFor(n) {
+  if (n.isPos) return null;
+  const word = (n.label.split(/[\s/(]+/).filter(Boolean)[0] || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!word) return null;
+  const file = LOGO_ALIAS[word] || word;
+  if (!logoCache.has(file)) {
+    const img = new Image();
+    img.onerror = () => { img.failed = true; };
+    img.src = `assets/logos/${file}.svg`;
+    logoCache.set(file, img);
+  }
+  const img = logoCache.get(file);
+  return !img.failed && img.complete && img.naturalWidth ? img : null;
+}
+
 function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
 
 function makeStars(size = 640) {
@@ -363,7 +380,13 @@ export function createGraph(canvas, model, cb) {
     ctx.strokeStyle = col; ctx.stroke();
     if (r * k > 9) { shape(s, r - 3); ctx.lineWidth = 0.7 * px; ctx.strokeStyle = hexA('#ffffff', 0.12); ctx.stroke(); }
 
-    if (r * k >= 13) {
+    const logo = r * k >= 10 ? logoFor(s.n) : null;
+    if (logo) {
+      const lr = r - 3.5;
+      ctx.save(); ctx.beginPath(); ctx.arc(s.x, s.y, lr, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = '#0b0f17'; ctx.fillRect(s.x - lr, s.y - lr, lr * 2, lr * 2);
+      ctx.drawImage(logo, s.x - lr, s.y - lr, lr * 2, lr * 2); ctx.restore();
+    } else if (r * k >= 13) {
       const fs = clamp(r * 0.5, 7, 13) * (s.label.length > 5 ? 0.85 : 1);
       ctx.font = `700 ${fs}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = hexA('#ffffff', 0.92); ctx.fillText(s.label, s.x, s.y + 0.5);

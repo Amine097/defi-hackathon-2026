@@ -20,3 +20,6 @@ CLAUDE.md
 data/cache/
 .pytest_cache/
 *.pyc
+
+# full third-party logo pack (25 MB); only used logos live in public/assets/logos
+resources/
