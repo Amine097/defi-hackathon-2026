@@ -1,0 +1,173 @@
+{
+ "overview-desktop": {
+  "overflow": {
+   "sw": 1425,
+   "iw": 1440,
+   "over": []
+  },
+  "problems": [
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/api/analyze",
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/exit-cost/pos"
+  ],
+  "verdict": "REVIEW",
+  "bp": "−5.2% | collateral price → liquidation · HF 1.05",
+  "runway": "Not available — exit-cost layer not connected.",
+  "aboveFold": {
+   "top": 281,
+   "bottom": 653,
+   "vh": 900
+  }
+ },
+ "overview-laptop": {
+  "overflow": {
+   "sw": 1265,
+   "iw": 1280,
+   "over": []
+  },
+  "problems": [
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/api/analyze",
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/exit-cost/pos"
+  ],
+  "verdict": "REVIEW",
+  "bp": "−5.2% | collateral price → liquidation · HF 1.05",
+  "runway": "Not available — exit-cost layer not connected.",
+  "aboveFold": {
+   "top": 281,
+   "bottom": 653,
+   "vh": 800
+  }
+ },
+ "overview-mobile": {
+  "overflow": {
+   "sw": 390,
+   "iw": 390,
+   "over": []
+  },
+  "problems": [
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/api/analyze",
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/exit-cost/pos"
+  ],
+  "verdict": "REVIEW",
+  "bp": "−5.2% | collateral price → liquidation · HF 1.05",
+  "runway": "Not available — exit-cost layer not connected.",
+  "aboveFold": {
+   "top": 571,
+   "bottom": 1178,
+   "vh": 844
+  }
+ },
+ "xray-desktop": {
+  "overflow": {
+   "sw": 1440,
+   "iw": 1440,
+   "over": []
+  },
+  "problems": [
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/api/analyze",
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/exit-cost/pos"
+  ],
+  "guideHidden": true,
+  "badge": "Real data snapshot · 2026-10-10",
+  "verdict": "REVIEW",
+  "runway": "Not available — exit-cost layer not connected.",
+  "bpChip": "−5.2% → liquidation"
+ },
+ "xray-laptop": {
+  "overflow": {
+   "sw": 1280,
+   "iw": 1280,
+   "over": []
+  },
+  "problems": [
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/api/analyze",
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/exit-cost/pos"
+  ],
+  "guideHidden": true,
+  "badge": "Real data snapshot · 2026-10-10",
+  "verdict": "REVIEW",
+  "runway": "Not available — exit-cost layer not connected.",
+  "bpChip": "−5.2% → liquidation"
+ },
+ "xray-mobile": {
+  "overflow": {
+   "sw": 390,
+   "iw": 390,
+   "over": []
+  },
+  "problems": [
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/api/analyze",
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/exit-cost/pos"
+  ],
+  "guideHidden": true,
+  "badge": "Real data snapshot · 2026-10-10",
+  "verdict": "REVIEW",
+  "runway": "Not available — exit-cost layer not connected.",
+  "bpChip": "−5.2% → liquidation"
+ },
+ "xray-mobile-nav": [
+  "Overview:true",
+  "Dependency X-Ray:true"
+ ],
+ "journey-driver": {
+  "url": "/xray.html?fail=usd_usdc",
+  "title": "If it happens",
+  "sim": "5 hit · 3 hops",
+  "verdict": "EXIT",
+  "selected": true,
+  "problems": [
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/api/analyze",
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/exit-cost/pos"
+  ]
+ },
+ "journey-bp-marker": {
+  "title": "Underlying depeg",
+  "mode": "scenario · server model",
+  "verdict": "EXIT",
+  "kStay": "$271.1k",
+  "kExit": "$4,996"
+ },
+ "journey-reset": {
+  "title": "Decision",
+  "sim": "idle"
+ },
+ "overview-scenario-row": {
+  "url": "?scenario=1",
+  "title": "Underlying depeg",
+  "verdict": "EXIT",
+  "navQuery": "/"
+ },
+ "runway-demo": {
+  "chip": "DEMO fixture",
+  "demoNote": "Rehearsal fixture, not real data. Values are not produced by the risk engine.",
+  "rows": [
+   "Exit alone | 0.40% · $4,000",
+   "Under stress | 3.80% · $38.0k (2.4%–5.1%)",
+   "Stuck | 18% not withdrawable now",
+   "Trend | ▲ +1.2 pts over 6h",
+   "Time left | ~3.5 h (2 h–5 h) | at the current pace · limited by liquidity",
+   "Queue position | Behind 6 larger holders (scenario · scenario_largest_first)",
+   "Forced sellers | 3 positions · $12.00M before us (demo shock)"
+  ]
+ },
+ "xray-large": {
+  "badge": "Demo data · synthetic",
+  "bpChip": "not available",
+  "problems": [
+   "LOG Failed to load resource: the server responded with a status of 404 (File not found) http://localhost:8765/exit-cost/book"
+  ]
+ },
+ "guide": {
+  "visible": true
+ },
+ "guide-esc-closes": true,
+ "a11y": {
+  "pressed": [
+   "true",
+   "false",
+   "true",
+   "false"
+  ],
+  "canvasLabel": true,
+  "imgNoAlt": 0
+ }
+}

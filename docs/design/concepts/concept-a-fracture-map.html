@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAULTLINE concept A · Fracture Map (illustrative preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Concept preview only. Not wired to the app. All figures are ILLUSTRATIVE. */
+  :root {
+    --ground:#0b0d11; --ground-2:#10131a; --line:#252a34; --line-2:#363c49;
+    --ink:#ece9e2; --ink-2:#a9aeb9; --ink-3:#8a909c;
+    --fault:#ff5b3a; --fault-soft:rgba(255,91,58,.14);
+    --sel:#5fd0c4;
+    --l-chain:#7f8c9a; --l-yield:#4fbf86; --l-oracle:#d9b44a; --l-amm:#5b9be0; --l-lend:#a97be0; --l-proto:#d98bb4;
+    --display:'Bricolage Grotesque','IBM Plex Sans',sans-serif; --body:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  * { box-sizing:border-box; margin:0; }
+  html,body { width:1440px; height:900px; overflow:hidden; background:var(--ground); color:var(--ink); font-family:var(--body); font-size:13px; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums; }
+  .app { display:grid; grid-template-columns:208px 1fr 392px; grid-template-rows:56px 1fr 68px; width:1440px; height:900px; }
+
+  /* rail */
+  .rail { grid-row:1/4; border-right:1px solid var(--line); padding:18px 14px; display:flex; flex-direction:column; gap:22px; background:var(--ground); }
+  .brand { display:flex; align-items:center; gap:10px; font-family:var(--display); font-weight:800; letter-spacing:.14em; font-size:14px; }
+  .brand img { width:26px; height:26px; }
+  .nav { display:flex; flex-direction:column; gap:2px; }
+  .nav h3 { font-size:11px; font-weight:500; color:var(--ink-3); margin:6px 8px 6px; letter-spacing:.02em; }
+  .nav a { text-decoration:none; display:flex; align-items:center; gap:10px; padding:8px 8px; border-radius:6px; color:var(--ink-2); font-size:13px; }
+  .nav a svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.5; }
+  .nav a.on { color:var(--ink); background:var(--ground-2); box-shadow:inset 2px 0 0 var(--fault); }
+  .nav a.soon { color:var(--ink-3); }
+  .nav a.soon i { margin-left:auto; font-style:normal; font-size:10.5px; border:1px solid var(--line-2); padding:1px 6px; border-radius:99px; }
+  .rail .foot { margin-top:auto; font-size:11px; color:var(--ink-3); line-height:1.5; }
+
+  /* header */
+  .top { grid-column:2/4; display:flex; align-items:center; gap:18px; padding:0 24px; border-bottom:1px solid var(--line); }
+  .top .pos { font-weight:600; font-size:14px; }
+  .top .meta { color:var(--ink-3); font-size:12px; }
+  .top .sp { flex:1; }
+  .chip { font-family:var(--mono); font-size:11px; padding:3px 9px; border:1px solid var(--line-2); border-radius:99px; color:var(--ink-2); }
+  .chip.ill { border-color:var(--fault); color:var(--fault); }
+
+  /* map */
+  .map { position:relative; overflow:hidden; background:#0b0d11 url('../higgsfield/05-texture.png') center/cover; }
+  .map::before { content:''; position:absolute; inset:0; background:radial-gradient(70% 70% at 60% 45%, rgba(11,13,17,.25), rgba(11,13,17,.82)); }
+  .map svg { position:absolute; inset:0; width:100%; height:100%; }
+  .map .lede { position:absolute; left:28px; top:22px; max-width:340px; z-index:2; }
+  .lede h1 { font-family:var(--display); font-weight:800; font-size:34px; line-height:1.05; letter-spacing:-.01em; }
+  .lede p { margin-top:10px; color:var(--ink-2); font-size:13px; line-height:1.5; }
+  .legend { position:absolute; left:28px; bottom:20px; display:flex; gap:16px; z-index:2; font-size:11.5px; color:var(--ink-2); }
+  .legend span { display:flex; align-items:center; gap:6px; }
+  .legend i { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .tools { position:absolute; right:20px; top:18px; display:flex; gap:6px; z-index:2; }
+  .tools b { font-weight:500; font-size:12px; padding:6px 11px; border:1px solid var(--line-2); border-radius:6px; color:var(--ink-2); background:rgba(11,13,17,.7); }
+  .tools b.on { color:var(--ink); border-color:var(--ink-2); }
+
+  /* cockpit */
+  .cockpit { border-left:1px solid var(--line); padding:22px 24px; display:flex; flex-direction:column; background:var(--ground); }
+  .cockpit h2 { font-size:12px; font-weight:500; color:var(--ink-3); margin-bottom:10px; }
+  .field { border-bottom:1px solid var(--line); padding-bottom:16px; margin-bottom:16px; }
+  .sel-row { display:flex; align-items:center; gap:10px; }
+  .sel-row .dot { width:10px; height:10px; border-radius:50%; background:var(--l-oracle); }
+  .sel-row b { font-size:15px; font-weight:600; }
+  .sel-row small { color:var(--ink-3); display:block; font-size:12px; }
+  .sev { margin-top:14px; }
+  .sev .row { display:flex; justify-content:space-between; font-size:12px; color:var(--ink-2); margin-bottom:8px; }
+  .sev .row b { font-family:var(--mono); color:var(--ink); font-weight:500; }
+  .track { position:relative; height:4px; background:var(--line-2); border-radius:3px; }
+  .track i { position:absolute; left:0; top:0; bottom:0; width:62%; background:var(--ink); border-radius:3px; }
+  .track u { position:absolute; left:62%; top:-6px; width:16px; height:16px; margin-left:-8px; border-radius:50%; background:var(--ink); border:3px solid var(--ground); box-shadow:0 0 0 1px var(--ink); }
+  .presets { display:flex; gap:6px; margin-top:14px; }
+  .presets b { font-weight:500; font-size:12px; padding:5px 10px; border:1px solid var(--line-2); border-radius:6px; color:var(--ink-2); }
+  .presets b.on { color:var(--ink); border-color:var(--sel); }
+  .run { margin-top:16px; display:flex; align-items:center; justify-content:center; height:42px; border-radius:6px; background:var(--ink); color:var(--ground); font-weight:600; font-size:14px; }
+
+  .bp .k { font-size:12px; color:var(--ink-3); }
+  .bp .big { font-family:var(--display); font-weight:800; font-size:64px; line-height:1; letter-spacing:-.02em; color:var(--fault); margin:6px 0 4px; }
+  .bp .big span { font-size:20px; font-weight:600; color:var(--ink); margin-left:6px; letter-spacing:0; }
+  .bp p { color:var(--ink-2); font-size:12.5px; line-height:1.5; }
+  .scale { position:relative; height:30px; margin:14px 0 4px; }
+  .scale .ax { position:absolute; left:0; right:0; top:12px; height:2px; background:var(--line-2); }
+  .scale .zone { position:absolute; left:6.5%; right:0; top:8px; height:10px; background:repeating-linear-gradient(135deg, var(--fault-soft) 0 4px, transparent 4px 8px); border-left:2px solid var(--fault); }
+  .scale .tk { position:absolute; top:20px; font-family:var(--mono); font-size:11.5px; color:var(--ink-3); transform:translateX(-50%); }
+  .scale .tk.m { top:-6px; transform:translateX(14px); }
+  .scale .m1 { position:absolute; top:6px; width:0; height:0; border:5px solid transparent; border-top:7px solid var(--fault); transform:translateX(-5px); }
+
+  .path { margin-top:18px; }
+  .path ol { list-style:none; padding:0; }
+  .path li { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid var(--line); color:var(--ink-2); font-size:13px; }
+  .path li b { font-family:var(--mono); font-weight:500; color:var(--ink); }
+  .path li b.l { color:var(--fault); }
+  .path .muted { color:var(--ink-3); font-size:12px; margin-top:8px; }
+  .decision { margin-top:auto; border-top:1px solid var(--line); padding-top:14px; }
+  .decision .head { display:flex; align-items:baseline; justify-content:space-between; }
+  .decision .v { font-family:var(--display); font-weight:800; font-size:30px; color:var(--l-oracle); letter-spacing:.02em; }
+  .decision .lean { color:var(--ink-3); font-size:12px; }
+  .cmp { display:grid; grid-template-columns:1fr 1fr; gap:0; margin-top:10px; }
+  .cmp div { padding:8px 0; }
+  .cmp div + div { padding-left:16px; border-left:1px solid var(--line); }
+  .cmp small { display:block; color:var(--ink-3); font-size:11.5px; }
+  .cmp b { font-family:var(--mono); font-weight:500; font-size:19px; }
+  .cmp em { font-style:normal; font-size:11px; color:var(--ink-3); display:block; margin-top:2px; }
+
+  /* evidence strip */
+  .strip { grid-column:2/4; display:grid; grid-template-columns:repeat(4,1fr) 1.4fr; align-items:center; border-top:1px solid var(--line); padding:0 24px; gap:0; }
+  .strip div { padding:0 18px; border-left:1px solid var(--line); }
+  .strip div:first-child { padding-left:0; border-left:0; }
+  .strip small { display:block; color:var(--ink-3); font-size:11.5px; }
+  .strip b { font-family:var(--mono); font-weight:500; font-size:15px; }
+  .strip .src b { font-family:var(--body); font-size:12.5px; font-weight:500; color:var(--l-oracle); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><img src="../../public/assets/brand/logo.svg" alt="">FAULTLINE</div>
+    <nav class="nav" aria-label="Analysis">
+      <h3>Analysis</h3>
+      <a class="on" href="#"><svg viewBox="0 0 18 18"><circle cx="4" cy="9" r="1.8"/><circle cx="13" cy="4" r="1.8"/><circle cx="13" cy="14" r="1.8"/><path d="M5.7 8.2 11.3 4.8M5.7 9.8l5.6 3.4"/></svg>Fracture map</a>
+      <a href="#"><svg viewBox="0 0 18 18"><path d="M2 14 6 8l3 3 5-8"/><path d="M2 14h13"/></svg>Stress lab</a>
+      <a href="#"><svg viewBox="0 0 18 18"><rect x="3" y="4" width="12" height="10" rx="1.5"/><path d="M3 8h12M9 8v3"/></svg>Vault analyzer</a>
+    </nav>
+    <nav class="nav" aria-label="Coming soon">
+      <h3>Coming soon</h3>
+      <a class="soon" href="#">Whale impact<i>soon</i></a>
+      <a class="soon" href="#">Leverage hunter<i>soon</i></a>
+      <a class="soon" href="#">Chain of blame<i>soon</i></a>
+      <a class="soon" href="#">Exit runway<i>soon</i></a>
+      <a class="soon" href="#">Smart alerts<i>soon</i></a>
+    </nav>
+    <div class="foot">EPFL DeFi Hackathon 2026<br>Belem Capital track</div>
+  </aside>
+
+  <header class="top">
+    <span class="pos">PT-reUSD-10DEC2026 on Morpho (USDC)</span>
+    <span class="meta">Ethereum · 30 day horizon</span>
+    <span class="sp"></span>
+    <span class="chip">Real data snapshot</span>
+    <span class="chip ill">Concept preview · figures illustrative</span>
+  </header>
+
+  <main class="map" aria-label="Dependency map">
+    <svg id="g" viewBox="0 0 840 744" preserveAspectRatio="xMidYMid slice"></svg>
+    <div class="lede">
+      <h1>Know what breaks first.</h1>
+      <p>Eleven dependencies sit behind this position. Select one to see how its failure travels to the position, hop by hop.</p>
+    </div>
+    <div class="tools"><b class="on">Map</b><b>Layers</b><b>Fit</b><b>Reset</b></div>
+    <div class="legend">
+      <span><i style="background:var(--l-chain)"></i>Chain</span><span><i style="background:var(--l-yield)"></i>Yield source</span><span><i style="background:var(--l-oracle)"></i>Oracle</span><span><i style="background:var(--l-amm)"></i>PT market</span><span><i style="background:var(--l-lend)"></i>Lending</span><span><i style="background:var(--l-proto)"></i>Protocol</span>
+    </div>
+  </main>
+
+  <aside class="cockpit" aria-label="Stress cockpit">
+    <div class="field">
+      <h2>Failing dependency</h2>
+      <div class="sel-row"><span class="dot"></span><div><b>Ojo (feed provider)</b><small>Oracle layer · 3 hops to the position</small></div></div>
+      <div class="sev">
+        <div class="row"><span>Severity</span><b>62% of full failure</b></div>
+        <div class="track"><i></i><u></u></div>
+      </div>
+      <div class="presets"><b>Underlying depeg</b><b class="on">Oracle failure</b><b>Liquidity</b></div>
+      <div class="run">Run stress test</div>
+    </div>
+
+    <div class="bp">
+      <h2>First breaking point</h2>
+      <div class="big">−5.2%<span>collateral price</span></div>
+      <p>The borrower is liquidated once the collateral oracle price falls this far. A conditional shock, not a probability.</p>
+      <div class="scale" aria-hidden="true">
+        <div class="ax"></div><div class="zone"></div><div class="m1" style="left:6.5%"></div>
+        <span class="tk" style="left:0%;transform:none">0</span><span class="tk" style="left:27%">−20%</span><span class="tk" style="left:53%">−40%</span><span class="tk" style="left:80%">−60%</span>
+        <span class="tk m" style="left:6.5%;color:var(--fault)">HF 1.00</span>
+      </div>
+    </div>
+
+    <div class="path">
+      <h2>Failure path</h2>
+      <ol>
+        <li><span>Ojo feed provider fails</span><b>×1.0</b></li>
+        <li><span>Morpho oracle misprices collateral</span><b>×0.9</b></li>
+        <li><span>Morpho market liquidates the borrower</span><b>×1.0</b></li>
+        <li><span>Position takes the loss</span><b class="l">$321k</b></li>
+      </ol>
+      <p class="muted">Loss if it happens, probability 1. Illustrative.</p>
+    </div>
+
+    <div class="decision">
+      <div class="head"><span class="v">REVIEW</span><span class="lean">leans STAY · bands overlap</span></div>
+      <div class="cmp">
+        <div><small>If you stay</small><b>$1.7k</b><em>band $0.2k – $27.5k</em></div>
+        <div><small>If you exit</small><b>$5.0k</b><em>execution + carry forgone</em></div>
+      </div>
+    </div>
+  </aside>
+
+  <footer class="strip">
+    <div><small>Capital monitored</small><b>$1.00M</b></div>
+    <div><small>Largest dependency</small><b>USDC (stablecoin)</b></div>
+    <div><small>Debt / collateral</small><b>$10.6M / $12.2M</b></div>
+    <div><small>Health factor now</small><b>1.054</b></div>
+    <div class="src"><small>Provenance</small><b>Saved run of the real pipeline · illustrative layout</b></div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const N = {
+    pos:{x:672,y:330,l:'Position',s:'PT-reUSD · $1.00M',c:'#ff5b3a',pos:true},
+    lending:{x:520,y:196,l:'Morpho market PT-reUSD/USDC',s:'Lending',c:'#a97be0'},
+    amm:{x:520,y:470,l:'Pendle market PT-reUSD',s:'PT market',c:'#5b9be0'},
+    morpho:{x:388,y:98,l:'Morpho Blue',s:'Protocol',c:'#d98bb4'},
+    oracle:{x:388,y:276,l:'Morpho oracle',s:'ChainlinkOracleV2',c:'#d9b44a'},
+    feed:{x:226,y:206,l:'Ojo feed provider',s:'Oracle',c:'#d9b44a'},
+    under:{x:388,y:560,l:'reUSD',s:'Yield source',c:'#4fbf86'},
+    issuer:{x:226,y:650,l:'re.xyz issuer',s:'Yield source',c:'#4fbf86'},
+    usdc:{x:226,y:462,l:'USDC',s:'Stablecoin',c:'#4fbf86'},
+    base:{x:78,y:540,l:'US dollars',s:'Base asset',c:'#4fbf86'},
+    chain:{x:640,y:640,l:'Ethereum',s:'Settlement chain',c:'#7f8c9a'}
+  };
+  const E = [['pos','lending',1],['pos','amm',.9],['pos','chain',1],['lending','oracle',.9],['lending','morpho',.5],['lending','chain',.5],
+             ['oracle','feed',1],['oracle','under',.7],['amm','under',.8],['under','issuer',.8],['under','usdc',.8],['usdc','base',.7]];
+  const path = new Set(['feed>oracle','oracle>lending','lending>pos']);
+  let s = '';
+  // fault line: a hairline fracture crossing the map, with one vermilion kink
+  s += '<path d="M-10 150 L180 238 L330 322 L452 384 L470 392 L520 404 L700 508 L860 592" fill="none" stroke="#ece9e2" stroke-opacity=".28" stroke-width="1"/>';
+  s += '<circle cx="470" cy="392" r="3" fill="#ff5b3a"/>';
+  // rings around position (distance bands)
+  [120,230,340].forEach(r => s += `<circle cx="${N.pos.x}" cy="${N.pos.y}" r="${r}" fill="none" stroke="#ece9e2" stroke-opacity=".06"/>`);
+  // edges
+  E.forEach(([a,b,t]) => {
+    const A=N[a],B=N[b], hot = path.has(b+'>'+a);
+    const mx=(A.x+B.x)/2+(A.y-B.y)*.08, my=(A.y+B.y)/2+(B.x-A.x)*.08;
+    s += `<path d="M${A.x} ${A.y} Q${mx} ${my} ${B.x} ${B.y}" fill="none" stroke="${hot?'#ff5b3a':'#a9aeb9'}" stroke-opacity="${hot?1:.28}" stroke-width="${hot?2.6:1}" ${hot?'':'stroke-dasharray="none"'}/>`;
+  });
+  // hop labels on the failure path
+  [['feed','oracle','hop 1 · ×1.0'],['oracle','lending','hop 2 · ×0.9'],['lending','pos','hop 3 · ×1.0']].forEach(([a,b,t]) => {
+    const A=N[a],B=N[b]; const dx = a==='oracle' ? -62 : 10, dy = a==='oracle' ? -26 : -14;
+    s += `<text x="${(A.x+B.x)/2+dx}" y="${(A.y+B.y)/2+dy}" fill="#ff5b3a" font-family="IBM Plex Mono" font-size="11.5">${t}</text>`;
+  });
+  // nodes
+  Object.entries(N).forEach(([id,n]) => {
+    const hot = ['feed','oracle','lending','pos'].includes(id), dim = !hot;
+    if (n.pos) {
+      const p = [0,1,2,3,4,5].map(i => { const a = Math.PI/3*i+Math.PI/6; return (n.x+20*Math.cos(a)).toFixed(1)+','+(n.y+20*Math.sin(a)).toFixed(1); }).join(' ');
+      s += `<circle cx="${n.x}" cy="${n.y}" r="34" fill="#ff5b3a" fill-opacity=".10"/><polygon points="${p}" fill="#0b0d11" stroke="#ff5b3a" stroke-width="2.4"/><circle cx="${n.x}" cy="${n.y}" r="6" fill="#ff5b3a"/>`;
+      s += `<text x="${n.x}" y="${n.y+50}" text-anchor="middle" fill="#ece9e2" font-family="IBM Plex Sans" font-weight="600" font-size="13">${n.l}</text><text x="${n.x}" y="${n.y+66}" text-anchor="middle" fill="#a9aeb9" font-family="IBM Plex Mono" font-size="12">${n.s}</text>`;
+      return;
+    }
+    const r = id==='feed' ? 9 : 7;
+    if (id==='feed') s += `<circle cx="${n.x}" cy="${n.y}" r="20" fill="none" stroke="#5fd0c4" stroke-width="1.5"/><circle cx="${n.x}" cy="${n.y}" r="27" fill="none" stroke="#5fd0c4" stroke-opacity=".35"/>`;
+    s += `<circle cx="${n.x}" cy="${n.y}" r="${r}" fill="#0b0d11" stroke="${hot?'#ff5b3a':n.c}" stroke-width="${hot?2.4:1.6}" ${dim?'opacity=".9"':''}/>`;
+    if (hot) s += `<circle cx="${n.x}" cy="${n.y}" r="3" fill="#ff5b3a"/>`; else s += `<circle cx="${n.x}" cy="${n.y}" r="3" fill="${n.c}"/>`;
+    const right = n.x < 560, off = id==='feed'?34:16, tx = right ? n.x+off : n.x-off, anchor = right ? 'start' : 'end';
+    s += `<text x="${tx}" y="${n.y-1}" text-anchor="${anchor}" fill="${hot?'#ece9e2':'#c9cdd6'}" font-family="IBM Plex Sans" font-weight="${hot?600:500}" font-size="12.5">${n.l}</text>`;
+    s += `<text x="${tx}" y="${n.y+14}" text-anchor="${anchor}" fill="#8a909c" font-family="IBM Plex Mono" font-size="11.5">${n.s}</text>`;
+  });
+  document.getElementById('g').innerHTML = s;
+})();
+</script>
+</body>
+</html>

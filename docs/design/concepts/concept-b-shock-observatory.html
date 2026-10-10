@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAULTLINE concept B · Shock Observatory (illustrative preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Concept preview only. Not wired to the app. All figures are ILLUSTRATIVE. */
+  :root {
+    --night:#070a12; --night-2:#0c1220; --rule:#1d2638; --rule-2:#2d3850;
+    --paper:#f1ece1; --ink-2:#aeb6c7; --ink-3:#8b95a9;
+    --fault:#ff5b3a; --fault-deep:#b8321b; --amber:#f2b441; --ok:#43c3a0; --sel:#6cc3d6;
+    --display:'Big Shoulders Display','Hanken Grotesk',sans-serif; --body:'Hanken Grotesk',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  * { box-sizing:border-box; margin:0; }
+  html,body { width:1440px; height:900px; overflow:hidden; background:var(--night); color:var(--paper); font-family:var(--body); font-size:14px; -webkit-font-smoothing:antialiased; font-variant-numeric:tabular-nums; }
+  body { background:
+      radial-gradient(900px 420px at 38% 38%, rgba(255,91,58,.10), transparent 70%),
+      radial-gradient(1200px 700px at 50% -10%, #111a2e 0%, var(--night) 62%); }
+  .app { display:grid; grid-template-rows:52px 204px 364px 1fr; width:1440px; height:900px; }
+
+  /* top bar */
+  .bar { display:flex; align-items:center; gap:28px; padding:0 40px; border-bottom:1px solid var(--rule); }
+  .brand { display:flex; align-items:center; gap:10px; font-family:var(--display); font-weight:800; font-size:20px; letter-spacing:.16em; }
+  .brand img { width:24px; height:24px; }
+  .tabs { display:flex; gap:4px; }
+  .tabs a { white-space:nowrap; padding:6px 12px; border-radius:6px; color:var(--ink-2); font-size:13.5px; font-weight:500; text-decoration:none; }
+  .tabs a.on { color:var(--paper); background:#141c2e; box-shadow:inset 0 -2px 0 var(--fault); }
+  .tabs a.soon { color:var(--ink-3); }
+  .sp { flex:1; }
+  .chip { white-space:nowrap; font-family:var(--mono); font-size:11.5px; padding:3px 9px; border:1px solid var(--rule-2); border-radius:99px; color:var(--ink-2); }
+  .chip.ill { border-color:var(--fault); color:var(--fault); }
+
+  /* headline band */
+  .head { display:grid; grid-template-columns:minmax(0,1fr) 520px; align-items:center; padding:14px 40px 10px; gap:24px; width:1440px; }
+  .head .num { display:flex; align-items:flex-end; gap:28px; }
+  .head .big { font-family:var(--display); font-weight:900; font-size:124px; line-height:.8; letter-spacing:-.01em; color:var(--paper); }
+  .head .big sup { font-size:60px; color:var(--fault); vertical-align:top; margin-left:6px; font-weight:800; }
+  .head .txt { padding-bottom:6px; max-width:420px; }
+  .head .txt b { display:block; font-family:var(--display); font-weight:800; font-size:24px; letter-spacing:.02em; margin-bottom:6px; }
+  .head .txt p { color:var(--ink-2); font-size:14px; line-height:1.5; }
+
+  .sev { padding-bottom:6px; min-width:0; width:520px; justify-self:end; }
+  .sev .lab { display:flex; justify-content:space-between; color:var(--ink-3); font-size:12.5px; margin-bottom:8px; }
+  .sev .lab b { color:var(--paper); font-weight:600; }
+  .seg { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); width:100%; border:1px solid var(--rule-2); border-radius:8px; overflow:hidden; }
+  .seg button { all:unset; text-align:left; padding:10px 12px; border-left:1px solid var(--rule-2); cursor:pointer; }
+  .seg button:first-child { border-left:0; }
+  .seg small { display:block; color:var(--ink-3); font-size:11.5px; }
+  .seg b { font-family:var(--display); font-weight:800; font-size:26px; line-height:1.1; }
+  .seg .on { background:var(--paper); color:var(--night); }
+  .seg .on small { color:#4a4f5c; }
+
+  /* instrument */
+  .inst { position:relative; padding:0 40px; }
+  .inst svg { width:1360px; height:364px; display:block; }
+
+  /* lower band */
+  .low { display:grid; grid-template-columns:560px 1fr 360px; gap:0; padding:0 40px; border-top:1px solid var(--rule); }
+  .net { position:relative; border-right:1px solid var(--rule); padding:16px 24px 0 0; }
+  .net h2, .out h2 { font-size:12.5px; font-weight:500; color:var(--ink-3); margin-bottom:4px; }
+  .net svg { width:100%; height:206px; }
+  .out { padding:16px 0 0 32px; }
+  .rows { display:grid; grid-template-columns:repeat(3,1fr); margin-top:8px; }
+  .rows div { padding:6px 22px 6px 0; }
+  .rows div + div { padding-left:22px; border-left:1px solid var(--rule); }
+  .rows small { color:var(--ink-3); font-size:12.5px; display:block; }
+  .rows b { font-family:var(--display); font-weight:800; font-size:44px; line-height:1.05; }
+  .rows em { font-style:normal; color:var(--ink-3); font-size:12px; display:block; }
+  .rows .v b { color:var(--amber); }
+  .out p { margin-top:14px; color:var(--ink-2); font-size:13px; line-height:1.5; max-width:62ch; }
+  .why { padding:16px 0 0 32px; border-left:1px solid var(--rule); }
+  .why li { list-style:none; display:flex; gap:10px; padding:7px 0; border-bottom:1px solid var(--rule); font-size:13px; color:var(--ink-2); }
+  .why li b { color:var(--paper); font-weight:600; min-width:92px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <div class="brand"><img src="../../public/assets/brand/logo.svg" alt="">FAULTLINE</div>
+    <nav class="tabs" aria-label="Primary">
+      <a href="#">Overview</a><a class="on" href="#">Stress lab</a><a href="#">Dependency X-Ray</a><a href="#">Vault analyzer</a><a class="soon" href="#">More · coming soon</a>
+    </nav>
+    <span class="sp"></span>
+    <span class="chip">PT-reUSD-10DEC2026 · Morpho · Ethereum</span>
+    <span class="chip ill">Concept preview · figures illustrative</span>
+  </header>
+
+  <section class="head" aria-label="Breaking point">
+    <div class="num">
+      <div class="big">−5.2<sup>%</sup></div>
+      <div class="txt"><b>First liquidation</b><p>The collateral oracle price can fall this far before the borrower is liquidated. A conditional shock, not a probability.</p></div>
+    </div>
+    <div class="sev">
+      <div class="lab"><span>Shock the collateral price</span><b>Oracle failure · −32%</b></div>
+      <div class="seg" role="group" aria-label="Shock severity">
+        <button><small>Underlying depeg</small><b>−27%</b></button>
+        <button class="on"><small>Oracle failure</small><b>−32%</b></button>
+        <button><small>Liquidity crisis</small><b>−50%</b></button>
+        <button><small>Correlated</small><b>−75%</b></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="inst" aria-label="Health factor against collateral price move"><svg id="chart" viewBox="0 0 1360 364"></svg></section>
+
+  <section class="low">
+    <div class="net"><h2>Where the shock enters · Oracle failure</h2><svg id="net" viewBox="0 0 536 206"></svg></div>
+    <div class="out">
+      <h2>If the shock happens</h2>
+      <div class="rows">
+        <div><small>Loss if you stay</small><b>$321k</b><em>conditional, probability 1</em></div>
+        <div><small>Cost to exit</small><b>$5.0k</b><em>execution + carry forgone</em></div>
+        <div class="v"><small>Engine verdict</small><b>REVIEW</b><em>leans STAY · bands overlap</em></div>
+      </div>
+      <p>Stress is applied through Morpho's liquidation formula on a real borrower position. The curve joins the backend's sampled health factors; nothing between samples is estimated.</p>
+    </div>
+    <div class="why">
+      <h2 style="font-size:12.5px;font-weight:500;color:var(--ink-3);margin-bottom:6px">Position at a glance</h2>
+      <ul>
+        <li><b>Health factor</b>1.054</li>
+        <li><b>Debt</b>$10.6M</li>
+        <li><b>Collateral</b>$12.2M</li>
+        <li><b>Liquidation LLTV</b>91.5%</li>
+        <li><b>Data</b>Saved real run</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  // ---- stress instrument: health factor vs collateral price move (backend-style sampled grid; illustrative render)
+  const W=1360,H=364, L=70,R=40,T=30,B=52, w=W-L-R, h=H-T-B;
+  const grid=[[0,1.054],[.02,1.033],[.05,1.002],[.0506,1.001],[.0526,.999],[.1,.949],[.2,.844],[.5,.527]];
+  const xMax=.8, yMax=1.2;
+  const X=x=>L+x/xMax*w, Y=y=>T+h-y/yMax*h;
+  const sc=[['Underlying depeg',.27],['Oracle failure',.32],['Liquidity crisis',.50],['Correlated',.75]];
+  let s='';
+  // liquidation zone
+  s+=`<defs><pattern id="hat" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#ff5b3a" stroke-opacity=".22" stroke-width="2"/></pattern>
+      <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1ece1" stop-opacity=".16"/><stop offset="1" stop-color="#f1ece1" stop-opacity="0"/></linearGradient></defs>`;
+  s+=`<rect x="${X(.0516)}" y="${T}" width="${L+w-X(.0516)}" height="${h}" fill="url(#hat)"/>`;
+  s+=`<rect x="${L}" y="${Y(1)}" width="${w}" height="${h-(Y(1)-T)}" fill="#ff5b3a" fill-opacity=".05"/>`;
+  // y grid
+  [0,.4,.8,1.2].forEach(v=>{ s+=`<line x1="${L}" x2="${L+w}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1d2638"/><text x="${L-12}" y="${Y(v)+4}" text-anchor="end" fill="#8b95a9" font-family="IBM Plex Mono" font-size="12">${v.toFixed(1)}</text>`; });
+  s+=`<text x="${L}" y="${T-12}" fill="#8b95a9" font-family="Hanken Grotesk" font-size="12.5">Health factor after the price move</text>`;
+  // x ticks
+  for(let x=0;x<=.8001;x+=.1){ s+=`<line x1="${X(x)}" x2="${X(x)}" y1="${T+h}" y2="${T+h+6}" stroke="#2d3850"/><text x="${X(x)}" y="${T+h+24}" text-anchor="middle" fill="#aeb6c7" font-family="IBM Plex Mono" font-size="12.5">${x===0?'0':'−'+Math.round(x*100)+'%'}</text>`; }
+  s+=`<text x="${L+w}" y="${H-6}" text-anchor="end" fill="#8b95a9" font-family="Hanken Grotesk" font-size="12.5">Collateral oracle price move</text>`;
+  // threshold HF = 1
+  s+=`<line x1="${L}" x2="${L+w}" y1="${Y(1)}" y2="${Y(1)}" stroke="#ff5b3a" stroke-width="1.5" stroke-dasharray="2 5"/>`;
+  s+=`<text x="${L+w-8}" y="${Y(1)-10}" text-anchor="end" fill="#ff5b3a" font-family="Hanken Grotesk" font-weight="600" font-size="13">Liquidation threshold · HF = 1.00</text>`;
+  // curve + area
+  const pts=grid.map(([x,y])=>X(x)+','+Y(y)).join(' ');
+  s+=`<polygon points="${X(0)},${Y(0)} ${pts} ${X(.5)},${Y(0)}" fill="url(#fade)"/>`;
+  s+=`<polyline points="${pts}" fill="none" stroke="#f1ece1" stroke-width="2.6" stroke-linejoin="round"/>`;
+  grid.forEach(([x,y])=>{ s+=`<circle cx="${X(x)}" cy="${Y(y)}" r="3.4" fill="#070a12" stroke="#f1ece1" stroke-width="1.6"/>`; });
+  
+  // now marker
+  s+=`<circle cx="${X(0)}" cy="${Y(1.054)}" r="6" fill="#f1ece1"/><text x="${X(0)+2}" y="${Y(1.054)+30}" fill="#f1ece1" font-family="Hanken Grotesk" font-weight="600" font-size="13">Now · HF 1.05</text>`;
+  // first liquidation plumb line
+  s+=`<line x1="${X(.0516)}" x2="${X(.0516)}" y1="${T}" y2="${T+h}" stroke="#ff5b3a" stroke-width="2"/>`;
+  s+=`<text x="${X(.0516)+10}" y="${T+16}" fill="#ff5b3a" font-family="Big Shoulders Display" font-weight="800" font-size="22">First liquidation −5.2%</text>`;
+  // scenario plumb lines
+  sc.forEach(([n,x],i)=>{
+    const sel=i===1, c=sel?'#6cc3d6':'#aeb6c7';
+    s+=`<line x1="${X(x)}" x2="${X(x)}" y1="${T+h-150}" y2="${T+h}" stroke="${c}" stroke-opacity="${sel?1:.5}" stroke-width="${sel?2:1}" ${sel?'':'stroke-dasharray="3 5"'}/>`;
+    s+=`<path d="M${X(x)-7} ${T+h} l7 -12 l7 12 z" fill="${sel?'#6cc3d6':'#0c1220'}" stroke="${c}" stroke-width="1.5"/>`;
+    const ly=T+h-96-(i%2?0:44), an=(x>.6||i===0)?'end':'start', lx=(x>.6||i===0)?X(x)-10:X(x)+10;
+    s+=`<text x="${lx}" y="${ly}" text-anchor="${an}" fill="${sel?'#f1ece1':'#aeb6c7'}" font-family="Hanken Grotesk" font-weight="${sel?600:500}" font-size="14">${n}</text>`;
+    s+=`<text x="${lx}" y="${ly+18}" text-anchor="${an}" fill="${sel?'#6cc3d6':'#8b95a9'}" font-family="IBM Plex Mono" font-size="12.5">−${Math.round(x*100)}%${x>.6?' · beyond the sampled range':x===.5?' · last sampled point':''}</text>`;
+  });
+  document.getElementById('chart').innerHTML=s;
+
+  // ---- context network: same selection, small
+  const N={pos:[470,100,'Position'],lend:[350,60,'Morpho market'],oracle:[236,100,'Morpho oracle'],feed:[110,60,'Ojo feed'],amm:[350,150,'Pendle market'],under:[236,170,'reUSD'],usdc:[110,150,'USDC']};
+  const E=[['pos','lend'],['lend','oracle'],['oracle','feed'],['pos','amm'],['amm','under'],['oracle','under'],['under','usdc']];
+  const hot=new Set(['feed>oracle','oracle>lend','lend>pos']);
+  let n='';
+  E.forEach(([a,b])=>{ const A=N[a],B=N[b], on=hot.has(b+'>'+a); n+=`<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${on?'#ff5b3a':'#3b4660'}" stroke-width="${on?2.6:1.2}"/>`; });
+  Object.entries(N).forEach(([k,[x,y,l]])=>{ const on=['feed','oracle','lend','pos'].includes(k);
+    n+=`<circle cx="${x}" cy="${y}" r="${k==='pos'?10:7}" fill="#0c1220" stroke="${on?'#ff5b3a':'#6b7690'}" stroke-width="2"/>${on?`<circle cx="${x}" cy="${y}" r="3" fill="#ff5b3a"/>`:''}
+        <text x="${x}" y="${y+(k==='under'?24:-16)}" text-anchor="middle" fill="${on?'#f1ece1':'#aeb6c7'}" font-family="Hanken Grotesk" font-size="12.5" font-weight="${on?600:500}">${l}</text>`; });
+  n+=`<circle cx="110" cy="60" r="15" fill="none" stroke="#6cc3d6" stroke-width="1.5"/>`;
+  document.getElementById('net').innerHTML=n;
+})();
+</script>
+</body>
+</html>
