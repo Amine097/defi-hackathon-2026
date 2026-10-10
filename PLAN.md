@@ -23,6 +23,13 @@ Output: dependency graph -> failure scenarios -> expected loss vs exit cost -> S
 - Frontend (pushed): FaultLine dashboard (`public/index.html`) + X-Ray node graph (`public/xray.html`): cascade animation,
   decision panel, break-even sliders, hidden concentration, large-graph mode. Falls back to `public/data/sample*.json`.
 - Name FaultLine, brand logo, README/Vercel deploy steps, Belem brief insights.
+- **Deeper discovery (look-through)**, 10 Oct evening:
+  - `lineage.py`: recursive token lineage PT → SY → underlying → … → base assets. It reads ERC-4626 `asset()`/`convertToAssets` on-chain, uses the Pendle API, and a sourced `data/registry.json` for issuer reserves (weight null = not published, never invented). It also detects cycles, and every edge carries weight, source, as_of and confidence.
+  - `exposure.py`: look-through exposure per token and per base asset, plus coverage (traced vs unknown share, with reasons). Also portfolio-level shared exposure across the top Morpho PT markets, with routes.
+  - `peg.py`: 90-day peg/basis deviation from DefiLlama coins, or explicit `insufficient_data`.
+  - Fixed the issuer concentration row (it showed None/100%).
+  - All of this is wired into `discover_real` as hidden lineage nodes plus `position.meta.{lookthrough,coverage,shared_exposure}`. The payload stays backward compatible; tests are in `tests/test_lineage.py`.
+  - X-Ray: "What you really hold" panel, a "Hidden dependency" tag, and lineage/peg details in the inspector. `public/data/sample.json` is now a real-pipeline snapshot.
 
 ### Remaining (priority order, graded by Belem criteria)
 1. **Real discovery (30%)** - `discovery.py` real mode raises NotImplementedError. For ONE real PT position: Pendle API (market -> SY -> underlying),

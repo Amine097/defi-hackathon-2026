@@ -15,11 +15,12 @@ Pipeline (the five layers of the Belem brief + hidden second-order dependencies)
 from __future__ import annotations
 
 import os
+import re
 import time
 from collections import deque
 from pathlib import Path
 
-from . import priors, sources
+from . import exposure, lineage, peg, priors, sources
 from .models import DepGraph, Edge, Node, Position
 
 MOCK = Path(__file__).resolve().parents[2] / "data" / "mock_graph.json"
@@ -94,9 +95,24 @@ def _quality_multiplier(q: dict) -> tuple[float, list[str]]:
     return mult, notes
 
 
-def _concentration(morpho: list[dict], by_pt: dict, ours: dict, quality: dict) -> list[dict]:
+def _pendle_details(rows: list[dict], by_pt: dict) -> dict:
+    """marketId -> Pendle market detail (has 'protocol', 'accountingAsset'; the active-markets list does not)."""
+    out, seen = {}, {}
+    for m in rows:
+        addr = by_pt[m["collateralAsset"]["address"].lower()]["address"].lower()
+        if addr not in seen:
+            try:
+                seen[addr] = sources.pendle_market(addr)
+            except Exception:
+                seen[addr] = None
+        out[m["marketId"]] = seen[addr]
+    return out
+
+
+def _concentration(morpho: list[dict], by_pt: dict, ours: dict, quality: dict, details: dict | None = None) -> list[dict]:
     """How much of the Morpho PT lending book shares each of our dependencies (hidden concentration)."""
     rows = morpho[:12]
+    details = _pendle_details(rows, by_pt) if details is None else details
     total = sum(m["state"]["supplyAssetsUsd"] or 0 for m in rows) or 1
     providers = {}
     for m in rows:
@@ -104,9 +120,10 @@ def _concentration(morpho: list[dict], by_pt: dict, ours: dict, quality: dict) -
         info = sources.read_feed(feeds[0]) if feeds else None
         providers[m["marketId"]] = _provider(info["description"]) if info else "unknown"
 
-    def issuer(m):
-        pm = by_pt[m["collateralAsset"]["address"].lower()]
-        return pm.get("protocol") or m["collateralAsset"]["symbol"].split("-")[1]
+    def issuer(m):  # the active-markets list has no 'protocol': use the market detail, then the Pendle market name
+        d = details.get(m["marketId"]) or {}
+        return d.get("protocol") or by_pt[m["collateralAsset"]["address"].lower()].get("name") \
+            or m["collateralAsset"]["symbol"].split("-")[1]
 
     groups = [
         ("feed", "Price feed provider", lambda m: providers[m["marketId"]], quality["provider"]),
@@ -120,6 +137,108 @@ def _concentration(morpho: list[dict], by_pt: dict, ours: dict, quality: dict) -
         out.append({"node": key, "label": f"{label}: {mine}", "markets": len(same), "of_markets": len(rows),
                     "supply_usd": usd, "share_pct": usd / total * 100})
     return out
+
+
+def _portfolio_lookthrough(morpho: list[dict], ours: dict, details: dict) -> tuple[dict | None, dict]:
+    """Look-through of every top Morpho PT market -> (shared exposure across them, {pendle address: Lineage})."""
+    lins, markets = {}, []
+    for m in morpho[:12]:
+        d = details.get(m["marketId"])
+        if not d:
+            continue
+        key = d["address"].lower()
+        try:
+            if key not in lins:
+                lins[key] = lineage.trace_pendle(d)
+            lt = exposure.lookthrough(lins[key])
+        except Exception:
+            continue
+        markets.append({"label": f"{m['collateralAsset']['symbol']} / {m['loanAsset']['symbol']}",
+                        "supply_usd": m["state"]["supplyAssetsUsd"] or 0, "lookthrough": lt,
+                        "is_mine": m["marketId"] == ours["marketId"]})
+    return (exposure.shared_exposure(markets) if markets else None), lins
+
+
+def _lookthrough_rows(shared: dict | None, nodes: list[Node]) -> list[dict]:
+    """Concentration rows for shared tokens / base assets that our position also reaches (look-through)."""
+    if not shared:
+        return []
+    by_tok = {n.meta["token_id"]: n.id for n in nodes if n.meta.get("token_id")}
+    out = []
+    for r in shared["rows"]:
+        if not r["in_position"]:
+            continue
+        out.append({"node": by_tok.get(r["id"]), "kind": "lookthrough",
+                    "label": f"Look-through: {r['symbol']}", "markets": r["markets"], "of_markets": shared["markets"],
+                    "supply_usd": r["supply_usd"], "share_pct": r["share_pct"], "size_known": r["unsized_markets"] == 0,
+                    "routes": r["routes"], "sentence": r["sentence"]})
+    return out
+
+
+def _slug(s: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", s.lower()).strip("_") or "x"
+
+
+def _attach_lineage(nodes: list[Node], edges: list[Edge], lin, lt: dict, pegs: dict, node) -> None:
+    """Add the lineage tokens below the existing underlying/backing nodes (existing nodes are reused by address)."""
+    by_addr = {str(n.meta.get("address", "")).lower(): n.id for n in nodes if n.meta.get("address")}
+    pct = {r["id"]: r for r in lt["tokens"]} | {r["id"]: r for r in lt["base_assets"]}
+    skip = {lin.root} | {e["child"] for e in lin.edges if e["parent"] == lin.root}  # PT and SY = the Pendle market node
+    ids: dict[str, str] = {}
+    by_id = {n.id: n for n in nodes}
+
+    def nid(tid):
+        if tid in ids:
+            return ids[tid]
+        t = lin.tokens[tid]
+        if tid in by_addr:
+            ids[tid] = by_addr[tid]
+            by_id[ids[tid]].meta.setdefault("token_id", tid)
+            r = pct.get(tid) or {}
+            by_id[ids[tid]].meta.setdefault("lookthrough_pct", r.get("pct"))
+            by_id[ids[tid]].meta.setdefault("lookthrough_routes", r.get("routes"))
+            return ids[tid]
+        base = tid.startswith("base:")
+        new = ("base_" if base else "lin_") + _slug(tid[5:] if base else t["symbol"])
+        while new in by_id:
+            new += "_"
+        stable = base or lineage.is_stable_like(t)
+        lg = 0.3 if stable else 0.5
+        r = pct.get(tid) or {}
+        n = node(new, "yield_source", f"{t['symbol']} (base asset)" if base else f"{t['symbol']} (backing token)", 0.0,
+                 "look-through only: discovered by token lineage; p_fail 0 because its risk is already carried by the "
+                 "parent token's prior (no double counting)", "base_asset" if base else "lineage_token", lgf=lg,
+                 lgf_why=f"what-if severity only ({lg:.0%}) for shocking this look-through node",
+                 token_type=t["type"], token_id=tid, lookthrough_pct=r.get("pct"), lookthrough_routes=r.get("routes"),
+                 **({"address": tid} if tid.startswith("0x") else {}),
+                 **({k: t[k] for k in ("issuer", "note", "rate") if t.get(k) is not None}))
+        nodes.append(n)
+        by_id[new] = n
+        ids[tid] = new
+        return new
+
+    for e in lin.edges:
+        if e["parent"] in skip:
+            continue
+        p, c = nid(e["parent"]), nid(e["child"])
+        ln = by_id[c].meta.setdefault("lineage", [])
+        info = {"parent": by_id[p].label, "parent_id": p, "weight": e["weight"], "source": e["source"],
+                "source_url": e.get("source_url"), "as_of": e["as_of"], "confidence": e["confidence"], "via": e["via"]}
+        if info not in ln:
+            ln.append(info)
+        if e.get("cycle"):
+            by_id[c].meta["cycle"] = True
+        if not any(x.src == p and x.dst == c for x in edges):
+            w = e["weight"]
+            edges.append(Edge(p, c, w if w is not None else 0.5,
+                              (e["via"] or f"backed by {lin.tokens[e['child']]['symbol']}")
+                              + (f" (share {w:.0%})" if w is not None else
+                                 " (share unknown: 0.5 used for the what-if animation only, not a data point)")))
+    for tid, stats in pegs.items():
+        if tid in skip:
+            continue
+        if tid in ids or tid in by_addr:
+            by_id[nid(tid)].meta["peg"] = stats
 
 
 # ---------------------------------------------------------------------------
@@ -275,6 +394,22 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
     for src in ("amm", "lending"):
         E(src, "chain", 1.0, "settles on Ethereum")
 
+    # recursive token lineage + look-through (never fatal: the base graph stands on its own)
+    details = _pendle_details(morpho_all[:12], by_pt)
+    details[mm["marketId"]] = pend
+    shared, lins, lt, lin_err = None, {}, None, None
+    try:
+        shared, lins = _portfolio_lookthrough(morpho_all, mm, details)
+        lin = lins.get(pm["address"].lower()) or lineage.trace_pendle(pend)
+        lt = exposure.lookthrough(lin)
+        try:
+            pegs = peg.annotate(lin)
+        except Exception:
+            pegs = {}
+        _attach_lineage(nodes, edges, lin, lt, pegs, node)
+    except Exception as e:
+        lin_err = f"{type(e).__name__}: {e}"[:300]
+
     # second-order ("hidden") = not directly touched by the position
     adj: dict[str, list[str]] = {}
     for e in edges:
@@ -300,9 +435,15 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
     pos = Position("pos", f"{pt_sym} on Morpho ({loan_sym})", "ethereum", value_usd, H, {
         "exit_pool_liquidity_usd": liq, "ref": ref, "real": True, "pendle_market": pm["address"],
         "morpho_market": mm["marketId"], "observed_at": int(time.time()), "block_number": block,
-        "concentration": _concentration(morpho_all, by_pt, mm, q),
+        "concentration": _concentration(morpho_all, by_pt, mm, q, details) + _lookthrough_rows(shared, nodes),
+        "lookthrough": lt and {k: lt[k] for k in ("root", "tokens", "base_assets", "cycles")},
+        "coverage": lt and lt["coverage"],
+        "shared_exposure": shared,
+        **({"lineage_error": lin_err} if lin_err else {}),
         "data_sources": ["Pendle API v1/v2 + SDK convert (exit quote)", "Morpho Blue GraphQL", "DefiLlama /hacks /protocols",
-                         "DefiLlama stablecoin prices", "Ethereum JSON-RPC (eth_call, eth_gasPrice, eth_blockNumber)"],
+                         "DefiLlama stablecoin prices", "Ethereum JSON-RPC (eth_call, eth_gasPrice, eth_blockNumber)",
+                         "ERC-4626 asset()/convertToAssets (token lineage)", "data/registry.json (issuer reserves, sourced)",
+                         "DefiLlama coins chart (peg/basis)"],
         "prior_method": rates["source"],
         "prior_upper_annual": rates.get("annual_per_protocol_upper"),
         "prior_central_annual": rates.get("annual_per_protocol"),

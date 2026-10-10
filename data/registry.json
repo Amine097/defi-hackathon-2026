@@ -1,0 +1,64 @@
+{
+  "_doc": "Issuer reserve compositions used by src/defirisk/lineage.py. Keys = lowercase Ethereum token addresses (verified on-chain with symbol()). A component 'to' is either another token address or a base asset (base:ETH, base:BTC, base:SOL, base:USD_FIAT, base:HEDGED_DELTA_NEUTRAL). weight = share of the token's backing (0-1); null = component is known but its share is not published in a form we could verify -> that share is reported as UNKNOWN, never guessed. Every entry carries source_url + as_of (date the source was consulted).",
+  "tokens": {
+    "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {
+      "symbol": "USDC", "type": "stablecoin_fiat", "issuer": "Circle",
+      "components": [
+        {"to": "base:USD_FIAT", "weight": 1.0, "note": "cash and short-dated US Treasuries held for USDC (Circle reserve attestations)"}
+      ],
+      "source_url": "https://www.circle.com/transparency", "as_of": "2026-10-10", "confidence": "medium"
+    },
+    "0xdac17f958d2ee523a2206206994597c13d831ec7": {
+      "symbol": "USDT", "type": "stablecoin_fiat", "issuer": "Tether",
+      "components": [
+        {"to": "base:USD_FIAT", "weight": null, "note": "US Treasuries, repos, cash equivalents (majority, exact share per quarterly report)"},
+        {"to": "base:BTC", "weight": null, "note": "bitcoin held in reserves"}
+      ],
+      "source_url": "https://tether.to/en/transparency/", "as_of": "2026-10-10", "confidence": "low"
+    },
+    "0x4c9edd5852cd905f086c759e8383e09bff1e68b3": {
+      "symbol": "USDe", "type": "stablecoin_synthetic", "issuer": "Ethena",
+      "components": [
+        {"to": "base:HEDGED_DELTA_NEUTRAL", "weight": null, "note": "BTC / ETH / staked-ETH spot hedged with short perpetuals on exchanges"},
+        {"to": "base:USD_FIAT", "weight": null, "note": "liquid stables held as backing (e.g. USDC, USDtb)"}
+      ],
+      "source_url": "https://app.ethena.fi/dashboards/transparency", "as_of": "2026-10-10", "confidence": "low"
+    },
+    "0xdc035d45d973e3ec169d2276ddab16f1e407384f": {
+      "symbol": "USDS", "type": "stablecoin_synthetic", "issuer": "Sky (ex-MakerDAO)",
+      "components": [
+        {"to": "base:USD_FIAT", "weight": null, "note": "real-world assets (T-bills) and USDC in the peg stability module"},
+        {"to": "base:ETH", "weight": null, "note": "ETH and staked-ETH collateral vaults"},
+        {"to": "base:BTC", "weight": null, "note": "wrapped-BTC collateral vaults"}
+      ],
+      "source_url": "https://info.sky.money/collateral", "as_of": "2026-10-10", "confidence": "low"
+    },
+    "0x6b175474e89094c44da98b954eedeac495271d0f": {
+      "symbol": "DAI", "type": "stablecoin_synthetic", "issuer": "Sky (ex-MakerDAO)",
+      "components": [
+        {"to": "base:USD_FIAT", "weight": null, "note": "real-world assets (T-bills) and USDC in the peg stability module"},
+        {"to": "base:ETH", "weight": null, "note": "ETH and staked-ETH collateral vaults"},
+        {"to": "base:BTC", "weight": null, "note": "wrapped-BTC collateral vaults"}
+      ],
+      "source_url": "https://info.sky.money/collateral", "as_of": "2026-10-10", "confidence": "low"
+    },
+    "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2": {
+      "symbol": "WETH", "type": "wrapper", "issuer": "WETH9 contract",
+      "components": [{"to": "base:ETH", "weight": 1.0, "note": "1:1 ETH wrapper, redeemable on-chain at any time"}],
+      "source_url": "https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", "as_of": "2026-10-10", "confidence": "high"
+    },
+    "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": {
+      "symbol": "WBTC", "type": "bridged", "issuer": "BitGo (WBTC DAO)",
+      "components": [{"to": "base:BTC", "weight": 1.0, "note": "BTC held by the custodian 1:1"}],
+      "source_url": "https://wbtc.network/dashboard/audit", "as_of": "2026-10-10", "confidence": "medium"
+    },
+    "0x5086bf358635b81d8c47c66d1c8b9e567db70c72": {
+      "symbol": "reUSD", "type": "yield_bearing", "issuer": "Re (re.xyz)",
+      "components": [
+        {"to": "base:USD_FIAT", "weight": null, "note": "deposited stablecoins posted as collateral for reinsurance contracts with licensed (off-chain) reinsurers"}
+      ],
+      "note": "yield comes from off-chain reinsurance underwriting; the reserve breakdown is not published as data",
+      "source_url": "https://docs.re.xyz", "as_of": "2026-10-10", "confidence": "low"
+    }
+  }
+}

@@ -51,3 +51,18 @@ python -m http.server 8000 -d public
 - In the client simulation, failure is assumed certain (a conditional loss). Probabilistic expected loss comes from the server (baseline and scenarios).
 - Base expected loss in the break-even chart, when several pockets are involved, is pro-rated by exposed value (an approximation).
 - Graphs with more than about 100 nodes have not been profiled (the O(n²) repulsion is fine up to roughly 150).
+
+## Look-through / lineage (added 10 Oct evening)
+- **Panel "What you really hold"** (reads `position.meta.lookthrough`, `.coverage` and `.shared_exposure`) shows:
+  - the coverage bar (traced vs unknown) with the reasons;
+  - the base assets;
+  - the chain of tokens (PT → SY → underlying → …);
+  - the tokens shared across the top Morpho PT markets.
+  Clicking a name selects the node through `meta.token_id`. When the data is missing, it shows an empty-state sentence (mock / `?data=large`).
+- **Inspector:**
+  - a "Hidden dependency" tag and explanation (`meta.hidden`, `meta.depth`);
+  - the share of the position (`meta.lookthrough_pct` and its routes);
+  - "Why it is in the graph" (`meta.lineage[]`: parent, weight or "share unknown", via, confidence chip, source link, as_of);
+  - a peg check (`meta.peg`: worst/today deviation, or "not enough data" with the reason).
+- **Graph:** lineage/base-asset nodes get a dotted purple outer ring.
+- **Data:** `data/sample.json` is now a saved run of the real pipeline (`source: "live"`), so the badge reads "Real data snapshot · date" instead of MOCK. `api.js` (dashboard, other owner) still labels the fallback as MOCK.

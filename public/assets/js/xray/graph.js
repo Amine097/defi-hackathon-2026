@@ -416,6 +416,10 @@ export function createGraph(canvas, model, cb) {
       ctx.save(); ctx.setLineDash([5 * px, 4 * px]); ctx.lineDashOffset = rm ? 0 : -now / 40 * px;
       ctx.strokeStyle = hexA('#ffffff', 0.85); ctx.lineWidth = 1.4 * px;
       ctx.beginPath(); ctx.arc(s.x, s.y, r + 6, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    } else if (s.n.meta && (s.n.meta.role === 'lineage_token' || s.n.meta.role === 'base_asset')) {
+      ctx.save(); ctx.setLineDash([2 * px, 3 * px]);
+      ctx.strokeStyle = hexA('#9b87f5', 0.75); ctx.lineWidth = 1.1 * px;
+      ctx.beginPath(); ctx.arc(s.x, s.y, r + 4, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
     }
     const dense = big && k < 1.15;
     const showLabel = isSel || isHov || s.root || (!dense) || r >= 17 || (focus && vis && focus.size <= 14) || (isHit && s.hit >= 0.6 && !s.n.isPos);

@@ -72,7 +72,13 @@ function start({ payload, kind, url }) {
   note.textContent = (kind === 'demo' || kind === 'mock-fallback') && wantedLive
     ? 'Note: the live /api/analyze backend did not deliver real data, so you are seeing built-in MOCK data (same model, sample inputs).'
     : '';
-  if (kind === 'demo' && wantedLive) badge.textContent = 'MOCK · API offline';
+  if (kind === 'demo' && ['live', 'cache', 'mixed'].includes(payload.source)) {
+    const when = payload.data_as_of ? new Date(payload.data_as_of * 1000).toISOString().slice(0, 10) : 'earlier';
+    badge.textContent = `Real data snapshot · ${when}`;
+    badge.className = 'xr-badge xr-badge-demo';
+    badge.title = `API unavailable: showing a saved run of the real pipeline (${url})`;
+    note.textContent = '';
+  } else if (kind === 'demo' && wantedLive) badge.textContent = 'MOCK · API offline';
   const guide = $('guide');
   const closeGuide = () => { guide.hidden = true; try { localStorage.setItem('fl-guide', '1'); } catch (e) {} };
   $('helpBtn').addEventListener('click', () => { guide.hidden = false; });
@@ -98,6 +104,7 @@ function start({ payload, kind, url }) {
   renderFailPicker(m);
   S.conc = concentration(m);
   renderConcentration(m);
+  renderLookthrough(m);
   renderBook(m);
   const top = topRiskNode(m);
   S.beNode = top;
@@ -141,7 +148,10 @@ function tipHtml(item) {
        <div class="xr-tip-r"><span>loss if fails</span><b>${pct(n.lgf)}</b></div>
        <div class="xr-tip-r"><span>expected loss</span><b>${usd(n.contrib)}</b></div>`;
   if (item.hit) rows += `<div class="xr-tip-r xr-tip-hit"><span>shock received</span><b>${pct(item.hit)}</b></div>`;
-  return `<div class="xr-tip-h">${dot(n)}${esc(n.label)}</div><div class="xr-tip-l">${esc(LAYER_NAME[n.layer] || n.layerRaw)}</div>${rows}
+  const lt = n.meta.lookthrough_pct;
+  if (isLineage(n)) rows += `<div class="xr-tip-r"><span>share of your position</span><b>${lt != null ? pct(lt) : 'unknown'}</b></div>`;
+  const tag = n.meta.hidden ? ' · <span class="xr-hidden-tag">hidden dependency</span>' : '';
+  return `<div class="xr-tip-h">${dot(n)}${esc(n.label)}</div><div class="xr-tip-l">${esc(LAYER_NAME[n.layer] || n.layerRaw)}${tag}</div>${rows}
     <div class="xr-tip-f">${n.isPos ? 'Your position' : S.clickMode === 'fail' ? 'Click to simulate failure · Shift+click to add' : 'Click to inspect'}</div>`;
 }
 
@@ -544,7 +554,126 @@ function renderConcentration(m) {
   }));
 }
 
+// ---------- look-through
+const TYPE_WORD = {
+  pendle_pt: 'Pendle principal token', pendle_sy: 'Pendle wrapper', wrapper_4626: 'vault share (ERC-4626)',
+  yield_bearing: 'yield-bearing token', stablecoin_fiat: 'fiat-backed stablecoin', stablecoin_synthetic: 'synthetic stablecoin',
+  base: 'real-world base asset', wrapped: 'wrapped token',
+};
+
+function renderLookthrough(m) {
+  const pm = m.position.meta || {};
+  const lt = pm.lookthrough;
+  const cov = pm.coverage;
+  const sh = pm.shared_exposure;
+  const body = $('ltBody');
+  if (!lt && !cov && !sh) {
+    $('ltChip').textContent = 'not available';
+    body.innerHTML = '<p class="xr-empty">This data set has no token look-through. Load live data to unwrap the position down to its base assets.</p>';
+    return;
+  }
+  const byToken = new Map(m.nodes.filter((n) => n.meta.token_id).map((n) => [String(n.meta.token_id).toLowerCase(), n]));
+  const nodeOf = (id) => (id ? byToken.get(String(id).toLowerCase()) : null);
+  const link = (id, text) => { const n = nodeOf(id); return n ? `<a href="#" class="xr-lt-node" data-id="${esc(n.id)}">${dot(n)}${esc(text)}</a>` : `<span>${esc(text)}</span>`; };
+  const parts = [];
+
+  if (cov) {
+    const t = clamp(+cov.traced_pct || 0, 0, 1);
+    const sev = String(cov.severity || '').toUpperCase();
+    const word = sev === 'GREEN' ? 'well understood' : sev === 'ORANGE' ? 'partly opaque' : 'mostly opaque';
+    $('ltChip').textContent = `${pct(t)} traced`;
+    $('ltChip').className = `xr-chip xr-sev-${sev.toLowerCase()}`;
+    parts.push(`<div class="xr-cov">
+      <div class="xr-cov-h"><b>Backing is ${word}</b><span>${pct(t)} traced · ${pct(1 - t)} unknown</span></div>
+      <div class="xr-cov-bar" role="img" aria-label="${pct(t)} traced, ${pct(1 - t)} unknown"><i class="tr" style="width:${t * 100}%"></i><i class="un" style="width:${(1 - t) * 100}%"></i></div>
+      ${(cov.unknown_reasons || []).slice(0, 3).map((r) => `<p class="xr-cov-why"><b>${esc(r.token)}</b> (${pct(r.share)} of you): ${esc(r.reason)}.</p>`).join('')}
+    </div>`);
+  }
+
+  if (lt && (lt.base_assets || []).length) {
+    parts.push(`<h4>Ultimately backed by</h4><ul class="xr-lt-list">${lt.base_assets.map((b) => {
+      const unk = b.id === 'base:UNKNOWN';
+      const w = b.pct != null ? clamp(b.pct, 0, 1) : null;
+      return `<li class="${unk ? 'unk' : ''}"><div class="xr-lt-h">${unk ? '<span>Not published</span>' : link(b.id, b.label)}<b>${w != null ? pct(w) : 'some, size unknown'}</b></div>
+        <div class="xr-conc-bar"><i style="width:${w != null ? Math.max(2, w * 100) : 100}%;--c:${unk ? '#6b7280' : 'var(--layer-yield)'}" class="${w == null ? 'dashed' : ''}"></i></div></li>`;
+    }).join('')}</ul>`);
+  }
+
+  if (lt && (lt.tokens || []).length) {
+    parts.push(`<h4>The chain of tokens</h4><ol class="xr-lt-chain">${[`<li><b>${esc(lt.root)}</b><small>what you hold</small></li>`]
+      .concat(lt.tokens.map((t) => `<li>${link(t.id, t.symbol)}<small>${esc(TYPE_WORD[t.type] || t.type || '')} · ${t.pct != null ? `${pct(t.pct)} of you` : 'share unknown'}</small></li>`)).join('')}</ol>`);
+    if ((lt.cycles || []).length) parts.push(`<p class="xr-cov-why warn">Loop detected: ${lt.cycles.map((c) => esc((c.path || []).join(' → '))).join('; ')}.</p>`);
+  }
+
+  if (sh && (sh.rows || []).length) {
+    const rows = sh.rows.filter((r) => r.markets > 1).slice(0, 5);
+    if (rows.length) {
+      parts.push(`<h4>Shared with other lenders' collateral</h4>
+        <p class="xr-sub">Across the ${sh.markets} largest Morpho markets that accept Pendle PTs (${usd(sh.total_supply_usd)} lent), these tokens back several markets at once. One failure would hit them all.</p>
+        <ul class="xr-lt-shared">${rows.map((r) => `<li class="${r.in_position ? 'mine' : ''}">
+          <div class="xr-lt-h">${link(r.id, r.symbol)}${r.in_position ? '<em>in your position</em>' : ''}<b>${r.share_pct ? `${r.share_pct.toFixed(0)}%` : '?'}</b></div>
+          <small>${esc(r.sentence)}</small></li>`).join('')}</ul>`);
+      if (sh.unknown_supply_pct != null) parts.push(`<p class="xr-muted xr-small">${sh.unknown_supply_pct.toFixed(0)}% of that lending sits on collateral whose backing split is not published.</p>`);
+    }
+  }
+  body.innerHTML = parts.join('');
+  body.querySelectorAll('[data-id]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const id = a.dataset.id;
+    select(id, { focusSet: closure(m, id, 'down') });
+    S.g.centerOn(id);
+  }));
+}
+
 // ---------- drawer
+const SKIP_META = new Set(['lineage', 'peg', 'lookthrough_pct', 'lookthrough_routes', 'token_id', 'hidden', 'depth', 'lookthrough', 'coverage', 'shared_exposure', 'concentration']);
+const isLineage = (n) => ['lineage_token', 'base_asset'].includes(n.meta.role);
+const signed = (v, d = 2) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(d)}%`;
+const srcLink = (url, text) => (url && /^https?:\/\//.test(url)
+  ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(text || url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a>`
+  : esc(text || ''));
+
+function pegHtml(p) {
+  if (!p) return '';
+  if (p.insufficient_data) {
+    return `<div class="xr-peg na"><b>Peg check:</b> not enough data. <span class="xr-muted">${esc(p.reason || '')}</span></div>`;
+  }
+  if (p.kind === 'basis') {
+    const v = p.latest_dev_pct;
+    const cls = Math.abs(v) >= 3 ? 'bad' : Math.abs(v) >= 1 ? 'warn' : 'ok';
+    return `<div class="xr-peg ${cls}"><b>Market price vs redemption value today: ${signed(v)}</b>
+      <small>Reference: ${esc(p.reference || 'on-chain exchange rate')}. ${esc(p.reason || '')}. Source: ${esc(p.source)}.</small></div>`;
+  }
+  const worst = p.max_dev_pct;
+  const cls = Math.abs(worst) >= 3 ? 'bad' : Math.abs(worst) >= 1 ? 'warn' : 'ok';
+  const word = cls === 'ok' ? 'held its $1 peg' : cls === 'warn' ? 'drifted from $1' : 'lost its $1 peg';
+  return `<div class="xr-peg ${cls}"><b>Peg check: ${word}</b>
+    <div class="xr-peg-row"><span>Worst day (${p.window_days}d)</span><b>${signed(worst)}</b><span>Today</span><b>${signed(p.latest_dev_pct)}</b></div>
+    <small>${p.n_points} daily prices · ${esc(p.source)}</small></div>`;
+}
+
+function lineageHtml(n) {
+  const out = [];
+  const share = n.meta.lookthrough_pct;
+  if (isLineage(n) || share != null || (n.meta.lookthrough_routes || []).length) {
+    const routes = (n.meta.lookthrough_routes || []).slice(0, 3);
+    out.push(`<div class="xr-lt-share">${share != null
+      ? `<b>${pct(share)}</b> of your position is ultimately a claim on this.`
+      : 'Your position is partly a claim on this, but <b>how much is not published</b>.'}
+      ${routes.length ? `<ul class="xr-routes">${routes.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>` : ''}</div>`);
+  }
+  const L = n.meta.lineage || [];
+  if (L.length) {
+    out.push(`<h4>Why it is in the graph</h4><ul class="xr-lin">${L.map((l) => `<li>
+      <div><b>${esc(l.parent)}</b> is backed by it · <b>${l.weight != null ? pct(l.weight) : 'share unknown'}</b></div>
+      ${l.via ? `<small>${esc(l.via)}</small>` : ''}
+      <div class="xr-lin-src"><span class="xr-conf xr-conf-${esc(l.confidence)}" title="How sure we are about this link">${esc(l.confidence)} confidence</span>
+        <span>source: ${srcLink(l.source_url, l.source_url ? null : l.source)}</span><span>as of ${esc(l.as_of)}</span></div></li>`).join('')}</ul>`);
+  }
+  if (n.meta.peg) out.push(pegHtml(n.meta.peg));
+  return out.join('');
+}
+
 const ORACLE_CHIPS = [
   ['twap_window', (v) => `TWAP ${v}`],
   ['twap_minutes', (v) => `TWAP ${v}m`],
@@ -560,7 +689,7 @@ const ORACLE_CHIPS = [
 function metaHtml(meta) {
   const chips = [];
   const rows = [];
-  const used = new Set();
+  const used = new Set(SKIP_META);
   for (const [k, f] of ORACLE_CHIPS) {
     if (meta[k] == null || meta[k] === '') continue;
     const warn = (k === 'single_feed' && meta[k]) || (k === 'sources' && +meta[k] === 1);
@@ -600,10 +729,14 @@ function renderDrawer(n) {
     : `<div><span>P(fail) ${m.horizon}d</span><b>${pct(n.p_fail, n.p_fail < 0.01 ? 2 : 1)}</b></div><div><span>Loss if fails</span><b>${pct(n.lgf)}</b></div>
        <div><span>Expected loss</span><b>${usd(n.contrib)}</b></div><div><span>Max transmission</span><b>${reachers.length ? pct(bestT) : '—'}</b></div>
        <div><span>Positions exposed</span><b>${reachers.length}/${m.positions.length}</b></div><div><span>Dependents</span><b>${dependents.length}</b></div>`;
-  d.innerHTML = `<div class="xr-drawer-h">${dot(n)}<div><h3>${esc(n.label)}</h3><span class="xr-chip" style="--c:${COL[n.layer]}">${esc(LAYER_NAME[n.layer] || n.layerRaw)}</span> <code class="xr-id">${esc(n.id)}</code></div>
+  const hidTag = n.meta.hidden && !n.isPos
+    ? ` <span class="xr-hidden-tag" title="Your position never touches this directly: it is reached ${n.meta.depth || 2}+ steps down the chain">Hidden dependency</span>` : '';
+  d.innerHTML = `<div class="xr-drawer-h">${dot(n)}<div><h3>${esc(n.label)}</h3><span class="xr-chip" style="--c:${COL[n.layer]}">${esc(LAYER_NAME[n.layer] || n.layerRaw)}</span>${hidTag} <code class="xr-id">${esc(n.id)}</code></div>
       <button class="xr-x" id="drawerClose" aria-label="Close details">×</button></div>
+    ${n.meta.hidden && !n.isPos ? `<p class="xr-hidden-why">You never hold or call this directly. It sits ${n.meta.depth || 2} steps down the chain, so a problem here still reaches you.</p>` : ''}
     <div class="xr-stats">${stats}</div>
     ${chips ? `<div class="xr-qchips">${chips}</div>` : ''}
+    ${lineageHtml(n)}
     ${!n.isPos ? `<div class="xr-drawer-actions"><button class="xr-btn xr-btn-red" id="dFail">Simulate failure</button><button class="xr-btn" id="dAdd">+ Add to failure</button></div>` : ''}
     <h4>Depends on (${deps.length})</h4><ul class="xr-links-list">${linkList([...deps], 'dst')}</ul>
     <h4>Dependents (${dependents.length})</h4><ul class="xr-links-list">${linkList([...dependents], 'src')}</ul>
