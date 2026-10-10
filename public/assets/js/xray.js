@@ -58,6 +58,20 @@ function start({ payload, kind, url }) {
   badge.textContent = kind === 'live' ? 'Live data' : 'Demo data';
   badge.className = `xr-badge ${kind === 'live' ? 'xr-badge-live' : 'xr-badge-demo'}`;
   badge.title = kind === 'live' ? `Loaded from ${url}` : `API unavailable or demo selected: showing ${url}`;
+  const wantedLive = !new URLSearchParams(location.search).get('data');
+  const note = $('guideNote');
+  note.textContent = kind === 'demo' && wantedLive
+    ? 'Note: the live /api/analyze backend did not answer, so you are seeing built-in demo data (same model, sample inputs).'
+    : '';
+  if (kind === 'demo' && wantedLive) badge.textContent = 'Demo data · API offline';
+  const guide = $('guide');
+  const closeGuide = () => { guide.hidden = true; try { localStorage.setItem('fl-guide', '1'); } catch (e) {} };
+  $('helpBtn').addEventListener('click', () => { guide.hidden = false; });
+  $('guideGo').addEventListener('click', closeGuide);
+  guide.addEventListener('click', (e) => { if (e.target === guide) closeGuide(); });
+  let seen = false;
+  try { seen = !!localStorage.getItem('fl-guide'); } catch (e) {}
+  guide.hidden = seen;
 
   renderHeader(m);
   renderLegend(m);

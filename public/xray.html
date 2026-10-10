@@ -53,6 +53,21 @@
       </div>
       <button class="xr-tb" id="fitBtn" title="Fit to view (F)">Fit</button>
       <button class="xr-tb xr-tb-reset" id="resetBtn" title="Reset simulation (R)">Reset</button>
+      <button class="xr-tb" id="helpBtn" title="How to read this page">? Guide</button>
+    </div>
+
+    <div class="xr-guide" id="guide" hidden role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+      <div class="xr-guide-card">
+        <h2 id="guideTitle">How to read the X-Ray</h2>
+        <ol>
+          <li><b>The graph is your position's hidden dependency stack.</b> The orange hexagon is the position. Each arrow <i>A → B</i> means "A depends on B". Colours are the 5 layers: chain, yield source, oracle, AMM market, lending.</li>
+          <li><b>Make something fail.</b> Click any node (or a scenario on the right, e.g. "Oracle failure"). The red wave shows how the failure travels to the position, hop by hop.</li>
+          <li><b>Read the verdict on the right.</b> <b>Stay</b> costs an uncertain expected loss, <b>Exit</b> costs a certain slippage. The cheaper one wins; the margin shows by how much.</li>
+          <li><b>Stress-test it.</b> Use the Break-even sliders to see at which incident probability or exit cost the verdict flips.</li>
+        </ol>
+        <p class="xr-guide-note" id="guideNote"></p>
+        <button class="xr-btn xr-btn-red" id="guideGo">Got it, show me</button>
+      </div>
     </div>
 
     <div class="xr-banner" id="banner" aria-live="polite"></div>
