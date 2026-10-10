@@ -6,3 +6,12 @@ node_modules/
 __pycache__/
 dist/
 build/
+
+# AI agent tooling (local only)
+.agents/
+.claude/
+.copilot/
+.github/copilot-instructions.md
+skills-lock.json
+AGENTS.md
+CLAUDE.md
