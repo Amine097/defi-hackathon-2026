@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaultLine · X-Ray</title>
+<meta name="description" content="FaultLine X-Ray: see every dependency behind a DeFi position, simulate failures and get a STAY / EXIT call.">
+<link rel="icon" href="/assets/brand/logo.svg">
+<link rel="stylesheet" href="/assets/css/theme.css">
+<link rel="stylesheet" href="/assets/css/xray.css">
+</head>
+<body class="xr">
+<header class="xr-top">
+  <a class="xr-brand" href="/" title="FaultLine dashboard">
+    <img src="/assets/brand/logo.svg" alt="" width="26" height="26" onerror="this.remove()">
+    <span>FaultLine</span><em>X-Ray</em>
+  </a>
+  <div class="xr-posinfo" id="posInfo"><span class="xr-skel-line" style="width:220px"></span></div>
+  <div class="xr-top-right">
+    <label class="xr-src" title="Data source">
+      <select id="srcSelect" aria-label="Data source">
+        <option value="">Live API</option>
+        <option value="sample">Sample (1 position)</option>
+        <option value="large">Demo book (10 pockets)</option>
+      </select>
+    </label>
+    <span class="xr-badge" id="dataBadge">loading…</span>
+    <nav class="xr-links" aria-label="Main">
+      <a href="/">Dashboard</a>
+      <a href="/xray.html" class="active" aria-current="page">X-Ray</a>
+    </nav>
+  </div>
+</header>
+
+<main class="xr-main">
+  <section class="xr-stage" id="stage" aria-label="Dependency graph">
+    <canvas id="graph" tabindex="0" aria-label="Interactive dependency graph. Click a node to simulate its failure."></canvas>
+
+    <div class="xr-loading" id="loading" aria-live="polite">
+      <div class="xr-orbit"><i></i><i></i><i></i><i></i><i></i></div>
+      <p>Discovering dependencies…</p>
+    </div>
+    <div class="xr-error" id="errorBox" hidden></div>
+
+    <div class="xr-toolbar" role="toolbar" aria-label="Graph controls">
+      <div class="xr-seg" id="layoutSeg">
+        <button data-v="force" class="on" title="Force layout (L)">Force</button>
+        <button data-v="layers" title="Layered view: L1 chain at the bottom, positions at the top (L)">Layers</button>
+      </div>
+      <div class="xr-seg" id="clickSeg">
+        <button data-v="fail" class="on" title="Click a node to make it fail (Shift+click to add)">Click = Fail</button>
+        <button data-v="inspect" title="Click a node to inspect only">Inspect</button>
+      </div>
+      <button class="xr-tb" id="fitBtn" title="Fit to view (F)">Fit</button>
+      <button class="xr-tb xr-tb-reset" id="resetBtn" title="Reset simulation (R)">Reset</button>
+    </div>
+
+    <div class="xr-banner" id="banner" aria-live="polite"></div>
+    <div class="xr-legend" id="legend"></div>
+    <div class="xr-hint" id="hint"><b>Click</b> a node to fail it · <b>Shift</b>+click multi-fail · drag nodes · scroll to zoom · <kbd>R</kbd> reset · <kbd>Esc</kbd> deselect</div>
+    <aside class="xr-drawer" id="drawer" hidden aria-label="Node details"></aside>
+    <div class="xr-tip" id="tip" hidden></div>
+  </section>
+
+  <aside class="xr-panel" id="panel" aria-label="Decision panel">
+    <button class="xr-sheet-handle" id="sheetHandle" aria-label="Toggle panel"><span></span></button>
+
+    <section class="xr-card xr-verdict" id="verdictCard">
+      <div class="xr-card-h"><h2 id="vTitle">Decision</h2><span class="xr-chip" id="vMode">baseline</span></div>
+      <div class="xr-verdict-row">
+        <div class="xr-vbadge" id="vBadge">—</div>
+        <div class="xr-vsub" id="vSub"><span class="xr-skel-line"></span><span class="xr-skel-line" style="width:60%"></span></div>
+      </div>
+      <div class="xr-kpis">
+        <div class="xr-kpi"><span id="kStayL">Expected loss if STAY</span><b id="kStay">—</b><small id="kStayS">uncertain</small></div>
+        <div class="xr-kpi"><span>Cost if EXIT</span><b id="kExit">—</b><small>certain</small></div>
+        <div class="xr-kpi"><span>Margin</span><b id="kMargin">—</b><small id="kMarginHint">stay − exit</small></div>
+      </div>
+      <div class="xr-scale" id="vScale" aria-hidden="true">
+        <div class="xr-scale-row"><span>Stay</span><div><i id="barStay"></i></div></div>
+        <div class="xr-scale-row"><span>Exit</span><div><i id="barExit"></i></div></div>
+      </div>
+      <p class="xr-why" id="vWhy"></p>
+      <p class="xr-server" id="vServer" hidden></p>
+    </section>
+
+    <section class="xr-card" id="simCard">
+      <div class="xr-card-h"><h2>Failure simulator</h2><span class="xr-chip" id="simState">idle</span></div>
+      <div class="xr-scen" id="scenarioBtns"></div>
+      <div class="xr-failpick">
+        <select id="failSelect" aria-label="Pick a node to fail"></select>
+        <button class="xr-btn xr-btn-red" id="failBtn">Fail</button>
+        <button class="xr-btn" id="addFailBtn" title="Add to current failure set">+ Add</button>
+        <button class="xr-btn xr-btn-ghost" id="resetBtn2">Reset</button>
+      </div>
+      <ol class="xr-timeline" id="timeline"><li class="xr-empty">Pick a scenario or click a node on the graph to watch the failure cascade hop by hop.</li></ol>
+      <div id="simPositions"></div>
+    </section>
+
+    <section class="xr-card" id="beCard">
+      <div class="xr-card-h"><h2>Break-even</h2><span class="xr-chip" id="beNode">—</span></div>
+      <svg id="beChart" class="xr-be" viewBox="0 0 340 170" role="img" aria-label="Expected loss versus exit cost"></svg>
+      <label class="xr-range"><span>P(incident) over horizon <b id="beP">0%</b></span>
+        <input type="range" id="beSlider" min="0" max="10" step="0.05" value="1"></label>
+      <label class="xr-range"><span>Exit cost (slippage + gas) <b id="beX">0%</b></span>
+        <input type="range" id="exitSlider" min="0" max="20" step="0.1" value="2"></label>
+      <p class="xr-be-out" id="beOut"></p>
+    </section>
+
+    <section class="xr-card" id="bookCard">
+      <div class="xr-card-h"><h2>Book: per-pocket call</h2><span class="xr-chip" id="bookPct">—</span></div>
+      <p class="xr-note" id="bookNote"></p>
+      <div class="xr-totals" id="bookTotals"></div>
+      <div class="xr-tablewrap"><table class="xr-table" id="bookTable"></table></div>
+    </section>
+
+    <section class="xr-card" id="concCard">
+      <div class="xr-card-h"><h2>Hidden concentration</h2><span class="xr-chip" id="concChip">—</span></div>
+      <ul class="xr-conc" id="concList"></ul>
+      <ul class="xr-insights" id="concInsights"></ul>
+    </section>
+
+    <p class="xr-foot">FaultLine · Know where it breaks before it does.</p>
+  </aside>
+</main>
+<script type="module" src="/assets/js/xray.js"></script>
+</body>
+</html>

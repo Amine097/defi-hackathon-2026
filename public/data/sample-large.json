@@ -1,0 +1,1211 @@
+{
+ "position": {
+  "id": "book",
+  "label": "Pendle PT book (10 pockets, synthetic)",
+  "chain": "ethereum",
+  "value_usd": 10000000,
+  "horizon_days": 30,
+  "meta": {
+   "synthetic": true
+  }
+ },
+ "nodes": [
+  {
+   "id": "eth",
+   "layer": "chain",
+   "label": "Ethereum",
+   "p_fail": 0.0005,
+   "loss_given_failure": 0.3,
+   "meta": {
+    "tvl_usd": 62000000000.0,
+    "url": "https://ethereum.org"
+   }
+  },
+  {
+   "id": "arb",
+   "layer": "chain",
+   "label": "Arbitrum One",
+   "p_fail": 0.002,
+   "loss_given_failure": 0.3,
+   "meta": {
+    "tvl_usd": 2600000000.0,
+    "kind": "L2 rollup"
+   }
+  },
+  {
+   "id": "usde",
+   "layer": "yield_source",
+   "label": "USDe / Ethena",
+   "p_fail": 0.01,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 5200000000.0,
+    "issuer": "Ethena Labs",
+    "address": "0x4c9EDD5852cd905f086C759E8383e09bff1E68B3",
+    "url": "https://ethena.fi"
+   }
+  },
+  {
+   "id": "susde",
+   "layer": "yield_source",
+   "label": "sUSDe vault",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.3,
+   "meta": {
+    "tvl_usd": 3100000000.0,
+    "issuer": "Ethena Labs",
+    "address": "0x9D39A5DE30e57443BfF2A8307A4256c8797A3497"
+   }
+  },
+  {
+   "id": "ethena_custody",
+   "layer": "yield_source",
+   "label": "Ethena custodians",
+   "p_fail": 0.003,
+   "loss_given_failure": 0.5,
+   "meta": {
+    "kind": "off-chain",
+    "note": "Copper, Ceffu, Cobo"
+   }
+  },
+  {
+   "id": "cex_perps",
+   "layer": "yield_source",
+   "label": "CEX perp venues",
+   "p_fail": 0.006,
+   "loss_given_failure": 0.4,
+   "meta": {
+    "kind": "off-chain",
+    "note": "Binance, Bybit, OKX shorts"
+   }
+  },
+  {
+   "id": "steth",
+   "layer": "yield_source",
+   "label": "stETH / Lido",
+   "p_fail": 0.002,
+   "loss_given_failure": 0.5,
+   "meta": {
+    "tvl_usd": 24000000000.0,
+    "issuer": "Lido DAO",
+    "address": "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
+   }
+  },
+  {
+   "id": "weeth",
+   "layer": "yield_source",
+   "label": "weETH / EtherFi",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.5,
+   "meta": {
+    "tvl_usd": 6100000000.0,
+    "issuer": "ether.fi",
+    "address": "0xCd5fE23C85820F7B72D0926FC9b05b43E359b7ee"
+   }
+  },
+  {
+   "id": "rseth",
+   "layer": "yield_source",
+   "label": "rsETH / Kelp",
+   "p_fail": 0.005,
+   "loss_given_failure": 0.5,
+   "meta": {
+    "tvl_usd": 1100000000.0,
+    "issuer": "Kelp DAO"
+   }
+  },
+  {
+   "id": "susds",
+   "layer": "yield_source",
+   "label": "sUSDS / Sky",
+   "p_fail": 0.002,
+   "loss_given_failure": 0.5,
+   "meta": {
+    "tvl_usd": 2000000000.0,
+    "issuer": "Sky (ex-Maker)"
+   }
+  },
+  {
+   "id": "usdc",
+   "layer": "yield_source",
+   "label": "USDC / Circle",
+   "p_fail": 0.001,
+   "loss_given_failure": 0.8,
+   "meta": {
+    "tvl_usd": 60000000000.0,
+    "issuer": "Circle",
+    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+   }
+  },
+  {
+   "id": "usdt",
+   "layer": "yield_source",
+   "label": "USDT / Tether",
+   "p_fail": 0.002,
+   "loss_given_failure": 0.7,
+   "meta": {
+    "tvl_usd": 120000000000.0,
+    "issuer": "Tether"
+   }
+  },
+  {
+   "id": "ausdc",
+   "layer": "yield_source",
+   "label": "aUSDC (Aave supply)",
+   "p_fail": 0.002,
+   "loss_given_failure": 0.5,
+   "meta": {
+    "tvl_usd": 3500000000.0
+   }
+  },
+  {
+   "id": "eigen",
+   "layer": "protocol",
+   "label": "EigenLayer",
+   "p_fail": 0.003,
+   "loss_given_failure": 0.4,
+   "meta": {
+    "tvl_usd": 12000000000.0,
+    "kind": "restaking"
+   }
+  },
+  {
+   "id": "pendle_core",
+   "layer": "protocol",
+   "label": "Pendle V2 core",
+   "p_fail": 0.002,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 4500000000.0,
+    "note": "Router + SY contracts"
+   }
+  },
+  {
+   "id": "cl_eth",
+   "layer": "oracle",
+   "label": "Chainlink ETH/USD",
+   "p_fail": 0.001,
+   "loss_given_failure": 0.3,
+   "meta": {
+    "provider": "Chainlink",
+    "sources": 31,
+    "heartbeat": "1h",
+    "deviation_threshold": 0.005,
+    "address": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+   }
+  },
+  {
+   "id": "cl_usde",
+   "layer": "oracle",
+   "label": "Chainlink USDe/USD",
+   "p_fail": 0.003,
+   "loss_given_failure": 0.35,
+   "meta": {
+    "provider": "Chainlink",
+    "sources": 9,
+    "heartbeat": "24h",
+    "deviation_threshold": 0.005
+   }
+  },
+  {
+   "id": "redstone_weeth",
+   "layer": "oracle",
+   "label": "RedStone weETH/ETH",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.4,
+   "meta": {
+    "provider": "RedStone",
+    "sources": 1,
+    "single_feed": true,
+    "heartbeat": "24h",
+    "deviation_threshold": 0.01,
+    "kind": "exchange-rate feed"
+   }
+  },
+  {
+   "id": "pto_susde",
+   "layer": "oracle",
+   "label": "PT-sUSDe TWAP oracle",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.4,
+   "meta": {
+    "provider": "Pendle",
+    "twap_window": "15m",
+    "sources": 1,
+    "single_feed": true
+   }
+  },
+  {
+   "id": "pto_weeth",
+   "layer": "oracle",
+   "label": "PT-weETH TWAP oracle",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.4,
+   "meta": {
+    "provider": "Pendle",
+    "twap_window": "30m",
+    "sources": 1,
+    "single_feed": true
+   }
+  },
+  {
+   "id": "pt_susde_sep",
+   "layer": "amm",
+   "label": "PT-sUSDe-Sep",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 1200000000.0,
+    "pool_liquidity_usd": 30000000.0,
+    "curve": "Pendle v2 (logit, time-decaying)"
+   }
+  },
+  {
+   "id": "pt_susde_dec",
+   "layer": "amm",
+   "label": "PT-sUSDe-Dec",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 800000000.0,
+    "pool_liquidity_usd": 22000000.0,
+    "curve": "Pendle v2 (logit, time-decaying)"
+   }
+  },
+  {
+   "id": "pt_usde_dec",
+   "layer": "amm",
+   "label": "PT-USDe-Dec",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 650000000.0,
+    "pool_liquidity_usd": 18000000.0,
+    "curve": "Pendle v2 (logit, time-decaying)"
+   }
+  },
+  {
+   "id": "pt_wsteth",
+   "layer": "amm",
+   "label": "PT-wstETH",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 300000000.0,
+    "pool_liquidity_usd": 12000000.0,
+    "curve": "Pendle v2 (logit, time-decaying)"
+   }
+  },
+  {
+   "id": "pt_weeth",
+   "layer": "amm",
+   "label": "PT-weETH",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 420000000.0,
+    "pool_liquidity_usd": 15000000.0,
+    "curve": "Pendle v2 (logit, time-decaying)"
+   }
+  },
+  {
+   "id": "pt_rseth_arb",
+   "layer": "amm",
+   "label": "PT-rsETH (Arb)",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 110000000.0,
+    "pool_liquidity_usd": 6000000.0,
+    "curve": "Pendle v2 (logit, time-decaying)"
+   }
+  },
+  {
+   "id": "pt_susds",
+   "layer": "amm",
+   "label": "PT-sUSDS",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 240000000.0,
+    "pool_liquidity_usd": 9000000.0,
+    "curve": "Pendle v2 (logit, time-decaying)"
+   }
+  },
+  {
+   "id": "pt_ausdc",
+   "layer": "amm",
+   "label": "PT-aUSDC",
+   "p_fail": 0.004,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 150000000.0,
+    "pool_liquidity_usd": 8000000.0,
+    "curve": "Pendle v2 (logit, time-decaying)"
+   }
+  },
+  {
+   "id": "curve_usde",
+   "layer": "amm",
+   "label": "Curve USDe/USDC",
+   "p_fail": 0.003,
+   "loss_given_failure": 0.3,
+   "meta": {
+    "tvl_usd": 180000000.0,
+    "pool_liquidity_usd": 180000000.0,
+    "curve": "StableSwap-NG"
+   }
+  },
+  {
+   "id": "morpho_blue",
+   "layer": "lending",
+   "label": "Morpho Blue core",
+   "p_fail": 0.002,
+   "loss_given_failure": 0.7,
+   "meta": {
+    "tvl_usd": 4000000000.0,
+    "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
+   }
+  },
+  {
+   "id": "morpho_ptsusde",
+   "layer": "lending",
+   "label": "Morpho PT-sUSDe/DAI",
+   "p_fail": 0.003,
+   "loss_given_failure": 0.7,
+   "meta": {
+    "tvl_usd": 410000000.0,
+    "lltv": 0.915
+   }
+  },
+  {
+   "id": "morpho_ptweeth",
+   "layer": "lending",
+   "label": "Morpho PT-weETH/WETH",
+   "p_fail": 0.003,
+   "loss_given_failure": 0.7,
+   "meta": {
+    "tvl_usd": 160000000.0,
+    "lltv": 0.86
+   }
+  },
+  {
+   "id": "aave_core",
+   "layer": "lending",
+   "label": "Aave v3 Core",
+   "p_fail": 0.0015,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 24000000000.0,
+    "address": "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2"
+   }
+  },
+  {
+   "id": "euler",
+   "layer": "lending",
+   "label": "Euler v2 vaults",
+   "p_fail": 0.003,
+   "loss_given_failure": 0.6,
+   "meta": {
+    "tvl_usd": 1000000000.0
+   }
+  },
+  {
+   "id": "p0",
+   "layer": "protocol",
+   "label": "P0 PT-sUSDe on Morpho",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 16408.44,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p1",
+   "layer": "protocol",
+   "label": "P1 PT-sUSDe on Aave",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 22237.22,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p2",
+   "layer": "protocol",
+   "label": "P2 PT-wstETH on Aave",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 40015.0,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p3",
+   "layer": "protocol",
+   "label": "P3 PT-weETH on Morpho",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 32273.06,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p4",
+   "layer": "protocol",
+   "label": "P4 PT-USDe on Euler",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 27042.03,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p5",
+   "layer": "protocol",
+   "label": "P5 PT-sUSDS on Aave",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 52646.58,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p6",
+   "layer": "protocol",
+   "label": "P6 PT-rsETH (Arbitrum)",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 76938.08,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p7",
+   "layer": "protocol",
+   "label": "P7 PT-sUSDe hold",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 16408.44,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p8",
+   "layer": "protocol",
+   "label": "P8 PT-aUSDC hold",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 58838.53,
+    "kind": "position"
+   }
+  },
+  {
+   "id": "p9",
+   "layer": "protocol",
+   "label": "P9 PT-weETH on Euler",
+   "p_fail": 0.0,
+   "loss_given_failure": 0.0,
+   "meta": {
+    "value_usd": 1000000.0,
+    "exit_cost_usd": 32273.06,
+    "kind": "position"
+   }
+  }
+ ],
+ "edges": [
+  {
+   "src": "usde",
+   "dst": "ethena_custody",
+   "transmission": 0.8,
+   "reason": "collateral held by off-exchange custodians"
+  },
+  {
+   "src": "usde",
+   "dst": "cex_perps",
+   "transmission": 0.7,
+   "reason": "delta-neutral hedge via perp shorts"
+  },
+  {
+   "src": "usde",
+   "dst": "usdc",
+   "transmission": 0.3,
+   "reason": "liquid stablecoin reserve"
+  },
+  {
+   "src": "usde",
+   "dst": "usdt",
+   "transmission": 0.3,
+   "reason": "liquid stablecoin reserve"
+  },
+  {
+   "src": "usde",
+   "dst": "steth",
+   "transmission": 0.4,
+   "reason": "stETH used as backing collateral"
+  },
+  {
+   "src": "usde",
+   "dst": "eth",
+   "transmission": 0.3,
+   "reason": "minted on Ethereum"
+  },
+  {
+   "src": "susde",
+   "dst": "usde",
+   "transmission": 1.0,
+   "reason": "staked USDe vault (ERC-4626)"
+  },
+  {
+   "src": "weeth",
+   "dst": "eigen",
+   "transmission": 0.6,
+   "reason": "restaked via EigenLayer"
+  },
+  {
+   "src": "weeth",
+   "dst": "eth",
+   "transmission": 0.5,
+   "reason": "ETH staking"
+  },
+  {
+   "src": "steth",
+   "dst": "eth",
+   "transmission": 0.6,
+   "reason": "ETH staking on beacon chain"
+  },
+  {
+   "src": "rseth",
+   "dst": "eigen",
+   "transmission": 0.7,
+   "reason": "restaked via EigenLayer"
+  },
+  {
+   "src": "rseth",
+   "dst": "steth",
+   "transmission": 0.5,
+   "reason": "LST collateral"
+  },
+  {
+   "src": "susds",
+   "dst": "usdc",
+   "transmission": 0.5,
+   "reason": "PSM backing"
+  },
+  {
+   "src": "susds",
+   "dst": "eth",
+   "transmission": 0.3,
+   "reason": "settles on Ethereum"
+  },
+  {
+   "src": "ausdc",
+   "dst": "aave_core",
+   "transmission": 1.0,
+   "reason": "aToken = claim on Aave pool"
+  },
+  {
+   "src": "ausdc",
+   "dst": "usdc",
+   "transmission": 1.0,
+   "reason": "underlying asset"
+  },
+  {
+   "src": "eigen",
+   "dst": "eth",
+   "transmission": 0.5,
+   "reason": "contracts + slashing on Ethereum"
+  },
+  {
+   "src": "arb",
+   "dst": "eth",
+   "transmission": 0.5,
+   "reason": "rollup settles to L1"
+  },
+  {
+   "src": "pendle_core",
+   "dst": "eth",
+   "transmission": 0.8,
+   "reason": "contracts on Ethereum"
+  },
+  {
+   "src": "cl_eth",
+   "dst": "eth",
+   "transmission": 0.3,
+   "reason": "on-chain aggregator"
+  },
+  {
+   "src": "cl_usde",
+   "dst": "eth",
+   "transmission": 0.3,
+   "reason": "on-chain aggregator"
+  },
+  {
+   "src": "redstone_weeth",
+   "dst": "eth",
+   "transmission": 0.3,
+   "reason": "push feed on Ethereum"
+  },
+  {
+   "src": "pto_susde",
+   "dst": "pt_susde_sep",
+   "transmission": 0.7,
+   "reason": "reads market TWAP (15m)"
+  },
+  {
+   "src": "pto_susde",
+   "dst": "pt_susde_dec",
+   "transmission": 0.5,
+   "reason": "reads market TWAP (15m)"
+  },
+  {
+   "src": "pto_weeth",
+   "dst": "pt_weeth",
+   "transmission": 0.7,
+   "reason": "reads market TWAP (30m)"
+  },
+  {
+   "src": "curve_usde",
+   "dst": "usde",
+   "transmission": 0.8,
+   "reason": "USDe/USDC pool"
+  },
+  {
+   "src": "curve_usde",
+   "dst": "usdc",
+   "transmission": 0.5,
+   "reason": "USDe/USDC pool"
+  },
+  {
+   "src": "morpho_blue",
+   "dst": "eth",
+   "transmission": 0.8,
+   "reason": "contracts on Ethereum"
+  },
+  {
+   "src": "morpho_ptsusde",
+   "dst": "morpho_blue",
+   "transmission": 1.0,
+   "reason": "isolated market on Morpho Blue"
+  },
+  {
+   "src": "morpho_ptsusde",
+   "dst": "pto_susde",
+   "transmission": 0.8,
+   "reason": "liquidations priced by PT TWAP oracle"
+  },
+  {
+   "src": "morpho_ptsusde",
+   "dst": "cl_usde",
+   "transmission": 0.5,
+   "reason": "USDe/USD leg of the price"
+  },
+  {
+   "src": "morpho_ptweeth",
+   "dst": "morpho_blue",
+   "transmission": 1.0,
+   "reason": "isolated market on Morpho Blue"
+  },
+  {
+   "src": "morpho_ptweeth",
+   "dst": "pto_weeth",
+   "transmission": 0.8,
+   "reason": "liquidations priced by PT TWAP oracle"
+  },
+  {
+   "src": "morpho_ptweeth",
+   "dst": "redstone_weeth",
+   "transmission": 0.6,
+   "reason": "weETH/ETH exchange rate"
+  },
+  {
+   "src": "aave_core",
+   "dst": "cl_eth",
+   "transmission": 0.8,
+   "reason": "Chainlink feeds price every reserve"
+  },
+  {
+   "src": "aave_core",
+   "dst": "cl_usde",
+   "transmission": 0.4,
+   "reason": "USDe / sUSDe reserve pricing"
+  },
+  {
+   "src": "aave_core",
+   "dst": "eth",
+   "transmission": 0.8,
+   "reason": "contracts on Ethereum"
+  },
+  {
+   "src": "euler",
+   "dst": "redstone_weeth",
+   "transmission": 0.6,
+   "reason": "weETH pricing"
+  },
+  {
+   "src": "euler",
+   "dst": "cl_usde",
+   "transmission": 0.4,
+   "reason": "USDe pricing"
+  },
+  {
+   "src": "euler",
+   "dst": "eth",
+   "transmission": 0.8,
+   "reason": "contracts on Ethereum"
+  },
+  {
+   "src": "pt_susde_sep",
+   "dst": "susde",
+   "transmission": 0.9,
+   "reason": "SY wraps susde"
+  },
+  {
+   "src": "pt_susde_sep",
+   "dst": "pendle_core",
+   "transmission": 0.8,
+   "reason": "Pendle router + SY contracts"
+  },
+  {
+   "src": "pt_susde_dec",
+   "dst": "susde",
+   "transmission": 0.9,
+   "reason": "SY wraps susde"
+  },
+  {
+   "src": "pt_susde_dec",
+   "dst": "pendle_core",
+   "transmission": 0.8,
+   "reason": "Pendle router + SY contracts"
+  },
+  {
+   "src": "pt_usde_dec",
+   "dst": "usde",
+   "transmission": 0.9,
+   "reason": "SY wraps usde"
+  },
+  {
+   "src": "pt_usde_dec",
+   "dst": "pendle_core",
+   "transmission": 0.8,
+   "reason": "Pendle router + SY contracts"
+  },
+  {
+   "src": "pt_wsteth",
+   "dst": "steth",
+   "transmission": 0.9,
+   "reason": "SY wraps steth"
+  },
+  {
+   "src": "pt_wsteth",
+   "dst": "pendle_core",
+   "transmission": 0.8,
+   "reason": "Pendle router + SY contracts"
+  },
+  {
+   "src": "pt_weeth",
+   "dst": "weeth",
+   "transmission": 0.9,
+   "reason": "SY wraps weeth"
+  },
+  {
+   "src": "pt_weeth",
+   "dst": "pendle_core",
+   "transmission": 0.8,
+   "reason": "Pendle router + SY contracts"
+  },
+  {
+   "src": "pt_rseth_arb",
+   "dst": "rseth",
+   "transmission": 0.9,
+   "reason": "SY wraps rseth"
+  },
+  {
+   "src": "pt_rseth_arb",
+   "dst": "pendle_core",
+   "transmission": 0.8,
+   "reason": "Pendle router + SY contracts"
+  },
+  {
+   "src": "pt_susds",
+   "dst": "susds",
+   "transmission": 0.9,
+   "reason": "SY wraps susds"
+  },
+  {
+   "src": "pt_susds",
+   "dst": "pendle_core",
+   "transmission": 0.8,
+   "reason": "Pendle router + SY contracts"
+  },
+  {
+   "src": "pt_ausdc",
+   "dst": "ausdc",
+   "transmission": 0.9,
+   "reason": "SY wraps ausdc"
+  },
+  {
+   "src": "pt_ausdc",
+   "dst": "pendle_core",
+   "transmission": 0.8,
+   "reason": "Pendle router + SY contracts"
+  },
+  {
+   "src": "pt_rseth_arb",
+   "dst": "arb",
+   "transmission": 1.0,
+   "reason": "deployed on Arbitrum"
+  },
+  {
+   "src": "p0",
+   "dst": "pt_susde_sep",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p0",
+   "dst": "morpho_ptsusde",
+   "transmission": 0.8,
+   "reason": "PT posted as collateral"
+  },
+  {
+   "src": "p0",
+   "dst": "curve_usde",
+   "transmission": 0.3,
+   "reason": "exit route via USDe/USDC"
+  },
+  {
+   "src": "p1",
+   "dst": "pt_susde_dec",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p1",
+   "dst": "aave_core",
+   "transmission": 0.8,
+   "reason": "PT collateral on Aave v3"
+  },
+  {
+   "src": "p1",
+   "dst": "curve_usde",
+   "transmission": 0.3,
+   "reason": "exit route via USDe/USDC"
+  },
+  {
+   "src": "p2",
+   "dst": "pt_wsteth",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p2",
+   "dst": "aave_core",
+   "transmission": 0.8,
+   "reason": "PT collateral on Aave v3"
+  },
+  {
+   "src": "p3",
+   "dst": "pt_weeth",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p3",
+   "dst": "morpho_ptweeth",
+   "transmission": 0.8,
+   "reason": "PT posted as collateral"
+  },
+  {
+   "src": "p4",
+   "dst": "pt_usde_dec",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p4",
+   "dst": "euler",
+   "transmission": 0.7,
+   "reason": "PT collateral on Euler"
+  },
+  {
+   "src": "p4",
+   "dst": "curve_usde",
+   "transmission": 0.3,
+   "reason": "exit route via USDe/USDC"
+  },
+  {
+   "src": "p5",
+   "dst": "pt_susds",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p5",
+   "dst": "aave_core",
+   "transmission": 0.6,
+   "reason": "PT collateral on Aave v3"
+  },
+  {
+   "src": "p6",
+   "dst": "pt_rseth_arb",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p7",
+   "dst": "pt_susde_sep",
+   "transmission": 1,
+   "reason": "holds PT (no leverage)"
+  },
+  {
+   "src": "p8",
+   "dst": "pt_ausdc",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p9",
+   "dst": "pt_weeth",
+   "transmission": 1,
+   "reason": "holds PT"
+  },
+  {
+   "src": "p9",
+   "dst": "euler",
+   "transmission": 0.7,
+   "reason": "PT collateral on Euler"
+  }
+ ],
+ "node_contrib_usd": {
+  "eth": 972.0000000000001,
+  "arb": 600.0,
+  "usde": 21600.0,
+  "susde": 3240.0,
+  "ethena_custody": 4320.000000000001,
+  "cex_perps": 6048.0,
+  "steth": 2790.0,
+  "weeth": 3600.0000000000005,
+  "rseth": 2250.0000000000005,
+  "susds": 900.0000000000001,
+  "usdc": 1944.0000000000002,
+  "usdt": 1512.0,
+  "ausdc": 900.0000000000001,
+  "eigen": 2052.0,
+  "pendle_core": 9599.999999999998,
+  "cl_eth": 744.0,
+  "cl_usde": 2310.0,
+  "redstone_weeth": 2112.0,
+  "pto_susde": 1024.0000000000002,
+  "pto_weeth": 1024.0000000000002,
+  "pt_susde_sep": 4800.0,
+  "pt_susde_dec": 3168.0,
+  "pt_usde_dec": 2400.0,
+  "pt_wsteth": 2400.0,
+  "pt_weeth": 4800.0,
+  "pt_rseth_arb": 2400.0,
+  "pt_susds": 2400.0,
+  "pt_ausdc": 2400.0,
+  "curve_usde": 810.0,
+  "morpho_blue": 2240.0000000000005,
+  "morpho_ptsusde": 1680.0,
+  "morpho_ptweeth": 1680.0,
+  "aave_core": 2790.0,
+  "euler": 2519.9999999999995,
+  "p0": 0.0,
+  "p1": 0.0,
+  "p2": 0.0,
+  "p3": 0.0,
+  "p4": 0.0,
+  "p5": 0.0,
+  "p6": 0.0,
+  "p7": 0.0,
+  "p8": 0.0,
+  "p9": 0.0
+ },
+ "decision": {
+  "verdict": "STAY",
+  "expected_loss_usd": 105490.95251568874,
+  "exit_cost_usd": 375080.44,
+  "margin_usd": -269589.4874843113,
+  "explanation": "Expected 30d loss $105,491 vs exit cost $375,080. Top risk drivers: usde ($21,600), pendle_core ($9,600), cex_perps ($6,048)."
+ },
+ "scenarios": [
+  {
+   "name": "USDe depeg",
+   "description": "USDe loses its peg; sUSDe and every USDe-based PT reprices",
+   "overrides": {
+    "usde": {
+     "p_fail": 1.0,
+     "loss_given_failure": 0.3
+    }
+   },
+   "expected_loss_usd": 1153212.0921409437,
+   "verdict": "EXIT"
+  },
+  {
+   "name": "Ethena custodian freeze",
+   "description": "Off-exchange custodian freezes Ethena collateral",
+   "overrides": {
+    "ethena_custody": {
+     "p_fail": 1.0,
+     "loss_given_failure": 0.5
+    }
+   },
+   "expected_loss_usd": 1520539.2797224938,
+   "verdict": "EXIT"
+  },
+  {
+   "name": "Chainlink USDe/USD outage",
+   "description": "Stale or wrong USDe/USD price used by lenders",
+   "overrides": {
+    "cl_usde": {
+     "p_fail": 1.0
+    }
+   },
+   "expected_loss_usd": 865026.3272649767,
+   "verdict": "EXIT"
+  },
+  {
+   "name": "EigenLayer slashing",
+   "description": "Correlated slashing event across restaked LRTs",
+   "overrides": {
+    "eigen": {
+     "p_fail": 1.0,
+     "loss_given_failure": 0.3
+    }
+   },
+   "expected_loss_usd": 612384.1648559066,
+   "verdict": "EXIT"
+  },
+  {
+   "name": "Morpho Blue exploit",
+   "description": "Bug in the Morpho Blue core contract",
+   "overrides": {
+    "morpho_blue": {
+     "p_fail": 1.0
+    }
+   },
+   "expected_loss_usd": 1208244.3560562034,
+   "verdict": "EXIT"
+  },
+  {
+   "name": "Arbitrum sequencer halt",
+   "description": "Sequencer down for hours; positions frozen",
+   "overrides": {
+    "arb": {
+     "p_fail": 1.0,
+     "loss_given_failure": 0.1
+    }
+   },
+   "expected_loss_usd": 204205.6495125163,
+   "verdict": "STAY"
+  }
+ ],
+ "book": {
+  "pockets": [
+   {
+    "label": "P0",
+    "value_usd": 1000000.0,
+    "affected": true,
+    "stay_loss_usd": 106528.46959302365,
+    "exit_cost_usd": 76938.07692307692,
+    "verdict": "EXIT"
+   },
+   {
+    "label": "P1",
+    "value_usd": 1000000.0,
+    "affected": true,
+    "stay_loss_usd": 103156.76109373085,
+    "exit_cost_usd": 102055.8163265306,
+    "verdict": "EXIT"
+   },
+   {
+    "label": "P2",
+    "value_usd": 1000000.0,
+    "affected": false,
+    "stay_loss_usd": 5592.393802076878,
+    "exit_cost_usd": 40015.0,
+    "verdict": "STAY"
+   },
+   {
+    "label": "P3",
+    "value_usd": 1000000.0,
+    "affected": false,
+    "stay_loss_usd": 10449.067669761169,
+    "exit_cost_usd": 32273.06,
+    "verdict": "STAY"
+   },
+   {
+    "label": "P4",
+    "value_usd": 1000000.0,
+    "affected": true,
+    "stay_loss_usd": 103065.40914368955,
+    "exit_cost_usd": 121966.21951219512,
+    "verdict": "STAY"
+   },
+   {
+    "label": "P5",
+    "value_usd": 1000000.0,
+    "affected": false,
+    "stay_loss_usd": 5640.0432557853765,
+    "exit_cost_usd": 52646.58,
+    "verdict": "STAY"
+   },
+   {
+    "label": "P6",
+    "value_usd": 1000000.0,
+    "affected": false,
+    "stay_loss_usd": 7490.259772338414,
+    "exit_cost_usd": 76938.08,
+    "verdict": "STAY"
+   },
+   {
+    "label": "P7",
+    "value_usd": 1000000.0,
+    "affected": true,
+    "stay_loss_usd": 101793.98628192082,
+    "exit_cost_usd": 76938.07692307692,
+    "verdict": "EXIT"
+   },
+   {
+    "label": "P8",
+    "value_usd": 1000000.0,
+    "affected": false,
+    "stay_loss_usd": 6475.382890971937,
+    "exit_cost_usd": 58838.53,
+    "verdict": "STAY"
+   },
+   {
+    "label": "P9",
+    "value_usd": 1000000.0,
+    "affected": false,
+    "stay_loss_usd": 8103.236233139355,
+    "exit_cost_usd": 32273.06,
+    "verdict": "STAY"
+   }
+  ],
+  "total_stay_loss_usd": 458295.009736438,
+  "total_optimal_usd": 402747.7629404472,
+  "pct_of_book": 0.04027477629404472,
+  "scenario": "USDe depeg risk elevated (P=30%, LGF 35%); hit pockets unwind into pools with 80% less liquidity"
+ }
+}

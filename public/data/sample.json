@@ -1,0 +1,245 @@
+{
+  "position": {
+    "id": "pos",
+    "label": "PT-sUSDe on Morpho (mock)",
+    "chain": "ethereum",
+    "value_usd": 1000000,
+    "horizon_days": 30,
+    "meta": {
+      "exit_pool_liquidity_usd": 20000000
+    }
+  },
+  "nodes": [
+    {
+      "id": "pos",
+      "layer": "protocol",
+      "label": "Position",
+      "p_fail": 0.0,
+      "loss_given_failure": 0.0,
+      "meta": {}
+    },
+    {
+      "id": "eth",
+      "layer": "chain",
+      "label": "Ethereum",
+      "p_fail": 0.0005,
+      "loss_given_failure": 0.3,
+      "meta": {}
+    },
+    {
+      "id": "pendle",
+      "layer": "amm",
+      "label": "Pendle market",
+      "p_fail": 0.004,
+      "loss_given_failure": 0.8,
+      "meta": {}
+    },
+    {
+      "id": "susde",
+      "layer": "yield_source",
+      "label": "sUSDe / Ethena",
+      "p_fail": 0.01,
+      "loss_given_failure": 0.6,
+      "meta": {}
+    },
+    {
+      "id": "oracle",
+      "layer": "oracle",
+      "label": "PT oracle",
+      "p_fail": 0.005,
+      "loss_given_failure": 0.4,
+      "meta": {}
+    },
+    {
+      "id": "morpho",
+      "layer": "lending",
+      "label": "Morpho market",
+      "p_fail": 0.003,
+      "loss_given_failure": 0.7,
+      "meta": {}
+    }
+  ],
+  "edges": [
+    {
+      "src": "pos",
+      "dst": "pendle",
+      "transmission": 1.0,
+      "reason": "holds PT"
+    },
+    {
+      "src": "pos",
+      "dst": "morpho",
+      "transmission": 1.0,
+      "reason": "PT posted as collateral"
+    },
+    {
+      "src": "pendle",
+      "dst": "susde",
+      "transmission": 0.9,
+      "reason": "SY wraps sUSDe"
+    },
+    {
+      "src": "morpho",
+      "dst": "oracle",
+      "transmission": 0.8,
+      "reason": "liquidations use PT oracle"
+    },
+    {
+      "src": "oracle",
+      "dst": "pendle",
+      "transmission": 0.7,
+      "reason": "oracle reads Pendle TWAP"
+    },
+    {
+      "src": "pendle",
+      "dst": "eth",
+      "transmission": 1.0,
+      "reason": "settles on Ethereum"
+    },
+    {
+      "src": "morpho",
+      "dst": "eth",
+      "transmission": 1.0,
+      "reason": "settles on Ethereum"
+    }
+  ],
+  "node_contrib_usd": {
+    "pos": 0.0,
+    "eth": 150.0,
+    "pendle": 3200.0,
+    "susde": 5400.0,
+    "oracle": 1600.0000000000002,
+    "morpho": 2100.0
+  },
+  "decision": {
+    "verdict": "STAY",
+    "expected_loss_usd": 12456.56,
+    "exit_cost_usd": 24405.243902439026,
+    "margin_usd": -11948.683902439026,
+    "explanation": "Expected 30d loss $12,457 vs exit cost $24,405. Top risk drivers: susde ($5,400), pendle ($3,200), morpho ($2,100)."
+  },
+  "scenarios": [
+    {
+      "name": "USDe depeg",
+      "description": "Underlying yield-bearing stablecoin depegs",
+      "overrides": {
+        "susde": {
+          "p_fail": 1.0,
+          "loss_given_failure": 0.3
+        }
+      },
+      "expected_loss_usd": 274881.656,
+      "verdict": "EXIT"
+    },
+    {
+      "name": "Oracle failure",
+      "description": "PT oracle misprices collateral",
+      "overrides": {
+        "oracle": {
+          "p_fail": 1.0
+        }
+      },
+      "expected_loss_usd": 327397.04,
+      "verdict": "EXIT"
+    },
+    {
+      "name": "Liquidity crisis",
+      "description": "AMM liquidity dries up",
+      "overrides": {
+        "pendle": {
+          "p_fail": 1.0,
+          "loss_given_failure": 0.5
+        }
+      },
+      "expected_loss_usd": 504794.68,
+      "verdict": "EXIT"
+    }
+  ],
+  "book": {
+    "pockets": [
+      {
+        "label": "P0",
+        "value_usd": 1000000.0,
+        "affected": true,
+        "stay_loss_usd": 274881.656,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "EXIT"
+      },
+      {
+        "label": "P1",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      },
+      {
+        "label": "P2",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      },
+      {
+        "label": "P3",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      },
+      {
+        "label": "P4",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      },
+      {
+        "label": "P5",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      },
+      {
+        "label": "P6",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      },
+      {
+        "label": "P7",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      },
+      {
+        "label": "P8",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      },
+      {
+        "label": "P9",
+        "value_usd": 1000000.0,
+        "affected": false,
+        "stay_loss_usd": 12456.56,
+        "exit_cost_usd": 24405.243902439026,
+        "verdict": "STAY"
+      }
+    ],
+    "total_stay_loss_usd": 386990.696,
+    "total_optimal_usd": 136514.28390243903,
+    "pct_of_book": 0.013651428390243903
+  }
+}

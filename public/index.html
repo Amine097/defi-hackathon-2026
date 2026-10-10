@@ -1,102 +1,191 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>Pendle X-Ray mockup v3</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaultLine — Know where it breaks before it does</title>
+<meta name="description" content="FaultLine maps the hidden dependency graph behind a DeFi position, simulates failures and tells you whether to STAY or EXIT.">
+<meta property="og:title" content="FaultLine">
+<meta property="og:description" content="Know where it breaks before it does. Dependency discovery, failure simulation and a STAY/EXIT decision for DeFi positions.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0a0d13">
+<link rel="icon" href="/assets/brand/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/theme.css">
 <style>
-body{margin:0;background:#0a0d13;color:#eee;font-family:system-ui;display:flex;height:100vh;overflow:hidden}
-#main{flex:1;position:relative}canvas{width:100%;height:100%;display:block}
-#side{width:340px;background:#12161f;padding:14px;overflow:auto;border-left:1px solid #222}
-h1{font-size:16px;margin:0 0 2px}.sub{color:#888;font-size:12px;margin-bottom:10px}
-.hint{position:absolute;left:12px;top:10px;font-size:12px;color:#889;background:#0008;padding:6px 8px;border-radius:6px}
-.legend{position:absolute;left:12px;bottom:10px;font-size:11px;display:flex;gap:10px;flex-wrap:wrap;background:#0008;padding:6px 8px;border-radius:6px}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
-.kpis{display:flex;gap:6px;margin:8px 0}.kpi{flex:1;background:#1b2130;border-radius:8px;padding:8px;text-align:center}
-.kpi span{font-size:10px;color:#999;display:block}.kpi b{font-size:17px}
-.stay{color:#4ade80}.exit{color:#f87171}
-button{background:#3b82f6;border:0;color:#fff;padding:7px 10px;border-radius:7px;margin:2px 2px 0 0;cursor:pointer;font-size:12px}
-button.r{background:#444}
-table{width:100%;font-size:12px;border-collapse:collapse;margin-top:6px}td,th{padding:3px 4px;text-align:right}td:first-child,th:first-child{text-align:left}th{color:#888;font-weight:500}
-#log{font-size:12px;color:#ccc;margin-top:8px;min-height:50px}
-.card{background:#1b2130;border-radius:8px;padding:9px;margin-top:10px;font-size:12px}
-h3{font-size:12px;color:#9ab;margin:14px 0 4px;letter-spacing:.5px}
-</style></head><body>
-<div id="main"><canvas id="c"></canvas>
- <div class="hint">Click a node = make it fail. Drag to move. Hover for details.</div>
- <div class="legend" id="legend"></div></div>
-<div id="side">
- <h1>Pendle X-Ray</h1><div class="sub">Book $10M, 6 PT pockets. Mock data.</div>
- <div id="sel" class="card">Pick an incident:<br>
-  <button onclick="fail('usde')">USDe depeg</button><button onclick="fail('cl')">Chainlink failure</button>
-  <button onclick="fail('morpho')">Morpho exploit</button><button onclick="fail('eth')">Chain halt</button>
-  <button class="r" onclick="reset()">Reset</button></div>
- <h3>DECISION (cost to exit = 11% of pocket)</h3>
- <div class="kpis"><div class="kpi"><span>Expected loss if STAY</span><b id="k1">$0</b></div>
-  <div class="kpi"><span>Cost if EXIT hit pockets</span><b id="k2">$0</b></div>
-  <div class="kpi"><span>Verdict</span><b id="k3">-</b></div></div>
- <table><thead><tr><th>Pocket</th><th>Loss</th><th>Exit</th><th></th></tr></thead><tbody id="tb"></tbody></table>
- <div id="log"></div>
- <h3>HIDDEN CONCENTRATION</h3><div id="conc" class="card"></div>
-</div>
+  body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:radial-gradient(600px 400px at 80% -5%, rgba(59,130,246,.18), transparent 70%),
+               radial-gradient(500px 400px at 5% 20%, rgba(176,92,240,.12), transparent 70%),
+               linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px) 0 0/40px 40px,
+               linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px) 0 0/40px 40px; }
+  .hero { padding:var(--space-8) 0 var(--space-6); }
+  .hero h1 { font-size:clamp(2.4rem,6vw,4rem); letter-spacing:-.02em; }
+  .hero h1 span { background:linear-gradient(90deg,var(--accent),var(--layer-lending)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero .tag { font-size:1.25rem; color:var(--text); }
+  .hero .pitch { max-width:640px; color:var(--muted); }
+  .hero .cta { display:flex; gap:var(--space-3); flex-wrap:wrap; margin-top:var(--space-5); align-items:center; }
+  section { margin-top:var(--space-7); }
+  h2 { font-size:1.4rem; }
+  .grid { display:grid; gap:var(--space-4); }
+  .g-main { grid-template-columns:1.1fr 1fr; }
+  .g-kpi { grid-template-columns:repeat(3,1fr); }
+  .verdict { min-height:260px; display:flex; flex-direction:column; justify-content:center; gap:var(--space-3); }
+  .verdict .big { font-size:4rem; font-weight:800; letter-spacing:.04em; line-height:1; }
+  .verdict.stay { border-color:rgba(74,222,128,.45); box-shadow:0 0 40px rgba(74,222,128,.12); } .verdict.stay .big { color:var(--stay); }
+  .verdict.exit { border-color:rgba(248,113,113,.45); box-shadow:0 0 40px rgba(248,113,113,.12); } .verdict.exit .big { color:var(--exit); }
+  .driver { display:flex; align-items:center; gap:var(--space-3); margin-bottom:var(--space-3); }
+  .driver .name { flex:0 0 150px; font-size:.9rem; }
+  .driver .bar { flex:1; height:8px; background:var(--bg-elev); border-radius:99px; overflow:hidden; }
+  .driver .bar i { display:block; height:100%; border-radius:99px; }
+  .driver .amt { flex:0 0 70px; text-align:right; font-variant-numeric:tabular-nums; font-size:.9rem; }
+  .layers { display:grid; grid-template-columns:repeat(5,1fr); gap:var(--space-3); }
+  .layer { padding:var(--space-4); border-top:3px solid var(--c); }
+  .layer b { color:var(--c); font-size:.8rem; letter-spacing:.1em; }
+  .layer h3 { font-size:1rem; margin:4px 0 6px; } .layer p { font-size:.85rem; color:var(--muted); margin:0; }
+  details.card summary { cursor:pointer; font-weight:700; }
+  details.card ul { color:var(--muted); padding-left:20px; margin:var(--space-3) 0 0; }
+  details.card li { margin-bottom:6px; }
+  .tot { display:flex; gap:var(--space-5); flex-wrap:wrap; margin-bottom:var(--space-4); }
+  .err { color:var(--exit); }
+  @media (max-width:860px) { .g-main { grid-template-columns:1fr; } .layers { grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px) { .g-kpi { grid-template-columns:1fr; } .layers { grid-template-columns:1fr; } .driver .name { flex-basis:100px; } .verdict .big { font-size:3rem; } }
+</style>
+</head>
+<body>
+<header id="nav"></header>
+<main class="container">
+  <div class="hero">
+    <h1><span>FaultLine</span></h1>
+    <p class="tag">Know where it breaks before it does.</p>
+    <p class="pitch">FaultLine uncovers the hidden dependency graph behind an on-chain position, simulates what happens when a layer fails, and tells you whether to <b>STAY</b> or <b>EXIT</b> — and why.</p>
+    <div class="cta"><a class="btn btn-primary" href="/xray.html">Open X-Ray &rarr;</a><a class="btn btn-ghost" href="#how">How it works</a><span id="src-badge"></span></div>
+  </div>
+
+  <section id="summary" aria-live="polite">
+    <h2>Position under analysis: <span id="pos-label" class="muted">loading…</span></h2>
+    <div class="grid g-main">
+      <div id="verdict-card" class="card verdict">
+        <div class="muted">Recommendation</div>
+        <div class="big" id="verdict">—</div>
+        <p id="explain" class="muted">&nbsp;</p>
+      </div>
+      <div class="grid">
+        <div class="grid g-kpi">
+          <div class="card kpi"><span class="label">Position</span><span class="value" id="k-pos">—</span></div>
+          <div class="card kpi"><span class="label">Expected loss (stay)</span><span class="value" id="k-loss">—</span></div>
+          <div class="card kpi"><span class="label">Exit cost</span><span class="value" id="k-exit">—</span></div>
+        </div>
+        <div class="card">
+          <h3>Top risk drivers</h3>
+          <div id="drivers"><span class="muted">—</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <h2>How it works: five layers of dependency</h2>
+    <div class="layers">
+      <div class="card layer" style="--c:var(--layer-chain)"><b>L1</b><h3>Settlement chain</h3><p>The chain the position settles on: halts, reorgs, congestion.</p></div>
+      <div class="card layer" style="--c:var(--layer-yield)"><b>L2</b><h3>Yield source &amp; issuer</h3><p>The underlying asset (e.g. sUSDe) and who issues it (Ethena): depeg, funding risk.</p></div>
+      <div class="card layer" style="--c:var(--layer-oracle)"><b>L3</b><h3>Oracle</h3><p>The price feed that values the asset: manipulation or stale prices.</p></div>
+      <div class="card layer" style="--c:var(--layer-amm)"><b>L4</b><h3>PT market &amp; AMM curve</h3><p>Where the PT trades and exits: liquidity depth and slippage.</p></div>
+      <div class="card layer" style="--c:var(--layer-lending)"><b>L5</b><h3>Lending market</h3><p>Morpho/Aave using it as collateral: liquidation cascades.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Stress scenarios</h2>
+    <div class="card table-wrap"><table class="table">
+      <thead><tr><th>Scenario</th><th>Description</th><th class="num">Expected loss</th><th>Verdict</th></tr></thead>
+      <tbody id="scen"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Portfolio view: 10 pockets, one hit</h2>
+    <div class="card">
+      <div class="tot" id="book-tot"></div>
+      <div class="table-wrap"><table class="table">
+        <thead><tr><th>Pocket</th><th class="num">Value</th><th>Affected</th><th class="num">Loss if stay</th><th class="num">Exit cost</th><th>Best action</th></tr></thead>
+        <tbody id="book"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section>
+    <details class="card">
+      <summary>Methodology &amp; assumptions</summary>
+      <ul>
+        <li><b>Mock numbers:</b> failure probabilities and loss-given-failure values are placeholders over a 30-day horizon until real data discovery lands.</li>
+        <li><b>Monte Carlo:</b> 20,000 simulations; each node fails independently with its probability.</li>
+        <li><b>Transmission:</b> a failure propagates along dependency edges (A depends on B) scaled by a per-edge transmission factor.</li>
+        <li><b>Exit cost:</b> slippage approximation from exit-pool liquidity plus gas; certain, paid immediately.</li>
+        <li><b>Decision:</b> STAY if expected loss from staying is below the certain exit cost, otherwise EXIT.</li>
+      </ul>
+    </details>
+  </section>
+</main>
+<footer id="footer"></footer>
+
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/shell.js"></script>
 <script>
-const COL={chain:'#7f8c9a',yield:'#2ecc71',oracle:'#f1c40f',amm:'#3498db',lending:'#b05cf0',pos:'#ff8a3d'};
-const LBL={chain:'L1 Chain',yield:'L2 Yield source / issuer',oracle:'L3 Oracle',amm:'L4 PT market / AMM',lending:'L5 Lending',pos:'Position'};
-const N=[ // id,label,layer
-['eth','Ethereum','chain'],
-['usde','USDe / Ethena','yield'],['steth','stETH / Lido','yield'],['eeth','weETH / EtherFi','yield'],['usds','USDS / Sky','yield'],
-['cl','Chainlink feeds','oracle'],['pto','Pendle PT oracle','oracle'],
-['m1','PT-sUSDe mkt','amm'],['m2','PT-USDe mkt','amm'],['m3','PT-wstETH mkt','amm'],['m4','PT-weETH mkt','amm'],['m5','PT-USDS mkt','amm'],
-['morpho','Morpho','lending'],['aave','Aave','lending'],
-['p0','Pocket P0','pos'],['p1','Pocket P1','pos'],['p2','Pocket P2','pos'],['p3','Pocket P3','pos'],['p4','Pocket P4','pos'],['p5','Pocket P5','pos']
-].map(a=>({id:a[0],label:a[1],layer:a[2],x:Math.random()*600+100,y:Math.random()*400+100,vx:0,vy:0,fail:0,t:0}));
-const byId=Object.fromEntries(N.map(n=>[n.id,n]));
-// src depends on dst; t = transmission
-const E=[['m1','usde',.9],['m2','usde',.9],['m3','steth',.9],['m4','eeth',.9],['m5','usds',.9],
-['eeth','steth',.6],['usde','cl',.3],
-['m1','eth',.3],['m2','eth',.3],['m3','eth',.3],['m4','eth',.3],['m5','eth',.3],['morpho','eth',.4],['aave','eth',.4],
-['morpho','pto',.8],['aave','cl',.8],['pto','m1',.7],['pto','m2',.7],['pto','m3',.7],['pto','cl',.5],['m3','cl',.3],
-['p0','m1',1],['p0','morpho',.8],['p1','m2',1],['p1','morpho',.8],['p2','m3',1],['p2','aave',.8],['p3','m4',1],['p3','aave',.8],['p4','m5',1],['p4','morpho',.6],['p5','m1',1],['p5','aave',.8]
-].map(a=>({s:byId[a[0]],d:byId[a[1]],t:a[2],pulse:0}));
-const POS=Object.fromEntries(N.filter(n=>n.layer=='pos').map(n=>[n.id,1e6*(10/6)]));
-const deps={};E.forEach(e=>{(deps[e.d.id]=deps[e.d.id]||[]).push(e)});
-const cv=document.getElementById('c'),ctx=cv.getContext('2d');let W,H;
-function size(){W=cv.width=cv.clientWidth*devicePixelRatio;H=cv.height=cv.clientHeight*devicePixelRatio}size();addEventListener('resize',size);
-document.getElementById('legend').innerHTML=Object.entries(LBL).map(([k,v])=>`<span><i style="background:${COL[k]}"></i>${v}</span>`).join('');
-const rad=n=>(n.layer=='pos'?9:n.layer=='chain'?20:n.layer=='lending'?15:13)*devicePixelRatio+(n.fail?6*devicePixelRatio*n.fail:0);
-function step(){const cx=W/2,cy=H/2,k=devicePixelRatio;
- for(const a of N){for(const b of N){if(a===b)continue;let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy+.1,f=9000*k*k/d2;const d=Math.sqrt(d2);a.vx+=dx/d*f;a.vy+=dy/d*f}
-  a.vx+=(cx-a.x)*.0009;a.vy+=(cy-a.y)*.0009}
- for(const e of E){const dx=e.d.x-e.s.x,dy=e.d.y-e.s.y,d=Math.sqrt(dx*dx+dy*dy)+.1,f=(d-110*k)*.012;e.s.vx+=dx/d*f;e.s.vy+=dy/d*f;e.d.vx-=dx/d*f;e.d.vy-=dy/d*f}
- for(const n of N){if(n===drag)continue;n.vx*=.82;n.vy*=.82;n.x+=n.vx;n.y+=n.vy;n.x=Math.max(30,Math.min(W-30,n.x));n.y=Math.max(30,Math.min(H-30,n.y))}}
-function draw(){ctx.clearRect(0,0,W,H);const k=devicePixelRatio;
- for(const e of E){ctx.beginPath();ctx.moveTo(e.s.x,e.s.y);ctx.lineTo(e.d.x,e.d.y);
-  ctx.strokeStyle=e.pulse>0?`rgba(255,70,70,${.3+e.pulse*.7})`:(hov&&(hov===e.s||hov===e.d)?'#aab8':'#4a556655');ctx.lineWidth=(e.pulse>0?3:1+e.t*1.5)*k;ctx.stroke();e.pulse=Math.max(0,e.pulse-.008)}
- for(const n of N){const r=rad(n);
-  if(n.fail){ctx.beginPath();ctx.arc(n.x,n.y,r+8*k+Math.sin(Date.now()/150)*3*k,0,7);ctx.fillStyle=`rgba(255,60,60,${.15+.25*n.fail})`;ctx.fill()}
-  ctx.beginPath();ctx.arc(n.x,n.y,r,0,7);ctx.fillStyle='#0a0d13';ctx.fill();ctx.lineWidth=3*k;ctx.strokeStyle=n.fail?'#ff4040':COL[n.layer];ctx.stroke();
-  if(n.layer!='pos'){ctx.beginPath();ctx.arc(n.x,n.y,r-5*k,0,7);ctx.fillStyle=n.fail?'#ff404055':COL[n.layer]+'55';ctx.fill()}
-  ctx.fillStyle='#cfd6e4';ctx.font=`${11*k}px system-ui`;ctx.textAlign='center';ctx.fillText(n.label,n.x,n.y+r+13*k)}
- if(hov){const t=`${hov.label} - ${LBL[hov.layer]}`;ctx.font=`${12*k}px system-ui`;const w=ctx.measureText(t).width+16*k;ctx.fillStyle='#000c';ctx.fillRect(hov.x+14*k,hov.y-30*k,w,22*k);ctx.fillStyle='#fff';ctx.textAlign='left';ctx.fillText(t,hov.x+22*k,hov.y-14*k)}}
-let drag=null,hov=null;
-function pick(ev){const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)*devicePixelRatio,y=(ev.clientY-r.top)*devicePixelRatio;return N.find(n=>Math.hypot(n.x-x,n.y-y)<rad(n)+4)||null}
-let moved=false;
-cv.onmousedown=e=>{drag=pick(e);moved=false};cv.onmouseup=e=>{if(drag&&!moved&&drag.layer!='pos')fail(drag.id);drag=null};
-cv.onmousemove=e=>{hov=pick(e);if(drag){moved=true;const r=cv.getBoundingClientRect();drag.x=(e.clientX-r.left)*devicePixelRatio;drag.y=(e.clientY-r.top)*devicePixelRatio}};
-(function loop(){step();draw();requestAnimationFrame(loop)})();
-// propagation: BFS from failed node to dependents, damping by transmission
-let timers=[];
-function reset(){timers.forEach(clearTimeout);timers=[];N.forEach(n=>n.fail=0);E.forEach(e=>e.pulse=0);document.getElementById('k1').textContent='$0';document.getElementById('k2').textContent='$0';const k3=document.getElementById('k3');k3.textContent='-';k3.className='';document.getElementById('tb').innerHTML='';document.getElementById('log').innerHTML='';}
-function fail(id){reset();const root=byId[id];root.fail=1;const loss={},q=[[root,1,0]],seen={[id]:1};let log=`<b>T+0</b> ${root.label} fails<br>`;
- while(q.length){const [n,s,depth]=q.shift();(deps[n.id]||[]).forEach(e=>{const ns=s*e.t;if(ns<.05||(seen[e.s.id]||0)>=ns)return;seen[e.s.id]=ns;
-  timers.push(setTimeout(()=>{e.pulse=1;e.s.fail=Math.max(e.s.fail,ns)},(depth+1)*650));
-  if(e.s.layer=='pos')loss[e.s.id]=ns;else q.push([e.s,ns,depth+1])})}
- Object.keys(seen).forEach(i=>{if(i!==id&&byId[i].layer!='pos')log+=`&nbsp;&nbsp;-> ${byId[i].label} hit (${Math.round(seen[i]*100)}% transmitted)<br>`});
- let totLoss=0,totExit=0,rows='';const LGF=.6;
- Object.entries(loss).forEach(([p,s])=>{const v=POS[p],l=v*s*LGF,c=v*.11;totLoss+=l;totExit+=c;rows+=`<tr><td>${byId[p].label}</td><td>$${Math.round(l/1000)}k</td><td>$${Math.round(c/1000)}k</td><td class="${l>c?'exit':'stay'}">${l>c?'EXIT':'STAY'}</td></tr>`});
- timers.push(setTimeout(()=>{Object.keys(loss).forEach(p=>{byId[p].fail=loss[p]})},5*650));
- document.getElementById('tb').innerHTML=rows||'<tr><td colspan=4>No pocket exposed</td></tr>';
- document.getElementById('k1').textContent='$'+Math.round(totLoss/1000)+'k';document.getElementById('k2').textContent='$'+Math.round(totExit/1000)+'k';
- const k3=document.getElementById('k3');k3.textContent=totLoss>totExit?'EXIT':'STAY';k3.className=totLoss>totExit?'exit':'stay';
- log+=`<b>Result</b>: ${Object.keys(loss).length}/6 pockets exposed (${Math.round(Object.keys(loss).length/6*100)}% of book).`;document.getElementById('log').innerHTML=log}
-// concentration: % of positions transitively depending on each node
-function exposure(id){let c=0;POSIDS.forEach(p=>{const st=[p],s=new Set();while(st.length){const x=st.pop();E.filter(e=>e.s.id===x).forEach(e=>{if(!s.has(e.d.id)){s.add(e.d.id);st.push(e.d.id)}})}if(s.has(id))c++});return c}
-const POSIDS=Object.keys(POS);
-document.getElementById('conc').innerHTML=['eth','usde','cl','morpho','aave','steth'].map(i=>{const c=exposure(i);return `${byId[i].label}: <b class="${c>=4?'exit':''}">${c}/6 pockets (${Math.round(c/6*100)}%)</b>`}).join('<br>')+'<br><span style="color:#889">Indirect: P2 never touches Chainlink directly, but depends on it via Aave.</span>';
-</script></body></html>
+(async function () {
+  const F = window.FaultLine, $ = (id) => document.getElementById(id);
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function countUp(el, to) {
+    if (reduce) { el.textContent = F.fmtUsd(to); return; }
+    const t0 = performance.now(), dur = 700;
+    (function tick(t) {
+      const k = Math.min(1, (t - t0) / dur);
+      el.textContent = F.fmtUsd(to * (1 - Math.pow(1 - k, 3)));
+      if (k < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+
+  let res;
+  try { res = await F.loadData(); }
+  catch (e) {
+    $('pos-label').innerHTML = '<span class="err">Could not load data (' + F.esc(e.message) + ')</span>';
+    return;
+  }
+  const d = res.data, dec = d.decision;
+  $('src-badge').innerHTML = F.sourceBadge(res.source);
+  $('pos-label').textContent = d.position.label + ' · ' + d.position.chain + ' · ' + d.position.horizon_days + 'd horizon';
+
+  const stay = dec.verdict !== 'EXIT';
+  $('verdict-card').classList.add(stay ? 'stay' : 'exit');
+  $('verdict').textContent = dec.verdict;
+  $('explain').textContent = dec.explanation;
+  $('k-pos').textContent = F.fmtUsd(d.position.value_usd);
+  countUp($('k-loss'), dec.expected_loss_usd);
+  countUp($('k-exit'), dec.exit_cost_usd);
+
+  const nodes = Object.fromEntries(d.nodes.map((n) => [n.id, n]));
+  const top = Object.entries(d.node_contrib_usd || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  const max = top.length ? top[0][1] : 1;
+  $('drivers').innerHTML = top.map(([id, v]) => {
+    const n = nodes[id] || { label: id, layer: 'protocol' };
+    const c = (F.LAYER_META[n.layer] || F.LAYER_META.protocol).color;
+    return '<div class="driver"><span class="name">' + F.esc(n.label) + '</span><span class="bar"><i style="width:' + (v / max * 100).toFixed(0) + '%;background:' + c + '"></i></span><span class="amt">' + F.fmtUsd(v) + '</span></div>';
+  }).join('') || '<span class="muted">No risk drivers</span>';
+
+  $('scen').innerHTML = (d.scenarios || []).map((s) =>
+    '<tr><td><b>' + F.esc(s.name) + '</b></td><td class="muted">' + F.esc(s.description) + '</td><td class="num">' + F.fmtUsd(s.expected_loss_usd) + '</td><td>' + F.verdictBadge(s.verdict) + '</td></tr>').join('');
+
+  const b = d.book;
+  if (b) {
+    $('book-tot').innerHTML =
+      '<div class="kpi"><span class="label">Total loss if staying everywhere</span><span class="value">' + F.fmtUsd(b.total_stay_loss_usd) + '</span></div>' +
+      '<div class="kpi"><span class="label">Total with best action per pocket</span><span class="value" style="color:var(--stay)">' + F.fmtUsd(b.total_optimal_usd) + '</span></div>' +
+      '<div class="kpi"><span class="label">% of book</span><span class="value">' + F.fmtPct(b.pct_of_book, 2) + '</span></div>';
+    $('book').innerHTML = b.pockets.map((p) =>
+      '<tr' + (p.affected ? ' class="hl"' : '') + '><td><b>' + F.esc(p.label) + '</b></td><td class="num">' + F.fmtUsd(p.value_usd) + '</td><td>' +
+      (p.affected ? '<span class="badge badge-exit">HIT</span>' : '<span class="muted">—</span>') + '</td><td class="num">' + F.fmtUsd(p.stay_loss_usd) +
+      '</td><td class="num">' + F.fmtUsd(p.exit_cost_usd) + '</td><td>' + F.verdictBadge(p.verdict) + '</td></tr>').join('');
+  }
+})();
+</script>
+</body>
+</html>
