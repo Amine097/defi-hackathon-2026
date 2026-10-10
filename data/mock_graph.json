@@ -7,9 +7,9 @@
   "nodes": [
     {"id": "pos", "layer": "protocol", "label": "Position", "p_fail": 0.0, "loss_given_failure": 0.0, "meta": {}},
     {"id": "eth", "layer": "chain", "label": "Ethereum", "p_fail": 0.0005, "loss_given_failure": 0.3, "meta": {}},
-    {"id": "pendle", "layer": "amm", "label": "Pendle market", "p_fail": 0.004, "loss_given_failure": 0.8, "meta": {}},
-    {"id": "susde", "layer": "yield_source", "label": "sUSDe / Ethena", "p_fail": 0.01, "loss_given_failure": 0.6, "meta": {}},
-    {"id": "oracle", "layer": "oracle", "label": "PT oracle", "p_fail": 0.005, "loss_given_failure": 0.4, "meta": {}},
+    {"id": "pendle", "layer": "amm", "label": "Pendle market", "p_fail": 0.004, "loss_given_failure": 0.8, "meta": {"role": "amm"}},
+    {"id": "susde", "layer": "yield_source", "label": "sUSDe / Ethena", "p_fail": 0.01, "loss_given_failure": 0.6, "meta": {"role": "underlying"}},
+    {"id": "oracle", "layer": "oracle", "label": "PT oracle", "p_fail": 0.005, "loss_given_failure": 0.4, "meta": {"role": "oracle"}},
     {"id": "morpho", "layer": "lending", "label": "Morpho market", "p_fail": 0.003, "loss_given_failure": 0.7, "meta": {}}
   ],
   "edges": [

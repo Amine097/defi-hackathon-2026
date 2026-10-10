@@ -6,7 +6,7 @@ from .cli import run
 from .decision import decide, exit_cost
 from .portfolio import Pocket, evaluate_book
 from .propagation import simulate
-from .scenarios import SCENARIOS, apply
+from .scenarios import SCENARIOS, apply, resolve
 
 
 def build_payload(ref: str = "mock", use_mock: bool = True, book_usd: float = 10_000_000) -> dict:
@@ -16,7 +16,7 @@ def build_payload(ref: str = "mock", use_mock: bool = True, book_usd: float = 10
     for s in SCENARIOS:
         g2 = apply(g, s)
         d2 = decide(g2, simulate(g2), cost)
-        scenarios.append({"name": s.name, "description": s.description, "overrides": s.overrides,
+        scenarios.append({"name": s.name, "description": s.description, "overrides": resolve(g, s),
                           "expected_loss_usd": d2.expected_loss_usd, "verdict": d2.verdict})
     pockets = [Pocket(f"P{i}", 0.1, deepcopy(g)) for i in range(10)]
     book = evaluate_book(pockets, book_usd, SCENARIOS[0], affected={"P0"})
