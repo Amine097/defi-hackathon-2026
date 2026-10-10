@@ -92,6 +92,15 @@ This log is updated after every work package so the work can resume after an int
    test on the real cbBTC/USDC market (passed, 784,085 gas), reads the recorded run, Slither and `forge lint`, scans for
    keys, and evaluates the 15 GO criteria from those results only → `audit/FAULTLINE_PHASE2_EVIDENCE.json`: **GO —
    prototype validated on a local test environment; not an authorization to manage real funds.**
+15. Countermove page UX pass (after review of the deployed page): outcome-first hero per scenario (crisis → decision →
+   result, reaction time, "no user signature") with an LTV gauge (before / crisis / after against trigger and LLTV);
+   compact scenario tabs with human strategy names and `#S1`–`#S4` deep links; full-width sections instead of three
+   squeezed columns; loan-token amounts always to the cent, durations and UTC dates in plain words; constant placeholder
+   feeds hidden from the dependency list; short rejection reasons (full text on hover); check lists collapsed to
+   "n/n passed"; ⚠ in the reserve table explained; light print/PDF stylesheet with every section expanded. Bug fixed:
+   the policy form never sent the market's token decimals, so a cbBTC (8-decimal) policy was encoded with 18 decimals;
+   the form now takes percentages, reads LLTV and decimals from the selected market, and shows units. Display only —
+   no figure is computed in the browser; Node tests 27 → 33.
 
 ## Remaining limits (see the security report §7)
 
