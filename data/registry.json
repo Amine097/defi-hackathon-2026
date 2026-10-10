@@ -1,5 +1,5 @@
 {
-  "_doc": "Issuer reserve compositions used by src/defirisk/lineage.py. Keys = lowercase Ethereum token addresses (verified on-chain with symbol()). A component 'to' is either another token address or a base asset (base:ETH, base:BTC, base:SOL, base:USD_FIAT, base:HEDGED_DELTA_NEUTRAL). weight = share of the token's backing (0-1); null = component is known but its share is not published in a form we could verify -> that share is reported as UNKNOWN, never guessed. Every entry carries source_url + as_of (date the source was consulted).",
+  "_doc": "Issuer reserve compositions used by src/defirisk/data/lineage.py. Keys = lowercase Ethereum token addresses (verified on-chain with symbol()). A component 'to' is either another token address or a base asset (base:ETH, base:BTC, base:SOL, base:USD_FIAT, base:HEDGED_DELTA_NEUTRAL). weight = share of the token's backing (0-1); null = component is known but its share is not published in a form we could verify -> that share is reported as UNKNOWN, never guessed. Every entry carries source_url + as_of (date the source was consulted).",
   "tokens": {
     "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48": {
       "symbol": "USDC", "type": "stablecoin_fiat", "issuer": "Circle",

@@ -84,7 +84,7 @@ Secondary (only if time): break-even chart (loss vs P(incident)), cascade timeli
 Dropped: stack/tower diagram and Sankey.
 
 ## Demo safety
-All API/RPC calls go through src/defirisk/http.py (get_json/post_json): disk cache in data/cache + automatic fallback if the API is down. Before the demo: run the app once online, COMMIT data/cache, and set DEFIRISK_OFFLINE=1 to guarantee no live calls on stage.
+All API/RPC calls go through src/defirisk/data/http.py (get_json/post_json): disk cache in data/cache + automatic fallback if the API is down. Before the demo: run the app once online, COMMIT data/cache, and set DEFIRISK_OFFLINE=1 to guarantee no live calls on stage.
 
 ## Brief insights (from official PDF)
 - Layers are fixed: 1 chain, 2 yield source + ISSUER, 3 oracle, 4 PT market + AMM CURVE, 5 lending collateral. Keep our 5 layers aligned.

@@ -33,11 +33,9 @@ Click a node to simulate its failure and watch it propagate; the side panel show
 5. Vercel's filesystem is read-only: the cache is read there, never written.
 
 ## Layout
-- `src/defirisk/models.py` shared schema (Position, Node, Edge, DepGraph)
-- `discovery.py` real-data discovery: Pendle API, Morpho GraphQL, DefiLlama, Ethereum RPC (`mock` ref = demo fixture)
-- `propagation.py` graph + Monte Carlo (B/C)
-- `decision.py` exit cost (executable Pendle SDK quote + gas; flagged x*y=k fallback) + verdict
-- `portfolio.py` book of pockets, one hit, stay vs exit
-- `scenarios.py` stress overrides; `http.py` cached API calls
-- `api_payload.py` builds the JSON the web UI consumes (`/api/analyze?ref=auto&value_usd=1000000&shock=<node>&severity=0.3`)
-- `data/mock_graph.json` fixture so everyone can work in parallel
+- `src/defirisk/core/`: shared graph models, failure propagation, scenarios, exit decisions, and portfolio evaluation.
+- `src/defirisk/data/`: live discovery, token lineage and exposure, failure priors, price checks, HTTP clients, and cache.
+- `src/defirisk/cli.py`: command-line entry point; `api_payload.py` builds JSON for the web UI.
+- `src/defirisk/*.py`: compatibility imports for existing callers; new code should import from `core` or `data`.
+- `api/analyze.py`: Vercel function exposing `/api/analyze`.
+- `data/mock_graph.json`: offline fixture.

@@ -5,9 +5,9 @@
 """
 import sys
 
-from .decision import decide_robust, exit_cost_for
-from .discovery import discover
-from .propagation import simulate
+from .core.decision import decide_robust, exit_cost_for
+from .data.discovery import discover
+from .core.propagation import simulate
 
 
 def run(ref: str = "mock", use_mock: bool | None = None, value_usd: float = 1_000_000, horizon_days: int = 30):

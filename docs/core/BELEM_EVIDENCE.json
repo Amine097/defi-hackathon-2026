@@ -32,7 +32,7 @@
       "status": "VERIFIED",
       "status_initial": "PARTIAL",
       "evidence": [
-        "src/defirisk/discovery.py::discover_real"
+        "src/defirisk/data/discovery.py::discover_real"
       ],
       "tests": [
         "T02",
@@ -47,8 +47,8 @@
       "status": "VERIFIED",
       "status_initial": "PARTIAL",
       "evidence": [
-        "src/defirisk/discovery.py",
-        "src/defirisk/propagation.py::best_paths"
+        "src/defirisk/data/discovery.py",
+        "src/defirisk/core/propagation.py::best_paths"
       ],
       "tests": [
         "T03",
@@ -66,8 +66,8 @@
       "status": "VERIFIED",
       "status_initial": "PARTIAL",
       "evidence": [
-        "src/defirisk/scenarios.py::shock",
-        "src/defirisk/propagation.py::simulate"
+        "src/defirisk/core/scenarios.py::shock",
+        "src/defirisk/core/propagation.py::simulate"
       ],
       "tests": [
         "T04",
@@ -83,7 +83,7 @@
       "status": "VERIFIED",
       "status_initial": "FAIL",
       "evidence": [
-        "src/defirisk/decision.py::decide"
+        "src/defirisk/core/decision.py::decide"
       ],
       "tests": [
         "T09",
@@ -97,8 +97,8 @@
       "status": "VERIFIED",
       "status_initial": "FAIL",
       "evidence": [
-        "src/defirisk/decision.py::quote_exit",
-        "src/defirisk/decision.py::exit_cost_for"
+        "src/defirisk/core/decision.py::quote_exit",
+        "src/defirisk/core/decision.py::exit_cost_for"
       ],
       "tests": [
         "T08",
@@ -116,8 +116,8 @@
       "status": "VERIFIED",
       "status_initial": "PARTIAL",
       "evidence": [
-        "src/defirisk/sources.py",
-        "src/defirisk/http.py::provenance"
+        "src/defirisk/data/sources.py",
+        "src/defirisk/data/http.py::provenance"
       ],
       "tests": [
         "T03",

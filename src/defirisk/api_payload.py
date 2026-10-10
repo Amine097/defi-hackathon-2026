@@ -4,12 +4,13 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import asdict
 
-from . import http, leverage, uncertainty
+from . import leverage, uncertainty
+from .data import http
 from .cli import run
-from .decision import decide, exit_cost_for
-from .portfolio import Pocket, evaluate_book
-from .propagation import best_paths, simulate
-from .scenarios import SCENARIOS, apply, resolve, shock
+from .core.decision import decide, exit_cost_for
+from .core.portfolio import Pocket, evaluate_book
+from .core.propagation import best_paths, simulate
+from .core.scenarios import SCENARIOS, apply, resolve, shock
 
 GLOBAL_ASSUMPTIONS = [
     "Central expected loss = V(1 - prod(1 - p_i x LGF_i x T_i)): exact ONLY under independent failures + best-path "

@@ -1,12 +1,5 @@
 # FAULTLINE — Frontend Research, UI/UX Blueprint & Claude Code Playbook
 
-> **Reference document to be given to Claude Code** · Version 1.1 · October 10, 2026
-> **Context:** EPFL / Belem Capital hackathon — analysis of DeFi dependencies and risk.
-> **Scope:** frontend and frontend integration ↔ backend **existing**; no rewriting of calculation engines.
-> **Working name:** FAULTLINE (modifiable if the team changes brands).
-
----
-
 ## 0. Design decision in one minute
 
 **You have to build a _risk command center_, not a DEX clone or a generic crypto dashboard.** The jury must understand in a few seconds:
