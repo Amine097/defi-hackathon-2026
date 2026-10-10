@@ -121,12 +121,12 @@ Commands:
 | V20 | PASS | `test_v20_stale_price`, `_indexer_disagrees`, `_api_down_is_a_warning_not_a_mock`, `_low_coverage`, `_stale_simulation` → REVIEW with a reason, never a firm live verdict. |
 | V21 | PASS | `test_v21_http_status_and_no_leak` (400/404/422/503/500; no RPC URL or key in the body), `_payload_contract`, `_invalid_scenario`. Live: `test_live_http_ok_and_url_input`. Big integers are serialized as strings. |
 | V22 | PASS | `test_v22_engine_default_unchanged` and the full Phase 0.5 suites (`ref=auto`, `borrower=auto`, Pendle quote, carry coherence) all pass. E2E dashboard and X-Ray still run live. |
-| V23 | PASS (local) | Browser on the local dev server (live sources), detailed below. |
+| V23 | PASS | Browser on the local dev server (live sources), detailed below, and on the production URL (§V25). |
 | V24 | PASS | `test_v24_offline_replay_deterministic_and_labelled` (4 dated fixtures, blocks 26163088–92, `mode=replay`), plus live runs. |
-| V25 | **BLOCKED** | Phase 1 is not deployed. Production is `ffd7df1`, where `/vault.html` and `/api/vault` return 404. A deployment needs owner authorization. |
+| V25 | PASS | Production deployment `42dfa00` (an empty trigger commit on top of `626191c` = Phase 1; identical tree), deployment `6983683515`, state success. Smoke test on https://faultline-sandy-three.vercel.app on 2026-10-10: static pages 200; 5 live `/api/vault` cases (blocks 26163255–57) with the margin identity verified; error codes 400/404/422/400 (`invalid_scenario`); custom shock; browser E2E (Belem block 26163265, deep link $1M partial block 26163266); Phase 0.5 `/api/analyze` regression. See §V25 below. |
 | V26 | PASS | `test_v26_partial_exit_never_executable_exit`. A partial or zero exit can never yield an executable EXIT; the immediately withdrawable amount is shown. |
 
-**Totals: 25 PASS, 0 FAIL, 1 BLOCKED (V25), 0 N/A.**
+**Totals: 26 PASS, 0 FAIL, 0 BLOCKED, 0 N/A.**
 
 ### V23 browser observations
 
@@ -140,7 +140,54 @@ Commands:
 | Mobile width | Overflow found and fixed. |
 | Phase 0.5 pages | Dashboard and X-Ray still live. Nav links present. |
 
-### V25 smoke test, to run after deployment
+### V25 production smoke test (2026-10-10, https://faultline-sandy-three.vercel.app)
+
+**Deployment check.**
+- `gh api …/deployments`: latest Production deployment is SHA `42dfa00` (created 16:32:40Z, state success).
+- `git diff 626191c 42dfa00` is empty, and `git diff 42dfa00` with `git status` shows a clean local tree.
+- So the deployed code is exactly the validated Phase 1 code.
+
+**Static pages and assets.** `/`, `/xray.html`, `/vault.html`, `vault.js`, `vault/view.js` and `vault.css` all return 200.
+
+**Error codes.**
+
+| Request | Response |
+|---|---|
+| `0x123` | 400 `invalid_input` |
+| EOA `0x…dEaD` | 404 `not_found` |
+| `chain_id=10` | 400 `invalid_input` |
+| `value_usd=0` | 400 `invalid_input` |
+| USDT contract (not a vault) | 422 `unsupported_contract` |
+| `shock=nope:x` | 400 `invalid_scenario` (lists the valid ids) |
+
+**Live `/api/vault` runs** (`mode=live`, freshness `fresh`, coverage 1.0, cross-checks ok, margin = EL − (execution + carry) checked on every run):
+
+| Case | Block | Version | Verdict | EL | Exit side | Margin | Withdrawal |
+|---|---|---|---|---|---|---|---|
+| Belem $100k / 30 d | 26163255 | v2 | REVIEW lean STAY | $63.2 | $214.8 | −$151.7 | full |
+| Belem $1M / 90 d | 26163255 | v2 | REVIEW lean STAY | $1,893 | $6,443 | −$4,550 | **partial**: $404.9k now, $595.1k blocked |
+| Confidential USDC | 26163256 | v2 | REVIEW lean STAY | $71.1 | $544.0 | −$472.9 | full |
+| USDC Yield | 26163256 | v2 | REVIEW lean STAY | $70.6 | $523.5 | −$452.9 | full |
+| Steakhouse USDC | 26163257 | v1 | REVIEW lean STAY | $52.9 | $356.1 | −$303.2 | full |
+
+**Custom shock.** mGLOeuro collateral at severity 0.6 (Belem, $1M): 200, loss $365.3k, REVIEW.
+
+**Browser on the production URL.**
+- Belem pre-fill, then Analyze vault (5.1 s, block 26163265): live, fresh, coverage 100 %, quote simulated.
+  - REVIEW lean STAY ×3.40; EL $63 [$11–$323]; exit $215; margin −$152.
+  - Badge "figures consistent". Allocations, graph, scenarios, custom shock, sensitivity and withdrawal capacity are all rendered (capacity cross-check ok).
+- Deep link at $1M / 90 d (block 26163266): withdrawal partial ($404.9k / $595.1k), REVIEW lean STAY, margin −$4,550, consistent.
+- The first browser attempt failed only because the pre-fill and submit clicks were sent concurrently. The pre-fill was checked separately and works, and the sequential retry passed.
+
+**Phase 0.5 regression in production.**
+
+| Request | Result |
+|---|---|
+| `/api/analyze?borrower=auto` | 200, live, REVIEW, quote simulated, fresh, `borrower_position` |
+| `?ref=auto` | 200, live, `unlevered_exposure` |
+| `?value_usd=5` | 400 |
+
+### Smoke test commands (rerunnable)
 
 ```powershell
 gh api repos/Amine097/defi-hackathon-2026/deployments --jq '.[0] | {sha, environment, created_at}'   # must equal the pushed SHA
@@ -153,7 +200,7 @@ curl.exe -s -o NUL -w "%{http_code}\n" "https://faultline-sandy-three.vercel.app
 
 | Gate | Status | Evidence |
 |---|---|---|
-| G01 | PASS (local) | Address and amount form → live `/api/vault` (V23). The Belem button only pre-fills the address; nothing is precomputed. |
+| G01 | PASS | Address and amount form → live `/api/vault`, locally and in production (V23, V25). The Belem button only pre-fills the address; nothing is precomputed. |
 | G02 | PASS | Detection through the factory registry (V04). Scope in §2. Clean 400/404/422 errors (V01, V21). |
 | G03 | PASS | Belem verified live as V2 / EURCV and analyzed end to end (V05, V23, evidence `belem`). |
 | G04 | PASS | Confidential USDC (V2), USDC Yield (V2) and Steakhouse USDC (V1) analyzed live. No address-specific discovery (V06, V07). |
@@ -163,7 +210,7 @@ curl.exe -s -o NUL -w "%{http_code}\n" "https://faultline-sandy-three.vercel.app
 | G08 | PASS | Fees, gas, friction, capacity, partial exit, USD conversion and carry separated. V1 and V2 capacity rules differ (V08, V09, V17, V18). |
 | G09 | PASS | Backend, Node and UI agree on all three verdicts. Borderline cases → REVIEW with the lean and the reason (V19, V26). |
 | G10 | PASS | Offline 135 passed, live 149/149, Node 17/17. No open P0 or P1 issue. |
-| G11 | **BLOCKED** | Phase 1 is not on the deployed version (V25). Owner authorization is required to push to `main`, which deploys to Production. |
+| G11 | PASS | Production deployment `42dfa00` (tree identical to `626191c`, Phase 1). The SHA was checked with the GitHub deployments API and git. The production smoke test covered the API, error codes, custom shock, browser E2E and Phase 0.5 regression (V25). |
 | G12 | PASS | This document, the progress log, evidence JSON (secret-free) and README instructions. Offline replay and live checks are reproducible. |
 
 ## 8. Redacted payload example (Belem, block 26163199)

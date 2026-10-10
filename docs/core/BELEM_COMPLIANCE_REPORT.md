@@ -91,6 +91,9 @@ This appendix adds a feature. It does not change the Belem scope or the Phase 0 
   - Live: 149/149.
   - Node: 17/17.
   - Browser E2E: pass on the local dev server.
-  - V01–V26: 25 PASS, 1 BLOCKED (V25).
-- **Gates:** G01–G12 are 11 PASS and **G11 BLOCKED**. Phase 1 is not on the deployed version (production `ffd7df1`, `/vault.html` returns 404), and a production deployment needs owner authorization.
-- **Phase 1 verdict: BLOCKED (NO-GO until G11).** No P0 or P1 issue is open. The Phase 0.5 verdict (GO) is unchanged.
+  - V01–V26: 26 PASS.
+- **Gates:** G01–G12 all PASS. G11 was closed on 2026-10-10:
+  - production deployment `42dfa00`, with the same tree as `626191c` (Phase 1);
+  - SHA checked with the GitHub deployments API and git;
+  - production smoke test passed: live `/api/vault` on 5 cases, error codes, custom shock, browser E2E, and the Phase 0.5 `/api/analyze` regression.
+- **Phase 1 verdict: GO.** No P0 or P1 issue is open. The Phase 0.5 verdict (GO) is unchanged.

@@ -4,12 +4,15 @@
  "spec": "docs/core/BELEM_PHASE_1_VAULT_RISK_ANALYZER.md",
  "secrets": "none: public RPC / Morpho API / DefiLlama / Chainlink reads only; no keys, no wallet, no transaction",
  "git": {
-  "local_head": "ffd7df1d7a379dcbffa7706976899cb1fda6d712",
-  "working_tree": "Phase 1 changes uncommitted on top of local_head (see BELEM_PHASE1_PROGRESS.md)",
-  "deployed_production_sha": "ffd7df1 (GitHub deployments API, environment Production) - does NOT contain Phase 1",
-  "deployed_vault_routes": {
-   "/vault.html": 404,
-   "/api/vault": 404
+  "local_head": "626191c06b42d904f565b620247660105e046e95",
+  "deployed_production_sha": "42dfa00e81540436d961330d96bd16a4b48dbfa8",
+  "deployed_note": "42dfa00 = empty 'Trigger Vercel deployment' commit on top of 626191c (Phase 1); git diff 626191c 42dfa00 is empty and the local working tree equals 42dfa00 (git diff 42dfa00 empty, status clean) at verification time",
+  "deployment": {
+   "id": 6983683515,
+   "environment": "Production",
+   "created_at": "2026-10-10T16:32:40Z",
+   "state": "success",
+   "source": "gh api repos/Amine097/defi-hackathon-2026/deployments + /statuses"
   },
   "url": "https://faultline-sandy-three.vercel.app/"
  },
@@ -892,9 +895,166 @@
   "G09": "PASS",
   "G10": "PASS",
   "G12": "PASS",
-  "G11": "BLOCKED - Phase 1 not deployed; production deploy requires owner authorization"
+  "G11": "PASS - production deployment 42dfa00 (tree = 626191c Phase 1) smoke-tested: API, errors, custom shock, browser E2E, Phase 0.5 regression"
  },
- "errors_and_blockers": [
-  "G11/V25: production deployment of Phase 1 not authorized yet (every Vercel deploy of main is Production; no preview environment exists)"
- ]
+ "errors_and_blockers": [],
+ "production_smoke": {
+  "date": "2026-10-10T16:34-16:37Z",
+  "url": "https://faultline-sandy-three.vercel.app",
+  "static": {
+   "/": 200,
+   "/xray.html": 200,
+   "/vault.html": 200,
+   "/assets/js/vault.js": 200,
+   "/assets/js/vault/view.js": 200,
+   "/assets/css/vault.css": 200
+  },
+  "errors": {
+   "address=0x123": "400 invalid_input",
+   "EOA 0x...dEaD": "404 not_found",
+   "chain_id=10": "400 invalid_input",
+   "value_usd=0": "400 invalid_input",
+   "USDT contract (non-vault)": "422 unsupported_contract",
+   "shock=nope:x": "400 invalid_scenario"
+  },
+  "vault_api_live": [
+   {
+    "case": "belem",
+    "address": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "as_of_block": 26163255,
+    "mode": "live",
+    "version": "v2",
+    "markets": 6,
+    "coverage": 1.0,
+    "cross_checks_ok": true,
+    "verdict": "REVIEW",
+    "point_verdict": "STAY",
+    "colour": "amber",
+    "expected_loss_usd": 63.16,
+    "exit_side_usd": 214.85,
+    "margin_usd": -151.68,
+    "margin_identity_ok": true,
+    "feasibility": "full",
+    "withdrawable_usd": 100000,
+    "blocked_usd": 0,
+    "quote_status": "simulated",
+    "freshness": "fresh"
+   },
+   {
+    "case": "belem_1m",
+    "address": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "as_of_block": 26163255,
+    "mode": "live",
+    "version": "v2",
+    "markets": 6,
+    "coverage": 1.0,
+    "cross_checks_ok": true,
+    "verdict": "REVIEW",
+    "point_verdict": "STAY",
+    "colour": "amber",
+    "expected_loss_usd": 1893.14,
+    "exit_side_usd": 6443.29,
+    "margin_usd": -4550.15,
+    "margin_identity_ok": true,
+    "feasibility": "partial",
+    "withdrawable_usd": 404932,
+    "blocked_usd": 595068,
+    "quote_status": "simulated_partial",
+    "freshness": "fresh"
+   },
+   {
+    "case": "confidential",
+    "address": "0xc207d3f66537D7F66456808379A0E560cF20Da36",
+    "as_of_block": 26163256,
+    "mode": "live",
+    "version": "v2",
+    "markets": 4,
+    "coverage": 1.0,
+    "cross_checks_ok": true,
+    "verdict": "REVIEW",
+    "point_verdict": "STAY",
+    "colour": "amber",
+    "expected_loss_usd": 71.1,
+    "exit_side_usd": 543.99,
+    "margin_usd": -472.89,
+    "margin_identity_ok": true,
+    "feasibility": "full",
+    "withdrawable_usd": 100000,
+    "blocked_usd": 0,
+    "quote_status": "simulated",
+    "freshness": "fresh"
+   },
+   {
+    "case": "steakhouse_v1",
+    "address": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "as_of_block": 26163257,
+    "mode": "live",
+    "version": "v1",
+    "markets": 12,
+    "coverage": 1.0,
+    "cross_checks_ok": true,
+    "verdict": "REVIEW",
+    "point_verdict": "STAY",
+    "colour": "amber",
+    "expected_loss_usd": 52.89,
+    "exit_side_usd": 356.1,
+    "margin_usd": -303.21,
+    "margin_identity_ok": true,
+    "feasibility": "full",
+    "withdrawable_usd": 100000,
+    "blocked_usd": 0,
+    "quote_status": "simulated",
+    "freshness": "fresh"
+   },
+   {
+    "case": "usdc_yield",
+    "address": "0xE0181090c22579B6A217f1522cbf8c9f1F0C1965",
+    "as_of_block": 26163256,
+    "mode": "live",
+    "version": "v2",
+    "markets": 6,
+    "coverage": 1.0,
+    "cross_checks_ok": true,
+    "verdict": "REVIEW",
+    "point_verdict": "STAY",
+    "colour": "amber",
+    "expected_loss_usd": 70.61,
+    "exit_side_usd": 523.5,
+    "margin_usd": -452.9,
+    "margin_identity_ok": true,
+    "feasibility": "full",
+    "withdrawable_usd": 100000,
+    "blocked_usd": 0,
+    "quote_status": "simulated",
+    "freshness": "fresh"
+   }
+  ],
+  "custom_shock": {
+   "query": "Belem, $1M, 90 d, shock=collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702 (mGLOeuro), severity=0.6",
+   "status": 200,
+   "loss_usd": 365292.4,
+   "verdict": "REVIEW"
+  },
+  "phase05_regression": {
+   "/api/analyze?borrower=auto": "200, source=live, REVIEW, quote simulated, freshness fresh, liquidation.mode=borrower_position",
+   "/api/analyze?ref=auto": "200, source=live, REVIEW, quote simulated, freshness fresh, liquidation.mode=unlevered_exposure",
+   "/api/analyze?value_usd=5": "400"
+  },
+  "browser": [
+   {
+    "case": "Belem prefill button + Analyze vault",
+    "block": 26163265,
+    "elapsed_s": 5.1,
+    "result": "live on-chain, data fresh, coverage 100%, withdrawal full, quote simulated; REVIEW lean STAY x3.40 confidence low; EL $63 [$11-$323]; exit $215 (gas $0.07 + carry $215); margin -$152; 'figures consistent' badge; 6 allocations, graph, scenarios, custom shock select, sensitivity, withdrawal capacity 361,743.3 EURCV cross-check ok"
+   },
+   {
+    "case": "deep link $1M / 90 d",
+    "block": 26163266,
+    "elapsed_s": 7.8,
+    "result": "withdrawal partial: $404.9k now, $595.1k blocked; REVIEW lean STAY; margin -$4,550; figures consistent"
+   }
+  ],
+  "note_test_artifact": "first browser attempt sent the prefill and submit clicks concurrently, so submit saw an empty field and showed the client-side 'Enter a vault address' message; the prefill was verified to work and the sequential retry succeeded"
+ },
+ "verdict": "GO: G01-G12 PASS, V01-V26 26 PASS, no open P0/P1"
 }

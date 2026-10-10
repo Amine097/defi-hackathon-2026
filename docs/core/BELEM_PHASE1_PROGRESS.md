@@ -4,8 +4,9 @@ Spec: [BELEM_PHASE_1_VAULT_RISK_ANALYZER.md](BELEM_PHASE_1_VAULT_RISK_ANALYZER.m
 Validation: [BELEM_PHASE1_VALIDATION.md](BELEM_PHASE1_VALIDATION.md).
 Evidence: [`audit/BELEM_PHASE1_EVIDENCE.json`](../../audit/BELEM_PHASE1_EVIDENCE.json).
 
-- **Local base SHA:** `ffd7df1` (Phase 0.5 GO). Phase 1 is uncommitted on top of it, pending authorization to commit and deploy.
-- **Production SHA:** `ffd7df1`, from the GitHub deployments API. It does not contain Phase 1: `/vault.html` and `/api/vault` return 404.
+- **Base SHA at start:** `ffd7df1` (Phase 0.5 GO).
+- **Phase 1 commit:** `626191c`, pushed by the owner.
+- **Production SHA:** `42dfa00`, from the GitHub deployments API (deployment `6983683515`, success). It is an empty trigger commit on top of `626191c`, so the tree is identical. The Phase 1 routes are live.
 
 ## 0. Start-of-phase checks (spec §7.1–7.2)
 
@@ -24,7 +25,7 @@ Evidence: [`audit/BELEM_PHASE1_EVIDENCE.json`](../../audit/BELEM_PHASE1_EVIDENCE
 | P1-04 Depositor loss model | DONE | Bad debt after on-chain liquidations, oracle drain, protocol priors, a decision-neutral deposit asset, 5 scenarios plus a custom shock, sensitivity, uncertainty bands (`uncertainty.py` path-sum support). | V12–V16 |
 | P1-05 Exit & decision | DONE | Ordinary capacity (V2: idle + liquidity adapter, `maxRedeem` = 0 handled; V1: withdraw queue). Partial / zero / unknown exits. `eth_call` redeem simulation, gas, friction, fee. Carry = on-chain net APY × H, excluding rewards. Robust STAY/EXIT/REVIEW via `uncertainty.robust_signal`; EXIT → REVIEW unless the exit is fully feasible. | V17–V20, V26 |
 | P1-06 UI | DONE | `public/vault.html`, `assets/js/vault.js`, `assets/js/vault/view.js` (pure view model that verifies backend identities and never recomputes), `assets/css/vault.css`. Includes form, deep links, Belem prefill, verdict card, allocations, graph, scenarios, custom shock and sensitivity. Nav links added in `shell.js` and `xray.html`. | V19, V23, Node tests |
-| P1-07 Tests, docs, evidence | DONE (deployment BLOCKED) | `tests/test_vault.py` (73), `tests/test_vault_live.py` (11 live tests), `tests/js/vault_view.test.mjs`, UI fixtures, `scripts/collect_vault_evidence.py`, and this log plus the validation doc, evidence JSON, report appendix and README. | V21–V26 |
+| P1-07 Tests, docs, evidence | DONE | `tests/test_vault.py` (73), `tests/test_vault_live.py` (11 live tests), `tests/js/vault_view.test.mjs`, UI fixtures, `scripts/collect_vault_evidence.py`, and this log plus the validation doc, evidence JSON, report appendix and README. | V21–V26 |
 
 ## Commands and results (last full run)
 
@@ -43,6 +44,9 @@ Evidence: [`audit/BELEM_PHASE1_EVIDENCE.json`](../../audit/BELEM_PHASE1_EVIDENCE
 - **V1 idle markets:** the label read "idle" with no context. It now reads "idle market (no collateral)".
 - **Evidence collector:** it dropped the source fields of the price cross-check. Fixed.
 
-## Blocked
+## Deployment (G11 / V25) — closed on 2026-10-10
 
-- **G11 / V25:** Phase 1 is not deployed. Every Vercel deployment of `main` is Production, and there is no preview environment. A production deployment needs the owner's authorization (spec §7.6). After a deployment, rerun the smoke test in VALIDATION §V25 with the exact SHA.
+- The owner pushed `626191c` (Phase 1); Vercel deployed `42dfa00`, an empty trigger commit with the same tree, to Production.
+- The SHA was checked with `gh api …/deployments` and `git diff`.
+- The production smoke test passed: static pages, 5 live `/api/vault` cases, error codes, custom shock, browser E2E and Phase 0.5 regression. Details are in VALIDATION §V25 and in `production_smoke` in the evidence JSON.
+- **Phase 1 verdict: GO.**
