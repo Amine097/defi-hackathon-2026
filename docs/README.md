@@ -1,0 +1,14 @@
+# FAULTLINE Documentation
+
+The documentation is organized by responsibility: **core** for the Belem risk engine and requirements; **features** for modules added to it. Each capability has its own folder. The [frontend blueprint](design/frontend.md) covers the shared interface.
+
+| Area | Content | Product priority |
+| --- | --- | --- |
+| [Core Risk Engine](core/README.md) | [Dependency Graph](core/dependency-graph/README.md) · [Dependency Exposure %](core/dependency-exposure/README.md) · [Impact Estimation](core/impact-estimation/README.md) · [STAY / EXIT](core/stay-exit/README.md) | P0 — foundation |
+| [Breaking Point](features/breaking-point/README.md) | Minimal shock triggering liquidation | P0 — additional feature |
+| [Threat Intelligence](features/README.md#p1--threat-intelligence) | Leverage Hunter · Whale Impact · Chain of Blame | P1 |
+| [Action Layer](features/README.md#p2--action-layer) | Exit Feasibility · Telegram Ping · Reaction Window | P2 |
+
+The [Official Belem PDF](core/BelemCapital_EPFL-Hackathon_DeFi-Risk-Dependency-Challenge_EN_v1.pdf) takes precedence over its [summary](core/belem.md). The [audit procedure](core/spec_compliance.md) shows how to verify the core; it is not a completed audit report. [PLAN.md](../PLAN.md) preserves the historical context, but its progress reports may be dated.
+
+**Statuses:** “implemented” means code exists; it does not establish correctness or real-data operation. “Specified” means the behavior is documented but no implementation has been identified. The P0/P1/P2 ranking comes from the team roadmap (image from October 10, 2026), not the official PDF: Breaking Point is a product P0, not an explicit challenge requirement.

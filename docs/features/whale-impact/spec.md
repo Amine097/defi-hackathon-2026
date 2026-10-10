@@ -1,12 +1,5 @@
 # Implementation Spec — Whale Impact Analyzer for "FAULTLINE / Last Exit"
 
-> **Audience:** an AI coding agent. Read the whole document before writing code.
-> **Goal:** build a module that reacts to **large transactions that actually touch the markets our positions depend on**, and computes their **impact** — on price, oracle, leveraged positions, liquidation thresholds and, ultimately, on our own stay/exit decision. Real data, demo-ready, within a 24-hour hackathon.
-> **Code and comments:** English. **User-facing text:** English, all templates in one file (`impact_text.py`) for quick translation.
-> **Project name:** the team uses "FAULTLINE" / "Last Exit". Use a single constant `PRODUCT_NAME` so it can be changed in one place.
-
----
-
 ## 0. Context (read first)
 
 We are competing in the **Belem Capital track** of the BSA EPFL hackathon (Lausanne, 10–11 Oct 2026, submission deadline **Sunday 11:00 CEST**).

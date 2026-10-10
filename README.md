@@ -1,14 +1,14 @@
 # DeFi Hackathon 2026 - Belem Capital track
 
 DeFi risk dependency analyzer: discover a position's dependency graph, simulate failures, output STAY/EXIT.
-See `PLAN.md` and `docs/belem.md`.
+Start with the [documentation index](docs/README.md) for the core, feature specifications and Belem brief. `PLAN.md` retains the earlier project plan.
 
 ## UI direction: Pendle X-Ray node graph (hosted on Vercel)
 The main view is an interactive node graph (nodes = chain, yield source, oracle, PT market/AMM, lending, position pockets).
 Click a node to simulate its failure and watch it propagate; the side panel shows STAY vs EXIT.
 - `public/index.html` (dashboard) and `public/xray.html` (node graph): fed by `/api/analyze`; a badge shows whether numbers are live, replayed from cache, or MOCK
 - `api/analyze.py`: Python serverless function returning the model output as JSON
-- `docs/mockups/pendle-xray-node-graph.html`: untouched copy of the original prototype
+- `docs/core/dependency-graph/mockup.html`: untouched copy of the original prototype
 
 ## Setup
     python -m venv .venv

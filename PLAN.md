@@ -66,7 +66,7 @@ Whale alert assistant (owner: D or A, ~2-3h):
 
 ## Visual direction: "Pendle X-Ray" NODE GRAPH (DECIDED)
 Main UI = interactive force-directed node graph (dark theme, nodes colored by layer L1-L5 + position pockets).
-Implemented in public/xray.html. Original prototype kept in docs/mockups/pendle-xray-node-graph.html.
+Implemented in public/xray.html. Original prototype kept in docs/core/dependency-graph/mockup.html.
 - Nodes: chain, yield sources/issuers, oracles, PT markets (AMM), lending venues, position pockets.
 - Edges: "depends on", with a transmission factor.
 - Click a node (or scenario button) = it fails; failure spreads to dependents with delay, edges pulse red.

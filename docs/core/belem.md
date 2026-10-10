@@ -104,11 +104,7 @@ oracle, AMM market, and lending venue.
 
 ## Project Status
 
-- Track selection: Pending
-- Architecture: TBD
-- Technology stack: TBD
-- MVP scope: TBD
-- Team responsibilities: TBD
+See the [documentation index](../README.md) for the current P0/P1/P2 roadmap. This file summarizes the challenge brief; it does not certify that the implementation meets it.
 
 ## Resources
 
