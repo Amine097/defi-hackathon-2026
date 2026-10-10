@@ -19,6 +19,11 @@ Click a node to simulate its failure and watch it propagate; the side panel show
 5. Deep link: `/vault.html?address=0x…&value_usd=1000000&horizon_days=90`. API: `/api/vault?address=0x…&value_usd=100000&horizon_days=30[&shock=<node id>&severity=0.6]`.
 6. Offline, deterministic replay of the dated vault fixtures (`data/fixtures/vault_*.json`, payloads labelled `replay`): `$env:PYTHONPATH='src'; python -m pytest tests/test_vault.py`. Live cross-checks: add `$env:DEFIRISK_LIVE_TESTS='1'`; evidence: `python scripts/collect_vault_evidence.py`.
 
+## Local UI test
+Never open `public/index.html` with `file://` (root-relative `/assets/...` and `/api/analyze`). Use
+`python scripts/dev_server.py 8000` (UI + API) or `python -m http.server 8000 -d public` (UI only, falls back to the saved real snapshot).
+Useful URLs: `/` (Overview), `/xray.html`, `/xray.html?data=large` (synthetic book), `/?runway=demo` (labelled Exit Runway rehearsal fixture), `/?borrower=auto` (live Breaking Point).
+
 ## Setup
     python -m venv .venv
     .venv\Scripts\activate

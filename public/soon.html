@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaultLine · Coming soon</title>
+<meta name="description" content="A FaultLine module that is still in development.">
+<meta name="theme-color" content="#0b0d11">
+<link rel="icon" href="/assets/brand/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/theme.css">
+</head>
+<body>
+<main class="container soon-wrap">
+  <div class="soon-card" id="soon" aria-live="polite"></div>
+</main>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/shell.js"></script>
+<script>
+(function () {
+  const F = window.FaultLine, k = new URLSearchParams(location.search).get('m');
+  const m = F.SOON[k];
+  const root = document.getElementById('soon');
+  if (!m) {
+    document.title = 'FaultLine · Module not found';
+    root.innerHTML = '<div><h1>Module not found</h1><p>This module does not exist. Pick one from the sidebar or go back to the overview.</p><a class="btn btn-primary" href="/">Back to overview</a></div>';
+    return;
+  }
+  document.title = 'FaultLine · ' + m.name + ' (coming soon)';
+  root.innerHTML =
+    '<div><span class="soon-ico">' + F.soonIcon(m.icon) + '</span>' +
+    '<h1>' + m.name + '</h1>' +
+    '<span class="soon-status">In development</span>' +
+    '<p style="margin-top:16px">' + m.blurb + '</p>' +
+    '<p class="soon-note">Not available yet. Nothing on this page is computed, so no figures are shown. The core analysis is live in the overview and the X-Ray.</p>' +
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px"><a class="btn btn-primary" href="' + F.withQuery('/', { fail: null, scenario: null, m: null }) + '">Back to overview</a>' +
+    '<a class="btn" href="' + F.withQuery('/xray.html', { fail: null, scenario: null, m: null }) + '">Open dependency X-Ray</a></div></div>' +
+    '<div class="soon-art"><img src="' + m.art + '" alt="" width="1168" height="880"></div>';
+})();
+</script>
+</body>
+</html>

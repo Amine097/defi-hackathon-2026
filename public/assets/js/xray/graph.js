@@ -12,7 +12,7 @@ export const LAYERS = [
   { key: 'chain', name: 'L1 Chain' },
 ];
 const RANK = Object.fromEntries(LAYERS.map((l, i) => [l.key, i]));
-const RED = '#ff4d4d';
+const RED = '#ff6f6a';
 const DASH = '#9b87f5';
 
 export function layerColors() {
@@ -78,8 +78,13 @@ function logoPath(n) {
   if (!word || ['cex', 'pt', 'position'].includes(word)) return { path: fallback, fallback };
   return { path: `/assets/logos/${LOGO_ALIAS[word] || `${word}.svg`}`, fallback };
 }
+// Only request logos that exist (manifest.json lists them): a guessed filename would 404 in the console.
+let logoSet = null;
+fetch('/assets/logos/manifest.json').then((r) => (r.ok ? r.json() : [])).then((l) => { logoSet = new Set(l); }).catch(() => { logoSet = new Set(); });
 function logoFor(n) {
-  const { path, fallback } = logoPath(n);
+  if (!logoSet) return null;
+  let { path, fallback } = logoPath(n);
+  if (path.startsWith('/assets/logos/') && !logoSet.has(path.slice(14))) path = fallback;
   const key = `${path}|${fallback}`;
   if (!logoCache.has(key)) {
     const img = new Image();
@@ -96,22 +101,10 @@ function logoFor(n) {
 
 function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) / 4294967296; }
 
-function makeStars(size = 640) {
-  const c = document.createElement('canvas');
-  c.width = c.height = size;
-  const g = c.getContext('2d');
-  for (let i = 0; i < 140; i++) {
-    const x = Math.random() * size, y = Math.random() * size, r = Math.random() < 0.08 ? 1.3 : Math.random() * 0.8 + 0.2;
-    g.fillStyle = `rgba(${180 + Math.random() * 60 | 0},${190 + Math.random() * 50 | 0},255,${0.15 + Math.random() * 0.5})`;
-    g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
-  }
-  return c;
-}
-
 export function createGraph(canvas, model, cb) {
   const ctx = canvas.getContext('2d');
   const COL = layerColors();
-  const stars = makeStars();
+  const pendingLabels = [];
   const cam = { x: 0, y: 0, k: 1 };
   const camTarget = { x: 0, y: 0, k: 1, active: false };
   let W = 0, H = 0, dpr = 1;
@@ -285,8 +278,6 @@ export function createGraph(canvas, model, cb) {
     const rm = reducedMotion();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
-    const ox = ((cam.x * 0.15) % 640 + 640) % 640, oy = ((cam.y * 0.15) % 640 + 640) % 640;
-    for (let x = ox - 640; x < W; x += 640) for (let y = oy - 640; y < H; y += 640) ctx.drawImage(stars, x, y);
 
     ctx.setTransform(dpr * cam.k, 0, 0, dpr * cam.k, dpr * cam.x, dpr * cam.y);
     const k = cam.k;
@@ -294,7 +285,7 @@ export function createGraph(canvas, model, cb) {
 
     if (mode === 'layers' && rowsInfo.length) {
       const b = bounds();
-      ctx.font = `600 ${11 * px}px system-ui, sans-serif`;
+      ctx.font = `600 ${11 * px}px 'IBM Plex Sans', system-ui, sans-serif`;
       ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
       for (const row of rowsInfo) {
         ctx.fillStyle = hexA(COL[row.key] || '#8a94a8', 0.05);
@@ -352,6 +343,26 @@ export function createGraph(canvas, model, cb) {
 
     const order = [...N].sort((a, b) => (a === hl?.s) - (b === hl?.s) || a.hit - b.hit || a.r - b.r);
     for (const s of order) drawNode(s, now, rm, px, k);
+    drawLabels();
+  }
+
+  // Labels are drawn after the nodes, highest priority first (nodes are ordered low -> high), and a label that
+  // would overlap one already placed is skipped, unless it is selected / hovered / a failure root.
+  function drawLabels() {
+    const placed = [];
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let i = pendingLabels.length - 1; i >= 0; i--) {
+      const L = pendingLabels[i], px = L.px;
+      ctx.font = `${L.isSel || L.isHov ? 600 : 500} ${11.5 * px}px 'IBM Plex Sans', system-ui, sans-serif`;
+      const w = ctx.measureText(L.text).width + 4 * px, h = 14 * px;
+      const x0 = L.s.x - w / 2, y0 = L.ly - px;
+      if (!L.force && placed.some((p) => x0 < p.x1 && x0 + w > p.x0 && y0 < p.y1 && y0 + h > p.y0)) continue;
+      placed.push({ x0, x1: x0 + w, y0, y1: y0 + h });
+      ctx.lineWidth = 3.2 * px; ctx.strokeStyle = 'rgba(8,12,18,.92)';
+      ctx.strokeText(L.text, L.s.x, L.ly);
+      ctx.fillStyle = L.isHit ? '#ffc3c0' : '#e3e9f3'; ctx.fillText(L.text, L.s.x, L.ly);
+    }
+    pendingLabels.length = 0;
   }
 
   function drawParticle(g, t, r, a, col) {
@@ -409,7 +420,7 @@ export function createGraph(canvas, model, cb) {
       ctx.drawImage(logo, s.x - lr, s.y - lr, lr * 2, lr * 2); ctx.restore();
     } else if (r * k >= 13) {
       const fs = clamp(r * 0.5, 7, 13) * (s.label.length > 5 ? 0.85 : 1);
-      ctx.font = `700 ${fs}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = `700 ${fs}px 'IBM Plex Sans', system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillStyle = hexA('#ffffff', 0.92); ctx.fillText(s.label, s.x, s.y + 0.5);
     }
     if (isSel) {
@@ -425,16 +436,11 @@ export function createGraph(canvas, model, cb) {
     const showLabel = isSel || isHov || s.root || (!dense) || r >= 17 || (focus && vis && focus.size <= 14) || (isHit && s.hit >= 0.6 && !s.n.isPos);
     if (showLabel) {
       const text = s.n.isPos && s.label !== 'YOU' && s.n.label.startsWith(s.label) && !(isSel || isHov) ? (dense ? '' : s.n.label.slice(s.label.length).replace(/^[\s·:-]+/, '')) : s.n.label;
-      ctx.font = `${isSel || isHov ? 600 : 500} ${11.5 * px}px system-ui, sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-      ctx.lineWidth = 3.2 * px; ctx.strokeStyle = 'rgba(8,10,16,.92)';
-      const ly = s.y + r + 5 * px + (isSel ? 5 : 0);
-      ctx.strokeText(text, s.x, ly);
-      ctx.fillStyle = isHit ? '#ffb4b4' : '#d4dbea'; ctx.fillText(text, s.x, ly);
+      if (text) pendingLabels.push({ s, text, isSel, isHov, isHit, force: isSel || isHov || s.root, ly: s.y + r + 5 * px + (isSel ? 5 : 0), px });
     }
     if (isHit && !s.root && (s.lossFrac != null || (s.hit < 0.999 && (!dense || isHov || isSel)))) {
       const t = s.lossFrac != null ? `−${Math.round(s.lossFrac * 100)}% value` : `${Math.round(s.hit * 100)}% shock`;
-      ctx.font = `700 ${10 * px}px system-ui, sans-serif`;
+      ctx.font = `700 ${10 * px}px 'IBM Plex Sans', system-ui, sans-serif`;
       const w = ctx.measureText(t).width + 8 * px;
       const bx = s.x + r * 0.7, by = s.y - r - 6 * px;
       ctx.fillStyle = RED; roundRect(bx - 2 * px, by - 7 * px, w, 14 * px, 7 * px); ctx.fill();

@@ -3,199 +3,272 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FaultLine — Know where it breaks before it does</title>
-<meta name="description" content="FaultLine maps the hidden dependency graph behind a DeFi position, simulates failures and tells you whether to STAY or EXIT.">
+<title>FaultLine — Know what breaks first</title>
+<meta name="description" content="FaultLine maps the hidden dependency graph behind a DeFi position, finds where it breaks first, and tells you whether to STAY or EXIT.">
 <meta property="og:title" content="FaultLine">
-<meta property="og:description" content="Know where it breaks before it does. Dependency discovery, failure simulation and a STAY/EXIT decision for DeFi positions.">
+<meta property="og:description" content="Know what breaks first. Dependency discovery, breaking point, failure simulation and a STAY/EXIT decision for DeFi positions.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#0a0d13">
+<meta name="theme-color" content="#0b0d11">
 <link rel="icon" href="/assets/brand/logo.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/assets/css/theme.css">
 <style>
-  body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-    background:radial-gradient(600px 400px at 80% -5%, rgba(59,130,246,.18), transparent 70%),
-               radial-gradient(500px 400px at 5% 20%, rgba(176,92,240,.12), transparent 70%),
-               linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px) 0 0/40px 40px,
-               linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px) 0 0/40px 40px; }
-  .hero { padding:var(--space-8) 0 var(--space-6); }
-  .hero h1 { font-size:clamp(2.4rem,6vw,4rem); letter-spacing:-.02em; }
-  .hero h1 span { background:linear-gradient(90deg,var(--accent),var(--layer-lending)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .hero .tag { font-size:1.25rem; color:var(--text); }
-  .hero .pitch { max-width:640px; color:var(--muted); }
-  .hero .cta { display:flex; gap:var(--space-3); flex-wrap:wrap; margin-top:var(--space-5); align-items:center; }
-  section { margin-top:var(--space-7); }
-  h2 { font-size:1.4rem; }
+  main.container { padding-top:var(--space-6); }
+  .page-h { display:flex; justify-content:space-between; align-items:flex-end; gap:var(--space-4); flex-wrap:wrap; margin-bottom:var(--space-4); }
+  .page-h h1 { font-size:26px; margin:0 0 4px; }
+  .page-h .lead { color:var(--muted); margin:0; max-width:680px; }
+  .pos-line { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; margin-top:var(--space-2); font-size:13px; color:var(--muted); }
+  .pos-line b { color:var(--text); font-weight:600; }
   .grid { display:grid; gap:var(--space-4); }
-  .g-main { grid-template-columns:1.1fr 1fr; }
-  .g-kpi { grid-template-columns:repeat(3,1fr); }
-  .verdict { min-height:260px; display:flex; flex-direction:column; justify-content:center; gap:var(--space-3); }
-  .verdict .big { font-size:4rem; font-weight:800; letter-spacing:.04em; line-height:1; }
-  .verdict.stay { border-color:rgba(74,222,128,.45); box-shadow:0 0 40px rgba(74,222,128,.12); } .verdict.stay .big { color:var(--stay); }
-  .verdict.exit { border-color:rgba(248,113,113,.45); box-shadow:0 0 40px rgba(248,113,113,.12); } .verdict.exit .big { color:var(--exit); }
-  .verdict.review { border-color:rgba(251,191,36,.45); box-shadow:0 0 40px rgba(251,191,36,.12); } .verdict.review .big { color:var(--warn); }
-  .driver { display:flex; align-items:center; gap:var(--space-3); margin-bottom:var(--space-3); }
-  .driver .name { flex:0 0 150px; font-size:.9rem; }
-  .driver .bar { flex:1; height:8px; background:var(--bg-elev); border-radius:99px; overflow:hidden; }
-  .driver .bar i { display:block; height:100%; border-radius:99px; }
-  .driver .amt { flex:0 0 70px; text-align:right; font-variant-numeric:tabular-nums; font-size:.9rem; }
-  .layers { display:grid; grid-template-columns:repeat(5,1fr); gap:var(--space-3); }
-  .layer { padding:var(--space-4); border-top:3px solid var(--c); }
-  .layer img { width:28px; height:28px; display:block; margin-bottom:8px; }
-  .layer b { color:var(--c); font-size:.8rem; letter-spacing:.1em; }
-  .layer h3 { font-size:1rem; margin:4px 0 6px; } .layer p { font-size:.85rem; color:var(--muted); margin:0; }
-  details.card summary { cursor:pointer; font-weight:700; }
+  .g-kpis { grid-template-columns:repeat(4,1fr); }
+  .g-7-5 { grid-template-columns:7fr 5fr; align-items:start; }
+  section { margin-top:var(--space-4); }
+  .sec-h { display:flex; align-items:baseline; justify-content:space-between; gap:var(--space-3); margin:var(--space-6) 0 var(--space-3); }
+  .sec-h h2 { font-size:16px; margin:0; } .sec-h p { margin:0; font-size:13px; color:var(--muted); }
+  .kpi .value.sm { font-size:22px; }
+  .kpi.hot .value { color:var(--exit); }
+  .verdict { border-top:2px solid var(--border-strong); }
+  .verdict.stay { border-top-color:var(--stay); } .verdict.exit { border-top-color:var(--exit); } .verdict.review { border-top-color:var(--warn); }
+  .v-row { display:flex; align-items:center; gap:var(--space-4); margin-bottom:var(--space-3); flex-wrap:wrap; }
+  .v-big { font-size:44px; font-weight:700; letter-spacing:.02em; line-height:1; }
+  #v-lean { font-size:20px; color:var(--text); }
+  .stay .v-big { color:var(--stay); } .exit .v-big { color:var(--exit); } .review .v-big { color:var(--warn); }
+  .v-sum { font-size:15px; margin:0 0 var(--space-3); }
+  .v-compare { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-3); margin-bottom:var(--space-3); }
+  .v-compare > div { background:var(--bg-elev); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; }
+  .v-compare .t { font-size:12px; color:var(--muted); font-weight:600; } .v-compare .n { font-size:20px; font-weight:700; } .v-compare .s { font-size:12px; color:var(--muted); }
+  .bar2 { height:6px; border-radius:99px; background:var(--card-2); margin-top:6px; overflow:hidden; } .bar2 i { display:block; height:100%; border-radius:99px; }
+  .signal { font-size:13px; line-height:1.55; color:var(--muted); margin:0; max-width:75ch; }
+  .driver { display:grid; grid-template-columns:minmax(110px,170px) 1fr 64px; gap:var(--space-3); align-items:center; padding:7px 0; border-bottom:1px solid var(--border); font-size:13px; background:none; border-left:0; border-right:0; border-top:0; color:inherit; width:100%; text-align:left; font-family:inherit; cursor:pointer; }
+  .driver:hover .name { text-decoration:underline; text-underline-offset:3px; }
+  .driver .bar { height:8px; background:var(--card-2); border-radius:99px; overflow:hidden; } .driver .bar i { display:block; height:100%; }
+  .driver .amt { text-align:right; font-variant-numeric:tabular-nums; }
+  .driver .amt::after { content:'\203A'; margin-left:8px; color:var(--faint); }
+  .driver:hover .amt::after { color:var(--text); }
+  .ldot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; vertical-align:0; }
+  .hint { font-size:12px; color:var(--muted); margin:var(--space-3) 0 0; }
+  .layers { display:grid; grid-template-columns:repeat(5,1fr); gap:var(--space-3); margin-top:var(--space-3); }
+  .layer { padding:var(--space-3) var(--space-4); border-top:3px solid var(--c); }
+  .layer img { width:24px; height:24px; display:block; margin-bottom:6px; }
+  .layer b { color:var(--c); font-size:12px; letter-spacing:.08em; }
+  .layer h3 { font-size:14px; margin:2px 0 4px; } .layer p { font-size:12px; color:var(--muted); margin:0; }
+  details.card > summary { cursor:pointer; font-weight:700; font-size:14px; }
   details.card ul { color:var(--muted); padding-left:20px; margin:var(--space-3) 0 0; }
   details.card li { margin-bottom:6px; }
-  .tot { display:flex; gap:var(--space-5); flex-wrap:wrap; margin-bottom:var(--space-4); }
+  .tot { display:flex; gap:var(--space-5); flex-wrap:wrap; margin-bottom:var(--space-3); }
   .err { color:var(--exit); }
-  @media (max-width:860px) { .g-main { grid-template-columns:1fr; } .layers { grid-template-columns:1fr 1fr; } }
-  @media (max-width:560px) { .g-kpi { grid-template-columns:1fr; } .layers { grid-template-columns:1fr; } .driver .name { flex-basis:100px; } .verdict .big { font-size:3rem; } }
+  @media (max-width:1000px) { .g-kpis { grid-template-columns:1fr 1fr; } .g-7-5 { grid-template-columns:1fr; } .layers { grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px) { .g-kpis { grid-template-columns:1fr 1fr; } .layers { grid-template-columns:1fr; } .v-big { font-size:32px; } .v-compare { grid-template-columns:1fr; } .kpi .value { font-size:21px; } .page-h h1 { font-size:22px; } }
 </style>
 </head>
 <body>
-<header id="nav"></header>
 <main class="container">
-  <div class="hero">
-    <h1><span>FaultLine</span></h1>
-    <p class="tag">Know where it breaks before it does.</p>
-    <p class="pitch">FaultLine uncovers the hidden dependency graph behind an on-chain position, simulates what happens when a layer fails, and tells you whether to <b>STAY</b> or <b>EXIT</b> — and why.</p>
-    <div class="cta"><a class="btn btn-primary" href="/xray.html">Open X-Ray &rarr;</a><a class="btn btn-ghost" href="#how">How it works</a><span id="src-badge"></span></div>
+  <div class="page-h">
+    <div>
+      <h1>Risk overview</h1>
+      <p class="lead">Where this position can break, what it would cost, and whether to <b>STAY</b> or <b>EXIT</b>.</p>
+      <div class="pos-line" id="pos-line"><span class="muted">Loading position…</span></div>
+    </div>
+    <a class="btn btn-primary" id="open-xray" href="/xray.html">Open dependency X-Ray</a>
   </div>
 
-  <section id="summary" aria-live="polite">
-    <h2>Position under analysis: <span id="pos-label" class="muted">loading…</span></h2>
-    <div class="grid g-main">
-      <div id="verdict-card" class="card verdict">
-        <div class="muted">Recommendation</div>
-        <div class="big" id="verdict">—</div>
-        <p id="explain" class="muted">&nbsp;</p>
-        <p id="signal" class="muted" style="font-size:.85rem"></p>
-      </div>
-      <div class="grid">
-        <div class="grid g-kpi">
-          <div class="card kpi"><span class="label">Position</span><span class="value" id="k-pos">—</span></div>
-          <div class="card kpi"><span class="label">Expected loss (stay)</span><span class="value" id="k-loss">—</span></div>
-          <div class="card kpi"><span class="label">Exit cost (incl. carry)</span><span class="value" id="k-exit">—</span></div>
-        </div>
-        <div class="card">
-          <h3>Top risk drivers</h3>
-          <div id="drivers"><span class="muted">—</span></div>
-        </div>
-      </div>
+  <div id="load-error" class="card err" hidden></div>
+
+  <section aria-label="Key metrics">
+    <div class="grid g-kpis">
+      <div class="card kpi"><span class="label">Capital monitored</span><span class="value" id="m-cap">—</span><span class="sub" id="m-cap-s">position size</span></div>
+      <div class="card kpi"><span class="label">Largest dependency</span><span class="value sm" id="m-dep">—</span><span class="sub" id="m-dep-s">share of modeled loss</span></div>
+      <div class="card kpi" id="m-bp-card"><span class="label">First breaking point</span><span class="value" id="m-bp">—</span><span class="sub" id="m-bp-s"></span></div>
+      <div class="card kpi"><span class="label">Modeled downside (stay)</span><span class="value" id="m-loss">—</span><span class="sub" id="m-loss-s">expected loss over the horizon</span></div>
     </div>
   </section>
 
-  <section id="how">
-    <h2>How it works: five layers of dependency</h2>
+  <section class="grid g-7-5" aria-label="Decision">
+    <div id="verdict-card" class="card verdict">
+      <div class="card-h"><h2>Decision</h2><span class="muted" id="v-conf"></span></div>
+      <div class="v-row"><div class="v-big" id="verdict">—</div><div id="v-lean" class="muted"></div></div>
+      <p class="v-sum" id="v-sum">&nbsp;</p>
+      <div class="v-compare" id="v-compare"></div>
+      <p class="signal" id="signal"></p>
+      <details style="margin-top:12px"><summary class="muted" style="cursor:pointer;font-size:12px;font-weight:600">Full model explanation</summary><p id="explain" class="muted" style="font-size:12px;margin-top:8px"></p></details>
+    </div>
+    <div id="runway" class="card" aria-live="polite"></div>
+  </section>
+
+  <section class="grid g-7-5" aria-label="Breaking point and drivers">
+    <div class="card" id="bp-card">
+      <div class="card-h"><h2>Breaking point</h2><a href="#how" class="muted" style="font-size:12px">How to read this</a></div>
+      <div id="bp"><span class="muted">Loading…</span></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><h2>What drives the loss</h2><span class="muted" style="font-size:12px">Select one to simulate</span></div>
+      <div id="drivers"><span class="muted">—</span></div>
+      <p class="hint">Select a dependency to simulate its failure in the X-Ray, hop by hop.</p>
+    </div>
+  </section>
+
+  <div class="sec-h"><h2>Stress scenarios</h2><p>Losses are conditional: the shock is assumed to happen. Select one to replay it on the graph.</p></div>
+  <div class="card table-wrap"><table class="table">
+    <thead><tr><th>Scenario</th><th>Description</th><th class="num">Loss if it happens</th><th class="num">Exit side</th><th>Verdict</th></tr></thead>
+    <tbody id="scen"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+  </table></div>
+
+  <div class="sec-h" id="book-h"><h2>Portfolio view</h2><p id="book-sub"></p></div>
+  <div class="card">
+    <div class="tot" id="book-tot"></div>
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Pocket</th><th class="num">Value</th><th>Hit by the stress</th><th class="num">Loss if stay</th><th class="num">Exit side</th><th>Best action</th></tr></thead>
+      <tbody id="book"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+
+  <div class="sec-h" id="how"><h2>How it works</h2><p>Five layers of dependency, from the chain up to the lending market.</p></div>
+  <details class="card">
+    <summary>The five layers FaultLine traces</summary>
     <div class="layers">
       <div class="card layer" style="--c:var(--layer-chain)"><img src="/assets/layers/chain.svg" alt=""><b>L1</b><h3>Settlement chain</h3><p>The chain the position settles on: halts, reorgs, congestion.</p></div>
-      <div class="card layer" style="--c:var(--layer-yield)"><img src="/assets/layers/yield.svg" alt=""><b>L2</b><h3>Yield source &amp; issuer</h3><p>The underlying asset (e.g. sUSDe) and who issues it (Ethena): depeg, funding risk.</p></div>
+      <div class="card layer" style="--c:var(--layer-yield)"><img src="/assets/layers/yield.svg" alt=""><b>L2</b><h3>Yield source &amp; issuer</h3><p>The underlying asset and who issues it: depeg, funding risk.</p></div>
       <div class="card layer" style="--c:var(--layer-oracle)"><img src="/assets/layers/oracle.svg" alt=""><b>L3</b><h3>Oracle</h3><p>The price feed that values the asset: manipulation or stale prices.</p></div>
-      <div class="card layer" style="--c:var(--layer-amm)"><img src="/assets/layers/amm.svg" alt=""><b>L4</b><h3>PT market &amp; AMM curve</h3><p>Where the PT trades and exits: liquidity depth and slippage.</p></div>
+      <div class="card layer" style="--c:var(--layer-amm)"><img src="/assets/layers/amm.svg" alt=""><b>L4</b><h3>PT market &amp; AMM</h3><p>Where the PT trades and exits: liquidity depth and slippage.</p></div>
       <div class="card layer" style="--c:var(--layer-lending)"><img src="/assets/layers/lending.svg" alt=""><b>L5</b><h3>Lending market</h3><p>Morpho/Aave using it as collateral: liquidation cascades.</p></div>
     </div>
-  </section>
+  </details>
 
-  <section>
-    <h2>Stress scenarios</h2>
-    <div class="card table-wrap"><table class="table">
-      <thead><tr><th>Scenario</th><th>Description</th><th class="num">Loss if it happens</th><th>Verdict</th></tr></thead>
-      <tbody id="scen"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
-    </table></div>
-  </section>
-
-  <section>
-    <h2>Portfolio view: 10 pockets, one hit</h2>
-    <div class="card">
-      <div class="tot" id="book-tot"></div>
-      <div class="table-wrap"><table class="table">
-        <thead><tr><th>Pocket</th><th class="num">Value</th><th>Affected</th><th class="num">Loss if stay</th><th class="num">Exit cost (incl. carry)</th><th>Best action</th></tr></thead>
-        <tbody id="book"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
-      </table></div>
-    </div>
-  </section>
-
-  <section>
-    <details class="card">
-      <summary>Methodology &amp; assumptions</summary>
-      <ul>
-        <li><b>Data:</b> the position is a real Pendle PT used as Morpho Blue collateral, discovered live from the Pendle API, Morpho GraphQL, DefiLlama and Ethereum RPC. The position size is an input (default $1M). The badge at the top says whether numbers are live, replayed from cache, or MOCK.</li>
-        <li><b>Failure priors (30-day horizon):</b> DefiLlama hack history for the protocol cohort (TVL &ge; $10M), adjusted by audits / TVL / age; stablecoins use their own DefiLlama price history. Loss-given-failure and edge transmissions are stated assumptions (see each node's source in the X-Ray).</li>
-        <li><b>Expected loss:</b> central value 1 &minus; &prod;(1 &minus; p &times; loss-if-fails &times; path transmission), exact only if failures are independent and travel along their best path; it is bracketed by dependence-free bounds and by a low/high parameter band (each parameter is classed observed / calibrated / assumption). A 20,000-draw Monte Carlo gives the VaR95.</li>
-        <li><b>Transmission:</b> a failure propagates along dependency edges (A depends on B) scaled by a per-edge transmission factor.</li>
-        <li><b>Exit cost:</b> executable Pendle SDK quote for selling the full PT size into the loan asset, re-executed on-chain with eth_call at a pinned block (no transaction sent), plus gas; plus the PT excess carry forgone (PT implied APY &minus; USDC supply APY on the same Morpho market). Without a quote a constant-product approximation is used and labelled as such.</li>
-        <li><b>Liquidation:</b> by default the position is unlevered (liquidation not applicable). With <code>?borrower=0x…</code> or <code>auto</code> a real Morpho borrower is read on-chain (debt, health factor, liquidation price) and stressed through Morpho's liquidation formula.</li>
-        <li><b>Scenarios:</b> losses are conditional on the shock happening (probability 1), not probability-weighted; a correlated depeg + oracle + liquidity scenario is included.</li>
-        <li><b>Decision:</b> EXIT if even the low staying loss exceeds the high exit cost; STAY if even the high staying loss is below the low exit cost; otherwise <b>REVIEW</b>, with the point comparison shown as a conditional lean. Stale (quote &gt; 60 s, chain state &gt; 120 s), cached or approximated inputs force REVIEW.</li>
-      </ul>
-    </details>
-  </section>
+  <details class="card" style="margin-top:var(--space-4)">
+    <summary>Methodology &amp; assumptions</summary>
+    <ul>
+      <li><b>Data:</b> the position is a real Pendle PT used as Morpho Blue collateral, discovered live from the Pendle API, Morpho GraphQL, DefiLlama and Ethereum RPC. The position size is an input (default $1M). The badge at the top says whether numbers are live, a saved real snapshot, replayed from cache, or MOCK.</li>
+      <li><b>Failure priors (30-day horizon):</b> DefiLlama hack history for the protocol cohort (TVL &ge; $10M), adjusted by audits / TVL / age; stablecoins use their own DefiLlama price history. Loss-given-failure and edge transmissions are stated assumptions (see each node's source in the X-Ray).</li>
+      <li><b>Expected loss:</b> central value 1 &minus; &prod;(1 &minus; p &times; loss-if-fails &times; path transmission), exact only if failures are independent and travel along their best path; it is bracketed by dependence-free bounds and by a low/high parameter band (each parameter is classed observed / calibrated / assumption). A 20,000-draw Monte Carlo gives the VaR95.</li>
+      <li><b>Exit side:</b> executable Pendle SDK quote for selling the full PT size into the loan asset, re-executed on-chain with eth_call at a pinned block (no transaction sent), plus gas; plus the PT excess carry forgone (PT implied APY &minus; USDC supply APY on the same Morpho market). Without a quote a constant-product approximation is used and labelled as such.</li>
+      <li><b>Breaking point:</b> only for a leveraged position. With <code>?borrower=0x…</code> or <code>auto</code> a real Morpho borrower is read on-chain (debt, health factor, liquidation price) and stressed through Morpho's liquidation formula. It is a conditional price move, not a probability. Without debt the position has no liquidation threshold and the panel says so.</li>
+      <li><b>Scenarios:</b> losses are conditional on the shock happening (probability 1), not probability-weighted; a correlated depeg + oracle + liquidity scenario is included.</li>
+      <li><b>Decision:</b> EXIT if even the low staying loss exceeds the high exit cost; STAY if even the high staying loss is below the low exit cost; otherwise <b>REVIEW</b>, with the point comparison shown as a conditional lean. Stale (quote &gt; 60 s, chain state &gt; 120 s), cached or approximated inputs force REVIEW.</li>
+      <li><b>Exit runway:</b> exit cost alone vs under stress, stuck share, trend and time left come from a separate backend endpoint. When it is not connected the card says so; no number is estimated in the browser.</li>
+    </ul>
+  </details>
 </main>
 <footer id="footer"></footer>
 
 <script src="/assets/js/api.js"></script>
+<script src="/assets/js/breaking-point.js"></script>
+<script src="/assets/js/exit-runway.js"></script>
 <script src="/assets/js/shell.js"></script>
 <script>
 (async function () {
   const F = window.FaultLine, $ = (id) => document.getElementById(id);
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const xray = (extra) => F.withQuery('/xray.html', extra);
+  $('open-xray').href = xray();
 
-  function countUp(el, to) {
-    if (reduce) { el.textContent = F.fmtUsd(to); return; }
-    const t0 = performance.now(), dur = 700;
-    (function tick(t) {
-      const k = Math.min(1, (t - t0) / dur);
-      el.textContent = F.fmtUsd(to * (1 - Math.pow(1 - k, 3)));
-      if (k < 1) requestAnimationFrame(tick);
-    })(t0);
-  }
+  F.exitRunway.render($('runway'), { state: 'loading' });
 
   let res;
   try { res = await F.loadData(); }
   catch (e) {
-    $('pos-label').innerHTML = '<span class="err">Could not load data (' + F.esc(e.message) + ')</span>';
+    const b = $('load-error'); b.hidden = false;
+    b.innerHTML = '<b>Could not load data.</b> ' + F.esc(e.message) + ' <a href="" onclick="location.reload();return false">Retry</a>';
+    $('pos-line').innerHTML = '';
+    F.exitRunway.render($('runway'), { state: 'not_connected' });
     return;
   }
-  const d = res.data, dec = d.decision;
-  $('src-badge').innerHTML = F.sourceBadge(res.source, d);
-  $('pos-label').textContent = d.position.label + ' · ' + d.position.chain + ' · ' + d.position.horizon_days + 'd horizon';
+  const d = res.data, dec = d.decision, N = F.decisionNumbers(d);
+  const liq = d.liquidation;
+  const nodes = Object.fromEntries(d.nodes.map((n) => [n.id, n]));
 
+  // ---- header line
+  $('pos-line').innerHTML = '<b>' + F.esc(d.position.label) + '</b><span>' + F.esc(d.position.chain) + '</span><span>' + d.position.horizon_days + ' day horizon</span>' + F.sourceBadge(res.source, d, false);
+  document.title = 'FaultLine — ' + d.position.label;
+
+  // ---- headline metrics
+  $('m-cap').textContent = F.fmtUsd(d.position.value_usd);
+  $('m-cap-s').textContent = 'position size, ' + d.position.horizon_days + ' day horizon';
+  const contrib = Object.entries(d.node_contrib_usd || {}).filter(([id, v]) => v > 0 && nodes[id]).sort((a, b) => b[1] - a[1]);
+  const total = contrib.reduce((a, [, v]) => a + v, 0);
+  if (contrib.length) {
+    const [id, v] = contrib[0], n = nodes[id];
+    $('m-dep').textContent = n.label;
+    $('m-dep-s').textContent = F.fmtPct(v / total, 0) + ' of modeled loss, ' + F.fmtUsd(v);
+  } else { $('m-dep').textContent = 'Not available'; $('m-dep-s').textContent = 'no dependency carries modeled loss'; }
+  const bp = F.breakingPoint.view(liq);
+  if (bp.status === 'computed' && bp.dist != null) {
+    $('m-bp').textContent = '−' + (bp.dist * 100).toFixed(1) + '%';
+    $('m-bp-s').textContent = 'collateral price to liquidation, HF ' + (bp.hf != null ? bp.hf.toFixed(2) : '—');
+    if (bp.dist < 0.1) $('m-bp-card').classList.add('hot');
+  } else {
+    $('m-bp').textContent = 'N/A';
+    $('m-bp-s').textContent = bp.status === 'not_applicable' ? 'no debt: unlevered position' : 'not available';
+  }
+  $('m-loss').textContent = F.fmtUsd(N.stay);
+  $('m-loss-s').textContent = N.lossBand ? 'band ' + F.fmtUsd(N.lossBand.low_usd) + '–' + F.fmtUsd(N.lossBand.high_usd) : 'expected loss over the horizon';
+
+  // ---- decision
   const v = dec.verdict === 'EXIT' ? 'exit' : dec.verdict === 'STAY' ? 'stay' : 'review';
   $('verdict-card').classList.add(v);
   $('verdict').textContent = dec.verdict;
-  $('explain').textContent = dec.explanation;
+  const point = dec.point_verdict;
+  $('v-lean').textContent = dec.verdict === 'REVIEW' && point ? 'Leans ' + point + ', not a firm call' : '';
+  $('v-conf').textContent = dec.confidence ? 'confidence: ' + dec.confidence : '';
+  const diff = Math.abs(N.stay - N.exit);
+  let sum;
+  if (dec.verdict === 'REVIEW') {
+    sum = 'On central values ' + (N.stay > N.exit ? 'staying' : 'exiting') + ' costs ' + F.fmtUsd(diff) + ' more, but the uncertainty bands overlap or an input is not firm, so the engine will not call it.';
+  } else if (dec.verdict === 'EXIT') {
+    sum = 'Expected loss from staying exceeds the full cost of exiting by ' + F.fmtUsd(diff) + ', and the bands do not overlap.';
+  } else {
+    sum = 'The full cost of exiting exceeds the expected loss from staying by ' + F.fmtUsd(diff) + ', and the bands do not overlap.';
+  }
+  $('v-sum').textContent = sum;
+  const mx = Math.max(N.stay, N.exit, 1);
+  $('v-compare').innerHTML =
+    '<div><div class="t">If you STAY</div><div class="n">' + F.fmtUsd(N.stay) + '</div><div class="s">expected loss' + (N.lossBand ? ' · ' + F.fmtUsd(N.lossBand.low_usd) + '–' + F.fmtUsd(N.lossBand.high_usd) : '') + '</div><div class="bar2"><i style="width:' + (N.stay / mx * 100).toFixed(0) + '%;background:var(--warn)"></i></div></div>' +
+    '<div><div class="t">If you EXIT</div><div class="n">' + F.fmtUsd(N.exit) + '</div><div class="s">' + (N.carry != null ? 'execution ' + F.fmtUsd(N.exec) + ' plus carry ' + F.fmtUsd(N.carry) : 'execution only · carry not counted') + '</div><div class="bar2"><i style="width:' + (N.exit / mx * 100).toFixed(0) + '%;background:var(--accent)"></i></div></div>';
   $('signal').innerHTML = F.signalDetails(d);
-  $('k-pos').textContent = F.fmtUsd(d.position.value_usd);
-  countUp($('k-loss'), dec.expected_loss_usd);
-  const exitTotal = dec.exit_total_usd != null ? dec.exit_total_usd : dec.exit_cost_usd;
-  $('k-exit').title = 'execution ' + F.fmtUsd(dec.exit_cost_usd) + ' (' + ((d.exit && d.exit.basis) || dec.exit_method || '') + ')' +
-    (dec.carry_usd != null ? ' + carry forgone ' + F.fmtUsd(dec.carry_usd) : ' · carry not counted');
-  countUp($('k-exit'), exitTotal);
+  $('explain').textContent = dec.explanation;
+  $('m-loss').title = 'Expected loss over ' + d.position.horizon_days + ' days (probability-weighted)';
 
-  const nodes = Object.fromEntries(d.nodes.map((n) => [n.id, n]));
-  const top = Object.entries(d.node_contrib_usd || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 3);
-  const max = top.length ? top[0][1] : 1;
-  $('drivers').innerHTML = top.map(([id, v]) => {
-    const n = nodes[id] || { label: id, layer: 'protocol' };
-    const c = (F.LAYER_META[n.layer] || F.LAYER_META.protocol).color;
-    return '<div class="driver"><span class="name">' + F.esc(n.label) + '</span><span class="bar"><i style="width:' + (v / max * 100).toFixed(0) + '%;background:' + c + '"></i></span><span class="amt">' + F.fmtUsd(v) + '</span></div>';
+  // ---- exit runway (separate backend endpoint; honest not_connected until it exists)
+  F.exitRunway.load(d.position.id).then((st) => F.exitRunway.render($('runway'), st, {}));
+
+  // ---- breaking point
+  F.breakingPoint.render($('bp'), liq, {
+    scenarioHref: (name) => { const i = (d.scenarios || []).findIndex((s) => s.name === name); return xray(i >= 0 ? { scenario: i + 1 } : {}); },
+  });
+
+  // ---- drivers: each one opens the X-Ray with that dependency failed
+  const top = contrib.slice(0, 5), max = top.length ? top[0][1] : 1;
+  $('drivers').innerHTML = top.map(([id, val], idx) => {
+    const n = nodes[id], c = (F.LAYER_META[n.layer] || F.LAYER_META.protocol).color;
+    return '<button class="driver" data-id="' + F.esc(id) + '" title="Fail ' + F.esc(n.label) + ' in the X-Ray"><span class="name"><i class="ldot" style="background:' + c + '"></i>' + F.esc(n.label) + '</span><span class="bar"><i style="width:' + (val / max * 100).toFixed(0) + '%;background:' + (idx === 0 ? 'var(--exit)' : 'var(--muted)') + '"></i></span><span class="amt">' + F.fmtUsd(val) + '</span></button>';
   }).join('') || '<span class="muted">No risk drivers</span>';
+  $('drivers').addEventListener('click', (e) => { const b = e.target.closest('.driver'); if (b) location.href = xray({ fail: b.dataset.id }); });
 
-  $('scen').innerHTML = (d.scenarios || []).map((s) =>
-    '<tr><td><b>' + F.esc(s.name) + '</b></td><td class="muted">' + F.esc(s.description) + '</td><td class="num">' + F.fmtUsd(s.conditional_loss_usd != null ? s.conditional_loss_usd : s.expected_loss_usd) + '</td><td>' + F.verdictBadge(s.verdict) + '</td></tr>').join('');
+  // ---- scenarios
+  $('scen').innerHTML = (d.scenarios || []).map((s, i) =>
+    '<tr class="click" tabindex="0" data-i="' + (i + 1) + '"><td><b>' + F.esc(s.name) + '</b></td><td class="muted">' + F.esc(s.description) + '</td><td class="num">' + F.fmtUsd(s.conditional_loss_usd != null ? s.conditional_loss_usd : s.expected_loss_usd) +
+    '</td><td class="num">' + F.fmtUsd(s.exit_total_usd != null ? s.exit_total_usd : s.exit_cost_usd) + '</td><td>' + F.verdictBadge(s.verdict) + '</td></tr>').join('') || '<tr><td colspan="5" class="muted">No scenarios in this payload.</td></tr>';
+  const goScen = (tr) => { if (tr && tr.dataset.i) location.href = xray({ scenario: tr.dataset.i }); };
+  $('scen').addEventListener('click', (e) => goScen(e.target.closest('tr')));
+  $('scen').addEventListener('keydown', (e) => { if (e.key === 'Enter') goScen(e.target.closest('tr')); });
 
+  // ---- book
   const b = d.book;
-  if (b) {
+  if (b && b.pockets && b.pockets.length) {
+    const hit = b.pockets.filter((p) => p.affected).length;
+    $('book-sub').textContent = b.pockets.length + ' pockets · ' + hit + ' hit by "' + (b.scenario || 'the stress scenario') + '"';
     $('book-tot').innerHTML =
-      '<div class="kpi"><span class="label">Total loss if staying everywhere</span><span class="value">' + F.fmtUsd(b.total_stay_loss_usd) + '</span></div>' +
-      '<div class="kpi"><span class="label">Total with best action per pocket</span><span class="value" style="color:var(--stay)">' + F.fmtUsd(b.total_optimal_usd) + '</span></div>' +
-      '<div class="kpi"><span class="label">% of book</span><span class="value">' + F.fmtPct(b.pct_of_book, 2) + '</span></div>';
+      '<div class="kpi"><span class="label">Total loss if staying everywhere</span><span class="value sm">' + F.fmtUsd(b.total_stay_loss_usd) + '</span></div>' +
+      '<div class="kpi"><span class="label">Total with best action per pocket</span><span class="value sm" style="color:var(--stay)">' + F.fmtUsd(b.total_optimal_usd) + '</span></div>' +
+      '<div class="kpi"><span class="label">Share of book</span><span class="value sm">' + F.fmtPct(b.pct_of_book, 2) + '</span></div>';
     $('book').innerHTML = b.pockets.map((p) =>
       '<tr' + (p.affected ? ' class="hl"' : '') + '><td><b>' + F.esc(p.label) + '</b></td><td class="num">' + F.fmtUsd(p.value_usd) + '</td><td>' +
-      (p.affected ? '<span class="badge badge-exit">HIT</span>' : '<span class="muted">—</span>') + '</td><td class="num">' + F.fmtUsd(p.stay_loss_usd) +
-      '</td><td class="num">' + F.fmtUsd(p.exit_total_usd || p.exit_cost_usd) + '</td><td>' + F.verdictBadge(p.verdict) + '</td></tr>').join('');
+      (p.affected ? '<span class="badge badge-exit">HIT</span>' : '<span class="muted">not hit</span>') + '</td><td class="num">' + F.fmtUsd(p.stay_loss_usd) +
+      '</td><td class="num">' + F.fmtUsd(p.exit_total_usd != null ? p.exit_total_usd : p.exit_cost_usd) + '</td><td>' + F.verdictBadge(p.verdict) + '</td></tr>').join('');
+  } else {
+    $('book-h').hidden = true; $('book').closest('.card').hidden = true;
   }
 })();
+  // "How to read this" targets a closed <details>: open it.
+  const openHow = () => { if (location.hash === '#how') { const d = document.querySelector('#how + details'); if (d) d.open = true; } };
+  window.addEventListener('hashchange', openHow); openHow();
 </script>
 </body>
 </html>

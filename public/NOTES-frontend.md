@@ -17,3 +17,10 @@ Dashboard complete: verdict, KPIs, top 3 drivers, 5-layer strip, scenarios, book
 
 ## Left / ideas
 Favicon is the logo SVG; no OG image. No payload change requests.
+
+## v2 (10 Oct)
+- `api.js` is the single source of formatting (`fmtUsd`, `fmtPct`), provenance (`sourceInfo`/`sourceBadge`), decision numbers (`decisionNumbers`) and query propagation (`withQuery`). Pages must not re-implement them.
+- `breaking-point.js` renders `payload.liquidation` only (no client maths). `exit-runway.js` reads `GET /exit-cost/{position_id}`; `not_connected` until it exists; `?runway=demo` loads `data/exit-runway-demo.json` (labelled fixture).
+- Shared context via URL: `?fail=<node id>`, `?scenario=<n>` (1-based) replay the same situation on the X-Ray; the rest of the query string is carried across pages.
+- `assets/logos/manifest.json` must be regenerated when logos are added.
+- Fonts: IBM Plex Sans 400/600/700 and Mono 400/600 (OFL) in `assets/fonts/`, declared in `theme.css`.

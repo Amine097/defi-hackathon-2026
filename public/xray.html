@@ -3,33 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FaultLine · X-Ray</title>
+<title>FaultLine · Dependency X-Ray</title>
 <meta name="description" content="FaultLine X-Ray: see every dependency behind a DeFi position, simulate failures and get a STAY / EXIT call.">
-<link rel="icon" href="/assets/brand/logo.svg">
+<link rel="icon" href="/assets/brand/logo.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0b0d11">
 <link rel="stylesheet" href="/assets/css/theme.css">
 <link rel="stylesheet" href="/assets/css/xray.css">
 </head>
 <body class="xr">
 <header class="xr-top">
-  <a class="xr-brand" href="/" title="FaultLine dashboard">
-    <img src="/assets/brand/logo.svg" alt="" width="26" height="26" onerror="this.remove()">
-    <span>FaultLine</span><em>X-Ray</em>
-  </a>
   <div class="xr-posinfo" id="posInfo"><span class="xr-skel-line" style="width:220px"></span></div>
   <div class="xr-top-right">
     <label class="xr-src" title="Data source">
       <select id="srcSelect" aria-label="Data source">
-        <option value="">Live API</option>
-        <option value="sample">Sample (1 position)</option>
-        <option value="large">Demo book (10 pockets)</option>
+        <option value="">Live API (snapshot fallback)</option>
+        <option value="sample">Saved snapshot (1 position)</option>
+        <option value="large">Demo book (10 pockets, synthetic)</option>
       </select>
     </label>
-    <span class="xr-badge" id="dataBadge">loading…</span>
-    <nav class="xr-links" aria-label="Main">
-      <a href="/">Dashboard</a>
-      <a href="/xray.html" class="active" aria-current="page">X-Ray</a>
-      <a href="/vault.html">Vault analyzer</a>
-    </nav>
+    <span class="xr-badge" id="dataBadge">loading…</span><span class="xr-asof" id="asOf"></span>
   </div>
 </header>
 
@@ -49,8 +41,8 @@
         <button data-v="layers" title="Layered view: L1 chain at the bottom, positions at the top (L)">Layers</button>
       </div>
       <div class="xr-seg" id="clickSeg">
-        <button data-v="fail" class="on" title="Click a node to make it fail (Shift+click to add)">Click = Fail</button>
-        <button data-v="inspect" title="Click a node to inspect only">Inspect</button>
+        <button data-v="fail" class="on" title="Click a node to make it fail (Shift+click to add)">Fail a node</button>
+        <button data-v="inspect" title="Click a node to inspect only">Inspect a node</button>
       </div>
       <button class="xr-tb" id="fitBtn" title="Fit to view (F)">Fit</button>
       <button class="xr-tb xr-tb-reset" id="resetBtn" title="Reset simulation (R)">Reset</button>
@@ -59,7 +51,7 @@
 
     <div class="xr-guide" id="guide" hidden role="dialog" aria-modal="true" aria-labelledby="guideTitle">
       <div class="xr-guide-card">
-        <h2 id="guideTitle">How to read the X-Ray</h2>
+        <h2 id="guideTitle">How to read the X-Ray</h2><button class="xr-x xr-guide-x" id="guideX" aria-label="Close guide">×</button>
         <ol>
           <li><b>The graph is your position's hidden dependency stack.</b> The orange hexagon is the position. Each arrow <i>A → B</i> means "A depends on B". Colours are the 5 layers: chain, yield source, oracle, AMM market, lending.</li>
           <li><b>Make something fail.</b> Click any node (or a scenario on the right, e.g. "Oracle failure"). The red wave shows how the failure travels to the position, hop by hop.</li>
@@ -67,7 +59,7 @@
           <li><b>Stress-test it.</b> Use the Break-even sliders to see at which incident probability or exit cost the verdict flips.</li>
         </ol>
         <p class="xr-guide-note" id="guideNote"></p>
-        <button class="xr-btn xr-btn-red" id="guideGo">Got it, show me</button>
+        <button class="xr-btn xr-btn-primary" id="guideGo">Got it</button>
       </div>
     </div>
 
@@ -100,6 +92,8 @@
       <p class="xr-server" id="vServer" hidden></p>
     </section>
 
+    <section class="xr-card" id="runwayCard" aria-live="polite"></section>
+
     <section class="xr-card" id="simCard">
       <div class="xr-card-h"><h2>Failure simulator</h2><span class="xr-chip" id="simState">idle</span></div>
       <div class="xr-scen" id="scenarioBtns"></div>
@@ -121,6 +115,11 @@
       <label class="xr-range"><span>Exit execution cost (slippage + gas; carry added) <b id="beX">0%</b></span>
         <input type="range" id="exitSlider" min="0" max="20" step="0.1" value="2"></label>
       <p class="xr-be-out" id="beOut"></p>
+    </section>
+
+    <section class="xr-card" id="bpCard">
+      <div class="xr-card-h"><h2>Breaking point</h2><span class="xr-chip" id="bpChip">—</span></div>
+      <div id="bpBody"></div>
     </section>
 
     <section class="xr-card" id="bookCard">
@@ -145,6 +144,10 @@
     <p class="xr-foot">FaultLine · Know where it breaks before it does.</p>
   </aside>
 </main>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/shell.js"></script>
+<script src="/assets/js/breaking-point.js"></script>
+<script src="/assets/js/exit-runway.js"></script>
 <script type="module" src="/assets/js/xray.js"></script>
 </body>
 </html>

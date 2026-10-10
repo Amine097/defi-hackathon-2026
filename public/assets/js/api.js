@@ -5,7 +5,7 @@
     oracle:       { label: 'Oracle',           short: 'L3', color: 'var(--layer-oracle)',   hex: '#f1c40f' },
     amm:          { label: 'PT market / AMM',  short: 'L4', color: 'var(--layer-amm)',      hex: '#3498db' },
     lending:      { label: 'Lending market',   short: 'L5', color: 'var(--layer-lending)',  hex: '#b05cf0' },
-    protocol:     { label: 'Position',         short: 'P',  color: 'var(--layer-position)', hex: '#ff8a3d' },
+    protocol:     { label: 'Other protocol',   short: 'P',  color: 'var(--layer-protocol)', hex: '#ec6fb0' },
   };
 
   const valid = (d) => d && d.position && Array.isArray(d.nodes) && Array.isArray(d.edges) && d.decision;
@@ -25,16 +25,70 @@
     catch (_) { const d = await tryFetch('/data/sample.json'); d._snapshot = true; return { data: d, source: 'demo' }; }
   }
 
-  const fmtUsd = (n) => {
-    n = Number(n) || 0;
-    const a = Math.abs(n), s = n < 0 ? '-' : '';
+  // ---- formatting: the only implementation used by every page. A missing value is "—", never "$0".
+  const fmtUsd = (n, opts) => {
+    if (n == null || n === '' || !Number.isFinite(+n)) return '—';
+    n = +n;
+    const sign = opts && opts.sign && n > 0 ? '+' : '';
+    const s = n < 0 ? '−' : sign, a = Math.abs(n);
+    if (a >= 1e9) return s + '$' + (a / 1e9).toFixed(2) + 'B';
     if (a >= 1e6) return s + '$' + (a / 1e6).toFixed(2) + 'M';
     if (a >= 1e4) return s + '$' + (a / 1e3).toFixed(1) + 'k';
     return s + '$' + Math.round(a).toLocaleString('en-US');
   };
-  const fmtPct = (n, d = 1) => ((Number(n) || 0) * 100).toFixed(d) + '%';
+  const fmtPct = (n, d) => {
+    if (n == null || n === '' || !Number.isFinite(+n)) return '—';
+    const x = +n * 100;
+    const dd = d != null ? d : (Math.abs(x) >= 10 || x === 0 ? 0 : Math.abs(x) >= 1 ? 1 : 2);
+    return x.toFixed(dd) + '%';
+  };
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const verdictBadge = (v) => '<span class="badge badge-' + (v === 'EXIT' ? 'exit' : v === 'STAY' ? 'stay' : 'warn') + '">' + esc(v) + '</span>';
+
+  // ---- provenance: one label for every page. tone: ok | warn | bad
+  const SOURCE_LABEL = {
+    live: ['Live on-chain data', 'ok', 'Fetched now from Pendle, Morpho, DefiLlama and Ethereum RPC'],
+    cache: ['Real data (cached)', 'warn', 'Real API responses replayed from data/cache'],
+    mixed: ['Real data (part cached)', 'warn', 'Some API calls failed and were served from data/cache'],
+    mock: ['MOCK data', 'bad', 'Demo graph requested explicitly: numbers are not real'],
+    'mock-fallback': ['MOCK · live discovery failed', 'bad', 'Live discovery failed; showing the demo graph'],
+  };
+  const isoMin = (ts) => new Date(ts * 1000).toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
+
+  /** kind: payload.source, or 'demo' for a bundled file. explicit: the user picked the file (?data=). */
+  function sourceInfo(kind, data, explicit) {
+    const asOf = data && data.data_as_of ? isoMin(data.data_as_of) : '';
+    if (kind === 'demo') {
+      if (data && ['live', 'cache', 'mixed'].includes(data.source)) {
+        return { text: 'Real data snapshot · ' + (asOf ? asOf.slice(0, 10) : 'saved run'), tone: 'warn', asOf,
+          tip: 'Saved run of the real pipeline' + (explicit ? '' : ' (the live API did not answer)') + (asOf ? ' · as of ' + asOf : '') };
+      }
+      return explicit
+        ? { text: 'Demo data · synthetic', tone: 'bad', asOf: '', tip: 'Synthetic demo book requested explicitly: numbers are not real' }
+        : { text: 'MOCK · API offline', tone: 'bad', asOf: '', tip: 'API unreachable; bundled sample data, numbers are not real' };
+    }
+    const [text, tone, tip] = SOURCE_LABEL[kind] || ['Unknown source', 'bad', 'Payload did not say where its data came from'];
+    let t = tip;
+    if (asOf && kind !== 'live') t += ' · as of ' + asOf;
+    if (data && data.discovery_error) t += ' · error: ' + data.discovery_error;
+    return { text, tone, asOf, tip: t };
+  }
+  const TONE_BADGE = { ok: 'badge-stay', warn: 'badge-warn', bad: 'badge-exit' };
+  function sourceBadge(kind, data, explicit) {
+    const i = sourceInfo(kind, data, explicit);
+    return '<span class="badge ' + TONE_BADGE[i.tone] + '" title="' + esc(i.tip) + '">' + esc(i.text) + '</span>' +
+      (i.asOf ? ' <span class="muted fl-asof">as of ' + esc(i.asOf) + '</span>' : '');
+  }
+
+  // ---- verdict numbers on one basis: exit side = execution + carry forgone (same as the engine's decision)
+  function decisionNumbers(d) {
+    const dec = d.decision || {};
+    const exitTotal = dec.exit_total_usd != null ? +dec.exit_total_usd
+      : dec.exit_band && dec.exit_band.central_usd != null ? +dec.exit_band.central_usd : +dec.exit_cost_usd;
+    const carry = dec.carry && dec.carry.status === 'estimated' ? +dec.carry.usd : (dec.carry_usd != null ? +dec.carry_usd : null);
+    return { stay: +dec.expected_loss_usd, exit: exitTotal, exec: +dec.exit_cost_usd, carry,
+      lossBand: dec.loss_band || null, exitBand: dec.exit_band || null };
+  }
 
   // One line a portfolio manager can act on: bands, carry, quote status, data freshness, liquidation mode.
   function signalDetails(d) {
@@ -52,22 +106,14 @@
     return out.join(' · ');
   }
 
-  const SOURCE_LABEL = {
-    live: ['live on-chain data', 'badge-stay', 'Fetched now from Pendle, Morpho, DefiLlama and Ethereum RPC'],
-    cache: ['real data (cached)', 'badge-warn', 'Real API responses replayed from data/cache (see data_as_of)'],
-    mixed: ['real data (part cached)', 'badge-warn', 'Some API calls failed and were served from data/cache'],
-    mock: ['MOCK data', 'badge-exit', 'Demo graph requested explicitly; numbers are not real'],
-    'mock-fallback': ['MOCK (live failed)', 'badge-exit', 'Live discovery failed; showing the demo graph'],
-    demo: ['MOCK (API offline)', 'badge-exit', 'API unreachable; bundled sample data, numbers are not real'],
-  };
-
-  function sourceBadge(source, data) {
-    const [label, cls, tip] = SOURCE_LABEL[source] || ['unknown source', 'badge-exit', 'Payload did not say where its data came from'];
-    let title = tip;
-    if (data && data.data_as_of && source !== 'live') title += ' — as of ' + new Date(data.data_as_of * 1000).toISOString();
-    if (data && data.discovery_error) title += ' — error: ' + data.discovery_error;
-    return '<span class="badge ' + cls + '" title="' + esc(title) + '">' + esc(label) + '</span>';
+  // ---- shared context between pages: keep the query string (borrower, value_usd, ref, data…) and add to it.
+  function withQuery(path, extra) {
+    const q = new URLSearchParams(location.search);
+    for (const [k, v] of Object.entries(extra || {})) { if (v == null) q.delete(k); else q.set(k, v); }
+    const s = q.toString();
+    return path + (s ? '?' + s : '');
   }
 
-  window.FaultLine = { loadData, fmtUsd, fmtPct, esc, verdictBadge, sourceBadge, signalDetails, LAYER_META };
+  const F = (window.FaultLine = window.FaultLine || {});
+  Object.assign(F, { loadData, fmtUsd, fmtPct, esc, verdictBadge, sourceInfo, sourceBadge, signalDetails, decisionNumbers, withQuery, isoMin, LAYER_META });
 })();

@@ -1,0 +1,20 @@
+{
+  "demo": true,
+  "note": "REHEARSAL FIXTURE for the Exit Runway card (?runway=demo). Not produced by the risk engine; illustrative numbers only.",
+  "exit_cost_alone_pct": 0.004,
+  "exit_cost_alone_usd": 4000,
+  "exit_cost_stressed_pct": 0.038,
+  "exit_cost_stressed_usd": 38000,
+  "exit_cost_stressed_low_pct": 0.024,
+  "exit_cost_stressed_high_pct": 0.051,
+  "stress_scenario": "demo scenario",
+  "stuck_share": 0.18,
+  "exit_cost_trend": { "6h": 0.012 },
+  "time_left": { "status": "ok", "time_left_hours": { "low": 2, "central": 3.5, "high": 5 }, "binding_runway": "liquidity" },
+  "queue": { "holders_covered_by_liquidity": 6, "method": "scenario_largest_first" },
+  "shocks": { "forced_sellers": 3, "forced_selling_usd": 12000000, "scenario": "demo shock" },
+  "method": "demo fixture (no engine)",
+  "as_of": "demo",
+  "data_sources": ["demo fixture"],
+  "assumptions": ["Illustrative only"]
+}

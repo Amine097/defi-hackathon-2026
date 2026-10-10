@@ -55,40 +55,27 @@ function start({ payload, kind, url }) {
   const m = buildIndex(normalize(payload));
   S.m = m;
   const badge = $('dataBadge');
-  const LBL = {
-    live: ['Live on-chain data', 'xr-badge-live', `Fetched now from ${url}`],
-    cache: ['Real data (cached)', 'xr-badge-demo', 'Real API responses replayed from data/cache'],
-    mixed: ['Real data (part cached)', 'xr-badge-demo', 'Some API calls served from data/cache'],
-    mock: ['MOCK data', 'xr-badge-err', 'Demo graph requested explicitly: numbers are not real'],
-    'mock-fallback': ['MOCK · live discovery failed', 'xr-badge-err', `Live discovery failed: ${payload.discovery_error || ''}`],
-    demo: ['MOCK · demo data', 'xr-badge-err', `API unavailable or demo selected: showing ${url}`],
-  };
-  const [txt, cls, tip] = LBL[kind] || ['Unknown source', 'xr-badge-err', url];
-  badge.textContent = txt;
-  badge.className = `xr-badge ${cls}`;
-  badge.title = tip + (payload.data_as_of && kind !== 'live' ? ` (as of ${new Date(payload.data_as_of * 1000).toISOString()})` : '');
-  const wantedLive = !new URLSearchParams(location.search).get('data');
+  const FL = window.FaultLine;
+  const explicit = !!new URLSearchParams(location.search).get('data');
+  const info = FL.sourceInfo(kind, payload, explicit);
+  badge.textContent = info.text;
+  badge.className = `xr-badge ${{ ok: 'xr-badge-live', warn: 'xr-badge-demo', bad: 'xr-badge-err' }[info.tone]}`;
+  badge.title = info.tip + ` (${url})`;
+  $('asOf').textContent = info.asOf ? `as of ${info.asOf}` : '';
   const note = $('guideNote');
-  note.textContent = (kind === 'demo' || kind === 'mock-fallback') && wantedLive
-    ? 'Note: the live /api/analyze backend did not deliver real data, so you are seeing built-in MOCK data (same model, sample inputs).'
-    : '';
-  if (kind === 'demo' && ['live', 'cache', 'mixed'].includes(payload.source)) {
-    const when = payload.data_as_of ? new Date(payload.data_as_of * 1000).toISOString().slice(0, 10) : 'earlier';
-    badge.textContent = `Real data snapshot · ${when}`;
-    badge.className = 'xr-badge xr-badge-demo';
-    badge.title = `API unavailable: showing a saved run of the real pipeline (${url})`;
-    note.textContent = '';
-  } else if (kind === 'demo' && wantedLive) badge.textContent = 'MOCK · API offline';
+  note.textContent = info.tone === 'bad' && !explicit ? 'Note: the live /api/analyze backend did not deliver real data, so you are seeing built-in MOCK data (same model, sample inputs).' : '';
+  // The guide is on demand (never blocks the graph); the canvas hint and the simulator already say what to click.
   const guide = $('guide');
-  const closeGuide = () => { guide.hidden = true; try { localStorage.setItem('fl-guide', '1'); } catch (e) {} };
-  $('helpBtn').addEventListener('click', () => { guide.hidden = false; });
+  const closeGuide = () => { guide.hidden = true; $('helpBtn').focus(); };
+  $('helpBtn').addEventListener('click', () => { guide.hidden = false; $('guideGo').focus(); });
   $('guideGo').addEventListener('click', closeGuide);
+  $('guideX').addEventListener('click', closeGuide);
   guide.addEventListener('click', (e) => { if (e.target === guide) closeGuide(); });
-  let seen = false;
-  try { seen = !!localStorage.getItem('fl-guide'); } catch (e) {}
-  guide.hidden = seen;
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !guide.hidden) { e.stopPropagation(); closeGuide(); } }, true);
+  guide.hidden = !new URLSearchParams(location.search).has('guide');
 
   renderHeader(m);
+
   renderLegend(m);
   S.g = createGraph($('graph'), m, {
     tipEl: $('tip'),
@@ -112,6 +99,38 @@ function start({ payload, kind, url }) {
   baselineVerdict();
   renderBE();
   wireControls();
+  setSeg('layoutSeg', 'force'); setSeg('clickSeg', 'fail');
+  renderRunway(m);
+  renderBreakingPoint(payload);
+  applyUrlState();
+}
+
+// ---------- shared context: ?fail=<node id> and ?scenario=<n> replay the same situation the Overview showed
+function applyUrlState() {
+  const q = new URLSearchParams(location.search);
+  const fail = q.get('fail'), sc = parseInt(q.get('scenario'), 10);
+  if (sc >= 1 && S.m.scenarios[sc - 1]) runScenario(sc - 1);
+  else if (fail && S.m.byId.has(fail) && !S.m.byId.get(fail).isPos) { select(fail, { keepFocus: true }); failNodes([fail], false); S.g.centerOn(fail); }
+}
+
+// ---------- Exit Runway: values only from the backend endpoint (see assets/js/exit-runway.js)
+function renderRunway(m) {
+  const FL = window.FaultLine;
+  FL.exitRunway.render($('runwayCard'), { state: 'loading' });
+  FL.exitRunway.load(m.position.id).then((st) => FL.exitRunway.render($('runwayCard'), st, {
+    onFocusNode: (id) => { if (S.m.byId.has(id)) { select(id, { keepFocus: false }); S.g.centerOn(id); } },
+  }));
+}
+
+// ---------- Breaking Point: payload.liquidation rendered as-is; scenario markers replay the scenario on the graph
+function renderBreakingPoint(payload) {
+  const FL = window.FaultLine;
+  const v = FL.breakingPoint.render($('bpBody'), payload.liquidation, {
+    onScenario: (name) => { const i = S.m.scenarios.findIndex((x) => x.name === name); if (i >= 0) runScenario(i); },
+  });
+  const chip = $('bpChip');
+  chip.textContent = v.status === 'computed' && v.dist != null ? `−${(v.dist * 100).toFixed(1)}% → liquidation` : v.status === 'not_applicable' ? 'N/A · no debt' : 'not available';
+  if (v.status === 'computed' && v.dist != null && v.dist < 0.1) chip.classList.add('xr-chip-red');
 }
 
 // ---------- header + legend
@@ -190,7 +209,7 @@ function wireControls() {
 }
 
 function setSeg(id, v) {
-  for (const b of $(id).querySelectorAll('button')) b.classList.toggle('on', b.dataset.v === v);
+  for (const b of $(id).querySelectorAll('button')) { b.classList.toggle('on', b.dataset.v === v); b.setAttribute('aria-pressed', String(b.dataset.v === v)); }
 }
 
 // ---------- selection / focus
@@ -465,7 +484,7 @@ function renderScenarios(m) {
   const box = $('scenarioBtns');
   if (!m.scenarios.length) { box.innerHTML = '<p class="xr-note">No predefined scenarios in this payload: click any node to fail it.</p>'; return; }
   box.innerHTML = m.scenarios.map((s, i) => `<button class="xr-scbtn" title="${esc(s.description || '')} (key ${i + 1})">
-    <span>${esc(s.name)}</span><small class="${s.verdict === 'EXIT' ? 'xr-red' : 'xr-green'}">${usd(+(s.conditional_loss_usd != null ? s.conditional_loss_usd : s.expected_loss_usd))} if it happens · ${esc(s.verdict || '')}</small></button>`).join('');
+    <span>${esc(s.name)}</span><small class="${s.verdict === 'EXIT' ? 'xr-red' : s.verdict === 'REVIEW' ? 'xr-warn' : 'xr-green'}">${usd(+(s.conditional_loss_usd != null ? s.conditional_loss_usd : s.expected_loss_usd))} if it happens · ${esc(s.verdict || '')}</small></button>`).join('');
   [...box.children].forEach((b, i) => b.addEventListener('click', () => runScenario(i)));
 }
 
