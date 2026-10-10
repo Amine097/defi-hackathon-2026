@@ -2,9 +2,9 @@
  "schema": "faultline.phase2.evidence/1",
  "phase": "Phase 2 - Autonomous Countermove (+ P0 vault fixes)",
  "spec": "docs/FAULTLINE_Countermove_v3_Autonomous_Crisis_Response.md",
- "generated_at": "2026-10-10T21:20:48+00:00",
+ "generated_at": "2026-10-10T23:31:40+00:00",
  "collector": "scripts/collect_phase2_evidence.py --live --fork",
- "scope": "local Anvil fork (chain id 31337) + read-only mainnet eth_call; no mainnet transaction, no real funds, no personal key (keeper key derived from the public Anvil test mnemonic)",
+ "scope": "local Anvil fork (chain id 31337) + read-only mainnet eth_call; no mainnet transaction, no real funds, no personal key (keeper key derived from the public Anvil test mnemonic, used from an encrypted keystore)",
  "status_labels": {
   "LIVE": "read now on Ethereum mainnet (read-only)",
   "SIMULATED": "local fork state or controlled shock",
@@ -13,9 +13,9 @@
   "NO ACTION": "nothing sent, with the reason"
  },
  "git": {
-  "head": "88da12ad1bc9e1366363003c6ed0908aaa01a4a2",
-  "branch": "main",
-  "working_tree_changes": 42,
+  "head": "111e062d1b16ff482ef1ce6f558d227981911778",
+  "branch": "b10taj-countermove-s5-and-signer",
+  "working_tree_changes": 23,
   "note": "evidence collected on the working tree (Phase 2 changes not committed at collection time)"
  },
  "environment": {
@@ -67,11 +67,11 @@
   "pytest_offline": {
    "command": "python -m pytest -q -p no:cacheprovider ",
    "exit_code": 0,
-   "seconds": 74.9,
-   "passed": 207,
+   "seconds": 91.4,
+   "passed": 209,
    "failed": 0,
    "skipped": 16,
-   "summary_line": "207 passed, 16 skipped in 74.24s (0:01:14)",
+   "summary_line": "209 passed, 16 skipped in 90.55s (0:01:30)",
    "failed_tests": [],
    "by_file": {
     "tests/test_api_payload.py": {
@@ -85,12 +85,12 @@
      "skipped": 1
     },
     "tests/test_countermove_api.py": {
-     "passed": 6,
+     "passed": 7,
      "failed": 0,
      "skipped": 1
     },
     "tests/test_countermove_e2e.py": {
-     "passed": 16,
+     "passed": 17,
      "failed": 0,
      "skipped": 0
     },
@@ -149,21 +149,21 @@
   "node": {
    "command": "node --test tests/js/countermove_view.test.mjs tests/js/decision_view.test.mjs tests/js/vault_view.test.mjs",
    "exit_code": 0,
-   "seconds": 0.3,
+   "seconds": 0.4,
    "files": [
     "tests/js/countermove_view.test.mjs",
     "tests/js/decision_view.test.mjs",
     "tests/js/vault_view.test.mjs"
    ],
-   "tests": 27,
-   "passed": 27,
+   "tests": 33,
+   "passed": 33,
    "failed": 0,
    "skipped": 0
   },
   "forge": {
    "command": "cd contracts; forge test --json",
    "exit_code": 0,
-   "seconds": 2.4,
+   "seconds": 3.2,
    "passed": 29,
    "failed": 0,
    "skipped": 1,
@@ -307,7 +307,7 @@
       "status": "passed",
       "invariant_runs": 64,
       "invariant_calls": 4096,
-      "invariant_reverts": 1263,
+      "invariant_reverts": 1262,
       "invariants": [
        {
         "name": "invariant_capsNeverExceeded",
@@ -333,15 +333,15 @@
        },
        "keeperFullRepay": {
         "calls": 458,
-        "reverts": 454
+        "reverts": 453
        },
        "keeperRepay": {
         "calls": 472,
-        "reverts": 423
+        "reverts": 424
        },
        "keeperTopUp": {
         "calls": 439,
-        "reverts": 386
+        "reverts": 385
        },
        "movePrice": {
         "calls": 437,
@@ -393,11 +393,11 @@
   "pytest_live": {
    "command": "python -m pytest -q -p no:cacheprovider tests/test_vault_live.py tests/test_countermove_api.py tests/test_compliance.py tests/test_vault.py tests/test_hardening.py (DEFIRISK_LIVE_TESTS=1)",
    "exit_code": 0,
-   "seconds": 190.0,
-   "passed": 133,
+   "seconds": 165.2,
+   "passed": 134,
    "failed": 0,
    "skipped": 0,
-   "summary_line": "133 passed in 189.41s (0:03:09)",
+   "summary_line": "134 passed in 164.33s (0:02:44)",
    "failed_tests": [],
    "by_file": {
     "tests/test_compliance.py": {
@@ -406,7 +406,7 @@
      "skipped": 0
     },
     "tests/test_countermove_api.py": {
-     "passed": 7,
+     "passed": 8,
      "failed": 0,
      "skipped": 0
     },
@@ -430,7 +430,7 @@
   "forge_fork": {
    "command": "cd contracts; forge test --json --match-contract Fork --fork-url $env:FORK_RPC_URL --fork-block-number 26164248 --compute-units-per-second 40 --fork-retries 10 --fork-retry-backoff 1500",
    "exit_code": 0,
-   "seconds": 8.8,
+   "seconds": 10.3,
    "passed": 1,
    "failed": 0,
    "skipped": 0,
@@ -464,19 +464,19 @@
   },
   "live": {
    "status": "LIVE",
-   "as_of_block": 26164685,
+   "as_of_block": 26165337,
    "mode": "live",
-   "elapsed_s": 11.0,
+   "elapsed_s": 15.1,
    "withdrawal_feasibility": "full_via_force_deallocate",
    "executable_route": "force_deallocate",
    "comparison_basis": {
     "kind": "full_position",
     "fraction": 1.0,
-    "assets": 893633.9352485004,
+    "assets": 893638.8515231907,
     "usd": 1000000.0,
     "route": "force_deallocate",
-    "position_expected_loss_usd": 631.6417673517539,
-    "position_carry_usd": 2150.566100254813,
+    "position_expected_loss_usd": 632.4757665837622,
+    "position_carry_usd": 2151.8634522772836,
     "residual_expected_loss_usd": 0.0,
     "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
     "why": "the whole position is executable now by a simulated route"
@@ -485,26 +485,26 @@
    "blocked_or_deferred_usd": 0.0,
    "ordinary_route": {
     "status": "simulated_partial",
-    "capacity_usd": 404800.31713900703,
+    "capacity_usd": 404798.09016605216,
     "gas": {
-     "gas_usd": 0.06100367142959222,
-     "gas_why": "389,054 gas x 0.063 gwei (eth_gasPrice) x ETH $2,506 (DefiLlama)",
+     "gas_usd": 0.06026463546311641,
+     "gas_why": "389,054 gas x 0.062 gwei (eth_gasPrice) x ETH $2,505 (DefiLlama)",
      "gas_units": 389054
     }
    },
    "force_deallocate_route": {
     "status": "simulated",
-    "capacity_usd": 1154509.0187919054,
+    "capacity_usd": 1154505.899452165,
     "penalty_usd": 0.0,
     "gas": {
-     "gas_usd": 0.10148473023628184,
-     "gas_why": "647,224 gas x 0.063 gwei (eth_gasPrice) x ETH $2,506 (DefiLlama)",
-     "gas_units": 647224
+     "gas_usd": 0.10024132499060348,
+     "gas_why": "647,212 gas x 0.062 gwei (eth_gasPrice) x ETH $2,505 (DefiLlama)",
+     "gas_units": 647212
     }
    },
    "force_plan": {
-    "need_assets": 531890.6348537286,
-    "deallocated_assets": 532422.5254885823,
+    "need_assets": 531895.5511284189,
+    "deallocated_assets": 532427.4466795473,
     "covers_full": true,
     "rule": "cover (amount - ordinary capacity) x (1 + 0.1%); cheapest penalty first, then deepest free liquidity; <= 99.9% of each market's free liquidity",
     "steps": [
@@ -512,8 +512,8 @@
       "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
       "market": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
       "collateral": "WBTC",
-      "assets": 455099.930446539,
-      "assets_raw": "455099930446539005669919",
+      "assets": 455101.8957198326,
+      "assets_raw": "455101895719832638895691",
       "penalty_rate": 0.0,
       "penalty_assets": 0.0,
       "penalty_usd": 0.0
@@ -522,8 +522,8 @@
       "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
       "market": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
       "collateral": "cbBTC",
-      "assets": 77322.59504204331,
-      "assets_raw": "77322595042043305775367",
+      "assets": 77325.5509597147,
+      "assets_raw": "77325550959714703559899",
       "penalty_rate": 0.0,
       "penalty_assets": 0.0,
       "penalty_usd": 0.0
@@ -535,15 +535,15 @@
    },
    "verdict": "REVIEW",
    "point_verdict": "STAY",
-   "expected_loss_usd": 631.64,
-   "exit_side_usd": 2150.67
+   "expected_loss_usd": 632.48,
+   "exit_side_usd": 2151.96
   }
  },
  "fork_demo": {
   "source": "data/countermove/demo/latest/summary.json",
   "label": "SIMULATED environment (local Anvil fork); CONFIRMED = mined on that fork and verified",
-  "generated_at": "2026-10-10T20:53:40+00:00",
-  "duration_s": 83.7,
+  "generated_at": "2026-10-10T23:20:47+00:00",
+  "duration_s": 102.0,
   "environment": {
    "kind": "local Anvil fork of Ethereum mainnet (SIMULATED environment)",
    "fork_rpc": "https://eth-mainnet.public.blastapi.io",
@@ -554,13 +554,15 @@
    "morpho_blue": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
    "markets": {
     "weETH/USDC": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
-    "cbBTC/USDC": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64"
+    "cbBTC/USDC": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+    "PT-reUSD-10DEC2026/USDC": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64"
    },
    "keeper": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
    "notes": [
     "real Morpho Blue, markets, oracles, IRMs and liquidity at the pinned block",
     "test funds written into local storage (not real tokens)",
     "price crises are SIMULATED controlled shocks of one real feed each",
+    "keeper key used from an encrypted keystore created for the run (never on a command line)",
     "no transaction was sent to Ethereum mainnet"
    ]
   },
@@ -569,7 +571,7 @@
    {
     "tag": "pre_crisis",
     "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_pre_crisis.json --journal-dir data/countermove/demo/latest --interval 1 --once",
-    "seconds": 3.4,
+    "seconds": 3.5,
     "results": [
      [
       "S1-weETH-repay",
@@ -596,7 +598,7 @@
    {
     "tag": "phase_A_weETH",
     "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_phase_A_weETH.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6",
-    "seconds": 3.7,
+    "seconds": 3.8,
     "results": [
      [
       "S1-weETH-repay",
@@ -613,7 +615,7 @@
    {
     "tag": "phase_B_cbBTC",
     "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_phase_B_cbBTC.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6",
-    "seconds": 5.5,
+    "seconds": 7.2,
     "results": [
      [
       "S2-cbBTC-topup",
@@ -628,9 +630,33 @@
     ]
    },
    {
+    "tag": "pre_crisis_S5",
+    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_pre_crisis_S5.json --journal-dir data/countermove/demo/latest --interval 1 --once",
+    "seconds": 1.8,
+    "results": [
+     [
+      "S5-PT-reUSD-repay",
+      "WATCHING",
+      null
+     ]
+    ]
+   },
+   {
+    "tag": "phase_C_PT",
+    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_phase_C_PT.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6",
+    "seconds": 3.0,
+    "results": [
+     [
+      "S5-PT-reUSD-repay",
+      "CONFIRMED",
+      "0xbc1651a0b309396e319a49c5addb5a05b704cf444f18960cb6ecc8760eb69ba8"
+     ]
+    ]
+   },
+   {
     "tag": "post_crisis",
     "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_post_crisis.json --journal-dir data/countermove/demo/latest --interval 1 --once",
-    "seconds": 2.7,
+    "seconds": 3.3,
     "results": [
      [
       "S1-weETH-repay",
@@ -650,6 +676,11 @@
      [
       "S4-cbBTC-full-repay",
       "WATCHING",
+      null
+     ],
+     [
+      "S5-PT-reUSD-repay",
+      "NO_ACTION",
       null
      ]
     ]
@@ -764,12 +795,12 @@
       "action_id": "0xef95b0054d471eee8f02630e384cde709d020732c2f6b3783f50541503ae324d",
       "strategy": "REPAY",
       "assets": 1086501385,
-      "debt_before": 20838102032,
-      "debt_after": 19751600647,
+      "debt_before": 20838102066,
+      "debt_after": 19751600681,
       "collateral_before": 10000000000000000000,
       "collateral_after": 10000000000000000000,
-      "ltv_before": 824175905239658194,
-      "ltv_after": 781203264969858531,
+      "ltv_before": 824175906584405462,
+      "ltv_after": 781203266314605799,
       "policy_nonce": 1,
       "tx_hash": "0x4b9254ebda91ddc69a362ebf2b8d88ddb19320f55f507b46b62974b3a51387e2",
       "block": 26164285
@@ -778,16 +809,16 @@
       "debt": 20838101931,
       "collateral": 10000000000000000000,
       "price": 2528356131224980293957600000,
-      "ltv": 824175905239658194,
+      "ltv": 824175906584405462,
       "buffer": 905760797,
       "reserve": 5000000000
      },
      "after": {
-      "debt": 19751600647,
+      "debt": 19751600681,
       "collateral": 10000000000000000000,
       "price": 2528356131224980293957600000,
-      "ltv": 781203264969858531,
-      "buffer": 1992262081,
+      "ltv": 781203266314605799,
+      "buffer": 1992262047,
       "reserve": 3913498615
      },
      "remaining_limits": {
@@ -995,7 +1026,7 @@
      "shock_bps": 900,
      "label": "SIMULATED controlled shock on a local fork (anvil_setCode); not a mainnet event"
     },
-    "ltv_at_detection": 824175908093225812,
+    "ltv_at_detection": 824175929352098065,
     "trigger_ltv": 820000000000000000,
     "decision": "NO_ACTION",
     "chosen": null,
@@ -1003,7 +1034,7 @@
      {
       "strategy": "REPAY",
       "status": "rejected",
-      "required": 584.578966,
+      "required": 584.579181,
       "token": "USDC",
       "rejected_at": "feasibility",
       "reason": "reserve holds 150.00 USDC < required 584.58 USDC (funds must be pre-deposited in the RescueVault)"
@@ -1011,7 +1042,7 @@
      {
       "strategy": "TOP_UP",
       "status": "rejected",
-      "required": 0.29226657293084624,
+      "required": 0.2922666808373566,
       "token": "weETH",
       "rejected_at": "feasibility",
       "reason": "reserve holds 0.010000 weETH < required 0.292267 weETH (funds must be pre-deposited in the RescueVault)"
@@ -1019,7 +1050,7 @@
      {
       "strategy": "FULL_REPAY",
       "status": "rejected",
-      "required": 8335.240841,
+      "required": 8335.241056,
       "token": "USDC",
       "rejected_at": "security",
       "reason": "needs 8,335.24 USDC > per-action cap 0.00 USDC"
@@ -1103,9 +1134,9 @@
     "user_nonce_unchanged": true,
     "user_signed_during_crisis": false,
     "end_vault": {
-     "loan_reserve": 2329594792,
+     "loan_reserve": 2329594763,
      "collateral_reserve": 0,
-     "repaid_total": 18670405208,
+     "repaid_total": 18670405237,
      "topped_up_total": 0,
      "action_count": 1,
      "policy_nonce": 1,
@@ -1143,12 +1174,12 @@
      "event": {
       "action_id": "0x6c8ab02dccea5335deda431d50bb715d073fa3fa14fdc9214ef82c9c3e1eff3a",
       "strategy": "FULL_REPAY",
-      "assets": 18670405208,
-      "debt_before": 18670405208,
+      "assets": 18670405237,
+      "debt_before": 18670405237,
       "debt_after": 0,
       "collateral_before": 30000000,
       "collateral_after": 30000000,
-      "ltv_before": 824175889579907318,
+      "ltv_before": 824175890860067043,
       "ltv_after": 0,
       "policy_nonce": 1,
       "tx_hash": "0xeea9ca52ce4919469bfb9ceaa7ad4209694eb37da986410ea77b765effa6aee5",
@@ -1158,7 +1189,7 @@
       "debt": 18670405120,
       "collateral": 30000000,
       "price": 755114106268600000000000000000000000000,
-      "ltv": 824175889579907318,
+      "ltv": 824175890860067043,
       "buffer": 811538821,
       "reserve": 21000000000
      },
@@ -1168,10 +1199,10 @@
       "price": 755114106268600000000000000000000000000,
       "ltv": 0,
       "buffer": 19481943941,
-      "reserve": 2329594792
+      "reserve": 2329594763
      },
      "remaining_limits": {
-      "repaid_total": 18670405208,
+      "repaid_total": 18670405237,
       "topped_up_total": 0,
       "policy": {
        "allowed_strategies": 4,
@@ -1187,8 +1218,169 @@
        "min_loan_reserve": 100000000,
        "min_collateral_reserve": 0
       },
-      "loan_reserve": 2329594792,
+      "loan_reserve": 2329594763,
       "collateral_reserve": 0,
+      "paused": false,
+      "revoked": false,
+      "action_count": 1
+     }
+    }
+   },
+   {
+    "scenario": "S5",
+    "label": "S5 | user E | PT-reUSD/USDC | USDC + PT reserves, PT oracle incident",
+    "user": "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+    "rescue_vault": "0xff16306a25d9fe12fb88978e3fcfc02b6cde3c9d",
+    "market_id": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64",
+    "expected_final_state": "CONFIRMED",
+    "final_state": "CONFIRMED",
+    "states": [
+     "WATCHING",
+     "DETECTED",
+     "PLANNING",
+     "VALIDATING",
+     "EXECUTING",
+     "CONFIRMED",
+     "DETECTED",
+     "PLANNING",
+     "NO_ACTION"
+    ],
+    "simulated_shock": {
+     "original_description": "Ojo PT Feed Pendle Chainlink-compatible Oracle",
+     "shock_bps": 500,
+     "label": "SIMULATED controlled shock on a local fork (anvil_setCode); not a mainnet event"
+    },
+    "ltv_at_detection": 863699921302618806,
+    "trigger_ltv": 880000000000000000,
+    "decision": "NO_ACTION",
+    "chosen": {
+     "strategy": "REPAY",
+     "amount": 1447.437536,
+     "token": "USDC",
+     "amount_raw": 1447437536,
+     "keeper_bound": 865699916756773689,
+     "bound_kind": "maxLtvAfter (WAD)"
+    },
+    "candidates": [
+     {
+      "strategy": "REPAY",
+      "status": "rejected",
+      "required": 0.000122,
+      "token": "USDC",
+      "rejected_at": "security",
+      "reason": "cooldown active until 1791665662 (now 1791662062)"
+     },
+     {
+      "strategy": "TOP_UP",
+      "status": "rejected",
+      "required": 0.000148,
+      "token": "PT-reUSD-10DEC2026",
+      "rejected_at": "security",
+      "reason": "cooldown active until 1791665662 (now 1791662062)"
+     },
+     {
+      "strategy": "FULL_REPAY",
+      "status": "rejected",
+      "required": 40279.503281,
+      "token": "USDC",
+      "rejected_at": "security",
+      "reason": "cooldown active until 1791665662 (now 1791662062)"
+     }
+    ],
+    "why": "scenario breach detected (PT feed -5% follow-on: buffer 250.00 USDC) but on-chain LTV 86.37% is below the trigger 88.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve): ALERT only",
+    "no_action_reason": "scenario breach detected (PT feed -5% follow-on: buffer 250.00 USDC) but on-chain LTV 86.37% is below the trigger 88.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve): ALERT only",
+    "user_nonce_unchanged": true,
+    "user_signed_during_crisis": false,
+    "end_vault": {
+     "loan_reserve": 1552562464,
+     "collateral_reserve": 5000000000,
+     "repaid_total": 1447437536,
+     "topped_up_total": 0,
+     "action_count": 1,
+     "policy_nonce": 1,
+     "paused": false
+    },
+    "execution": {
+     "tx_hash": "0xbc1651a0b309396e319a49c5addb5a05b704cf444f18960cb6ecc8760eb69ba8",
+     "block": 26164299,
+     "from": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+     "to": "0xff16306a25d9fe12fb88978e3fcfc02b6cde3c9d",
+     "status": 1,
+     "gas_used": 277657,
+     "signed_by": "keeper (anvil test account #1) - no user signature",
+     "action_id": "0x8a182e5ec5a57ab656f18a46e11a41d7f4ea527a44e8c94158aacadd9e7162d9",
+     "signer_is_keeper": true
+    },
+    "verification": {
+     "verified": true,
+     "checks_passed": 15,
+     "checks_total": 15,
+     "checks": [
+      "receipt status = 1 (mined, not reverted)",
+      "RescueExecuted event emitted by the vault",
+      "event action id = planned action id",
+      "event strategy = planned strategy",
+      "reserve decreased by exactly the event amount",
+      "Morpho Repay event on behalf of the beneficiary",
+      "event amount = planned amount",
+      "debt decreased by the repaid amount (+-2 wei share rounding)",
+      "collateral unchanged",
+      "re-read debt = event debt after (+-1)",
+      "repaidTotal increased by the amount",
+      "LTV improved (event)",
+      "LTV after <= keeper bound",
+      "liquidation buffer increased",
+      "vault holds no Morpho position of its own"
+     ],
+     "event": {
+      "action_id": "0x8a182e5ec5a57ab656f18a46e11a41d7f4ea527a44e8c94158aacadd9e7162d9",
+      "strategy": "REPAY",
+      "assets": 1447437536,
+      "debt_before": 41726940817,
+      "debt_after": 40279503281,
+      "collateral_before": 50000000000,
+      "collateral_after": 50000000000,
+      "ltv_before": 894736840432735238,
+      "ltv_after": 863699921302618806,
+      "policy_nonce": 1,
+      "tx_hash": "0xbc1651a0b309396e319a49c5addb5a05b704cf444f18960cb6ecc8760eb69ba8",
+      "block": 26164299
+     },
+     "before": {
+      "debt": 41726940605,
+      "collateral": 50000000000,
+      "price": 932719855319088195000000000000000000,
+      "ltv": 894736840432735238,
+      "buffer": 944992774,
+      "reserve": 3000000000
+     },
+     "after": {
+      "debt": 40279503281,
+      "collateral": 50000000000,
+      "price": 932719855319088195000000000000000000,
+      "ltv": 863699921302618806,
+      "buffer": 2392430098,
+      "reserve": 1552562464
+     },
+     "remaining_limits": {
+      "repaid_total": 1447437536,
+      "topped_up_total": 0,
+      "policy": {
+       "allowed_strategies": 3,
+       "valid_until": 1794254057,
+       "cooldown": 3600,
+       "trigger_ltv": 880000000000000000,
+       "min_ltv_after": 400000000000000000,
+       "max_repay_per_action": 2500000000,
+       "max_top_up_per_action": 2500000000,
+       "max_full_repay": 0,
+       "max_repay_total": 30000000000,
+       "max_top_up_total": 5000000000,
+       "min_loan_reserve": 100000000,
+       "min_collateral_reserve": 100000000
+      },
+      "loan_reserve": 1552562464,
+      "collateral_reserve": 5000000000,
       "paused": false,
       "revoked": false,
       "action_count": 1
@@ -1240,7 +1432,7 @@
    "triage": "docs/FAULTLINE_PHASE2_SECURITY_REPORT.md section 6"
   },
   "secrets_scan": {
-   "files_scanned": 400,
+   "files_scanned": 199,
    "excluded": [
     ".git/",
     ".venv/",
@@ -1293,9 +1485,14 @@
    "evidence": "S2"
   },
   {
+   "criterion": "PT collateral, incident on the PT oracle (Belem brief example) -> automatic rescue",
+   "status": "PASS",
+   "evidence": "S5"
+  },
+  {
    "criterion": "Comparator chooses by justified rules",
    "status": "PASS",
-   "evidence": "S1-S4 decisions; every rejected candidate has a stage and a reason; engine tests"
+   "evidence": "S1-S5 decisions; every rejected candidate has a stage and a reason; engine tests"
   },
   {
    "criterion": "No extra user signature at trigger time",
@@ -1325,7 +1522,7 @@
   {
    "criterion": "Security and regression tests pass",
    "status": "PASS",
-   "evidence": "pytest_offline: 207 passed / 0 failed / 16 skipped, node: 27 passed / 0 failed / 0 skipped, forge: 29 passed / 0 failed / 1 skipped, pytest_live: 133 passed / 0 failed / 0 skipped, forge_fork: 1 passed / 0 failed / 0 skipped"
+   "evidence": "pytest_offline: 209 passed / 0 failed / 16 skipped, node: 33 passed / 0 failed / 0 skipped, forge: 29 passed / 0 failed / 1 skipped, pytest_live: 134 passed / 0 failed / 0 skipped, forge_fork: 1 passed / 0 failed / 0 skipped"
   },
   {
    "criterion": "Frontend shows real simulation and transaction results",
@@ -1344,5 +1541,5 @@
   }
  ],
  "verdict": "GO - prototype validated on a local test environment (not an authorization to manage real funds)",
- "collection_seconds": 290.3
+ "collection_seconds": 289.1
 }

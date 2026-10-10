@@ -15,7 +15,8 @@
 | Test-only simulation contracts | `contracts/src/sim/ShockFeed.sol`, `contracts/src/sim/LocalSim.sol` | No — **local chains only**, never deploy |
 
 Trusted, out of scope: Morpho Blue v1 (`0xBBBB…EFFCb`, immutable, audited), the market's oracle (the vault reads the
-same oracle Morpho liquidates with), the ERC-20 tokens of the market chosen by the owner, Foundry `cast` for signing.
+same oracle Morpho liquidates with), the ERC-20 tokens of the market chosen by the owner, Foundry `cast` for signing
+(including keystore decryption).
 
 ## 2. Actors and the security model
 
@@ -84,10 +85,10 @@ Policy validation in `setPolicy`: strategies non-empty and known; `0 < triggerLt
 | T16 | Liquidator acts first | Pre-flight re-reads the position: reverts (`NoDebt`, `NotAtRisk`, `NoImprovement`) or acts on the remaining position | — | Residual risk: rescue can come too late |
 | T17 | MEV / sandwich | No swap, no price-dependent output: nothing to extract from the rescue itself | — | — |
 | T18 | Gas spike | — | Gas-unit cap, fee cap and keeper balance checked before signing ⇒ `NO_ACTION` with the reason | e2e `test_e2e_gas_cap_and_watch_only` |
-| T19 | Accidental use against mainnet | — | `assert_local`: loopback URL **and** chain id ∈ {31337, 1337} before any signature; transactions are signed for chain 31337 (EIP-155 / EIP-1559 chain binding: not replayable on mainnet) | `test_chain_guard_refuses_non_local` (incl. a fork that kept chain id 1) |
+| T19 | Accidental use against mainnet | — | `assert_local`: loopback URL **and** chain id ∈ {31337, 1337} before the keystore is even unlocked; the signer itself refuses any chain id other than 31337 before invoking `cast`; transactions are signed for chain 31337 (EIP-155 / EIP-1559 chain binding: not replayable on mainnet) | `test_chain_guard_refuses_non_local` (incl. a fork that kept chain id 1), `test_signer_keeps_the_key_off_command_lines_and_refuses_other_chains` (1, 1337, 8453 refused) |
 | T20 | RPC down / inconsistent | — | RPC errors keep the position in WATCHING with `rpc_error`; pre-send failures are `NO_ACTION` | e2e `test_e2e_rpc_down_is_handled` |
 | T21 | UI shows a success that did not happen | — | View-model refuses CONFIRMED without a 32-byte tx hash, `verified = true` and all checks passing; flags contradictory payloads | Node `countermove_view.test.mjs` |
-| T22 | Secret leakage | — | Keeper key only from an environment variable, derived at run time from the **public** Anvil mnemonic; `CastSigner.__repr__` hides it; `cast` errors mask it; no key in the repository | Evidence `secrets_scan` (§8) |
+| T22 | Secret leakage | — | Keeper key never on a command line nor in the keeper's environment: `cast mktx --keystore <file> --password-file <file>` decrypts an encrypted keystore inside `cast`; process arguments carry only the two paths; a plaintext `FAULTLINE_KEEPER_KEY` is refused; the demo keystore holds the **public** Anvil test account #1, is created per run in a temporary folder outside the repository (password from `secrets`, passed to `cast wallet import` through its environment) and deleted afterwards; `KeystoreSigner.__repr__` shows only the address; no key in the repository | e2e `test_signer_keeps_the_key_off_command_lines_and_refuses_other_chains`; evidence `secrets_scan` (§8) |
 
 ## 5. Off-chain guards summary
 
@@ -144,15 +145,23 @@ final state), `unused-return` 1 + 1, `uninitialized-state` 5 and `unsafe-typecas
    user's own wallet key — no worse than a wallet compromise).
 7. **Token coverage.** Standard ERC-20s (6 / 8 / 18 decimals), fee-on-transfer, false-returning and hook tokens are
    tested; rebasing tokens are refused by the delta checks (fail closed) rather than supported.
-8. **Signer.** `cast mktx --private-key` passes the key as a process argument: acceptable only for the public Anvil
-   test key on a local machine. A real deployment needs a hardware / remote signer and a hardened host.
+8. **Signer.** *Hardened:* the key no longer appears in process arguments (it used to be passed to
+   `cast mktx --private-key`). The keeper signs with `cast mktx --keystore <file> --password-file <file>` from an
+   encrypted Web3 Secret Storage keystore; only the two paths are visible on the command line, a plaintext key variable
+   is refused, and the signer refuses any chain id other than 31337. Remaining: it is still a hot key — anyone who can
+   read both files as the operator's user (or the keeper's memory / a `cast` process while it signs) can sign; the
+   password file is protected only by file-system permissions. In-process signing (`eth_account`) was not chosen: it is
+   absent from the environment and would add ~20 packages (pydantic, ckzg, py-ecc…) for no reduction of this residual
+   risk. A real deployment needs a hardware / remote signer (cast supports Ledger, Trezor, AWS / GCP KMS) and a hardened host.
 9. **Scope.** DELEVERAGE + SELL, refinancing and hedging were deliberately not built; collateral is never sold, so FULL
    REPAY removes the borrowing liquidation risk, not the price exposure.
 
 ## 8. Secrets and environment hygiene
 
 - No private key, mnemonic other than the public Anvil test mnemonic, API key or `.env` file is stored in the repository.
-  The keeper key is derived at run time (`signer.anvil_test_key(1)`) and passed through `FAULTLINE_KEEPER_KEY`.
+  The keeper key is never stored: each demo run creates an encrypted keystore of public Anvil account #1 in a temporary
+  folder outside the repository (`signer.import_test_keystore`) and deletes it at the end; the keeper process receives
+  only `FAULTLINE_KEEPER_KEYSTORE` and `FAULTLINE_KEEPER_PASSWORD_FILE` (paths).
 - The journal stores signed raw transactions (chain id 31337) and hashes, never keys.
 - `scripts/collect_phase2_evidence.py` scans the repository (excluding `.venv`, `contracts/lib`, `contracts/out`,
   caches) for the ten Anvil test private keys and for generic `private key = 0x<64 hex>` assignments; the result is in

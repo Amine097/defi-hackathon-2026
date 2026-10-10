@@ -40,7 +40,8 @@ LIVE_TEST_FILES = ["tests/test_vault_live.py", "tests/test_countermove_api.py", 
                    "tests/test_vault.py", "tests/test_hardening.py"]
 DOCS = ["docs/FAULTLINE_PHASE2_IMPLEMENTATION_REPORT.md", "docs/FAULTLINE_PHASE2_SECURITY_REPORT.md",
         "docs/FAULTLINE_PHASE2_DEMO_GUIDE.md", "docs/FAULTLINE_PHASE2_PROGRESS.md"]
-EXPECTED = {"S1": ("CONFIRMED", "REPAY"), "S2": ("CONFIRMED", "TOP_UP"), "S3": ("NO_ACTION", None), "S4": ("CONFIRMED", "FULL_REPAY")}
+EXPECTED = {"S1": ("CONFIRMED", "REPAY"), "S2": ("CONFIRMED", "TOP_UP"), "S3": ("NO_ACTION", None), "S4": ("CONFIRMED", "FULL_REPAY"),
+            "S5": ("CONFIRMED", "REPAY")}
 ANVIL_MNEMONIC = "test test test test test test test test test test test junk"  # public Foundry/Hardhat default
 SCAN_SKIP = ("__pycache__", ".pytest_cache")
 SCAN_SKIP_PREFIX = (".git/", ".venv/", "node_modules/", "contracts/lib/", "contracts/out/", "contracts/cache/",
@@ -52,7 +53,8 @@ def _env(**extra) -> dict:
     env = dict(os.environ)
     env["PATH"] = str(FOUNDRY_BIN) + os.pathsep + env.get("PATH", "")
     env["PYTHONPATH"] = str(ROOT / "src")
-    for k in ("DEFIRISK_LIVE_TESTS", "FAULTLINE_EXPORT_UI_FIXTURES", "FORK_RPC_URL", "FAULTLINE_KEEPER_KEY"):
+    for k in ("DEFIRISK_LIVE_TESTS", "FAULTLINE_EXPORT_UI_FIXTURES", "FORK_RPC_URL", "FAULTLINE_KEEPER_KEY",
+              "FAULTLINE_KEEPER_KEYSTORE", "FAULTLINE_KEEPER_PASSWORD_FILE"):
         env.pop(k, None)
     env.update(extra)
     return env
@@ -398,11 +400,12 @@ def criteria(tests: dict, p0: dict, demo: dict, sec: dict) -> list[dict]:
          "Foundry unit/fuzz/token/invariant suites; e2e malicious keeper transactions revert"),
         ("AUTO-REPAY works automatically on the fork", confirmed("S1", "REPAY"), "S1"),
         ("AUTO-TOP-UP works automatically on the fork", confirmed("S2", "TOP_UP"), "S2"),
+        ("PT collateral, incident on the PT oracle (Belem brief example) -> automatic rescue", confirmed("S5", "REPAY"), "S5"),
         ("Comparator chooses by justified rules",
          all(((sc.get(k) or {}).get("final_state"), ((sc.get(k) or {}).get("chosen") or {}).get("strategy")) == v for k, v in EXPECTED.items())
          and all(c["status"] == "eligible" or (c["rejected_at"] and c["reason"]) for s in sc.values() for c in s["candidates"])
          and file_ok("tests/test_countermove_engine.py"),
-         "S1-S4 decisions; every rejected candidate has a stage and a reason; engine tests"),
+         "S1-S5 decisions; every rejected candidate has a stage and a reason; engine tests"),
         ("No extra user signature at trigger time",
          all(s["user_nonce_unchanged"] and not s["user_signed_during_crisis"] for s in sc.values())
          and all(s["execution"]["signer_is_keeper"] for s in sc.values() if s.get("execution")),
@@ -454,7 +457,7 @@ def main() -> int:
           "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
           "collector": "scripts/collect_phase2_evidence.py" + (" --live" if a.live else "") + (" --fork" if a.fork else ""),
           "scope": "local Anvil fork (chain id 31337) + read-only mainnet eth_call; no mainnet transaction, no real funds, "
-                   "no personal key (keeper key derived from the public Anvil test mnemonic)",
+                   "no personal key (keeper key derived from the public Anvil test mnemonic, used from an encrypted keystore)",
           "status_labels": {"LIVE": "read now on Ethereum mainnet (read-only)", "SIMULATED": "local fork state or controlled shock",
                             "CONFIRMED": "mined on the local fork and verified", "FAILED": "reverted / not executed",
                             "NO ACTION": "nothing sent, with the reason"},

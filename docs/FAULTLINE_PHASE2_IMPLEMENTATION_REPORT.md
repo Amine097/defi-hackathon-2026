@@ -51,7 +51,7 @@ flowchart LR
 | Watcher | `watcher.py`, `reader.py`, `journal.py` | One cycle per position per tick at one pinned block; `WATCHING → DETECTED → PLANNING → VALIDATING → EXECUTING → CONFIRMED / FAILED / NO_ACTION`; append-only JSONL journal + crash-safe `state.json` (pending action written before broadcast) |
 | Dependency Engine | `dependencies.py` | Reads the market oracle's immutable feeds (`BASE_FEED_1/2`, `QUOTE_FEED_1/2`, vaults, `SCALE_FACTOR`), each feed's description / decimals / answer / update time; freshness vs block time; implicit assumptions (e.g. "USDC valued as exactly 1 USD", "weETH valued at its protocol exchange rate"); maps a shock on a named dependency to an exact oracle price factor; attributes a move to the feed that moved |
 | Countermove Engine | `engine.py` | Exact minimal repay / top-up / full repay with Morpho integer math and interest projection; ordered constraints; deterministic ranking; NO_ACTION with reasons |
-| Guarded Executor | `executor.py`, `signer.py`, `chain.py` | Local-chain guard; fresh re-plan; `eth_call` of the exact calldata from the keeper; gas / fee caps; keeper gas funds; signing by Foundry `cast mktx`; journal before broadcast; ambiguity resolved from the chain only |
+| Guarded Executor | `executor.py`, `signer.py`, `chain.py` | Local-chain guard; fresh re-plan; `eth_call` of the exact calldata from the keeper; gas / fee caps; keeper gas funds; signing by Foundry `cast mktx` from an encrypted keystore (no key on any command line; chain id 31337 only); journal before broadcast; ambiguity resolved from the chain only |
 | Verifier | `verifier.py` | Receipt status, vault `RescueExecuted` event (action id, strategy, amount), Morpho `Repay` / `SupplyCollateral` event for the beneficiary, re-read position at the receipt block, exact reserve movement, counters, LTV and buffer improvement, LTV ≤ keeper bound, no Morpho position held by the vault |
 
 Re-used rather than duplicated: Morpho integer math (`morpho.py`: `max_borrow`, `to_assets_up`, `accrue`,
@@ -164,11 +164,16 @@ penalty under the worst scenario (labelled hypothetical, never summed).
 
 ## 6. Fork demonstration (mainnet block 26,164,248, Anvil chain id 31337)
 
-Real: Morpho Blue `0xBBBB…EFFCb`, weETH/USDC `0x85252bb8…8ba16e` (oracle = weETH/ETH exchange rate × ETH/USD) and
-cbBTC/USDC `0x64d65c9a…3fcc64` (oracle = Chainlink BTC/USD), IRMs, liquidity. Simulated and labelled: test balances
+Real: Morpho Blue `0xBBBB…EFFCb`, weETH/USDC `0x85252bb8…8ba16e` (oracle = weETH/ETH exchange rate × ETH/USD),
+cbBTC/USDC `0x64d65c9a…3fcc64` (oracle = Chainlink BTC/USD) and PT-reUSD-10DEC2026/USDC `0x1e9d6146…a4fc64` (LLTV 91.5%;
+MorphoChainlinkOracleV2 `0x217d…51f0` whose only feed is the "Ojo PT Feed Pendle Chainlink-compatible Oracle"
+`0x77ee…5d89`, computed at read time), IRMs, liquidity. Simulated and labelled: test balances
 written into storage; the crises (the shocked feed's code is replaced by `ShockFeed`, `description()` = "FAULTLINE
-SIMULATED SHOCK"). Positions opened at 75% LTV (LLTV 86%); a −9% move brings them to 82.42% (trigger 82%).
-Engine target: buffer ≥ 250 USDC after a further −8% move of the market's main feed, interest over 24 h.
+SIMULATED SHOCK"). S1–S4: positions opened at 75% LTV (LLTV 86%); a −9% move brings them to 82.42% (trigger 82%);
+engine target: buffer ≥ 250 USDC after a further −8% move of the market's main feed, interest over 24 h.
+S5 (the Belem brief's own example, layer 3 "incident"): a Pendle PT used as collateral, incident on the oracle pricing the
+PT. Position opened at 85% LTV; the PT feed −5% brings it to 89.47% (trigger 88%, LLTV 91.5%); target: buffer ≥ 250 USDC
+after a further −5% of the PT feed, interest over 24 h (the follow-on puts the target, LLTV × 0.95 ≈ 86.9%, below the trigger).
 
 | | Position (user) | Reserve & policy | Engine decision | On-chain result (fork) |
 |---|---|---|---|---|
@@ -176,13 +181,22 @@ Engine target: buffer ≥ 250 USDC after a further −8% move of the market's ma
 | **S2 AUTO-TOP-UP** | 0.5 cbBTC / 31,117.34 USDC (B) | 100 USDC + 0.2 cbBTC; full repay disabled | TOP_UP **0.02509364 cbBTC**; REPAY needs 1,499.01 USDC > 100 (feasibility) | tx `0x7ccb73cc…9050` block 26,164,287, 279,145 gas; collateral 0.5 → **0.52509364**; borrow shares unchanged; LTV 82.42% → **78.48%**; buffer 1,352.56 → **2,982.14 USDC**; 14/14 checks |
 | **S3 NO ACTION** | 4 weETH / 8,335.24 USDC (C) | 150 USDC + 0.01 weETH; full repay disabled | NO_ACTION: REPAY needs 584.58 > 150; TOP_UP needs 0.2923 > 0.01; FULL cap 0 | **no transaction**; reserves 150 USDC / 0.01 weETH untouched; alert repeated on the post-crisis pass |
 | **S4 EMERGENCY FULL REPAY** | 0.3 cbBTC / 18,670.41 USDC (D) | 21,000 USDC; policy = full close only | FULL_REPAY **18,670.41 USDC** (REPAY / TOP_UP not authorized) | tx `0xeea9ca52…aee5` block 26,164,288, 276,851 gas; debt **0**; collateral 0.3 kept; reserve 21,000 → 2,329.59 USDC; 12/12 checks |
+| **S5 PT ORACLE INCIDENT → AUTO-REPAY** | 50,000 PT-reUSD / 41,726.94 USDC (E) | 3,000 USDC + 5,000 PT; REPAY or TOP_UP allowed, full repay not | **Both** partial defenses meet every constraint: REPAY **1,447.44 USDC** (rank 1) vs TOP_UP 1,785.66 PT = 1,665.52 USDC of value (rank 2, and it would add exposure to the very oracle in incident); FULL_REPAY not authorized | tx `0xbc1651a0…9ba8` block 26,164,299, 277,657 gas; debt 41,726.94 → **40,279.50**; collateral unchanged; LTV 89.47% → **86.37%**; buffer 944.99 → **2,392.43 USDC**; reserve 3,000 → 1,552.56 USDC; 15/15 checks |
 
-All three rescue transactions were signed by the keeper `0x7099…79C8` (Anvil test account #1) in a separate process
-(`python -m defirisk.countermove`); the users' nonces are identical before and after the crisis (no user signature).
-The same dependency crisis gave different outcomes for different pre-authorizations (S1 vs S3, S2 vs S4).
-The run is reproducible: `scripts/countermove_fork_demo.py` re-creates everything from the pinned block. Four runs gave
-the same decisions and verification results; the final run (recorded in `data/countermove/demo/latest/`, 83.7 s) even
-reproduced S1's transaction hash byte for byte; S2 / S4 amounts differ between runs only by seconds of accrued interest.
+All four rescue transactions were signed by the keeper `0x7099…79C8` (Anvil test account #1) in a separate process
+(`python -m defirisk.countermove`, key used from an encrypted keystore created for the run); the users' nonces are
+identical before and after the crisis (no user signature).
+The same dependency crisis gave different outcomes for different pre-authorizations (S1 vs S3, S2 vs S4). S5 is the only
+scenario where two defenses qualify: the comparator's rule (least reserve value committed) picks the repay.
+S5's user arms after phase B (still before the PT incident), so S1–S4 run on exactly the same blocks as without S5.
+The run is reproducible: `scripts/countermove_fork_demo.py` re-creates everything from the pinned block. The recorded run
+(`data/countermove/demo/latest/`, 102 s, after the signer moved to an encrypted keystore) reproduced the S1, S2 and S4
+transaction hashes of the previous run byte for byte (same key, same deterministic signatures); amounts can otherwise
+differ between runs only by seconds of accrued interest.
+Observed edge (S5, post-crisis pass): after the rescue the follow-on buffer is 249.99988 USDC, 0.00012 USDC under the
+250 USDC margin, because one block of interest (8% APR on 40k USDC) accrued between the validation block and inclusion.
+The LTV (86.37%) is below the 88% trigger, so the keeper only re-alerts (ALERT, nothing sent) and the vault would refuse
+any action. The engine's minimal amount does not budget the inclusion delay; S1–S4 happened to keep a few raw units of slack.
 Full hashes, blocks and checks: `data/countermove/demo/latest/summary.json` and the evidence JSON.
 
 ## 7. Frontend
@@ -227,12 +241,12 @@ Exact counts and commands are recorded in `audit/FAULTLINE_PHASE2_EVIDENCE.json`
 
 | Suite | Scope | Final result |
 |---|---|---|
-| `pytest` offline | Phase 0.5 + Phase 1 (unchanged, still green), P0 regressions (18), engine (32), API (6 + 1 live-gated), end-to-end keeper on a local Anvil with the real Morpho Blue bytecode (16) | **207 passed**, 16 skipped (live-gated), 0 failed |
-| `pytest` live (`DEFIRISK_LIVE_TESTS=1`) | files with live checks: Phase 0.5/1 live checks, Belem $1M forceDeallocate route, LIVE oracle dependencies | **133 passed**, 0 failed |
-| Node | vault view (incl. P0), X-Ray decision view, Countermove view (proof-checked statuses) | **27/27** |
+| `pytest` offline | Phase 0.5 + Phase 1 (unchanged, still green), P0 regressions (18), engine (32), API (7 + 1 live-gated), end-to-end keeper on a local Anvil with the real Morpho Blue bytecode (17, incl. the keystore signer) | **209 passed**, 16 skipped (live-gated), 0 failed |
+| `pytest` live (`DEFIRISK_LIVE_TESTS=1`) | files with live checks: Phase 0.5/1 live checks, Belem $1M forceDeallocate route, LIVE oracle dependencies | **134 passed**, 0 failed |
+| Node | vault view (incl. P0), X-Ray decision view, Countermove view (proof-checked statuses, S1–S5) | **33/33** |
 | Foundry | 24 unit + fuzz (3 × 512 runs), 4 token-behaviour, invariant campaign (4 invariants, 64 runs × depth 64, every handler action exercised) | **29 passed**, fork test skipped here |
 | Foundry fork | `RescueVaultFork` on the real cbBTC/USDC market at block 26,164,248 | **passed** (784,085 gas) |
-| Fork demo | 4 scenarios | `all_expected = true` |
+| Fork demo | 5 scenarios (S1–S5) | `all_expected = true` |
 
 ## 10. Limits and remaining risks
 
@@ -249,8 +263,9 @@ Exact counts and commands are recorded in `audit/FAULTLINE_PHASE2_EVIDENCE.json`
   the chain proves it did not execute.
 - **Scope.** DELEVERAGE + SELL, REFINANCE, SHORT/HEDGE not built (by design, mission §4E). Collateral is never sold:
   FULL_REPAY removes borrowing liquidation risk, not price exposure.
-- **Signer.** Foundry `cast` with the public Anvil test key passed as a process argument (local only). Production would
-  need a hardware / remote signer, monitoring, alerting and an independent audit.
+- **Signer.** Foundry `cast` with the keeper key in an encrypted keystore (Web3 Secret Storage), unlocked by a password
+  file: no key on any command line or in the keeper's environment; signatures refused for any chain id but 31337. Still a
+  hot key on the keeper host: production would need a hardware / remote signer, monitoring, alerting and an independent audit.
 
 ## 11. GO / NO-GO (prototype on a test environment)
 
@@ -261,7 +276,8 @@ Exact counts and commands are recorded in `audit/FAULTLINE_PHASE2_EVIDENCE.json`
 | RescueVault enforces the configured permissions | ✅ | Foundry unit, fuzz, invariants, malicious keeper; e2e malicious keeper transactions revert |
 | AUTO-REPAY works automatically on the fork | ✅ | S1 CONFIRMED, 15/15 checks |
 | AUTO-TOP-UP works automatically on the fork | ✅ | S2 CONFIRMED, 14/14 checks |
-| Comparator chooses by justified rules | ✅ | §5; engine tests; S1–S4 candidate tables |
+| PT collateral, incident on the PT oracle (Belem brief example) | ✅ | S5 CONFIRMED (REPAY preferred over an eligible TOP_UP), 15/15 checks |
+| Comparator chooses by justified rules | ✅ | §5; engine tests; S1–S5 candidate tables (S5: two eligible defenses, least capital wins) |
 | No extra signature at trigger time | ✅ | user nonces unchanged; rescue txs `from` = keeper |
 | Amounts respect the authorizations | ✅ | on-chain caps / floors / bounds; verifier checks; invariants |
 | Monitoring independent of the browser | ✅ | keeper runs as `python -m defirisk.countermove` |

@@ -1,6 +1,6 @@
 {
  "schema": "faultline.countermove-demo/1",
- "generated_at": 1791665620.697704,
+ "generated_at": 1791674447.3978689,
  "environment": {
   "kind": "local Anvil fork of Ethereum mainnet (SIMULATED environment)",
   "fork_rpc": "https://eth-mainnet.public.blastapi.io",
@@ -11,13 +11,15 @@
   "morpho_blue": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
   "markets": {
    "weETH/USDC": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
-   "cbBTC/USDC": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64"
+   "cbBTC/USDC": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+   "PT-reUSD-10DEC2026/USDC": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64"
   },
   "keeper": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
   "notes": [
    "real Morpho Blue, markets, oracles, IRMs and liquidity at the pinned block",
    "test funds written into local storage (not real tokens)",
    "price crises are SIMULATED controlled shocks of one real feed each",
+   "keeper key used from an encrypted keystore created for the run (never on a command line)",
    "no transaction was sent to Ethereum mainnet"
   ]
  },
@@ -30,6 +32,7 @@
    "rescue_vault": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
    "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
    "expected_final_state": "CONFIRMED",
+   "expected_strategy": "REPAY",
    "simulated_shock": {
     "feed": "0x4270e1817576bba4b640466be79a408ef128f828",
     "original_description": "weETH/ETH exchange rate",
@@ -51,14 +54,14 @@
     "collateral": 10000000000000000000,
     "debt": 20838101662,
     "price": 2778413331016461863756600000,
-    "borrow_shares": 20191830954981252
+    "borrow_shares": 20191830986942421
    },
    "end_state": {
-    "block": 26164288,
+    "block": 26164299,
     "collateral": 10000000000000000000,
-    "debt": 19751600870,
+    "debt": 19751601413,
     "price": 2528356131224980293957600000,
-    "borrow_shares": 19139026229054768
+    "borrow_shares": 19139026261038742
    },
    "end_vault": {
     "loan_reserve": 3913498615,
@@ -124,7 +127,7 @@
    },
    "plan": {
     "block": 26164284,
-    "timestamp": 1791662036,
+    "timestamp": 1791662035,
     "policy_nonce": 1,
     "ltv_now": 824175901244967781,
     "trigger_ltv": 820000000000000000,
@@ -712,8 +715,8 @@
      {
       "check": "debt decreased by the repaid amount (+-2 wei share rounding)",
       "ok": true,
-      "debt_before": 20838102032,
-      "debt_after": 19751600647
+      "debt_before": 20838102066,
+      "debt_after": 19751600681
      },
      {
       "check": "collateral unchanged",
@@ -722,7 +725,7 @@
      {
       "check": "re-read debt = event debt after (+-1)",
       "ok": true,
-      "reread": 19751600647
+      "reread": 19751600681
      },
      {
       "check": "repaidTotal increased by the amount",
@@ -731,8 +734,8 @@
      {
       "check": "LTV improved (event)",
       "ok": true,
-      "ltv_before": 824175905239658194,
-      "ltv_after": 781203264969858531
+      "ltv_before": 824175906584405462,
+      "ltv_after": 781203266314605799
      },
      {
       "check": "LTV after <= keeper bound",
@@ -743,7 +746,7 @@
       "check": "liquidation buffer increased",
       "ok": true,
       "buffer_before": 905760797,
-      "buffer_after": 1992262081
+      "buffer_after": 1992262047
      },
      {
       "check": "vault holds no Morpho position of its own",
@@ -754,12 +757,12 @@
      "action_id": "0xef95b0054d471eee8f02630e384cde709d020732c2f6b3783f50541503ae324d",
      "strategy": "REPAY",
      "assets": 1086501385,
-     "debt_before": 20838102032,
-     "debt_after": 19751600647,
+     "debt_before": 20838102066,
+     "debt_after": 19751600681,
      "collateral_before": 10000000000000000000,
      "collateral_after": 10000000000000000000,
-     "ltv_before": 824175905239658194,
-     "ltv_after": 781203264969858531,
+     "ltv_before": 824175906584405462,
+     "ltv_after": 781203266314605799,
      "policy_nonce": 1,
      "tx_hash": "0x4b9254ebda91ddc69a362ebf2b8d88ddb19320f55f507b46b62974b3a51387e2",
      "block": 26164285
@@ -769,16 +772,16 @@
      "debt": 20838101931,
      "collateral": 10000000000000000000,
      "price": 2528356131224980293957600000,
-     "ltv": 824175905239658194,
+     "ltv": 824175906584405462,
      "buffer": 905760797,
      "reserve": 5000000000
     },
     "after": {
-     "debt": 19751600647,
+     "debt": 19751600681,
      "collateral": 10000000000000000000,
      "price": 2528356131224980293957600000,
-     "ltv": 781203264969858531,
-     "buffer": 1992262081,
+     "ltv": 781203266314605799,
+     "buffer": 1992262047,
      "reserve": 3913498615
     },
     "remaining_limits": {
@@ -882,6 +885,7 @@
    "rescue_vault": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
    "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
    "expected_final_state": "CONFIRMED",
+   "expected_strategy": "TOP_UP",
    "simulated_shock": {
     "feed": "0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
     "original_description": "BTC / USD",
@@ -901,14 +905,14 @@
    "before_shock": {
     "block": 26164282,
     "collateral": 50000000,
-    "debt": 31117341382,
+    "debt": 31117341334,
     "price": 829795721174300000000000000000000000000,
     "borrow_shares": 28057461395499050
    },
    "end_state": {
-    "block": 26164288,
+    "block": 26164299,
     "collateral": 52509364,
-    "debt": 31117342254,
+    "debt": 31117343027,
     "price": 755114106268600000000000000000000000000,
     "borrow_shares": 28057461395499050
    },
@@ -1732,6 +1736,7 @@
    "rescue_vault": "0x14a0558b87b3c73c4853023499a9e80411b7a439",
    "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
    "expected_final_state": "NO_ACTION",
+   "expected_strategy": null,
    "simulated_shock": {
     "feed": "0x4270e1817576bba4b640466be79a408ef128f828",
     "original_description": "weETH/ETH exchange rate",
@@ -1751,16 +1756,16 @@
    "before_shock": {
     "block": 26164282,
     "collateral": 4000000000000000000,
-    "debt": 8335240599,
+    "debt": 8335240585,
     "price": 2778413331016461863756600000,
-    "borrow_shares": 8076732317389190
+    "borrow_shares": 8076732317214236
    },
    "end_state": {
-    "block": 26164288,
+    "block": 26164299,
     "collateral": 4000000000000000000,
-    "debt": 8335240841,
+    "debt": 8335241056,
     "price": 2528356131224980293957600000,
-    "borrow_shares": 8076732317389190
+    "borrow_shares": 8076732317214236
    },
    "end_vault": {
     "loan_reserve": 150000000,
@@ -1787,7 +1792,7 @@
    "post_crisis_state": "NO_ACTION",
    "detected": {
     "trigger": {
-     "ltv": 824175908093225812,
+     "ltv": 824175929352098065,
      "trigger_ltv": 820000000000000000,
      "trigger_met": true,
      "scenario_breaches": [
@@ -1796,9 +1801,9 @@
        "label": "ETH / USD -8% follow-on",
        "price": 2326087640726981870440992000,
        "max_borrow": 8001741483,
-       "debt_projected": 8336401874,
-       "buffer": -334660391,
-       "ltv": 895968162253773001,
+       "debt_projected": 8336402090,
+       "buffer": -334660607,
+       "ltv": 895968185468719445,
        "liquidatable": true,
        "meets_margin": false
       }
@@ -1818,17 +1823,17 @@
       }
      ],
      "reference_block": 26164282,
-     "block": 26164288
+     "block": 26164299
     },
     "simulated_dependencies": [
      "feed:0x4270e1817576bba4b640466be79a408ef128f828"
     ]
    },
    "plan": {
-    "block": 26164288,
-    "timestamp": 1791662046,
+    "block": 26164299,
+    "timestamp": 1791662062,
     "policy_nonce": 1,
-    "ltv_now": 824175908093225812,
+    "ltv_now": 824175929352098065,
     "trigger_ltv": 820000000000000000,
     "trigger_met": true,
     "lltv": 860000000000000000,
@@ -1860,10 +1865,10 @@
     ],
     "hold": {
      "collateral": 4000000000000000000,
-     "debt": 8335240841,
-     "debt_projected": 8336401874,
-     "ltv_now": 824175908093225812,
-     "buffer_now": 362304249,
+     "debt": 8335241056,
+     "debt_projected": 8336402090,
+     "ltv_now": 824175929352098065,
+     "buffer_now": 362304034,
      "healthy_now": true,
      "scenarios": [
       {
@@ -1871,9 +1876,9 @@
        "label": "current oracle price",
        "price": 2528356131224980293957600000,
        "max_borrow": 8697545090,
-       "debt_projected": 8336401874,
-       "buffer": 361143216,
-       "ltv": 824290709266383803,
+       "debt_projected": 8336402090,
+       "buffer": 361143000,
+       "ltv": 824290730624134532,
        "liquidatable": false,
        "meets_margin": true
       },
@@ -1882,18 +1887,18 @@
        "label": "ETH / USD -8% follow-on",
        "price": 2326087640726981870440992000,
        "max_borrow": 8001741483,
-       "debt_projected": 8336401874,
-       "buffer": -334660391,
-       "ltv": 895968162253773001,
+       "debt_projected": 8336402090,
+       "buffer": -334660607,
+       "ltv": 895968185468719445,
        "liquidatable": true,
        "meets_margin": false
       }
      ],
-     "min_buffer": -334660391,
+     "min_buffer": -334660607,
      "meets_target": false,
-     "liquidation_price": 2423035128197674418604651163,
-     "drop_to_liquidation_wad": 41655920907106624,
-     "hypothetical_liquidation_penalty_raw": 365478996
+     "liquidation_price": 2423035190697674418604651163,
+     "drop_to_liquidation_wad": 41655896187487727,
+     "hypothetical_liquidation_penalty_raw": 365479006
     },
     "global_gates": [],
     "ranking": "min_capital",
@@ -1911,8 +1916,8 @@
        "decimals": 6,
        "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
       },
-      "required_raw": 584578966,
-      "amount_raw": 584578966,
+      "required_raw": 584579181,
+      "amount_raw": 584579181,
       "reserve_raw": 150000000,
       "reserve_floor_raw": 0,
       "per_action_cap_raw": 2000000000,
@@ -1959,10 +1964,10 @@
        "drop_to_liquidation_wad": 108867870929313047
       },
       "metrics": {
-       "capital_committed_raw": 584578966,
+       "capital_committed_raw": 584579181,
        "capital_unit": "loan-token raw units at the current oracle price",
-       "reserve_share_used": 3.8971931066666667,
-       "principal_repaid_raw": 584578966,
+       "reserve_share_used": 3.89719454,
+       "principal_repaid_raw": 584579181,
        "collateral_added_raw": 0,
        "collateral_added_value_raw": 0,
        "exposure_added_value_raw": 0,
@@ -1983,10 +1988,10 @@
        "amount_raw": 150000000,
        "after": {
         "collateral": 4000000000000000000,
-        "debt": 8185240841,
-        "debt_projected": 8186380981,
-        "ltv_now": 809344136753652605,
-        "buffer_now": 512304249,
+        "debt": 8185241056,
+        "debt_projected": 8186381196,
+        "ltv_now": 809344158012524859,
+        "buffer_now": 512304034,
         "healthy_now": true,
         "scenarios": [
          {
@@ -1994,9 +1999,9 @@
           "label": "current oracle price",
           "price": 2528356131224980293957600000,
           "max_borrow": 8697545090,
-          "debt_projected": 8186380981,
-          "buffer": 511164109,
-          "ltv": 809456872058819945,
+          "debt_projected": 8186381196,
+          "buffer": 511163894,
+          "ltv": 809456893317692199,
           "liquidatable": false,
           "meets_margin": true
          },
@@ -2005,20 +2010,20 @@
           "label": "ETH / USD -8% follow-on",
           "price": 2326087640726981870440992000,
           "max_borrow": 8001741483,
-          "debt_projected": 8186380981,
-          "buffer": -184639498,
-          "ltv": 879844426158456260,
+          "debt_projected": 8186381196,
+          "buffer": -184639713,
+          "ltv": 879844449265926101,
           "liquidatable": true,
           "meets_margin": false
          }
         ],
-        "min_buffer": -184639498,
+        "min_buffer": -184639713,
         "meets_target": false,
-        "liquidation_price": 2379430477034883720930232559,
-        "drop_to_liquidation_wad": 58902166649261780
+        "liquidation_price": 2379430539534883720930232559,
+        "drop_to_liquidation_wad": 58902141929642883
        },
        "meets_target": false,
-       "keeper_bound": 811344136753652605,
+       "keeper_bound": 811344158012524859,
        "metrics": {
         "capital_committed_raw": 150000000,
         "capital_unit": "loan-token raw units at the current oracle price",
@@ -2027,10 +2032,10 @@
         "collateral_added_raw": 0,
         "collateral_added_value_raw": 0,
         "exposure_added_value_raw": 0,
-        "residual_min_buffer_raw": -184639498,
-        "residual_ltv_now": 809344136753652605,
-        "drop_to_liquidation_after_wad": 58902166649261780,
-        "hypothetical_liquidation_penalty_after_raw": 358901880,
+        "residual_min_buffer_raw": -184639713,
+        "residual_ltv_now": 809344158012524859,
+        "drop_to_liquidation_after_wad": 58902141929642883,
+        "hypothetical_liquidation_penalty_after_raw": 358901889,
         "notes": {
          "principal_repaid": "reduces debt 1:1; not a loss",
          "collateral_added": "stays the user's asset; adds exposure to the collateral's dependencies",
@@ -2047,8 +2052,8 @@
        "decimals": 18,
        "address": "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee"
       },
-      "required_raw": 292266572930846243,
-      "amount_raw": 292266572930846243,
+      "required_raw": 292266680837356559,
+      "amount_raw": 292266680837356559,
       "reserve_raw": 10000000000000000,
       "reserve_floor_raw": 0,
       "per_action_cap_raw": 1000000000000000000,
@@ -2059,21 +2064,21 @@
       "status": "rejected",
       "rejected_at": "feasibility",
       "after": {
-       "collateral": 4292266572930846243,
-       "debt": 8335240841,
-       "debt_projected": 8336401874,
-       "ltv_now": 768056591132686762,
-       "buffer_now": 997804674,
+       "collateral": 4292266680837356559,
+       "debt": 8335241056,
+       "debt_projected": 8336402090,
+       "ltv_now": 768056591622952604,
+       "buffer_now": 997804693,
        "healthy_now": true,
        "scenarios": [
         {
          "scenario": "now",
          "label": "current oracle price",
          "price": 2528356131224980293957600000,
-         "max_borrow": 9333045515,
-         "debt_projected": 8336401874,
-         "buffer": 996643641,
-         "ltv": 768163575329686350,
+         "max_borrow": 9333045749,
+         "debt_projected": 8336402090,
+         "buffer": 996643659,
+         "ltv": 768163575909406618,
          "liquidatable": false,
          "meets_margin": true
         },
@@ -2081,30 +2086,30 @@
          "scenario": "follow_on",
          "label": "ETH / USD -8% follow-on",
          "price": 2326087640726981870440992000,
-         "max_borrow": 8586401874,
-         "debt_projected": 8336401874,
+         "max_borrow": 8586402090,
+         "debt_projected": 8336402090,
          "buffer": 250000000,
-         "ltv": 834960407926908810,
+         "ltv": 834960408570420060,
          "liquidatable": false,
          "meets_margin": true
         }
        ],
        "min_buffer": 250000000,
        "meets_target": true,
-       "liquidation_price": 2258047199098519299192556062,
-       "drop_to_liquidation_wad": 106910940586323652
+       "liquidation_price": 2258047200576061839774748267,
+       "drop_to_liquidation_wad": 106910940001935036
       },
       "metrics": {
-       "capital_committed_raw": 738953981,
+       "capital_committed_raw": 738954254,
        "capital_unit": "loan-token raw units at the current oracle price",
-       "reserve_share_used": 29.226657293084624,
+       "reserve_share_used": 29.226668083735657,
        "principal_repaid_raw": 0,
-       "collateral_added_raw": 292266572930846243,
-       "collateral_added_value_raw": 738953981,
-       "exposure_added_value_raw": 738953981,
+       "collateral_added_raw": 292266680837356559,
+       "collateral_added_value_raw": 738954254,
+       "exposure_added_value_raw": 738954254,
        "residual_min_buffer_raw": 250000000,
-       "residual_ltv_now": 768056591132686762,
-       "drop_to_liquidation_after_wad": 106910940586323652,
+       "residual_ltv_now": 768056591622952604,
+       "drop_to_liquidation_after_wad": 106910940001935036,
        "hypothetical_liquidation_penalty_after_raw": 0,
        "notes": {
         "principal_repaid": "reduces debt 1:1; not a loss",
@@ -2113,16 +2118,16 @@
         "hypothetical_penalty": "only if the worst scenario happens and liquidators act; never summed"
        }
       },
-      "keeper_bound": 770056591132686762,
+      "keeper_bound": 770056591622952604,
       "bounded": {
        "status": "eligible_partial",
        "amount_raw": 10000000000000000,
        "after": {
         "collateral": 4010000000000000000,
-        "debt": 8335240841,
-        "debt_projected": 8336401874,
-        "ltv_now": 822120606520833606,
-        "buffer_now": 384048112,
+        "debt": 8335241056,
+        "debt_projected": 8336402090,
+        "ltv_now": 822120627726691214,
+        "buffer_now": 384047897,
         "healthy_now": true,
         "scenarios": [
          {
@@ -2130,9 +2135,9 @@
           "label": "current oracle price",
           "price": 2528356131224980293957600000,
           "max_borrow": 8719288953,
-          "debt_projected": 8336401874,
-          "buffer": 382887079,
-          "ltv": 822235121406768946,
+          "debt_projected": 8336402090,
+          "buffer": 382886863,
+          "ltv": 822235142711258449,
           "liquidatable": false,
           "meets_margin": true
          },
@@ -2141,20 +2146,20 @@
           "label": "ETH / USD -8% follow-on",
           "price": 2326087640726981870440992000,
           "max_borrow": 8021745837,
-          "debt_projected": 8336401874,
-          "buffer": -314656037,
-          "ltv": 893733827627551114,
+          "debt_projected": 8336402090,
+          "buffer": -314656253,
+          "ltv": 893733850784604923,
           "liquidatable": true,
           "meets_margin": false
          }
         ],
-        "min_buffer": -314656037,
+        "min_buffer": -314656253,
         "meets_target": false,
-        "liquidation_price": 2416992646581221365191671983,
-        "drop_to_liquidation_wad": 44045806391128802
+        "liquidation_price": 2416992708925361016064489938,
+        "drop_to_liquidation_wad": 44045781733154840
        },
        "meets_target": false,
-       "keeper_bound": 824120606520833606,
+       "keeper_bound": 824120627726691214,
        "metrics": {
         "capital_committed_raw": 25283561,
         "capital_unit": "loan-token raw units at the current oracle price",
@@ -2163,10 +2168,10 @@
         "collateral_added_raw": 10000000000000000,
         "collateral_added_value_raw": 25283561,
         "exposure_added_value_raw": 25283561,
-        "residual_min_buffer_raw": -314656037,
-        "residual_ltv_now": 822120606520833606,
-        "drop_to_liquidation_after_wad": 44045806391128802,
-        "hypothetical_liquidation_penalty_after_raw": 365478996,
+        "residual_min_buffer_raw": -314656253,
+        "residual_ltv_now": 822120627726691214,
+        "drop_to_liquidation_after_wad": 44045781733154840,
+        "hypothetical_liquidation_penalty_after_raw": 365479006,
         "notes": {
          "principal_repaid": "reduces debt 1:1; not a loss",
          "collateral_added": "stays the user's asset; adds exposure to the collateral's dependencies",
@@ -2183,8 +2188,8 @@
        "decimals": 6,
        "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
       },
-      "required_raw": 8335240841,
-      "amount_raw": 8335240841,
+      "required_raw": 8335241056,
+      "amount_raw": 8335241056,
       "reserve_raw": 150000000,
       "reserve_floor_raw": 0,
       "per_action_cap_raw": 0,
@@ -2233,10 +2238,10 @@
        "drop_to_liquidation_wad": null
       },
       "metrics": {
-       "capital_committed_raw": 8335240841,
+       "capital_committed_raw": 8335241056,
        "capital_unit": "loan-token raw units at the current oracle price",
-       "reserve_share_used": 55.568272273333335,
-       "principal_repaid_raw": 8335240841,
+       "reserve_share_used": 55.568273706666666,
+       "principal_repaid_raw": 8335241056,
        "collateral_added_raw": 0,
        "collateral_added_value_raw": 0,
        "exposure_added_value_raw": 0,
@@ -2251,7 +2256,7 @@
         "hypothetical_penalty": "only if the worst scenario happens and liquidators act; never summed"
        }
       },
-      "keeper_bound": 8343576082,
+      "keeper_bound": 8343576298,
       "bounded": null
      }
     ],
@@ -2271,6 +2276,7 @@
    "rescue_vault": "0x7d2314ab4d89a01120276384217739b04501c430",
    "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
    "expected_final_state": "CONFIRMED",
+   "expected_strategy": "FULL_REPAY",
    "simulated_shock": {
     "feed": "0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
     "original_description": "BTC / USD",
@@ -2290,21 +2296,21 @@
    "before_shock": {
     "block": 26164282,
     "collateral": 30000000,
-    "debt": 18670404685,
+    "debt": 18670404656,
     "price": 829795721174300000000000000000000000000,
     "borrow_shares": 16834476706765284
    },
    "end_state": {
-    "block": 26164288,
+    "block": 26164299,
     "collateral": 30000000,
     "debt": 0,
     "price": 755114106268600000000000000000000000000,
     "borrow_shares": 0
    },
    "end_vault": {
-    "loan_reserve": 2329594792,
+    "loan_reserve": 2329594763,
     "collateral_reserve": 0,
-    "repaid_total": 18670405208,
+    "repaid_total": 18670405237,
     "topped_up_total": 0,
     "action_count": 1,
     "policy_nonce": 1,
@@ -2823,8 +2829,8 @@
       "ok": true,
       "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
       "before": 21000000000,
-      "after": 2329594792,
-      "assets": 18670405208
+      "after": 2329594763,
+      "assets": 18670405237
      },
      {
       "check": "Morpho Repay event on behalf of the beneficiary",
@@ -2846,7 +2852,7 @@
      {
       "check": "LTV improved (event)",
       "ok": true,
-      "ltv_before": 824175889579907318,
+      "ltv_before": 824175890860067043,
       "ltv_after": 0
      },
      {
@@ -2863,12 +2869,12 @@
     "event": {
      "action_id": "0x6c8ab02dccea5335deda431d50bb715d073fa3fa14fdc9214ef82c9c3e1eff3a",
      "strategy": "FULL_REPAY",
-     "assets": 18670405208,
-     "debt_before": 18670405208,
+     "assets": 18670405237,
+     "debt_before": 18670405237,
      "debt_after": 0,
      "collateral_before": 30000000,
      "collateral_after": 30000000,
-     "ltv_before": 824175889579907318,
+     "ltv_before": 824175890860067043,
      "ltv_after": 0,
      "policy_nonce": 1,
      "tx_hash": "0xeea9ca52ce4919469bfb9ceaa7ad4209694eb37da986410ea77b765effa6aee5",
@@ -2879,7 +2885,7 @@
      "debt": 18670405120,
      "collateral": 30000000,
      "price": 755114106268600000000000000000000000000,
-     "ltv": 824175889579907318,
+     "ltv": 824175890860067043,
      "buffer": 811538821,
      "reserve": 21000000000
     },
@@ -2889,10 +2895,10 @@
      "price": 755114106268600000000000000000000000000,
      "ltv": 0,
      "buffer": 19481943941,
-     "reserve": 2329594792
+     "reserve": 2329594763
     },
     "remaining_limits": {
-     "repaid_total": 18670405208,
+     "repaid_total": 18670405237,
      "topped_up_total": 0,
      "policy": {
       "allowed_strategies": 4,
@@ -2908,7 +2914,7 @@
       "min_loan_reserve": 100000000,
       "min_collateral_reserve": 0
      },
-     "loan_reserve": 2329594792,
+     "loan_reserve": 2329594763,
      "collateral_reserve": 0,
      "paused": false,
      "revoked": false,
@@ -2983,13 +2989,692 @@
      }
     }
    }
+  },
+  {
+   "scenario": "S5",
+   "position_id": "S5-PT-reUSD-repay",
+   "label": "S5 | user E | PT-reUSD/USDC | USDC + PT reserves, PT oracle incident",
+   "user": "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
+   "rescue_vault": "0xff16306a25d9fe12fb88978e3fcfc02b6cde3c9d",
+   "market_id": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64",
+   "expected_final_state": "CONFIRMED",
+   "expected_strategy": "REPAY",
+   "simulated_shock": {
+    "feed": "0x77ee147391eac11c92817e771860ff4aad265d89",
+    "original_description": "Ojo PT Feed Pendle Chainlink-compatible Oracle",
+    "decimals": 18,
+    "pre_shock_answer": 981810374020092837,
+    "shock_bps": 500,
+    "shocked_answer": 932719855319088195,
+    "timestamp_mode": 1,
+    "label": "SIMULATED controlled shock on a local fork (anvil_setCode); not a mainnet event"
+   },
+   "position_opened": {
+    "market_id": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64",
+    "collateral_raw": 50000000000,
+    "borrowed_raw": 41726939863,
+    "oracle_price": 981810349752250456000000000000000000
+   },
+   "before_shock": {
+    "block": 26164297,
+    "collateral": 50000000000,
+    "debt": 41726940287,
+    "price": 981810374020092837000000000000000000,
+    "borrow_shares": 40614681784478010
+   },
+   "end_state": {
+    "block": 26164299,
+    "collateral": 50000000000,
+    "debt": 40279503281,
+    "price": 932719855319088195000000000000000000,
+    "borrow_shares": 39205826647299560
+   },
+   "end_vault": {
+    "loan_reserve": 1552562464,
+    "collateral_reserve": 5000000000,
+    "repaid_total": 1447437536,
+    "topped_up_total": 0,
+    "action_count": 1,
+    "policy_nonce": 1,
+    "paused": false
+   },
+   "user_nonce_after_arming": 318,
+   "user_nonce_at_end": 318,
+   "user_signed_during_crisis": false,
+   "states": [
+    "WATCHING",
+    "DETECTED",
+    "PLANNING",
+    "VALIDATING",
+    "EXECUTING",
+    "CONFIRMED",
+    "DETECTED",
+    "PLANNING",
+    "NO_ACTION"
+   ],
+   "final_state": "CONFIRMED",
+   "post_crisis_state": "NO_ACTION",
+   "detected": {
+    "trigger": {
+     "ltv": 863699921302618806,
+     "trigger_ltv": 880000000000000000,
+     "trigger_met": false,
+     "scenario_breaches": [
+      {
+       "scenario": "follow_on",
+       "label": "PT feed -5% follow-on",
+       "price": 886083862553133785250000000000000000,
+       "max_borrow": 40538336711,
+       "debt_projected": 40288336831,
+       "buffer": 249999880,
+       "ltv": 909357195954604932,
+       "liquidatable": false,
+       "meets_margin": false
+      }
+     ]
+    },
+    "movers": {
+     "oracle_change": -0.050000000000000044,
+     "movers": [
+      {
+       "dependency": "feed:0x77ee147391eac11c92817e771860ff4aad265d89",
+       "label": "Ojo PT Feed Pendle Chainlink-compatible Oracle (SIMULATED SHOCK)",
+       "role": "BASE_FEED_1",
+       "side": "base",
+       "change": -0.050000000000000044,
+       "simulated": true,
+       "effect_on_collateral_price": -0.050000000000000044
+      }
+     ],
+     "reference_block": 26164297,
+     "block": 26164299
+    },
+    "simulated_dependencies": [
+     "feed:0x77ee147391eac11c92817e771860ff4aad265d89"
+    ]
+   },
+   "plan": {
+    "block": 26164299,
+    "timestamp": 1791662062,
+    "policy_nonce": 1,
+    "ltv_now": 863699921302618806,
+    "trigger_ltv": 880000000000000000,
+    "trigger_met": false,
+    "lltv": 915000000000000000,
+    "safety_margin_raw": 250000000,
+    "interest_horizon_s": 86400,
+    "scenarios": [
+     {
+      "id": "now",
+      "label": "current oracle price",
+      "factor_wad": 1000000000000000000,
+      "shocks": [],
+      "kind": "current"
+     },
+     {
+      "id": "follow_on",
+      "label": "PT feed -5% follow-on",
+      "factor_wad": 950000000000000000,
+      "shocks": [
+       {
+        "dependency": "feed:0x77ee147391eac11c92817e771860ff4aad265d89",
+        "label": "FAULTLINE SIMULATED SHOCK (local fork only)",
+        "role": "BASE_FEED_1",
+        "side": "base",
+        "drop": 0.05
+       }
+      ],
+      "kind": "dependency_shock"
+     }
+    ],
+    "hold": {
+     "collateral": 50000000000,
+     "debt": 40279503281,
+     "debt_projected": 40288336831,
+     "ltv_now": 863699921302618806,
+     "buffer_now": 2392430098,
+     "healthy_now": true,
+     "scenarios": [
+      {
+       "scenario": "now",
+       "label": "current oracle price",
+       "price": 932719855319088195000000000000000000,
+       "max_borrow": 42671933379,
+       "debt_projected": 40288336831,
+       "buffer": 2383596548,
+       "ltv": 863889336161749446,
+       "liquidatable": false,
+       "meets_margin": true
+      },
+      {
+       "scenario": "follow_on",
+       "label": "PT feed -5% follow-on",
+       "price": 886083862553133785250000000000000000,
+       "max_borrow": 40538336711,
+       "debt_projected": 40288336831,
+       "buffer": 249999880,
+       "ltv": 909357195954604932,
+       "liquidatable": false,
+       "meets_margin": false
+      }
+     ],
+     "min_buffer": 249999880,
+     "meets_target": false,
+     "liquidation_price": 880426301224043715846994535519125684,
+     "drop_to_liquidation_wad": 56065659797876383,
+     "hypothetical_liquidation_penalty_raw": 0
+    },
+    "global_gates": [
+     "cooldown active until 1791665662 (now 1791662062)"
+    ],
+    "ranking": "min_capital",
+    "preference": [
+     "REPAY",
+     "TOP_UP",
+     "FULL_REPAY"
+    ],
+    "rule": "1 security & permissions -> 2 feasibility -> 3 buffer >= margin in every scenario -> 4 least reserve value committed (tie: preference order); none -> NO_ACTION (partial only if allowed)",
+    "candidates": [
+     {
+      "strategy": "REPAY",
+      "token": {
+       "symbol": "USDC",
+       "decimals": 6,
+       "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      },
+      "required_raw": 122,
+      "amount_raw": 122,
+      "reserve_raw": 1552562464,
+      "reserve_floor_raw": 100000000,
+      "per_action_cap_raw": 2500000000,
+      "cumulative_left_raw": 28552562464,
+      "reasons": [
+       "cooldown active until 1791665662 (now 1791662062)",
+       "on-chain trigger not reached"
+      ],
+      "status": "rejected",
+      "rejected_at": "security",
+      "after": {
+       "collateral": 50000000000,
+       "debt": 40279503159,
+       "debt_projected": 40288336709,
+       "ltv_now": 863699918686613597,
+       "buffer_now": 2392430220,
+       "healthy_now": true,
+       "scenarios": [
+        {
+         "scenario": "now",
+         "label": "current oracle price",
+         "price": 932719855319088195000000000000000000,
+         "max_borrow": 42671933379,
+         "debt_projected": 40288336709,
+         "buffer": 2383596670,
+         "ltv": 863889333545744237,
+         "liquidatable": false,
+         "meets_margin": true
+        },
+        {
+         "scenario": "follow_on",
+         "label": "PT feed -5% follow-on",
+         "price": 886083862553133785250000000000000000,
+         "max_borrow": 40538336711,
+         "debt_projected": 40288336709,
+         "buffer": 250000002,
+         "ltv": 909357193200915238,
+         "liquidatable": false,
+         "meets_margin": true
+        }
+       ],
+       "min_buffer": 250000002,
+       "meets_target": true,
+       "liquidation_price": 880426298557377049180327868852459017,
+       "drop_to_liquidation_wad": 56065662656898469
+      },
+      "metrics": {
+       "capital_committed_raw": 122,
+       "capital_unit": "loan-token raw units at the current oracle price",
+       "reserve_share_used": 7.857976914222242e-08,
+       "principal_repaid_raw": 122,
+       "collateral_added_raw": 0,
+       "collateral_added_value_raw": 0,
+       "exposure_added_value_raw": 0,
+       "residual_min_buffer_raw": 250000002,
+       "residual_ltv_now": 863699918686613597,
+       "drop_to_liquidation_after_wad": 56065662656898469,
+       "hypothetical_liquidation_penalty_after_raw": 0,
+       "notes": {
+        "principal_repaid": "reduces debt 1:1; not a loss",
+        "collateral_added": "stays the user's asset; adds exposure to the collateral's dependencies",
+        "gas": "the only cost lost (estimated at validation)",
+        "hypothetical_penalty": "only if the worst scenario happens and liquidators act; never summed"
+       }
+      },
+      "keeper_bound": 865699918686613597,
+      "bounded": null
+     },
+     {
+      "strategy": "TOP_UP",
+      "token": {
+       "symbol": "PT-reUSD-10DEC2026",
+       "decimals": 6,
+       "address": "0xecfafdc7741323a945a163ed068b5a3c43483957"
+      },
+      "required_raw": 148,
+      "amount_raw": 148,
+      "reserve_raw": 5000000000,
+      "reserve_floor_raw": 100000000,
+      "per_action_cap_raw": 2500000000,
+      "cumulative_left_raw": 5000000000,
+      "reasons": [
+       "cooldown active until 1791665662 (now 1791662062)",
+       "on-chain trigger not reached"
+      ],
+      "status": "rejected",
+      "rejected_at": "security",
+      "after": {
+       "collateral": 50000000148,
+       "debt": 40279503281,
+       "debt_projected": 40288336831,
+       "ltv_now": 863699918746854863,
+       "buffer_now": 2392430225,
+       "healthy_now": true,
+       "scenarios": [
+        {
+         "scenario": "now",
+         "label": "current oracle price",
+         "price": 932719855319088195000000000000000000,
+         "max_borrow": 42671933506,
+         "debt_projected": 40288336831,
+         "buffer": 2383596675,
+         "ltv": 863889333605425007,
+         "liquidatable": false,
+         "meets_margin": true
+        },
+        {
+         "scenario": "follow_on",
+         "label": "PT feed -5% follow-on",
+         "price": 886083862553133785250000000000000000,
+         "max_borrow": 40538336831,
+         "debt_projected": 40288336831,
+         "buffer": 250000000,
+         "ltv": 909357193265789632,
+         "liquidatable": false,
+         "meets_margin": true
+        }
+       ],
+       "min_buffer": 250000000,
+       "meets_target": true,
+       "liquidation_price": 880426298617981871937768194583331828,
+       "drop_to_liquidation_wad": 56065662591922022
+      },
+      "metrics": {
+       "capital_committed_raw": 138,
+       "capital_unit": "loan-token raw units at the current oracle price",
+       "reserve_share_used": 2.96e-08,
+       "principal_repaid_raw": 0,
+       "collateral_added_raw": 148,
+       "collateral_added_value_raw": 138,
+       "exposure_added_value_raw": 138,
+       "residual_min_buffer_raw": 250000000,
+       "residual_ltv_now": 863699918746854863,
+       "drop_to_liquidation_after_wad": 56065662591922022,
+       "hypothetical_liquidation_penalty_after_raw": 0,
+       "notes": {
+        "principal_repaid": "reduces debt 1:1; not a loss",
+        "collateral_added": "stays the user's asset; adds exposure to the collateral's dependencies",
+        "gas": "the only cost lost (estimated at validation)",
+        "hypothetical_penalty": "only if the worst scenario happens and liquidators act; never summed"
+       }
+      },
+      "keeper_bound": 865699918746854863,
+      "bounded": null
+     },
+     {
+      "strategy": "FULL_REPAY",
+      "token": {
+       "symbol": "USDC",
+       "decimals": 6,
+       "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      },
+      "required_raw": 40279503281,
+      "amount_raw": 40279503281,
+      "reserve_raw": 1552562464,
+      "reserve_floor_raw": 100000000,
+      "per_action_cap_raw": 0,
+      "cumulative_left_raw": 28552562464,
+      "reasons": [
+       "cooldown active until 1791665662 (now 1791662062)",
+       "on-chain trigger not reached",
+       "FULL_REPAY is not among the strategies the owner authorized",
+       "needs 40,279.50 USDC > per-action cap 0.00 USDC",
+       "needs 40,279.50 USDC > cumulative budget left 28,552.56 USDC",
+       "full repay disabled by the owner (cap 0)",
+       "reserve holds 1,552.56 USDC < required 40,279.50 USDC (funds must be pre-deposited in the RescueVault)"
+      ],
+      "status": "rejected",
+      "rejected_at": "security",
+      "after": {
+       "collateral": 50000000000,
+       "debt": 0,
+       "debt_projected": 0,
+       "ltv_now": 0,
+       "buffer_now": 42671933379,
+       "healthy_now": true,
+       "scenarios": [
+        {
+         "scenario": "now",
+         "label": "current oracle price",
+         "price": 932719855319088195000000000000000000,
+         "max_borrow": 42671933379,
+         "debt_projected": 0,
+         "buffer": 42671933379,
+         "ltv": 0,
+         "liquidatable": false,
+         "meets_margin": true
+        },
+        {
+         "scenario": "follow_on",
+         "label": "PT feed -5% follow-on",
+         "price": 886083862553133785250000000000000000,
+         "max_borrow": 40538336711,
+         "debt_projected": 0,
+         "buffer": 40538336711,
+         "ltv": 0,
+         "liquidatable": false,
+         "meets_margin": true
+        }
+       ],
+       "min_buffer": 40538336711,
+       "meets_target": true,
+       "liquidation_price": null,
+       "drop_to_liquidation_wad": null
+      },
+      "metrics": {
+       "capital_committed_raw": 40279503281,
+       "capital_unit": "loan-token raw units at the current oracle price",
+       "reserve_share_used": 25.943885811347297,
+       "principal_repaid_raw": 40279503281,
+       "collateral_added_raw": 0,
+       "collateral_added_value_raw": 0,
+       "exposure_added_value_raw": 0,
+       "residual_min_buffer_raw": 40538336711,
+       "residual_ltv_now": 0,
+       "drop_to_liquidation_after_wad": null,
+       "hypothetical_liquidation_penalty_after_raw": 0,
+       "notes": {
+        "principal_repaid": "reduces debt 1:1; not a loss",
+        "collateral_added": "stays the user's asset; adds exposure to the collateral's dependencies",
+        "gas": "the only cost lost (estimated at validation)",
+        "hypothetical_penalty": "only if the worst scenario happens and liquidators act; never summed"
+       }
+      },
+      "keeper_bound": 40319782785,
+      "bounded": null
+     }
+    ],
+    "decision": "NO_ACTION",
+    "chosen": null,
+    "alert": true,
+    "why": "scenario breach detected (PT feed -5% follow-on: buffer 250.00 USDC) but on-chain LTV 86.37% is below the trigger 88.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve): ALERT only"
+   },
+   "validation": {
+    "ok": true,
+    "checks": [
+     {
+      "check": "local test chain",
+      "ok": true,
+      "chain_id": 31337
+     },
+     {
+      "check": "eth_call simulation from the keeper at latest",
+      "ok": true
+     },
+     {
+      "check": "gas estimate under cap",
+      "ok": true,
+      "gas": 302532,
+      "cap": 700000
+     },
+     {
+      "check": "fee under cap",
+      "ok": true,
+      "max_fee_per_gas": 1000202782
+     },
+     {
+      "check": "keeper can pay gas",
+      "ok": true,
+      "balance_wei": 9999999137383901981738
+     }
+    ],
+    "chain_id": 31337,
+    "calldata": "0xa1d284b88a182e5ec5a57ab656f18a46e11a41d7f4ea527a44e8c94158aacadd9e7162d900000000000000000000000000000000000000000000000000000000564624e000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000c03957cd45f6b39",
+    "gas_estimate": 302532,
+    "gas_limit": 378165,
+    "max_fee_per_gas": 1000202782,
+    "max_priority_fee_per_gas": 1000000000,
+    "validated_block": 26164298
+   },
+   "no_action_reason": "scenario breach detected (PT feed -5% follow-on: buffer 250.00 USDC) but on-chain LTV 86.37% is below the trigger 88.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve): ALERT only",
+   "execution": {
+    "tx_hash": "0xbc1651a0b309396e319a49c5addb5a05b704cf444f18960cb6ecc8760eb69ba8",
+    "block": 26164299,
+    "from": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "to": "0xff16306a25d9fe12fb88978e3fcfc02b6cde3c9d",
+    "status": 1,
+    "gas_used": 277657,
+    "effective_gas_price_wei": 1000088718,
+    "signed_by": "keeper (anvil test account #1) - no user signature",
+    "action_id": "0x8a182e5ec5a57ab656f18a46e11a41d7f4ea527a44e8c94158aacadd9e7162d9"
+   },
+   "verification": {
+    "verified": true,
+    "checks": [
+     {
+      "check": "receipt status = 1 (mined, not reverted)",
+      "ok": true,
+      "block": 26164299,
+      "tx_hash": "0xbc1651a0b309396e319a49c5addb5a05b704cf444f18960cb6ecc8760eb69ba8",
+      "gas_used": 277657
+     },
+     {
+      "check": "RescueExecuted event emitted by the vault",
+      "ok": true
+     },
+     {
+      "check": "event action id = planned action id",
+      "ok": true
+     },
+     {
+      "check": "event strategy = planned strategy",
+      "ok": true
+     },
+     {
+      "check": "reserve decreased by exactly the event amount",
+      "ok": true,
+      "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "before": 3000000000,
+      "after": 1552562464,
+      "assets": 1447437536
+     },
+     {
+      "check": "Morpho Repay event on behalf of the beneficiary",
+      "ok": true
+     },
+     {
+      "check": "event amount = planned amount",
+      "ok": true
+     },
+     {
+      "check": "debt decreased by the repaid amount (+-2 wei share rounding)",
+      "ok": true,
+      "debt_before": 41726940817,
+      "debt_after": 40279503281
+     },
+     {
+      "check": "collateral unchanged",
+      "ok": true
+     },
+     {
+      "check": "re-read debt = event debt after (+-1)",
+      "ok": true,
+      "reread": 40279503281
+     },
+     {
+      "check": "repaidTotal increased by the amount",
+      "ok": true
+     },
+     {
+      "check": "LTV improved (event)",
+      "ok": true,
+      "ltv_before": 894736840432735238,
+      "ltv_after": 863699921302618806
+     },
+     {
+      "check": "LTV after <= keeper bound",
+      "ok": true,
+      "bound": 865699916756773689
+     },
+     {
+      "check": "liquidation buffer increased",
+      "ok": true,
+      "buffer_before": 944992774,
+      "buffer_after": 2392430098
+     },
+     {
+      "check": "vault holds no Morpho position of its own",
+      "ok": true
+     }
+    ],
+    "event": {
+     "action_id": "0x8a182e5ec5a57ab656f18a46e11a41d7f4ea527a44e8c94158aacadd9e7162d9",
+     "strategy": "REPAY",
+     "assets": 1447437536,
+     "debt_before": 41726940817,
+     "debt_after": 40279503281,
+     "collateral_before": 50000000000,
+     "collateral_after": 50000000000,
+     "ltv_before": 894736840432735238,
+     "ltv_after": 863699921302618806,
+     "policy_nonce": 1,
+     "tx_hash": "0xbc1651a0b309396e319a49c5addb5a05b704cf444f18960cb6ecc8760eb69ba8",
+     "block": 26164299
+    },
+    "block": 26164299,
+    "before": {
+     "debt": 41726940605,
+     "collateral": 50000000000,
+     "price": 932719855319088195000000000000000000,
+     "ltv": 894736840432735238,
+     "buffer": 944992774,
+     "reserve": 3000000000
+    },
+    "after": {
+     "debt": 40279503281,
+     "collateral": 50000000000,
+     "price": 932719855319088195000000000000000000,
+     "ltv": 863699921302618806,
+     "buffer": 2392430098,
+     "reserve": 1552562464
+    },
+    "remaining_limits": {
+     "repaid_total": 1447437536,
+     "topped_up_total": 0,
+     "policy": {
+      "allowed_strategies": 3,
+      "valid_until": 1794254057,
+      "cooldown": 3600,
+      "trigger_ltv": 880000000000000000,
+      "min_ltv_after": 400000000000000000,
+      "max_repay_per_action": 2500000000,
+      "max_top_up_per_action": 2500000000,
+      "max_full_repay": 0,
+      "max_repay_total": 30000000000,
+      "max_top_up_total": 5000000000,
+      "min_loan_reserve": 100000000,
+      "min_collateral_reserve": 100000000
+     },
+     "loan_reserve": 1552562464,
+     "collateral_reserve": 5000000000,
+     "paused": false,
+     "revoked": false,
+     "action_count": 1
+    }
+   },
+   "chosen": {
+    "strategy": "REPAY",
+    "amount_raw": 1447437536,
+    "token": {
+     "symbol": "USDC",
+     "decimals": 6,
+     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    },
+    "keeper_bound": 865699916756773689,
+    "bound_kind": "maxLtvAfter (WAD)",
+    "action_id": "0x8a182e5ec5a57ab656f18a46e11a41d7f4ea527a44e8c94158aacadd9e7162d9",
+    "policy_nonce": 1,
+    "after": {
+     "collateral": 50000000000,
+     "debt": 40279503069,
+     "debt_projected": 40288336709,
+     "ltv_now": 863699916756773689,
+     "buffer_now": 2392430310,
+     "healthy_now": true,
+     "scenarios": [
+      {
+       "scenario": "now",
+       "label": "current oracle price",
+       "price": 932719855319088195000000000000000000,
+       "max_borrow": 42671933379,
+       "debt_projected": 40288336709,
+       "buffer": 2383596670,
+       "ltv": 863889333545744237,
+       "liquidatable": false,
+       "meets_margin": true
+      },
+      {
+       "scenario": "follow_on",
+       "label": "PT feed -5% follow-on",
+       "price": 886083862553133785250000000000000000,
+       "max_borrow": 40538336711,
+       "debt_projected": 40288336709,
+       "buffer": 250000002,
+       "ltv": 909357193200915238,
+       "liquidatable": false,
+       "meets_margin": true
+      }
+     ],
+     "min_buffer": 250000002,
+     "meets_target": true,
+     "liquidation_price": 880426296590163934426229508196721312,
+     "drop_to_liquidation_wad": 56065664766013123
+    },
+    "metrics": {
+     "capital_committed_raw": 1447437536,
+     "capital_unit": "loan-token raw units at the current oracle price",
+     "reserve_share_used": 0.4824791786666667,
+     "principal_repaid_raw": 1447437536,
+     "collateral_added_raw": 0,
+     "collateral_added_value_raw": 0,
+     "exposure_added_value_raw": 0,
+     "residual_min_buffer_raw": 250000002,
+     "residual_ltv_now": 863699916756773689,
+     "drop_to_liquidation_after_wad": 56065664766013123,
+     "hypothetical_liquidation_penalty_after_raw": 0,
+     "notes": {
+      "principal_repaid": "reduces debt 1:1; not a loss",
+      "collateral_added": "stays the user's asset; adds exposure to the collateral's dependencies",
+      "gas": "the only cost lost (estimated at validation)",
+      "hypothetical_penalty": "only if the worst scenario happens and liquidators act; never summed"
+     }
+    }
+   }
   }
  ],
  "keeper_runs": [
   {
    "tag": "pre_crisis",
    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_pre_crisis.json --journal-dir data/countermove/demo/latest --interval 1 --once",
-   "seconds": 3.4,
+   "seconds": 3.5,
    "stderr_head": [
     "FAULTLINE keeper 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 on chain 31337 -> data\\countermove\\demo\\latest"
    ],
@@ -3023,7 +3708,7 @@
   {
    "tag": "phase_A_weETH",
    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_phase_A_weETH.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6",
-   "seconds": 3.7,
+   "seconds": 3.8,
    "stderr_head": [
     "FAULTLINE keeper 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 on chain 31337 -> data\\countermove\\demo\\latest"
    ],
@@ -3045,7 +3730,7 @@
   {
    "tag": "phase_B_cbBTC",
    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_phase_B_cbBTC.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6",
-   "seconds": 5.5,
+   "seconds": 7.2,
    "stderr_head": [
     "FAULTLINE keeper 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 on chain 31337 -> data\\countermove\\demo\\latest"
    ],
@@ -3065,9 +3750,41 @@
    ]
   },
   {
+   "tag": "pre_crisis_S5",
+   "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_pre_crisis_S5.json --journal-dir data/countermove/demo/latest --interval 1 --once",
+   "seconds": 1.8,
+   "stderr_head": [
+    "FAULTLINE keeper 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 on chain 31337 -> data\\countermove\\demo\\latest"
+   ],
+   "results": [
+    {
+     "position": "S5-PT-reUSD-repay",
+     "state": "WATCHING",
+     "reason": "position healthy and inside the scenario target; on-chain LTV 85.00% is below the trigger 88.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve)",
+     "tx_hash": null
+    }
+   ]
+  },
+  {
+   "tag": "phase_C_PT",
+   "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_phase_C_PT.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6",
+   "seconds": 3.0,
+   "stderr_head": [
+    "FAULTLINE keeper 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 on chain 31337 -> data\\countermove\\demo\\latest"
+   ],
+   "results": [
+    {
+     "position": "S5-PT-reUSD-repay",
+     "state": "CONFIRMED",
+     "reason": null,
+     "tx_hash": "0xbc1651a0b309396e319a49c5addb5a05b704cf444f18960cb6ecc8760eb69ba8"
+    }
+   ]
+  },
+  {
    "tag": "post_crisis",
    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_post_crisis.json --journal-dir data/countermove/demo/latest --interval 1 --once",
-   "seconds": 2.7,
+   "seconds": 3.3,
    "stderr_head": [
     "FAULTLINE keeper 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 on chain 31337 -> data\\countermove\\demo\\latest"
    ],
@@ -3095,10 +3812,16 @@
      "state": "WATCHING",
      "reason": "position healthy and inside the scenario target; on-chain LTV 0.00% is below the trigger 82.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve)",
      "tx_hash": null
+    },
+    {
+     "position": "S5-PT-reUSD-repay",
+     "state": "NO_ACTION",
+     "reason": "scenario breach detected (PT feed -5% follow-on: buffer 250.00 USDC) but on-chain LTV 86.37% is below the trigger 88.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve): ALERT only",
+     "tx_hash": null
     }
    ]
   }
  ],
  "all_expected": true,
- "duration_s": 83.7
+ "duration_s": 102.0
 }

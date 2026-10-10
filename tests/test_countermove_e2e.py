@@ -1,5 +1,5 @@
 """End-to-end: the real Morpho Blue v1.0.0 bytecode + RescueVault on a local Anvil chain, driven by the actual keeper
-(Watcher -> Countermove engine -> Guarded Executor signing with Foundry cast -> Verifier). No mainnet, no real funds:
+(Watcher -> Countermove engine -> Guarded Executor signing with Foundry cast from an encrypted keystore -> Verifier). No mainnet, no real funds:
 tokens / feed / oracle are local test contracts (contracts/src/sim). Skipped when Foundry or the artifacts are missing.
 Real-market runs on a mainnet FORK are in scripts/countermove_fork_demo.py."""
 import socket
@@ -16,7 +16,7 @@ from defirisk.countermove.watcher import Watcher
 
 try:
     devchain.anvil_path()
-    from defirisk.countermove.signer import CastSigner, cast_path, anvil_test_key
+    from defirisk.countermove.signer import KeystoreSigner, cast_path, import_test_keystore
     cast_path()
     HAVE = (devchain.OUT / "RescueVault.sol" / "RescueVault.json").exists() and (devchain.OUT / "LocalSim.sol").exists()
 except FileNotFoundError:
@@ -39,7 +39,7 @@ def _free_port() -> int:
 
 
 @pytest.fixture(scope="module")
-def world():
+def world(tmp_path_factory):
     node = devchain.Anvil(_free_port()).start()
     rpc = RPC(node.url)
     try:
@@ -70,7 +70,7 @@ def world():
         c(rpc, DEP, w["usdc"], "mint(address,uint256)", [USER, 10_000 * USDC])
         for t in ("usdc", "weth"):
             c(rpc, USER, w[t], "approve(address,uint256)", [w["vault"], 2 ** 256 - 1])
-        w["signer"] = CastSigner(anvil_test_key(1))
+        w["signer"] = KeystoreSigner(*import_test_keystore(1, tmp_path_factory.mktemp("keeper_keystore")))
         assert w["signer"].address.lower() == KEEPER.lower()
         yield w
     finally:
@@ -342,6 +342,32 @@ def test_e2e_duplicate_and_malicious_keeper_transactions_fail(env):
     assert (v1["loan_reserve"], v1["collateral_reserve"], v1["keeper"].lower()) == (v0["loan_reserve"], v0["collateral_reserve"], KEEPER.lower())
     for tok in ("usdc", "weth"):
         assert rpc.read(env[tok], "balanceOf(address)", [ATTACKER]) == 0
+
+
+def test_signer_keeps_the_key_off_command_lines_and_refuses_other_chains(world, monkeypatch):
+    from defirisk.countermove import signer as signer_mod
+    s = world["signer"]
+    key = signer_mod._run(["wallet", "private-key", "--mnemonic", signer_mod.ANVIL_TEST_MNEMONIC, "--mnemonic-index", "1"])
+    seen, real = [], signer_mod.subprocess.run
+
+    def spy(args, **kw):
+        seen.append([str(a) for a in args])
+        return real(args, **kw)
+    monkeypatch.setattr(signer_mod.subprocess, "run", spy)
+    t = {"to": world["vault"], "data": "0x", "chain_id": 31337, "nonce": 0, "gas": 21_000, "max_fee_per_gas": 2 * 10 ** 9,
+         "max_priority_fee_per_gas": 10 ** 9}
+    raw = s.sign(t, world["url"])
+    assert raw.startswith("0x02") and "anvil-test-1" not in repr(s) and key not in repr(s)
+    assert len(seen) == 1 and "--keystore" in seen[0] and "--password-file" in seen[0]
+    assert not any(key.lower().removeprefix("0x") in a.lower() for a in seen[0]), "the private key is on a command line"
+    assert not any("--private-key" in a for a in seen[0])
+    for cid in (1, 1337, 8453):
+        with pytest.raises(chainmod.UnsafeChainError):
+            s.sign({**t, "chain_id": cid})
+    assert len(seen) == 1, "a refused chain id never reaches cast"
+    assert signer_mod.KeystoreSigner.from_env({}) is None
+    with pytest.raises(ValueError):
+        signer_mod.KeystoreSigner.from_env({signer_mod.KEYSTORE_ENV: "x"})
 
 
 def test_chain_guard_refuses_non_local(monkeypatch):

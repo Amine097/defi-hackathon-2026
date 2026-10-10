@@ -45,16 +45,37 @@ def test_payload_contract(payload):
 
 def test_three_mandatory_outcomes_and_full_repay(payload):
     by = {p["scenario"]: p for p in payload["positions"]}
+    assert [p["scenario"] for p in payload["positions"]] == ["S1", "S2", "S3", "S4", "S5"]
     assert (by["S1"]["status"], by["S1"]["execution"]["strategy"]) == ("CONFIRMED", "REPAY")
     assert (by["S2"]["status"], by["S2"]["execution"]["strategy"]) == ("CONFIRMED", "TOP_UP")
     assert by["S3"]["status"] == "NO_ACTION" and "execution" not in by["S3"] and by["S3"]["no_action"]["transactions_sent"] == 0
     assert (by["S4"]["status"], by["S4"]["execution"]["strategy"]) == ("CONFIRMED", "FULL_REPAY")
-    s1, s2, s4 = by["S1"]["execution"], by["S2"]["execution"], by["S4"]["execution"]
+    assert (by["S5"]["status"], by["S5"]["execution"]["strategy"]) == ("CONFIRMED", "REPAY")
+    s1, s2, s4, s5 = (by[k]["execution"] for k in ("S1", "S2", "S4", "S5"))
     assert s1["after"]["debt"] < s1["before"]["debt"] and s1["after"]["collateral"] == s1["before"]["collateral"]
     assert s2["after"]["collateral"] > s2["before"]["collateral"] and s2["after"]["debt"] == pytest.approx(s2["before"]["debt"], abs=1e-3)
     assert s4["after"]["debt"] == 0 and s4["after"]["collateral"] == s4["before"]["collateral"]
-    for e in (s1, s2, s4):
+    assert s5["after"]["debt"] < s5["before"]["debt"] and s5["after"]["collateral"] == s5["before"]["collateral"]
+    for e in (s1, s2, s4, s5):
         assert e["after"]["ltv"] < e["before"]["ltv"] and e["after"]["buffer"] > e["before"]["buffer"]
+
+
+def test_s5_pt_collateral_oracle_incident_belem_example(payload):
+    """The Belem brief's example: a Pendle PT as collateral, incident on the oracle pricing the PT."""
+    s5 = next(p for p in payload["positions"] if p["scenario"] == "S5")
+    assert s5["before"]["collateral"]["symbol"].startswith("PT-") and s5["before"]["lltv"] == pytest.approx(0.915)
+    mover = s5["crisis"]["movers"][0]
+    assert mover["simulated"] and "PT" in mover["label"] and mover["change"] == pytest.approx(-0.05, abs=1e-9)
+    assert s5["shock"]["shock_bps"] == 500 and "SIMULATED" in s5["shock"]["label"]
+    cands = {c["strategy"]: c for c in s5["decision"]["candidates"]}
+    # both partial defenses reach the target; the repay commits less reserve value and adds no PT exposure
+    assert cands["REPAY"]["status"] == cands["TOP_UP"]["status"] == "eligible"
+    assert (cands["REPAY"]["rank"], cands["TOP_UP"]["rank"]) == (1, 2)
+    assert cands["REPAY"]["capital_committed"] < cands["TOP_UP"]["capital_committed"]
+    assert cands["TOP_UP"]["exposure_added_value"] > 0 and not cands["REPAY"]["exposure_added_value"]
+    assert cands["FULL_REPAY"]["rejected_at"] == "security"
+    e = s5["execution"]
+    assert e["amount"] == pytest.approx(cands["REPAY"]["required"]) and e["after"]["ltv"] < s5["crisis"]["trigger_ltv"]
 
 
 def test_confirmed_means_proof(payload):

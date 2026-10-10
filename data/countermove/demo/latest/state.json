@@ -1,7 +1,7 @@
 {
  "S1-weETH-repay": {
   "reference_deps": {
-   "block": 26164288,
+   "block": 26164299,
    "oracle": {
     "price": 2528356131224980293957600000
    },
@@ -30,8 +30,8 @@
    ]
   },
   "last_snapshot": {
-   "block": 26164288,
-   "timestamp": 1791662046,
+   "block": 26164299,
+   "timestamp": 1791662062,
    "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
    "beneficiary": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
    "loan": {
@@ -46,20 +46,20 @@
    },
    "collateral_amount": 10.0,
    "collateral_value": 25283.561312,
-   "debt": 19751.60087,
-   "ltv": 0.7812032737898185,
+   "debt": 19751.601413,
+   "ltv": 0.7812032952662235,
    "lltv": 0.86,
-   "buffer": 1992.261858,
+   "buffer": 1992.261315,
    "healthy": true,
-   "borrow_apr_onchain": 0.050838062886864,
+   "borrow_apr_onchain": 0.050838076983456,
    "oracle_price_raw": 2528356131224980293957600000,
    "raw": {
     "collateral": 10000000000000000000,
-    "debt": 19751600870,
-    "borrow_shares": 19139026229054768,
+    "debt": 19751601413,
+    "borrow_shares": 19139026261038742,
     "price": 2528356131224980293957600000,
     "lltv": 860000000000000000,
-    "rate_per_s": 1612064399
+    "rate_per_s": 1612064846
    },
    "vault": {
     "address": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
@@ -139,7 +139,7 @@
       "round_id": 36893488147419121509,
       "updated_at": 1791660779,
       "simulated": false,
-      "age_s": 1267,
+      "age_s": 1283,
       "max_age_s": 5400,
       "freshness": "fresh",
       "value": 2513.3
@@ -153,7 +153,7 @@
       "decimals": 12,
       "answer": 1000000000000,
       "round_id": 1,
-      "updated_at": 1791662046,
+      "updated_at": 1791662062,
       "simulated": false,
       "age_s": 0,
       "max_age_s": 5400,
@@ -262,11 +262,11 @@
     }
    }
   },
-  "updated_at": 1791665618.2067747,
+  "updated_at": 1791674443.4095204,
   "state": "WATCHING",
   "last_event": {
-   "ts": 1791665618.174342,
-   "run_id": "e5f2a374ce6e",
+   "ts": 1791674443.384739,
+   "run_id": "6753a22403bf",
    "position": "S1-weETH-repay",
    "state": "WATCHING",
    "label": "S1 | user A | weETH/USDC | USDC reserve",
@@ -274,8 +274,8 @@
    "decision": "HOLD",
    "why": "position healthy and inside the scenario target; on-chain LTV 78.12% is below the trigger 82.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve)",
    "snapshot": {
-    "block": 26164288,
-    "timestamp": 1791662046,
+    "block": 26164299,
+    "timestamp": 1791662062,
     "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
     "beneficiary": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
     "loan": {
@@ -290,20 +290,20 @@
     },
     "collateral_amount": 10.0,
     "collateral_value": 25283.561312,
-    "debt": 19751.60087,
-    "ltv": 0.7812032737898185,
+    "debt": 19751.601413,
+    "ltv": 0.7812032952662235,
     "lltv": 0.86,
-    "buffer": 1992.261858,
+    "buffer": 1992.261315,
     "healthy": true,
-    "borrow_apr_onchain": 0.050838062886864,
+    "borrow_apr_onchain": 0.050838076983456,
     "oracle_price_raw": 2528356131224980293957600000,
     "raw": {
      "collateral": 10000000000000000000,
-     "debt": 19751600870,
-     "borrow_shares": 19139026229054768,
+     "debt": 19751601413,
+     "borrow_shares": 19139026261038742,
      "price": 2528356131224980293957600000,
      "lltv": 860000000000000000,
-     "rate_per_s": 1612064399
+     "rate_per_s": 1612064846
     },
     "vault": {
      "address": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
@@ -383,7 +383,7 @@
        "round_id": 36893488147419121509,
        "updated_at": 1791660779,
        "simulated": false,
-       "age_s": 1267,
+       "age_s": 1283,
        "max_age_s": 5400,
        "freshness": "fresh",
        "value": 2513.3
@@ -397,7 +397,7 @@
        "decimals": 12,
        "answer": 1000000000000,
        "round_id": 1,
-       "updated_at": 1791662046,
+       "updated_at": 1791662062,
        "simulated": false,
        "age_s": 0,
        "max_age_s": 5400,
@@ -510,7 +510,7 @@
   "pending": null,
   "last_terminal": {
    "state": "CONFIRMED",
-   "at": 1791665611.1066267,
+   "at": 1791674419.500067,
    "reason": null,
    "tx_hash": "0x4b9254ebda91ddc69a362ebf2b8d88ddb19320f55f507b46b62974b3a51387e2"
   }
@@ -547,7 +547,7 @@
   },
   "last_snapshot": {
    "block": 26164282,
-   "timestamp": 1791662028,
+   "timestamp": 1791662027,
    "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
    "beneficiary": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
    "loan": {
@@ -562,20 +562,20 @@
    },
    "collateral_amount": 4.0,
    "collateral_value": 11113.653324,
-   "debt": 8335.240599,
-   "ltv": 0.750000054527524,
+   "debt": 8335.240585,
+   "ltv": 0.7500000532678124,
    "lltv": 0.86,
-   "buffer": 1222.501259,
+   "buffer": 1222.501273,
    "healthy": true,
-   "borrow_apr_onchain": 0.0508735417068,
+   "borrow_apr_onchain": 0.050873541202224,
    "oracle_price_raw": 2778413331016461863756600000,
    "raw": {
     "collateral": 4000000000000000000,
-    "debt": 8335240599,
-    "borrow_shares": 8076732317389190,
+    "debt": 8335240585,
+    "borrow_shares": 8076732317214236,
     "price": 2778413331016461863756600000,
     "lltv": 860000000000000000,
-    "rate_per_s": 1613189425
+    "rate_per_s": 1613189409
    },
    "vault": {
     "address": "0x14a0558b87b3c73c4853023499a9e80411b7a439",
@@ -654,7 +654,7 @@
       "round_id": 36893488147419121509,
       "updated_at": 1791660779,
       "simulated": false,
-      "age_s": 1249,
+      "age_s": 1248,
       "max_age_s": 5400,
       "freshness": "fresh",
       "value": 2513.3
@@ -668,7 +668,7 @@
       "decimals": 12,
       "answer": 1000000000000,
       "round_id": 1,
-      "updated_at": 1791662028,
+      "updated_at": 1791662027,
       "simulated": false,
       "age_s": 0,
       "max_age_s": 5400,
@@ -775,11 +775,11 @@
     }
    }
   },
-  "updated_at": 1791665618.6057026,
+  "updated_at": 1791674443.832955,
   "state": "NO_ACTION",
   "last_event": {
-   "ts": 1791665618.5749247,
-   "run_id": "e5f2a374ce6e",
+   "ts": 1791674443.7999444,
+   "run_id": "6753a22403bf",
    "position": "S3-weETH-no-action",
    "state": "NO_ACTION",
    "label": "S3 | user C | weETH/USDC | tiny reserves, full repay disabled",
@@ -790,14 +790,14 @@
   },
   "last_terminal": {
    "state": "NO_ACTION",
-   "at": 1791665618.5749247,
+   "at": 1791674443.7999444,
    "reason": "no authorized action can reach the target within the policy and the funded reserves: REPAY: reserve holds 150.00 USDC < required 584.58 USDC (funds must be pre-deposited in the RescueVault) | TOP_UP: reserve holds 0.010000 weETH < required 0.292267 weETH (funds must be pre-deposited in the RescueVault) | FULL_REPAY: needs 8,335.24 USDC > per-action cap 0.00 USDC",
    "tx_hash": null
   }
  },
  "S2-cbBTC-topup": {
   "reference_deps": {
-   "block": 26164288,
+   "block": 26164299,
    "oracle": {
     "price": 755114106268600000000000000000000000000
    },
@@ -812,8 +812,8 @@
    ]
   },
   "last_snapshot": {
-   "block": 26164288,
-   "timestamp": 1791662046,
+   "block": 26164299,
+   "timestamp": 1791662062,
    "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
    "beneficiary": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
    "loan": {
@@ -828,20 +828,20 @@
    },
    "collateral_amount": 0.52509364,
    "collateral_value": 39650.561467,
-   "debt": 31117.342254,
-   "ltv": 0.7847894481872105,
+   "debt": 31117.343027,
+   "ltv": 0.7847894676825208,
    "lltv": 0.86,
-   "buffer": 2982.140607,
+   "buffer": 2982.139834,
    "healthy": true,
-   "borrow_apr_onchain": 0.048973534257024,
+   "borrow_apr_onchain": 0.048973544411616,
    "oracle_price_raw": 755114106268600000000000000000000000000,
    "raw": {
     "collateral": 52509364,
-    "debt": 31117342254,
+    "debt": 31117343027,
     "borrow_shares": 28057461395499050,
     "price": 755114106268600000000000000000000000000,
     "lltv": 860000000000000000,
-    "rate_per_s": 1552940584
+    "rate_per_s": 1552940906
    },
    "vault": {
     "address": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
@@ -902,7 +902,7 @@
       "decimals": 8,
       "answer": 7551141062686,
       "round_id": 129127208515966886330,
-      "updated_at": 1791662046,
+      "updated_at": 1791662062,
       "simulated": true,
       "age_s": 0,
       "max_age_s": 5400,
@@ -986,11 +986,11 @@
     }
    }
   },
-  "updated_at": 1791665618.8404124,
+  "updated_at": 1791674444.1255953,
   "state": "WATCHING",
   "last_event": {
-   "ts": 1791665618.8073862,
-   "run_id": "e5f2a374ce6e",
+   "ts": 1791674444.0980663,
+   "run_id": "6753a22403bf",
    "position": "S2-cbBTC-topup",
    "state": "WATCHING",
    "label": "S2 | user B | cbBTC/USDC | cbBTC reserve, 100 USDC",
@@ -998,8 +998,8 @@
    "decision": "HOLD",
    "why": "position healthy and inside the scenario target; on-chain LTV 78.48% is below the trigger 82.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve)",
    "snapshot": {
-    "block": 26164288,
-    "timestamp": 1791662046,
+    "block": 26164299,
+    "timestamp": 1791662062,
     "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
     "beneficiary": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
     "loan": {
@@ -1014,20 +1014,20 @@
     },
     "collateral_amount": 0.52509364,
     "collateral_value": 39650.561467,
-    "debt": 31117.342254,
-    "ltv": 0.7847894481872105,
+    "debt": 31117.343027,
+    "ltv": 0.7847894676825208,
     "lltv": 0.86,
-    "buffer": 2982.140607,
+    "buffer": 2982.139834,
     "healthy": true,
-    "borrow_apr_onchain": 0.048973534257024,
+    "borrow_apr_onchain": 0.048973544411616,
     "oracle_price_raw": 755114106268600000000000000000000000000,
     "raw": {
      "collateral": 52509364,
-     "debt": 31117342254,
+     "debt": 31117343027,
      "borrow_shares": 28057461395499050,
      "price": 755114106268600000000000000000000000000,
      "lltv": 860000000000000000,
-     "rate_per_s": 1552940584
+     "rate_per_s": 1552940906
     },
     "vault": {
      "address": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
@@ -1088,7 +1088,7 @@
        "decimals": 8,
        "answer": 7551141062686,
        "round_id": 129127208515966886330,
-       "updated_at": 1791662046,
+       "updated_at": 1791662062,
        "simulated": true,
        "age_s": 0,
        "max_age_s": 5400,
@@ -1176,14 +1176,14 @@
   "pending": null,
   "last_terminal": {
    "state": "CONFIRMED",
-   "at": 1791665614.713075,
+   "at": 1791674424.3754945,
    "reason": null,
    "tx_hash": "0x7ccb73ccc688c2f5414316655a3112b50e8a8f45cbf03d97bf6291e08bca9050"
   }
  },
  "S4-cbBTC-full-repay": {
   "reference_deps": {
-   "block": 26164288,
+   "block": 26164299,
    "oracle": {
     "price": 755114106268600000000000000000000000000
    },
@@ -1198,8 +1198,8 @@
    ]
   },
   "last_snapshot": {
-   "block": 26164288,
-   "timestamp": 1791662046,
+   "block": 26164299,
+   "timestamp": 1791662062,
    "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
    "beneficiary": "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc",
    "loan": {
@@ -1219,7 +1219,7 @@
    "lltv": 0.86,
    "buffer": 19481.943941,
    "healthy": true,
-   "borrow_apr_onchain": 0.048973534257024,
+   "borrow_apr_onchain": 0.048973544411616,
    "oracle_price_raw": 755114106268600000000000000000000000000,
    "raw": {
     "collateral": 30000000,
@@ -1227,7 +1227,7 @@
     "borrow_shares": 0,
     "price": 755114106268600000000000000000000000000,
     "lltv": 860000000000000000,
-    "rate_per_s": 1552940584
+    "rate_per_s": 1552940906
    },
    "vault": {
     "address": "0x7d2314ab4d89a01120276384217739b04501c430",
@@ -1235,11 +1235,11 @@
     "paused": false,
     "revoked": false,
     "policy_nonce": 1,
-    "loan_reserve": 2329.594792,
+    "loan_reserve": 2329.594763,
     "collateral_reserve": 0.0,
-    "repaid_total": 18670.405208,
+    "repaid_total": 18670.405237,
     "topped_up_total": 0.0,
-    "last_action_at": 1791662046,
+    "last_action_at": 1791662047,
     "action_count": 1,
     "policy": {
      "allowed_strategies": 4,
@@ -1286,7 +1286,7 @@
       "decimals": 8,
       "answer": 7551141062686,
       "round_id": 129127208515966886330,
-      "updated_at": 1791662046,
+      "updated_at": 1791662062,
       "simulated": true,
       "age_s": 0,
       "max_age_s": 5400,
@@ -1370,11 +1370,11 @@
     }
    }
   },
-  "updated_at": 1791665619.1189141,
+  "updated_at": 1791674444.4234235,
   "state": "WATCHING",
   "last_event": {
-   "ts": 1791665619.08614,
-   "run_id": "e5f2a374ce6e",
+   "ts": 1791674444.3913877,
+   "run_id": "6753a22403bf",
    "position": "S4-cbBTC-full-repay",
    "state": "WATCHING",
    "label": "S4 | user D | cbBTC/USDC | policy: close the debt",
@@ -1382,8 +1382,8 @@
    "decision": "HOLD",
    "why": "position healthy and inside the scenario target; on-chain LTV 0.00% is below the trigger 82.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve)",
    "snapshot": {
-    "block": 26164288,
-    "timestamp": 1791662046,
+    "block": 26164299,
+    "timestamp": 1791662062,
     "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
     "beneficiary": "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc",
     "loan": {
@@ -1403,7 +1403,7 @@
     "lltv": 0.86,
     "buffer": 19481.943941,
     "healthy": true,
-    "borrow_apr_onchain": 0.048973534257024,
+    "borrow_apr_onchain": 0.048973544411616,
     "oracle_price_raw": 755114106268600000000000000000000000000,
     "raw": {
      "collateral": 30000000,
@@ -1411,7 +1411,7 @@
      "borrow_shares": 0,
      "price": 755114106268600000000000000000000000000,
      "lltv": 860000000000000000,
-     "rate_per_s": 1552940584
+     "rate_per_s": 1552940906
     },
     "vault": {
      "address": "0x7d2314ab4d89a01120276384217739b04501c430",
@@ -1419,11 +1419,11 @@
      "paused": false,
      "revoked": false,
      "policy_nonce": 1,
-     "loan_reserve": 2329.594792,
+     "loan_reserve": 2329.594763,
      "collateral_reserve": 0.0,
-     "repaid_total": 18670.405208,
+     "repaid_total": 18670.405237,
      "topped_up_total": 0.0,
-     "last_action_at": 1791662046,
+     "last_action_at": 1791662047,
      "action_count": 1,
      "policy": {
       "allowed_strategies": 4,
@@ -1470,7 +1470,7 @@
        "decimals": 8,
        "answer": 7551141062686,
        "round_id": 129127208515966886330,
-       "updated_at": 1791662046,
+       "updated_at": 1791662062,
        "simulated": true,
        "age_s": 0,
        "max_age_s": 5400,
@@ -1558,9 +1558,217 @@
   "pending": null,
   "last_terminal": {
    "state": "CONFIRMED",
-   "at": 1791665617.370576,
+   "at": 1791674427.5764575,
    "reason": null,
    "tx_hash": "0xeea9ca52ce4919469bfb9ceaa7ad4209694eb37da986410ea77b765effa6aee5"
+  }
+ },
+ "S5-PT-reUSD-repay": {
+  "reference_deps": {
+   "block": 26164297,
+   "oracle": {
+    "price": 981810374020092837000000000000000000
+   },
+   "feeds": [
+    {
+     "id": "feed:0x77ee147391eac11c92817e771860ff4aad265d89",
+     "role": "BASE_FEED_1",
+     "side": "base",
+     "answer": 981810374020092837,
+     "description": "Ojo PT Feed Pendle Chainlink-compatible Oracle"
+    }
+   ]
+  },
+  "last_snapshot": {
+   "block": 26164297,
+   "timestamp": 1791662057,
+   "market_id": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64",
+   "beneficiary": "0x976ea74026e726554db657fa54763abd0c3a0aa9",
+   "loan": {
+    "symbol": "USDC",
+    "decimals": 6,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+   },
+   "collateral": {
+    "symbol": "PT-reUSD-10DEC2026",
+    "decimals": 6,
+    "address": "0xecfafdc7741323a945a163ed068b5a3c43483957"
+   },
+   "collateral_amount": 50000.0,
+   "collateral_value": 49090.518701,
+   "debt": 41726.940287,
+   "ltv": 0.8499999875974014,
+   "lltv": 0.915,
+   "buffer": 3190.884324,
+   "healthy": true,
+   "borrow_apr_onchain": 0.080038849270896,
+   "oracle_price_raw": 981810374020092837000000000000000000,
+   "raw": {
+    "collateral": 50000000000,
+    "debt": 41726940287,
+    "borrow_shares": 40614681784478010,
+    "price": 981810374020092837000000000000000000,
+    "lltv": 915000000000000000,
+    "rate_per_s": 2538015261
+   },
+   "vault": {
+    "address": "0xff16306a25d9fe12fb88978e3fcfc02b6cde3c9d",
+    "keeper": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "paused": false,
+    "revoked": false,
+    "policy_nonce": 1,
+    "loan_reserve": 3000.0,
+    "collateral_reserve": 5000.0,
+    "repaid_total": 0.0,
+    "topped_up_total": 0.0,
+    "last_action_at": 0,
+    "action_count": 0,
+    "policy": {
+     "allowed_strategies": 3,
+     "valid_until": 1794254057,
+     "cooldown": 3600,
+     "trigger_ltv": 880000000000000000,
+     "min_ltv_after": 400000000000000000,
+     "max_repay_per_action": 2500000000,
+     "max_top_up_per_action": 2500000000,
+     "max_full_repay": 0,
+     "max_repay_total": 30000000000,
+     "max_top_up_total": 5000000000,
+     "min_loan_reserve": 100000000,
+     "min_collateral_reserve": 100000000,
+     "trigger_ltv_pct": 0.88,
+     "min_ltv_after_pct": 0.4,
+     "max_repay_per_action_h": 2500.0,
+     "max_top_up_per_action_h": 2500.0,
+     "max_full_repay_h": 0.0,
+     "max_repay_total_h": 30000.0,
+     "max_top_up_total_h": 5000.0,
+     "min_loan_reserve_h": 100.0,
+     "min_collateral_reserve_h": 100.0,
+     "strategies": [
+      "REPAY",
+      "TOP_UP"
+     ]
+    }
+   },
+   "dependencies": {
+    "oracle": {
+     "id": "oracle:0x217d6ddcdb95112c51657f6270e8c079cfdb51f0",
+     "address": "0x217d6ddcdb95112c51657f6270e8c079cfdb51f0",
+     "type": "MorphoChainlinkOracleV2",
+     "price": 981810374020092837000000000000000000,
+     "scale_factor": 1000000000000000000
+    },
+    "feeds": [
+     {
+      "id": "feed:0x77ee147391eac11c92817e771860ff4aad265d89",
+      "role": "BASE_FEED_1",
+      "side": "base",
+      "address": "0x77ee147391eac11c92817e771860ff4aad265d89",
+      "description": "Ojo PT Feed Pendle Chainlink-compatible Oracle",
+      "decimals": 18,
+      "answer": 981810374020092837,
+      "round_id": 0,
+      "updated_at": 1791662057,
+      "simulated": false,
+      "age_s": 0,
+      "max_age_s": 5400,
+      "freshness": "fresh",
+      "value": 0.9818103740200929
+     }
+    ],
+    "vaults": [],
+    "assumptions": [
+     "USDC (loan token) is valued as exactly 1 unit of the base feeds' quote currency: a USDC depeg is NOT seen by this oracle",
+     "PT-reUSD-10DEC2026 (collateral) is priced through Ojo PT Feed Pendle Chainlink-compatible Oracle: a PT-reUSD-10DEC2026 discount to that reference is NOT seen by this oracle"
+    ],
+    "stale": [],
+    "simulated": [],
+    "graph": {
+     "nodes": [
+      {
+       "id": "position",
+       "label": "Borrower position",
+       "kind": "position"
+      },
+      {
+       "id": "token:0xecfafdc7741323a945a163ed068b5a3c43483957",
+       "label": "PT-reUSD-10DEC2026 (collateral)",
+       "kind": "collateral"
+      },
+      {
+       "id": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "label": "USDC (debt)",
+       "kind": "loan"
+      },
+      {
+       "id": "oracle:0x217d6ddcdb95112c51657f6270e8c079cfdb51f0",
+       "label": "Market oracle (MorphoChainlinkOracleV2)",
+       "kind": "oracle"
+      },
+      {
+       "id": "morpho_blue",
+       "label": "Morpho Blue (liquidation engine)",
+       "kind": "protocol"
+      },
+      {
+       "id": "feed:0x77ee147391eac11c92817e771860ff4aad265d89",
+       "label": "Ojo PT Feed Pendle Chainlink-compatible Oracle",
+       "kind": "feed",
+       "side": "base",
+       "freshness": "fresh",
+       "simulated": false
+      }
+     ],
+     "edges": [
+      {
+       "src": "position",
+       "dst": "token:0xecfafdc7741323a945a163ed068b5a3c43483957",
+       "why": "collateral"
+      },
+      {
+       "src": "position",
+       "dst": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "why": "debt"
+      },
+      {
+       "src": "token:0xecfafdc7741323a945a163ed068b5a3c43483957",
+       "dst": "oracle:0x217d6ddcdb95112c51657f6270e8c079cfdb51f0",
+       "why": "valued by (drives liquidation)"
+      },
+      {
+       "src": "position",
+       "dst": "morpho_blue",
+       "why": "liquidation when debt > LLTV x collateral value"
+      },
+      {
+       "src": "oracle:0x217d6ddcdb95112c51657f6270e8c079cfdb51f0",
+       "dst": "feed:0x77ee147391eac11c92817e771860ff4aad265d89",
+       "why": "multiplies the price"
+      }
+     ]
+    }
+   }
+  },
+  "updated_at": 1791674444.7956364,
+  "state": "NO_ACTION",
+  "last_event": {
+   "ts": 1791674444.768916,
+   "run_id": "6753a22403bf",
+   "position": "S5-PT-reUSD-repay",
+   "state": "NO_ACTION",
+   "label": "S5 | user E | PT-reUSD/USDC | USDC + PT reserves, PT oracle incident",
+   "vault": "0xff16306a25d9fe12fb88978e3fcfc02b6cde3c9d",
+   "reason": "scenario breach detected (PT feed -5% follow-on: buffer 250.00 USDC) but on-chain LTV 86.37% is below the trigger 88.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve): ALERT only",
+   "decision": "NO_ACTION",
+   "alert": true
+  },
+  "pending": null,
+  "last_terminal": {
+   "state": "NO_ACTION",
+   "at": 1791674444.768916,
+   "reason": "scenario breach detected (PT feed -5% follow-on: buffer 250.00 USDC) but on-chain LTV 86.37% is below the trigger 88.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve): ALERT only",
+   "tx_hash": null
   }
  }
 }

@@ -96,6 +96,30 @@
    ],
    "retry_after_failed_s": 0,
    "realert_s": 0
+  },
+  {
+   "id": "S5-PT-reUSD-repay",
+   "label": "S5 | user E | PT-reUSD/USDC | USDC + PT reserves, PT oracle incident",
+   "rescue_vault": "0xff16306a25d9fe12fb88978e3fcfc02b6cde3c9d",
+   "engine": {
+    "safety_margin": "250",
+    "interest_horizon_s": 86400,
+    "ranking": "min_capital"
+   },
+   "scenarios": [
+    {
+     "id": "follow_on",
+     "label": "PT feed -5% follow-on",
+     "shocks": [
+      {
+       "dependency": "BASE_FEED_1",
+       "drop": 0.05
+      }
+     ]
+    }
+   ],
+   "retry_after_failed_s": 0,
+   "realert_s": 0
   }
  ],
  "limits": {

@@ -16,6 +16,8 @@ test('every recorded position renders with its proof-checked status', () => {
   assert.equal(statusView(by.S2).status, 'CONFIRMED');
   assert.equal(statusView(by.S3).status, 'NO_ACTION');
   assert.equal(statusView(by.S4).status, 'CONFIRMED');
+  assert.equal(statusView(by.S5).status, 'CONFIRMED');
+  assert.deepEqual(P.positions.map((p) => p.scenario), ['S1', 'S2', 'S3', 'S4', 'S5']);
   for (const p of P.positions) {
     assert.deepEqual(statusView(p).issues, []);
     assert.deepEqual(executionIssues(p), []);
@@ -59,6 +61,13 @@ test('comparison table: one chosen action, rejections carry their stage and reas
   assert.match(rep.stage, /rejected at feasibility/);
   assert.match(rep.reason, /reserve holds/);
   assert.equal(candidateRows(by.S3.decision).filter((r) => r.chosen).length, 0);
+  // S5: both partial defenses meet every constraint; the repay is chosen, the top-up stays visible as rank 2
+  const s5 = candidateRows(by.S5.decision);
+  assert.equal(s5.find((r) => r.chosen).strategy, 'REPAY');
+  const top = s5.find((r) => r.strategy === 'TOP_UP');
+  assert.equal(top.verdict, 'meets every constraint');
+  assert.equal(top.rank, 2);
+  assert.equal(top.chosen, false);
 });
 
 test('labels and environment banner', () => {
@@ -89,6 +98,10 @@ test('scenario labels and strategy names are human-readable', () => {
   assert.equal(STRATEGY_LABEL[outcomeKey(by.S2)], 'Auto top-up');
   assert.equal(STRATEGY_LABEL[outcomeKey(by.S3)], 'No action');
   assert.equal(STRATEGY_LABEL[outcomeKey(by.S4)], 'Emergency full repay');
+  const lp5 = labelParts(by.S5.label);
+  assert.equal(lp5.user, 'user E');
+  assert.equal(lp5.market, 'PT-reUSD/USDC');
+  assert.equal(STRATEGY_LABEL[outcomeKey(by.S5)], 'Auto-repay');
 });
 
 test('hero summarises crisis, decision and result from the payload', () => {
@@ -101,6 +114,10 @@ test('hero summarises crisis, decision and result from the payload', () => {
   assert.match(heroView(by.S1).decision, /^Auto-repay [\d,]+\.\d\d USDC/);
   assert.equal(heroView(by.S1).tone, 'stay');
   assert.match(heroView(by.S4).result, /→ 0/);
+  const h5 = heroView(by.S5);
+  assert.match(h5.crisis, /^Ojo PT Feed .+ -5\.0% → LTV .+ crossed your 88% trigger$/);
+  assert.match(h5.decision, /^Auto-repay [\d,]+\.\d\d USDC/);
+  assert.equal(h5.gauge.marks.length, 3);
   const h3 = heroView(by.S3);
   assert.equal(h3.tone, 'warn');
   assert.match(h3.result, /nothing sent/);
