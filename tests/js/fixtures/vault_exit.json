@@ -306,19 +306,23 @@
      "reported_raw": "4710595160985810897238631",
      "markets_raw": "4710595160985810897238631",
      "gap_raw": "0",
-     "gap_pct": 0.0
+     "gap_pct": 0.0,
+     "within_tolerance": true
     }
    ],
    "markets_raw": "4710595160985810897238631",
+   "credited_raw": "4710595160985810897238631",
    "idle_raw": "3451938900573403",
+   "idle_outside_total_assets_raw": "0",
    "total_assets_raw": "4710595164437749797812034",
    "unattributed_raw": "0",
    "unattributed_pct": 0.0,
    "gap_pct": 0.0,
    "tolerance": 0.005,
+   "adapters_within_tolerance": true,
    "within_tolerance": true,
    "coverage": 1.0,
-   "rule": "coverage = (idle + supply resolved in Morpho markets) / totalAssets; any shortfall is kept as an 'unattributed' exposure with a conservative failure model (never zero risk)"
+   "rule": "per adapter: markets held by that adapter vs its own reported assets (gap within tolerance); coverage = (idle counted in totalAssets + market supply credited up to each adapter's reported assets) / totalAssets; any shortfall is kept as an 'unattributed' exposure with a conservative failure model (never zero risk)"
   },
   "unit": "EURCV",
   "decimals": 18,
@@ -474,15 +478,15 @@
     "layer": "oracle",
     "p_fail_horizon": 0.00039279,
     "loss_given_failure": 0.4,
-    "affected_fraction": 0.04238602599124069,
-    "affected_usd_if_fails": 1695.4410396496276,
-    "expected_loss_usd": 0.6659522859639773,
+    "affected_fraction": 0.2231614189423094,
+    "affected_usd_if_fails": 8926.456757692376,
+    "expected_loss_usd": 3.5062229498539885,
     "exposed_allocations": [
      "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0"
     ],
     "decision_neutral": false,
     "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 611 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1282 protocols with TVL >= $1,000,000 = 6.92%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
-    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "lgf_source": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails",
     "address": "0x2b43e079d9637570e29ebe945de9053b0bf647b9"
    },
    {
@@ -511,9 +515,9 @@
     "layer": "yield_source",
     "p_fail_horizon": 0.00019639,
     "loss_given_failure": 0.5,
-    "affected_fraction": 0.013012288468677191,
-    "affected_usd_if_fails": 650.6144234338595,
-    "expected_loss_usd": 0.12777416661817567,
+    "affected_fraction": 0.013012126759313134,
+    "affected_usd_if_fails": 650.6063379656567,
+    "expected_loss_usd": 0.12777257871307532,
     "exposed_allocations": [
      "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e"
     ],
@@ -530,15 +534,15 @@
     "layer": "oracle",
     "p_fail_horizon": 0.00039279,
     "loss_given_failure": 0.4,
-    "affected_fraction": 0.007942775394674683,
-    "affected_usd_if_fails": 317.71101578698733,
-    "expected_loss_usd": 0.12479370989097074,
+    "affected_fraction": 0.00554315760015954,
+    "affected_usd_if_fails": 221.7263040063816,
+    "expected_loss_usd": 0.08709187495066663,
     "exposed_allocations": [
      "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e"
     ],
     "decision_neutral": false,
     "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 611 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1282 protocols with TVL >= $1,000,000 = 6.92%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
-    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "lgf_source": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails",
     "address": "0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4"
    },
    {
@@ -586,15 +590,15 @@
     "layer": "oracle",
     "p_fail_horizon": 0.00039279,
     "loss_given_failure": 0.4,
-    "affected_fraction": 0.0016119978607461911,
-    "affected_usd_if_fails": 64.47991442984765,
-    "expected_loss_usd": 0.02532706558889986,
+    "affected_fraction": 0.0009124027649294164,
+    "affected_usd_if_fails": 36.49611059717666,
+    "expected_loss_usd": 0.014335307281465022,
     "exposed_allocations": [
      "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1"
     ],
     "decision_neutral": false,
     "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 611 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1282 protocols with TVL >= $1,000,000 = 6.92%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
-    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "lgf_source": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails",
     "address": "0x44d6d497fb53294f283983e2931972840eb3dd90"
    },
    {
@@ -642,15 +646,15 @@
     "layer": "oracle",
     "p_fail_horizon": 0.00039279,
     "loss_given_failure": 0.4,
-    "affected_fraction": 1.79999445421924e-07,
-    "affected_usd_if_fails": 0.00719997781687696,
-    "expected_loss_usd": 2.8280792866911015e-06,
+    "affected_fraction": 9.437113781406587e-08,
+    "affected_usd_if_fails": 0.0037748455125626353,
+    "expected_loss_usd": 1.4827215688794776e-06,
     "exposed_allocations": [
      "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82"
     ],
     "decision_neutral": false,
     "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 611 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1282 protocols with TVL >= $1,000,000 = 6.92%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
-    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "lgf_source": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails",
     "address": "0x078f2bf7628e82d738b6b956dfad5114c8fc55f1"
    },
    {
@@ -698,15 +702,15 @@
     "layer": "oracle",
     "p_fail_horizon": 0.00039279,
     "loss_given_failure": 0.4,
-    "affected_fraction": 8.201733984709306e-08,
-    "affected_usd_if_fails": 0.003280693593883723,
-    "expected_loss_usd": 1.2886236367415873e-06,
+    "affected_fraction": 5.099548718728079e-08,
+    "affected_usd_if_fails": 0.002039819487491232,
+    "expected_loss_usd": 8.012206964916811e-07,
     "exposed_allocations": [
      "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba"
     ],
     "decision_neutral": false,
     "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 611 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1282 protocols with TVL >= $1,000,000 = 6.92%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
-    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "lgf_source": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails",
     "address": "0x396d968154355ce6001f3d3d59ceff1eb20750eb"
    },
    {
@@ -754,15 +758,15 @@
     "layer": "oracle",
     "p_fail_horizon": 0.00039279,
     "loss_given_failure": 0.4,
-    "affected_fraction": 0.001969857391473001,
-    "affected_usd_if_fails": 78.79429565892003,
-    "expected_loss_usd": 0.030949611391867207,
+    "affected_fraction": 0.004217298807625262,
+    "affected_usd_if_fails": 168.6919523050105,
+    "expected_loss_usd": 0.06626051194588507,
     "exposed_allocations": [
      "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce"
     ],
     "decision_neutral": false,
     "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 611 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1282 protocols with TVL >= $1,000,000 = 6.92%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
-    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "lgf_source": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails",
     "address": "0xba75fd248bf33d669d4c5adf25d3e32779656e47"
    }
   ],
@@ -853,18 +857,28 @@
     "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.6094097369802893,
+     "high": 0.6094097369802893,
+     "why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
+    }
    },
    {
     "src": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
     "dst": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
-    "transmission": 0.049413855790818986,
-    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 1.98% of market supply; under-pricing only hurts borrowers",
+    "transmission": 0.2601627757216179,
+    "why": "model: oracle wrong by 40%, direction unknown -> central loss 10.41% of market supply = mean of over-pricing 2.46% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.074) and under-pricing 18.36% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 1.98%-18.36%",
     "relation_type": "priced_by",
-    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity + borrower positions",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.049413855790818986,
+     "high": 0.45887796841865264,
+     "why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
+    }
    },
    {
     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -891,24 +905,34 @@
    {
     "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
     "dst": "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
-    "transmission": 0.1345528101661902,
-    "why": "model: a 50% jump drop leaves bad debt = 6.73% of market supply after liquidating 29/50 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+    "transmission": 0.1345511380199404,
+    "why": "model: a 50% jump drop leaves bad debt = 6.73% of market supply after liquidating 29/50 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing; unindexed debt 0.0% of the market's debt: central = indexed borrowers' bad-debt rate shrunk toward the at-LLTV worst case by the unindexed share, band = no bad debt .. all at the LLTV (6.73%-6.73%).",
     "relation_type": "collateralized_by",
     "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.13455079463080893,
+     "high": 0.1345528101661902,
+     "why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
+    }
    },
    {
     "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
     "dst": "oracle:0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4",
-    "transmission": 0.08213180582684958,
-    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.29% of market supply; under-pricing only hurts borrowers",
+    "transmission": 0.057318697943941496,
+    "why": "model: oracle wrong by 40%, direction unknown -> central loss 2.29% of market supply = mean of over-pricing 3.60% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.044) and under-pricing 0.98% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 0.98%-3.60%",
     "relation_type": "priced_by",
-    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity + borrower positions",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.024545060081350233,
+     "high": 0.09009227316083655,
+     "why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
+    }
    },
    {
     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -941,18 +965,28 @@
     "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.02036028532482081,
+     "high": 0.02036028532482081,
+     "why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
+    }
    },
    {
     "src": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
     "dst": "oracle:0x44d6d497fb53294f283983e2931972840eb3dd90",
-    "transmission": 0.07751191510458831,
-    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.10% of market supply; under-pricing only hurts borrowers",
+    "transmission": 0.04387231979555074,
+    "why": "model: oracle wrong by 40%, direction unknown -> central loss 1.75% of market supply = mean of over-pricing 3.40% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.044) and under-pricing 0.11% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 0.11%-3.40%",
     "relation_type": "priced_by",
-    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity + borrower positions",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.0027200311763761376,
+     "high": 0.08502460841472535,
+     "why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
+    }
    },
    {
     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -985,18 +1019,28 @@
     "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.0036325006733508103,
+     "high": 0.0036325006733508103,
+     "why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
+    }
    },
    {
     "src": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
     "dst": "oracle:0x078f2bf7628e82d738b6b956dfad5114c8fc55f1",
-    "transmission": 0.42385555429363886,
-    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 16.95% of market supply; under-pricing only hurts borrowers",
+    "transmission": 0.2222214120368078,
+    "why": "model: oracle wrong by 40%, direction unknown -> central loss 8.89% of market supply = mean of over-pricing 17.78% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.026) and under-pricing 0.00% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 0.00%-17.78%",
     "relation_type": "priced_by",
-    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity + borrower positions",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.0,
+     "high": 0.4444428240736156,
+     "why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
+    }
    },
    {
     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -1029,18 +1073,28 @@
     "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.0,
+     "high": 0.0,
+     "why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
+    }
    },
    {
     "src": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
     "dst": "oracle:0x396d968154355ce6001f3d3d59ceff1eb20750eb",
-    "transmission": 0.3863269923433679,
-    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 15.45% of market supply; under-pricing only hurts borrowers",
+    "transmission": 0.24020448876878814,
+    "why": "model: oracle wrong by 40%, direction unknown -> central loss 9.61% of market supply = mean of over-pricing 19.22% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.074) and under-pricing 0.00% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 0.00%-19.22%",
     "relation_type": "priced_by",
-    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity + borrower positions",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.0,
+     "high": 0.4804089775375763,
+     "why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
+    }
    },
    {
     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -1073,37 +1127,47 @@
     "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.40513688512408225,
+     "high": 0.40513688512408225,
+     "why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
+    }
    },
    {
     "src": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
     "dst": "oracle:0xba75fd248bf33d669d4c5adf25d3e32779656e47",
-    "transmission": 0.07969069033763734,
-    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.19% of market supply; under-pricing only hurts borrowers",
+    "transmission": 0.17061105783319763,
+    "why": "model: oracle wrong by 40%, direction unknown -> central loss 6.82% of market supply = mean of over-pricing 3.50% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.044) and under-pricing 10.15% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 3.19%-10.15%",
     "relation_type": "priced_by",
-    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity + borrower positions",
     "as_of_block": 26163088,
     "confidence": "medium",
-    "transmission_type": "mechanistic"
+    "transmission_type": "mechanistic",
+    "transmission_band": {
+     "low": 0.07969069033763734,
+     "high": 0.25380755841910996,
+     "why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
+    }
    }
   ],
   "path_aggregation": "sum"
  },
  "risk": {
   "horizon_days": 30,
-  "expected_loss_usd": 63.33061450753963,
-  "expected_loss_pct": 0.0006333061450753963,
+  "expected_loss_usd": 66.15572803184699,
+  "expected_loss_pct": 0.0006615572803184699,
   "label": "expected (probability-weighted over the horizon)",
   "band_usd": [
-   11.345879118973556,
-   324.12965052963125
+   11.324892093111938,
+   355.6326601718717
   ],
   "dependence_bounds_usd": [
    22.07832524543692,
-   63.34558231398031
+   66.17246686451082
   ],
   "var95_usd": 0.0,
-  "mc_mean_usd": 79.87951288297745,
+  "mc_mean_usd": 83.5867511224859,
   "formula": "central = V(1 - prod(1 - p_i LGF_i T_i)): exact expectation under independence + best-path transmission; dependence-free bounds [V max p_i h_i, V min(1, sum p_i h_i)]; band low = independence at low parameters, high = union bound at high parameters (any correlation). Paths are SUMMED over a vault's allocations (each share of assets is exposed once; capped at 100%).",
   "drivers": [
    {
@@ -1191,7 +1255,7 @@
    {
     "id": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
     "label": "Oracle 0x2b43e079...",
-    "expected_loss_usd": 0.6659522859639773,
+    "expected_loss_usd": 3.5062229498539885,
     "paths": [
      {
       "path": [
@@ -1201,7 +1265,7 @@
        "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
        "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9"
       ],
-      "transmission": 0.04238602599124069
+      "transmission": 0.2231614189423094
      }
     ]
    }
@@ -1385,7 +1449,7 @@
       "central": 0.4,
       "low": 0.2,
       "high": 0.6000000000000001,
-      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+      "why": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails"
      }
     },
     {
@@ -1445,7 +1509,7 @@
       "central": 0.4,
       "low": 0.2,
       "high": 0.6000000000000001,
-      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+      "why": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails"
      }
     },
     {
@@ -1505,7 +1569,7 @@
       "central": 0.4,
       "low": 0.2,
       "high": 0.6000000000000001,
-      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+      "why": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails"
      }
     },
     {
@@ -1565,7 +1629,7 @@
       "central": 0.4,
       "low": 0.2,
       "high": 0.6000000000000001,
-      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+      "why": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails"
      }
     },
     {
@@ -1625,7 +1689,7 @@
       "central": 0.4,
       "low": 0.2,
       "high": 0.6000000000000001,
-      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+      "why": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails"
      }
     },
     {
@@ -1685,7 +1749,7 @@
       "central": 0.4,
       "low": 0.2,
       "high": 0.6000000000000001,
-      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+      "why": "assumption: oracle mis-prices collateral by 40% (direction unknown) when it fails"
      }
     }
    ],
@@ -1760,16 +1824,18 @@
      "class": "scenario_assumption",
      "low": 0.457057302735217,
      "high": 0.7617621712253617,
-     "why": "model: a 50% jump drop leaves bad debt = 30.47% of market supply after liquidating 2/2 on-chain borrower positions (LIF 1.074); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+     "why": "model: a 50% jump drop leaves bad debt = 30.47% of market supply after liquidating 2/2 on-chain borrower positions (LIF 1.074); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+     "band_why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
     },
     {
      "src": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
      "dst": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
-     "transmission": 0.049413855790818986,
+     "transmission": 0.2601627757216179,
      "class": "scenario_assumption",
      "low": 0.03706039184311424,
-     "high": 0.06176731973852373,
-     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 1.98% of market supply; under-pricing only hurts borrowers"
+     "high": 0.5735974605233158,
+     "why": "model: oracle wrong by 40%, direction unknown -> central loss 10.41% of market supply = mean of over-pricing 2.46% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.074) and under-pricing 18.36% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 1.98%-18.36%",
+     "band_why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
     },
     {
      "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -1792,20 +1858,22 @@
     {
      "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
      "dst": "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
-     "transmission": 0.1345528101661902,
+     "transmission": 0.1345511380199404,
      "class": "scenario_assumption",
-     "low": 0.10091460762464265,
+     "low": 0.1009130959731067,
      "high": 0.16819101270773773,
-     "why": "model: a 50% jump drop leaves bad debt = 6.73% of market supply after liquidating 29/50 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+     "why": "model: a 50% jump drop leaves bad debt = 6.73% of market supply after liquidating 29/50 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing; unindexed debt 0.0% of the market's debt: central = indexed borrowers' bad-debt rate shrunk toward the at-LLTV worst case by the unindexed share, band = no bad debt .. all at the LLTV (6.73%-6.73%).",
+     "band_why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
     },
     {
      "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
      "dst": "oracle:0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4",
-     "transmission": 0.08213180582684958,
+     "transmission": 0.057318697943941496,
      "class": "scenario_assumption",
-     "low": 0.06159885437013718,
-     "high": 0.10266475728356197,
-     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.29% of market supply; under-pricing only hurts borrowers"
+     "low": 0.018408795061012673,
+     "high": 0.1126153414510457,
+     "why": "model: oracle wrong by 40%, direction unknown -> central loss 2.29% of market supply = mean of over-pricing 3.60% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.044) and under-pricing 0.98% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 0.98%-3.60%",
+     "band_why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
     },
     {
      "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -1832,16 +1900,18 @@
      "class": "scenario_assumption",
      "low": 0.015270213993615608,
      "high": 0.025450356656026015,
-     "why": "model: a 50% jump drop leaves bad debt = 1.02% of market supply after liquidating 16/39 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+     "why": "model: a 50% jump drop leaves bad debt = 1.02% of market supply after liquidating 16/39 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+     "band_why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
     },
     {
      "src": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
      "dst": "oracle:0x44d6d497fb53294f283983e2931972840eb3dd90",
-     "transmission": 0.07751191510458831,
+     "transmission": 0.04387231979555074,
      "class": "scenario_assumption",
-     "low": 0.05813393632844123,
-     "high": 0.09688989388073539,
-     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.10% of market supply; under-pricing only hurts borrowers"
+     "low": 0.0020400233822821033,
+     "high": 0.1062807605184067,
+     "why": "model: oracle wrong by 40%, direction unknown -> central loss 1.75% of market supply = mean of over-pricing 3.40% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.044) and under-pricing 0.11% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 0.11%-3.40%",
+     "band_why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
     },
     {
      "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -1868,16 +1938,18 @@
      "class": "scenario_assumption",
      "low": 0.002724375505013108,
      "high": 0.004540625841688513,
-     "why": "model: a 50% jump drop leaves bad debt = 0.18% of market supply after liquidating 1/2 on-chain borrower positions (LIF 1.026); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+     "why": "model: a 50% jump drop leaves bad debt = 0.18% of market supply after liquidating 1/2 on-chain borrower positions (LIF 1.026); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+     "band_why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
     },
     {
      "src": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
      "dst": "oracle:0x078f2bf7628e82d738b6b956dfad5114c8fc55f1",
-     "transmission": 0.42385555429363886,
+     "transmission": 0.2222214120368078,
      "class": "scenario_assumption",
-     "low": 0.31789166572022914,
-     "high": 0.5298194428670486,
-     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 16.95% of market supply; under-pricing only hurts borrowers"
+     "low": 0.0,
+     "high": 0.5555535300920196,
+     "why": "model: oracle wrong by 40%, direction unknown -> central loss 8.89% of market supply = mean of over-pricing 17.78% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.026) and under-pricing 0.00% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 0.00%-17.78%",
+     "band_why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
     },
     {
      "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -1904,16 +1976,18 @@
      "class": "scenario_assumption",
      "low": 0.0,
      "high": 0.0,
-     "why": "model: a 50% jump drop leaves bad debt = 0.00% of market supply after liquidating 1/1 on-chain borrower positions (LIF 1.074); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+     "why": "model: a 50% jump drop leaves bad debt = 0.00% of market supply after liquidating 1/1 on-chain borrower positions (LIF 1.074); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+     "band_why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
     },
     {
      "src": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
      "dst": "oracle:0x396d968154355ce6001f3d3d59ceff1eb20750eb",
-     "transmission": 0.3863269923433679,
+     "transmission": 0.24020448876878814,
      "class": "scenario_assumption",
-     "low": 0.28974524425752596,
-     "high": 0.4829087404292099,
-     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 15.45% of market supply; under-pricing only hurts borrowers"
+     "low": 0.0,
+     "high": 0.6005112219219704,
+     "why": "model: oracle wrong by 40%, direction unknown -> central loss 9.61% of market supply = mean of over-pricing 19.22% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.074) and under-pricing 0.00% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 0.00%-19.22%",
+     "band_why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
     },
     {
      "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
@@ -1940,16 +2014,18 @@
      "class": "scenario_assumption",
      "low": 0.3038526638430617,
      "high": 0.5064211064051028,
-     "why": "model: a 50% jump drop leaves bad debt = 20.26% of market supply after liquidating 23/40 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+     "why": "model: a 50% jump drop leaves bad debt = 20.26% of market supply after liquidating 23/40 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+     "band_why": "unindexed debt: no bad debt (low) / indexed rate shrunk toward LLTV (central) / at the LLTV (high)"
     },
     {
      "src": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
      "dst": "oracle:0xba75fd248bf33d669d4c5adf25d3e32779656e47",
-     "transmission": 0.07969069033763734,
+     "transmission": 0.17061105783319763,
      "class": "scenario_assumption",
      "low": 0.05976801775322801,
-     "high": 0.09961336292204667,
-     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.19% of market supply; under-pricing only hurts borrowers"
+     "high": 0.31725944802388745,
+     "why": "model: oracle wrong by 40%, direction unknown -> central loss 6.82% of market supply = mean of over-pricing 3.50% (free liquidity drained at once, positions liquidated after correction, liquidator keeps LIF 1.044) and under-pricing 10.15% (liquidations at the false price: suppliers lose only the debt left once all collateral is seized, as after a real drop); band 3.19%-10.15%",
+     "band_why": "low = milder direction (over-pricing with full collateral recovery / unindexed debt safe); high = worse direction at its high end"
     }
    ],
    "classes": "observed = measured on public data for this asset; calibrated = public base rate adjusted by metadata; protocol-derived = read from contracts; scenario_assumption = expert weight with a band; not_used = carried elsewhere (no double counting)"
@@ -1964,7 +2040,7 @@
    "assets": 89341.06507577442,
    "usd": 100000.0,
    "route": "ordinary",
-   "position_expected_loss_usd": 63.33061450753963,
+   "position_expected_loss_usd": 66.15572803184699,
    "position_carry_usd": 0.0,
    "residual_expected_loss_usd": 0.0,
    "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
@@ -2197,18 +2273,18 @@
    "assets": 89341.06507577442,
    "usd": 100000.0,
    "route": "ordinary",
-   "position_expected_loss_usd": 63.33061450753963,
+   "position_expected_loss_usd": 66.15572803184699,
    "position_carry_usd": 0.0,
    "residual_expected_loss_usd": 0.0,
    "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
    "why": "the whole position is executable now by a simulated route"
   },
-  "expected_loss_usd": 63.33061450753963,
+  "expected_loss_usd": 66.15572803184699,
   "loss_band_usd": [
-   11.345879118973556,
-   324.12965052963125
+   11.324892093111938,
+   355.6326601718717
   ],
-  "position_expected_loss_usd": 63.33061450753963,
+  "position_expected_loss_usd": 66.15572803184699,
   "residual_expected_loss_usd": 0.0,
   "execution_cost_usd": 0.08785369067836042,
   "carry_usd": 0.0,
@@ -2217,15 +2293,15 @@
    0.04392684533918021,
    0.13178053601754064
   ],
-  "margin_usd": 63.24276081686127,
+  "margin_usd": 66.06787434116863,
   "margin_convention": "margin_usd = expected_loss_usd - (execution_cost_usd + carry_usd), all on comparison_basis (same size w); > 0: staying costs more on central values (Phase 0.5 convention)",
-  "margin_with_usd_conversion_usd": -76.34834927718944,
-  "breakeven_risk_multiplier": 0.0013872230888885703,
+  "margin_with_usd_conversion_usd": -73.52323575288209,
+  "breakeven_risk_multiplier": 0.0013279831284763151,
   "withdrawal_feasibility": "full",
   "executable_route": "ordinary",
   "horizon_days": 30,
   "rule": "EXIT if loss_low > exit_high; STAY if loss_high < exit_low; else REVIEW (lean = central comparison). Stale / replayed / approximated inputs force REVIEW. A partial / zero / unknown exit downgrades EXIT to REVIEW (never an executable 100% EXIT); an exit is executable only through a route whose simulation succeeded (ordinary redeem or forceDeallocate multicall). Partial: every compared term is for the executable tranche.",
-  "explanation": "EXIT: even the low estimate of the loss from staying exceeds the high estimate of the exit side, and the full exit is executable now. Staying: expected loss $63 [$11-$324] over 30d. Exiting: execution $0.09 + forgone carry $0 = $0 [$0-$0]. Margin (loss - exit side) = $63: staying costs more on central values (point verdict EXIT). Withdrawal feasibility: full ($100,000 immediately).",
+  "explanation": "EXIT: even the low estimate of the loss from staying exceeds the high estimate of the exit side, and the full exit is executable now. Staying: expected loss $66 [$11-$356] over 30d. Exiting: execution $0.09 + forgone carry $0 = $0 [$0-$0]. Margin (loss - exit side) = $66: staying costs more on central values (point verdict EXIT). Withdrawal feasibility: full ($100,000 immediately).",
   "freshness": {
    "items": [
     {
@@ -2301,7 +2377,7 @@
    ],
    "loss_usd": 15744.58271666751,
    "loss_pct": 0.1574458271666751,
-   "loss_incl_background_risk_usd": 15779.34768064605,
+   "loss_incl_background_risk_usd": 15781.728517483596,
    "paths": {
     "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702": [
      {
@@ -2328,7 +2404,7 @@
   },
   {
    "name": "Oracle failure: Oracle 0x2b43e079...",
-   "description": "the oracle over-prices collateral by 40% (hypothesis); free liquidity is borrowed against overvalued collateral",
+   "description": "the oracle mis-prices collateral by 40%, direction unknown (hypothesis): over-pricing drains free liquidity against overvalued collateral, under-pricing triggers liquidations at the false price; loss = mean of the two directions",
    "label": "conditional_on_shock",
    "shocked": [
     {
@@ -2337,9 +2413,9 @@
      "label": "Oracle 0x2b43e079..."
     }
    ],
-   "loss_usd": 1695.4410396496255,
-   "loss_pct": 0.016954410396496256,
-   "loss_incl_background_risk_usd": 1757.0436697146529,
+   "loss_usd": 8926.45675769238,
+   "loss_pct": 0.0892645675769238,
+   "loss_incl_background_risk_usd": 8983.515882414438,
    "paths": {
     "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": [
      {
@@ -2350,12 +2426,12 @@
        "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
        "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9"
       ],
-      "transmission": 0.04238602599124069
+      "transmission": 0.2231614189423094
      }
     ]
    },
    "by_node_usd": {
-    "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": 1695.4410396496276
+    "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": 8926.456757692376
    },
    "immediately_withdrawable_usd": 100000.0,
    "withdrawal_feasibility": "full",
@@ -2377,7 +2453,7 @@
    ],
    "loss_usd": 60044.32910370284,
    "loss_pct": 0.6004432910370284,
-   "loss_incl_background_risk_usd": 60069.633275612076,
+   "loss_incl_background_risk_usd": 60070.762068674296,
    "paths": {
     "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0": [
      {
@@ -2408,7 +2484,7 @@
    "shocked": [],
    "loss_usd": 0.0,
    "loss_pct": 0.0,
-   "loss_incl_background_risk_usd": 62.484118258365754,
+   "loss_incl_background_risk_usd": 65.64267459050477,
    "paths": {},
    "by_node_usd": {},
    "immediately_withdrawable_usd": 0.0038637763022476273,
@@ -2459,9 +2535,9 @@
      "label": "Oracle 0x2b43e079..."
     }
    ],
-   "loss_usd": 16037.727821651126,
-   "loss_pct": 0.16037727821651127,
-   "loss_incl_background_risk_usd": 16071.183691285152,
+   "loss_usd": 22647.477057739397,
+   "loss_pct": 0.22647477057739396,
+   "loss_incl_background_risk_usd": 22678.352056693562,
    "paths": {
     "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702": [
      {
@@ -2484,7 +2560,7 @@
        "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
        "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
       ],
-      "transmission": 0.0023738779004110525
+      "transmission": 0.00237370157508362
      }
     ],
     "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0": [
@@ -2544,18 +2620,18 @@
        "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
        "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9"
       ],
-      "transmission": 0.0
+      "transmission": 0.19680728395834388
      }
     ]
    },
    "by_node_usd": {
     "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702": 15744.58271666751,
-    "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": 94.9551160164421,
+    "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": 94.9480630033448,
     "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0": 2.2627150582281144,
     "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f": 0.0,
     "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5": 0.0,
     "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf": 250.95262337185173,
-    "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": 0.0
+    "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": 7872.291358333755
    },
    "immediately_withdrawable_usd": 0.0038637763022476273,
    "withdrawal_feasibility": "partial",
@@ -2586,43 +2662,43 @@
   }
  ],
  "sensitivity": {
-  "base_expected_loss_usd": 63.33061450753963,
+  "base_expected_loss_usd": 66.15572803184699,
   "tornado_p_x0.5_x2": [
    {
     "id": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
     "label": "mGLOeuro (collateral)",
-    "low_usd": 52.29600679776958,
-    "high_usd": 85.39982992710193
+    "low_usd": 55.121432259819244,
+    "high_usd": 88.2243195759247
    },
    {
     "id": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
     "label": "Belem RWA EURCV (Morpho Vault V2)",
-    "low_usd": 56.460373159616935,
-    "high_usd": 77.0710972033517
+    "low_usd": 59.28568089906827,
+    "high_usd": 79.89582229742665
    },
    {
     "id": "morpho_blue",
     "label": "Morpho Blue (singleton)",
-    "low_usd": 56.46037316464625,
-    "high_usd": 77.07109719327087
+    "low_usd": 59.28568090409758,
+    "high_usd": 79.89582228734582
    },
    {
     "id": "chain:1",
     "label": "Ethereum",
-    "low_usd": 57.155264301522735,
-    "high_usd": 75.68131491957342
+    "low_usd": 59.980552397065345,
+    "high_usd": 78.5060793014547
    },
    {
     "id": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
     "label": "Oracle 0x2b43e079...",
-    "low_usd": 62.997847024326425,
-    "high_usd": 63.996149473966035
+    "low_usd": 64.40371491109875,
+    "high_usd": 69.65975427336568
    },
    {
     "id": "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
     "label": "cbBTC (collateral)",
-    "low_usd": 63.11926147863911,
-    "high_usd": 63.75332056536287
+    "low_usd": 65.9443809777005,
+    "high_usd": 66.57842214017329
    }
   ],
   "collateral_crash_curve": {
@@ -2660,7 +2736,7 @@
    ],
    "label_kind": "conditional_on_shock"
   },
-  "breakeven_risk_multiplier": 0.0013872230888885703,
+  "breakeven_risk_multiplier": 0.0013279831284763151,
   "note": "risk must be x breakeven the central estimate for the exit side to be worth paying (same basis as the decision: both sides for the same tranche)"
  },
  "warnings": [
@@ -2669,8 +2745,8 @@
  "assumptions": [
   "value_usd is a hypothetical exposure: converted to vault shares at the pinned share price; no holding is claimed",
   "collateral 'failure' = 50% jump drop (no time to liquidate before it); suppliers lose only the bad debt left after on-chain liquidations (Morpho Blue liquidation math, LIF from LLTV)",
-  "borrowers missing from the indexed list are assumed to sit at the LLTV (worst case)",
-  "oracle failure = 40% over-pricing; free liquidity drained against overvalued collateral",
+  "debt missing from the indexed borrower list (Morpho API, largest positions): central = the indexed borrowers' bad-debt rate shrunk toward the at-LLTV worst case by the unindexed share of the debt (no list -> at the LLTV); band = no bad debt .. all at the LLTV",
+  "oracle failure = collateral mis-priced by 40%, direction unknown. Over-pricing: free liquidity drained at once (no lag), positions liquidated after correction with the liquidator keeping the incentive (low end: full recovery). Under-pricing: liquidations at the false price; suppliers lose only the debt left once all collateral is seized (zero for a mild error, otherwise as a real drop). Central = mean of the two directions; band = milder .. worse direction",
   "vault contracts / curator and Morpho Blue share one Morpho protocol prior (x0.5 each, Phase 0.5 split); chain prior 0.5%/y",
   "deposit asset depeg and EUR/USD are decision-neutral (held after redeeming too): shown as context / what-if",
   "carry = on-chain net APY (supply APY of each market x share, net of fees) over the horizon, reference 0%, band +-50%",

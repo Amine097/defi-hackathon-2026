@@ -805,19 +805,23 @@
      "reported_raw": 26445040761752,
      "markets_raw": 26445040761752,
      "gap_raw": 0,
-     "gap_pct": 0.0
+     "gap_pct": 0.0,
+     "within_tolerance": true
     }
    ],
    "markets_raw": 26445040761752,
+   "credited_raw": 26445040761752,
    "idle_raw": 0,
+   "idle_outside_total_assets_raw": 0,
    "total_assets_raw": 26445040761752,
    "unattributed_raw": 0,
    "unattributed_pct": 0.0,
    "gap_pct": 0.0,
    "tolerance": 0.005,
+   "adapters_within_tolerance": true,
    "within_tolerance": true,
    "coverage": 1.0,
-   "rule": "coverage = (idle + supply resolved in Morpho markets) / totalAssets; any shortfall is kept as an 'unattributed' exposure with a conservative failure model (never zero risk)"
+   "rule": "per adapter: markets held by that adapter vs its own reported assets (gap within tolerance); coverage = (idle counted in totalAssets + market supply credited up to each adapter's reported assets) / totalAssets; any shortfall is kept as an 'unattributed' exposure with a conservative failure model (never zero risk)"
   }
  },
  "rd": {
@@ -888,11 +892,12 @@
   "as_of_block": 26163090,
   "verdict": "REVIEW",
   "point_verdict": "STAY",
-  "expected_loss_usd": 71.29493113735563,
+  "expected_loss_usd": 75.64692075381352,
   "exit_side_usd": 543.9759797034811,
-  "margin_usd": -472.68104856612547,
+  "margin_usd": -468.3290589496676,
   "withdrawal_feasibility": "full",
   "coverage": 1.0,
   "markets": 4
- }
+ },
+ "derived_refreshed": "reconciliation and live_headline recomputed from the same recorded reads after the Phase 1 review fixes (per-adapter reconciliation, unindexed-debt band, two-direction oracle failure); raw on-chain / API inputs unchanged"
 }

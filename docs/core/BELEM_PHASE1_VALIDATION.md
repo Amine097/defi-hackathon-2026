@@ -37,8 +37,8 @@ The P&L belongs to the **depositor** of vault shares. `value_usd` is a **hypothe
 
 | Shock | Depositor loss |
 |---|---|
-| Collateral failure (50 % jump drop) | **Only the bad debt** left after on-chain liquidations (Morpho Blue liquidation math, LIF from LLTV) on every indexed borrower. Unindexed debt is assumed to sit at the LLTV (worst case). A borrower liquidation without shortfall costs the depositor **0**. |
-| Oracle failure (40 % over-pricing) | Free liquidity drained: `L × max(0, 1 − (1 − d)/LLTV)`. Under-pricing only hurts borrowers and is excluded. |
+| Collateral failure (50 % jump drop) | **Only the bad debt** left after on-chain liquidations (Morpho Blue liquidation math, LIF from LLTV) on every indexed borrower. Debt the indexer does not list (it returns the largest positions) gets a **band**: low = no bad debt; central = the indexed borrowers' bad-debt rate per unit of debt shrunk toward the at-LLTV rate by the unindexed share `1 − c` (`r = c·r_indexed + (1 − c)·r_LLTV`; no list → at the LLTV); high = all of it at the LLTV (the former single assumption). The band is carried by the edge into `uncertainty.loss_band` (×0.75 / ×1.25 expert range on top). A borrower liquidation without shortfall costs the depositor **0**. |
+| Oracle failure (40 % mis-pricing, direction unknown) | Over-pricing: the free liquidity `L` is drained at once (one block, flash-loanable); after correction the drained positions are liquidated and the liquidator keeps the incentive, so suppliers lose `L × max(0, 1 − (1 − d)/(LLTV × LIF))` (low end: full recovery, `L × max(0, 1 − (1 − d)/LLTV)`). Under-pricing: Morpho liquidates at the false price; while reported collateral × LIF covers the debt only borrowers lose, beyond that all collateral is seized and the rest is socialised to suppliers, as after a real drop of `d` (`bad_debt_fraction(d)` and its band). Central = mean of the two directions; band = milder direction at its low end … worse direction at its high end. |
 | Morpho Blue / vault / curator / chain | Phase 0.5 protocol priors (shared Morpho prior ×0.5 each, chain 0.5 %/y). |
 | Deposit asset depeg, EUR/USD | **Decision-neutral**: the asset is held after redeeming too. Shown as context and as a what-if scenario. |
 
@@ -69,7 +69,7 @@ The P&L belongs to the **depositor** of vault shares. `value_usd` is a **hypothe
 | Vault | How capacity is computed |
 |---|---|
 | V2 | `maxRedeem`/`maxWithdraw` = 0 is a V2 design choice, not "no liquidity". Capacity = idle + liquidity adapter's market free liquidity, subject to the gates. It is cross-checked against Morpho GraphQL `liquidity`. Force-deallocate is shown as a non-standard path and is not counted. |
-| V1 | Σ min(vault supply, market free liquidity) over the withdraw queue, plus idle. |
+| V1 | Σ min(vault supply, market free liquidity) over the withdraw queue. A token balance held by a MetaMorpho vault is outside `totalAssets()` and is not used by withdrawals, so it is not counted. |
 
 ## 4. Sources
 
@@ -77,7 +77,7 @@ The P&L belongs to the **depositor** of vault shares. `value_usd` is a **hypothe
 |---|---|---|
 | Version, asset, totalAssets, shares, adapters, allocations, caps, gates, fees | `eth_call` on public Ethereum RPC, pinned block | Morpho GraphQL `vaultV2ByAddress` / `vaultByAddress` (totalAssets rel. 2 %, APY 50 bp) |
 | Market state, LLTV, oracle, IRM | Morpho Blue `market()` / `idToMarketParams()` at the block | Morpho GraphQL markets |
-| Borrower positions | Morpho GraphQL `marketPositions` (paginated) | Unindexed remainder assumed at LLTV |
+| Borrower positions | Morpho GraphQL `marketPositions` (paginated) | Unindexed remainder: band (none / indexed rate shrunk toward LLTV / at LLTV) |
 | Asset USD price | DefiLlama coins (max age 1 h) | Morpho GraphQL `asset.price.usd` (1 %) |
 | EUR/USD | Chainlink EUR/USD feed (max age 26 h) | n/a (decision-neutral) |
 | Event probabilities | Phase 0.5 priors (DefiLlama hacks base rates) | n/a (assumption, labelled) |
@@ -108,9 +108,9 @@ Commands:
 | V07 | PASS | `test_v07_graph_changes_with_address`. Live graphs: 24 / 16 / 23 / 33 nodes. No address-specific code. |
 | V08 | PASS | `test_v08_v1_withdraw_queue`. Live Steakhouse: 12 queue markets, capacity = Σ min(supply, liquidity). |
 | V09 | PASS | `test_v09_v2_max_redeem_zero_is_not_zero_liquidity`, `test_v09_closed_gate_blocks_ordinary_exit`. Live Belem: `maxRedeem` = 0, capacity ≈ $404.9k, API cross-check ok. |
-| V10 | PASS | `test_v10_reconciliation`: Σ allocations + idle + unattributed = totalAssets, shares sum to 1, pagination. |
+| V10 | PASS | `test_v10_reconciliation`: Σ allocations + idle + unattributed = totalAssets, shares sum to 1, pagination. Per adapter (strict holder match, each adapter credited at most what it reports): `test_v10_per_adapter_gaps_not_masked`, `test_v10_v1_reconciliation_is_not_a_tautology` (V1 checked against `MetaMorpho.totalAssets()`, idle outside it), `test_v10_adapter_gap_warning_and_unattributed_node`. |
 | V11 | PASS | `test_v11_shared_dependency_one_node_no_double_count`. E2E Steakhouse: Morpho Blue is one node behind 12 allocations. |
-| V12 | PASS | `test_v12_liquidation_without_shortfall_costs_depositor_nothing`, `test_v12_unindexed_debt_assumed_at_lltv`. |
+| V12 | PASS | `test_v12_liquidation_without_shortfall_costs_depositor_nothing`, `test_v12_unindexed_debt_without_list_is_valued_at_lltv`, `test_v12_partial_coverage_band`, `test_v12_coverage_band_reaches_the_uncertainty_band`, `test_v12_oracle_failure_both_directions`, `test_v12_mild_underpricing_costs_suppliers_nothing`, `test_v12_oracle_edge_band_in_graph`. |
 | V13 | PASS | `test_v13_scenarios` (collateral crash, oracle, market failure, liquidity crisis, correlated, deposit-asset what-if), each with paths. Also `test_v13_custom_shock_targets_this_vault`. |
 | V14 | PASS | `test_v14_bounds_and_monotonicity` (0 ≤ loss ≤ V, monotone in severity), `test_v14_linear_in_exposure`, decimals 6 and 18. |
 | V15 | PASS | `test_v15_eurcv_price_fx_and_peg` (EURCV USD vs Chainlink EUR/USD; depeg = price / FX − 1), `test_v15_missing_fx_no_firm_usd`. |
