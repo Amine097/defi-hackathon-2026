@@ -37,6 +37,8 @@ export function buildQuery({ address, value_usd, horizon_days, shock, severity }
 
 const VERDICT_CLS = { STAY: 'stay', EXIT: 'exit', REVIEW: 'warn' };
 const COLOUR_OF = { STAY: 'green', EXIT: 'red', REVIEW: 'amber' };
+// Feasibilities whose route was SIMULATED for the full amount (ordinary redeem or forceDeallocate multicall).
+export const EXECUTABLE = new Set(['full', 'full_via_force_deallocate']);
 
 // Verifies the identities the backend promises (P1-06 "no UI/math contradictions") and returns what to display.
 export function verdictView(d) {
@@ -47,10 +49,15 @@ export function verdictView(d) {
   const exitSide = d.exit_side_usd, margin = d.margin_usd;
   if (Math.abs(exitSide - (d.execution_cost_usd + d.carry_usd)) > 1e-6 * Math.max(1, Math.abs(exitSide))) issues.push('exit side ≠ execution + carry');
   if (Math.abs(margin - (d.expected_loss_usd - exitSide)) > 1e-6 * Math.max(1, Math.abs(margin))) issues.push('margin ≠ loss − exit side');
+  const b = d.comparison_basis;
+  if (b && Number.isFinite(b.fraction) && d.position_expected_loss_usd != null
+      && Math.abs(d.expected_loss_usd - d.position_expected_loss_usd * b.fraction) > 1e-6 * Math.max(1, d.expected_loss_usd)) {
+    issues.push('compared loss ≠ position loss × tranche fraction (mixed basis)');
+  }
   const pv = d.point_verdict;
   if ((margin > 0 && pv === 'STAY') || (margin < 0 && pv === 'EXIT')) issues.push(`margin sign contradicts point verdict ${pv}`);
   if (v !== 'REVIEW' && pv !== v) issues.push(`firm ${v} but point verdict ${pv}`);
-  if (v === 'EXIT' && d.withdrawal_feasibility !== 'full') issues.push('EXIT on a non-full withdrawal');
+  if (v === 'EXIT' && !EXECUTABLE.has(d.withdrawal_feasibility)) issues.push('EXIT on a non-full withdrawal');
   if (v === 'REVIEW' && d.confidence !== 'low') issues.push('REVIEW should carry low confidence');
   if (typeof d.explanation === 'string' && !d.explanation.startsWith(v)) issues.push('explanation does not start with the verdict');
   const [ll, lh] = d.loss_band_usd || [], [el, eh] = d.exit_band_usd || [];
@@ -60,8 +67,29 @@ export function verdictView(d) {
   return {
     cls: VERDICT_CLS[v], label: v, lean: v === 'REVIEW' ? d.lean : null, point: pv,
     marginText: (margin > 0 ? '+' : '') + fmtUsd(margin), hint,
+    basisText: basisText(b),
     consistent: issues.length === 0, issues,
   };
+}
+
+// Human label of what the compared figures refer to (the backend decides the basis; this only names it).
+export function basisText(b) {
+  if (!b || b.kind === 'full_position') return 'whole position';
+  if (b.kind === 'executable_tranche') return `executable tranche only (${fmtPct(b.fraction, 1)} = ${fmtUsd(b.usd)}); residual expected loss ${fmtUsd(b.residual_expected_loss_usd)} stays exposed`;
+  return 'hypothetical: no exit route confirmed now';
+}
+
+// Exit routes as table rows (status / capacity / cost come from the backend simulation, never recomputed here).
+export function routeRows(exit) {
+  const r = (exit && exit.routes) || {};
+  const out = [];
+  if (r.ordinary) out.push({ name: 'Ordinary redeem', status: r.ordinary.status, capacity: r.ordinary.capacity_usd,
+    gas: r.ordinary.gas && r.ordinary.gas.gas_usd, penalty: 0, confirmed: /^simulated/.test(r.ordinary.status || '') });
+  if (r.force_deallocate) out.push({ name: 'forceDeallocate + redeem (multicall)', status: r.force_deallocate.status,
+    capacity: r.force_deallocate.capacity_usd, gas: r.force_deallocate.gas && r.force_deallocate.gas.gas_usd,
+    penalty: r.force_deallocate.penalty_usd, confirmed: /^simulated/.test(r.force_deallocate.status || '') });
+  for (const u of r.unconfirmed || []) out.push({ name: `${u.route} (unconfirmed)`, status: u.status, capacity: u.usd, gas: null, penalty: null, confirmed: false });
+  return out;
 }
 
 const MODE = {

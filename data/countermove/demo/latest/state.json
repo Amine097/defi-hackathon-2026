@@ -1,0 +1,1566 @@
+{
+ "S1-weETH-repay": {
+  "reference_deps": {
+   "block": 26164288,
+   "oracle": {
+    "price": 2528356131224980293957600000
+   },
+   "feeds": [
+    {
+     "id": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+     "role": "BASE_FEED_1",
+     "side": "base",
+     "answer": 1005990582590610072,
+     "description": "FAULTLINE SIMULATED SHOCK (local fork only)"
+    },
+    {
+     "id": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+     "role": "BASE_FEED_2",
+     "side": "base",
+     "answer": 251330000000,
+     "description": "ETH / USD"
+    },
+    {
+     "id": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+     "role": "QUOTE_FEED_1",
+     "side": "quote",
+     "answer": 1000000000000,
+     "description": "Dummy feed with 12 decimals"
+    }
+   ]
+  },
+  "last_snapshot": {
+   "block": 26164288,
+   "timestamp": 1791662046,
+   "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
+   "beneficiary": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+   "loan": {
+    "symbol": "USDC",
+    "decimals": 6,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+   },
+   "collateral": {
+    "symbol": "weETH",
+    "decimals": 18,
+    "address": "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee"
+   },
+   "collateral_amount": 10.0,
+   "collateral_value": 25283.561312,
+   "debt": 19751.60087,
+   "ltv": 0.7812032737898185,
+   "lltv": 0.86,
+   "buffer": 1992.261858,
+   "healthy": true,
+   "borrow_apr_onchain": 0.050838062886864,
+   "oracle_price_raw": 2528356131224980293957600000,
+   "raw": {
+    "collateral": 10000000000000000000,
+    "debt": 19751600870,
+    "borrow_shares": 19139026229054768,
+    "price": 2528356131224980293957600000,
+    "lltv": 860000000000000000,
+    "rate_per_s": 1612064399
+   },
+   "vault": {
+    "address": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
+    "keeper": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "paused": false,
+    "revoked": false,
+    "policy_nonce": 1,
+    "loan_reserve": 3913.498615,
+    "collateral_reserve": 0.05,
+    "repaid_total": 1086.501385,
+    "topped_up_total": 0.0,
+    "last_action_at": 1791662039,
+    "action_count": 1,
+    "policy": {
+     "allowed_strategies": 7,
+     "valid_until": 1794254002,
+     "cooldown": 3600,
+     "trigger_ltv": 820000000000000000,
+     "min_ltv_after": 400000000000000000,
+     "max_repay_per_action": 5000000000,
+     "max_top_up_per_action": 1000000000000000000,
+     "max_full_repay": 25000000000,
+     "max_repay_total": 30000000000,
+     "max_top_up_total": 1000000000000000000,
+     "min_loan_reserve": 100000000,
+     "min_collateral_reserve": 10000000000000000,
+     "trigger_ltv_pct": 0.82,
+     "min_ltv_after_pct": 0.4,
+     "max_repay_per_action_h": 5000.0,
+     "max_top_up_per_action_h": 1.0,
+     "max_full_repay_h": 25000.0,
+     "max_repay_total_h": 30000.0,
+     "max_top_up_total_h": 1.0,
+     "min_loan_reserve_h": 100.0,
+     "min_collateral_reserve_h": 0.01,
+     "strategies": [
+      "REPAY",
+      "TOP_UP",
+      "FULL_REPAY"
+     ]
+    }
+   },
+   "dependencies": {
+    "oracle": {
+     "id": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+     "address": "0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+     "type": "MorphoChainlinkOracleV2",
+     "price": 2528356131224980293957600000,
+     "scale_factor": 10000000000
+    },
+    "feeds": [
+     {
+      "id": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+      "role": "BASE_FEED_1",
+      "side": "base",
+      "address": "0x4270e1817576bba4b640466be79a408ef128f828",
+      "description": "FAULTLINE SIMULATED SHOCK (local fork only)",
+      "decimals": 18,
+      "answer": 1005990582590610072,
+      "round_id": 1,
+      "updated_at": 0,
+      "simulated": true,
+      "age_s": null,
+      "freshness": "no_timestamp",
+      "freshness_note": "computed at call time (exchange-rate adapter): no update time to check",
+      "value": 1.0059905825906101,
+      "original_description": "weETH/ETH exchange rate"
+     },
+     {
+      "id": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+      "role": "BASE_FEED_2",
+      "side": "base",
+      "address": "0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+      "description": "ETH / USD",
+      "decimals": 8,
+      "answer": 251330000000,
+      "round_id": 36893488147419121509,
+      "updated_at": 1791660779,
+      "simulated": false,
+      "age_s": 1267,
+      "max_age_s": 5400,
+      "freshness": "fresh",
+      "value": 2513.3
+     },
+     {
+      "id": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+      "role": "QUOTE_FEED_1",
+      "side": "quote",
+      "address": "0xc3866d726c204c0836e0677a31973c649888973d",
+      "description": "Dummy feed with 12 decimals",
+      "decimals": 12,
+      "answer": 1000000000000,
+      "round_id": 1,
+      "updated_at": 1791662046,
+      "simulated": false,
+      "age_s": 0,
+      "max_age_s": 5400,
+      "freshness": "fresh",
+      "value": 1.0
+     }
+    ],
+    "vaults": [],
+    "assumptions": [
+     "USDC (loan token) is valued as exactly 1 unit of the base feeds' quote currency: a USDC depeg is NOT seen by this oracle",
+     "weETH (collateral) is priced through FAULTLINE SIMULATED SHOCK (local fork only), ETH / USD: a weETH discount to that reference is NOT seen by this oracle"
+    ],
+    "stale": [],
+    "simulated": [
+     "feed:0x4270e1817576bba4b640466be79a408ef128f828"
+    ],
+    "graph": {
+     "nodes": [
+      {
+       "id": "position",
+       "label": "Borrower position",
+       "kind": "position"
+      },
+      {
+       "id": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+       "label": "weETH (collateral)",
+       "kind": "collateral"
+      },
+      {
+       "id": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "label": "USDC (debt)",
+       "kind": "loan"
+      },
+      {
+       "id": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "label": "Market oracle (MorphoChainlinkOracleV2)",
+       "kind": "oracle"
+      },
+      {
+       "id": "morpho_blue",
+       "label": "Morpho Blue (liquidation engine)",
+       "kind": "protocol"
+      },
+      {
+       "id": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+       "label": "FAULTLINE SIMULATED SHOCK (local fork only)",
+       "kind": "feed",
+       "side": "base",
+       "freshness": "no_timestamp",
+       "simulated": true
+      },
+      {
+       "id": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+       "label": "ETH / USD",
+       "kind": "feed",
+       "side": "base",
+       "freshness": "fresh",
+       "simulated": false
+      },
+      {
+       "id": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+       "label": "Dummy feed with 12 decimals",
+       "kind": "feed",
+       "side": "quote",
+       "freshness": "fresh",
+       "simulated": false
+      }
+     ],
+     "edges": [
+      {
+       "src": "position",
+       "dst": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+       "why": "collateral"
+      },
+      {
+       "src": "position",
+       "dst": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "why": "debt"
+      },
+      {
+       "src": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+       "dst": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "why": "valued by (drives liquidation)"
+      },
+      {
+       "src": "position",
+       "dst": "morpho_blue",
+       "why": "liquidation when debt > LLTV x collateral value"
+      },
+      {
+       "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "dst": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+       "why": "multiplies the price"
+      },
+      {
+       "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "dst": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+       "why": "multiplies the price"
+      },
+      {
+       "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "dst": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+       "why": "divides the price"
+      }
+     ]
+    }
+   }
+  },
+  "updated_at": 1791665618.2067747,
+  "state": "WATCHING",
+  "last_event": {
+   "ts": 1791665618.174342,
+   "run_id": "e5f2a374ce6e",
+   "position": "S1-weETH-repay",
+   "state": "WATCHING",
+   "label": "S1 | user A | weETH/USDC | USDC reserve",
+   "vault": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
+   "decision": "HOLD",
+   "why": "position healthy and inside the scenario target; on-chain LTV 78.12% is below the trigger 82.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve)",
+   "snapshot": {
+    "block": 26164288,
+    "timestamp": 1791662046,
+    "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
+    "beneficiary": "0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc",
+    "loan": {
+     "symbol": "USDC",
+     "decimals": 6,
+     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    },
+    "collateral": {
+     "symbol": "weETH",
+     "decimals": 18,
+     "address": "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee"
+    },
+    "collateral_amount": 10.0,
+    "collateral_value": 25283.561312,
+    "debt": 19751.60087,
+    "ltv": 0.7812032737898185,
+    "lltv": 0.86,
+    "buffer": 1992.261858,
+    "healthy": true,
+    "borrow_apr_onchain": 0.050838062886864,
+    "oracle_price_raw": 2528356131224980293957600000,
+    "raw": {
+     "collateral": 10000000000000000000,
+     "debt": 19751600870,
+     "borrow_shares": 19139026229054768,
+     "price": 2528356131224980293957600000,
+     "lltv": 860000000000000000,
+     "rate_per_s": 1612064399
+    },
+    "vault": {
+     "address": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
+     "keeper": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+     "paused": false,
+     "revoked": false,
+     "policy_nonce": 1,
+     "loan_reserve": 3913.498615,
+     "collateral_reserve": 0.05,
+     "repaid_total": 1086.501385,
+     "topped_up_total": 0.0,
+     "last_action_at": 1791662039,
+     "action_count": 1,
+     "policy": {
+      "allowed_strategies": 7,
+      "valid_until": 1794254002,
+      "cooldown": 3600,
+      "trigger_ltv": 820000000000000000,
+      "min_ltv_after": 400000000000000000,
+      "max_repay_per_action": 5000000000,
+      "max_top_up_per_action": 1000000000000000000,
+      "max_full_repay": 25000000000,
+      "max_repay_total": 30000000000,
+      "max_top_up_total": 1000000000000000000,
+      "min_loan_reserve": 100000000,
+      "min_collateral_reserve": 10000000000000000,
+      "trigger_ltv_pct": 0.82,
+      "min_ltv_after_pct": 0.4,
+      "max_repay_per_action_h": 5000.0,
+      "max_top_up_per_action_h": 1.0,
+      "max_full_repay_h": 25000.0,
+      "max_repay_total_h": 30000.0,
+      "max_top_up_total_h": 1.0,
+      "min_loan_reserve_h": 100.0,
+      "min_collateral_reserve_h": 0.01,
+      "strategies": [
+       "REPAY",
+       "TOP_UP",
+       "FULL_REPAY"
+      ]
+     }
+    },
+    "dependencies": {
+     "oracle": {
+      "id": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+      "address": "0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+      "type": "MorphoChainlinkOracleV2",
+      "price": 2528356131224980293957600000,
+      "scale_factor": 10000000000
+     },
+     "feeds": [
+      {
+       "id": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+       "role": "BASE_FEED_1",
+       "side": "base",
+       "address": "0x4270e1817576bba4b640466be79a408ef128f828",
+       "description": "FAULTLINE SIMULATED SHOCK (local fork only)",
+       "decimals": 18,
+       "answer": 1005990582590610072,
+       "round_id": 1,
+       "updated_at": 0,
+       "simulated": true,
+       "age_s": null,
+       "freshness": "no_timestamp",
+       "freshness_note": "computed at call time (exchange-rate adapter): no update time to check",
+       "value": 1.0059905825906101,
+       "original_description": "weETH/ETH exchange rate"
+      },
+      {
+       "id": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+       "role": "BASE_FEED_2",
+       "side": "base",
+       "address": "0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+       "description": "ETH / USD",
+       "decimals": 8,
+       "answer": 251330000000,
+       "round_id": 36893488147419121509,
+       "updated_at": 1791660779,
+       "simulated": false,
+       "age_s": 1267,
+       "max_age_s": 5400,
+       "freshness": "fresh",
+       "value": 2513.3
+      },
+      {
+       "id": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+       "role": "QUOTE_FEED_1",
+       "side": "quote",
+       "address": "0xc3866d726c204c0836e0677a31973c649888973d",
+       "description": "Dummy feed with 12 decimals",
+       "decimals": 12,
+       "answer": 1000000000000,
+       "round_id": 1,
+       "updated_at": 1791662046,
+       "simulated": false,
+       "age_s": 0,
+       "max_age_s": 5400,
+       "freshness": "fresh",
+       "value": 1.0
+      }
+     ],
+     "vaults": [],
+     "assumptions": [
+      "USDC (loan token) is valued as exactly 1 unit of the base feeds' quote currency: a USDC depeg is NOT seen by this oracle",
+      "weETH (collateral) is priced through FAULTLINE SIMULATED SHOCK (local fork only), ETH / USD: a weETH discount to that reference is NOT seen by this oracle"
+     ],
+     "stale": [],
+     "simulated": [
+      "feed:0x4270e1817576bba4b640466be79a408ef128f828"
+     ],
+     "graph": {
+      "nodes": [
+       {
+        "id": "position",
+        "label": "Borrower position",
+        "kind": "position"
+       },
+       {
+        "id": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+        "label": "weETH (collateral)",
+        "kind": "collateral"
+       },
+       {
+        "id": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "label": "USDC (debt)",
+        "kind": "loan"
+       },
+       {
+        "id": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+        "label": "Market oracle (MorphoChainlinkOracleV2)",
+        "kind": "oracle"
+       },
+       {
+        "id": "morpho_blue",
+        "label": "Morpho Blue (liquidation engine)",
+        "kind": "protocol"
+       },
+       {
+        "id": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+        "label": "FAULTLINE SIMULATED SHOCK (local fork only)",
+        "kind": "feed",
+        "side": "base",
+        "freshness": "no_timestamp",
+        "simulated": true
+       },
+       {
+        "id": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+        "label": "ETH / USD",
+        "kind": "feed",
+        "side": "base",
+        "freshness": "fresh",
+        "simulated": false
+       },
+       {
+        "id": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+        "label": "Dummy feed with 12 decimals",
+        "kind": "feed",
+        "side": "quote",
+        "freshness": "fresh",
+        "simulated": false
+       }
+      ],
+      "edges": [
+       {
+        "src": "position",
+        "dst": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+        "why": "collateral"
+       },
+       {
+        "src": "position",
+        "dst": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "why": "debt"
+       },
+       {
+        "src": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+        "dst": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+        "why": "valued by (drives liquidation)"
+       },
+       {
+        "src": "position",
+        "dst": "morpho_blue",
+        "why": "liquidation when debt > LLTV x collateral value"
+       },
+       {
+        "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+        "dst": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+        "why": "multiplies the price"
+       },
+       {
+        "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+        "dst": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+        "why": "multiplies the price"
+       },
+       {
+        "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+        "dst": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+        "why": "divides the price"
+       }
+      ]
+     }
+    }
+   }
+  },
+  "pending": null,
+  "last_terminal": {
+   "state": "CONFIRMED",
+   "at": 1791665611.1066267,
+   "reason": null,
+   "tx_hash": "0x4b9254ebda91ddc69a362ebf2b8d88ddb19320f55f507b46b62974b3a51387e2"
+  }
+ },
+ "S3-weETH-no-action": {
+  "reference_deps": {
+   "block": 26164282,
+   "oracle": {
+    "price": 2778413331016461863756600000
+   },
+   "feeds": [
+    {
+     "id": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+     "role": "BASE_FEED_1",
+     "side": "base",
+     "answer": 1105484156692978102,
+     "description": "weETH/ETH exchange rate"
+    },
+    {
+     "id": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+     "role": "BASE_FEED_2",
+     "side": "base",
+     "answer": 251330000000,
+     "description": "ETH / USD"
+    },
+    {
+     "id": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+     "role": "QUOTE_FEED_1",
+     "side": "quote",
+     "answer": 1000000000000,
+     "description": "Dummy feed with 12 decimals"
+    }
+   ]
+  },
+  "last_snapshot": {
+   "block": 26164282,
+   "timestamp": 1791662028,
+   "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
+   "beneficiary": "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65",
+   "loan": {
+    "symbol": "USDC",
+    "decimals": 6,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+   },
+   "collateral": {
+    "symbol": "weETH",
+    "decimals": 18,
+    "address": "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee"
+   },
+   "collateral_amount": 4.0,
+   "collateral_value": 11113.653324,
+   "debt": 8335.240599,
+   "ltv": 0.750000054527524,
+   "lltv": 0.86,
+   "buffer": 1222.501259,
+   "healthy": true,
+   "borrow_apr_onchain": 0.0508735417068,
+   "oracle_price_raw": 2778413331016461863756600000,
+   "raw": {
+    "collateral": 4000000000000000000,
+    "debt": 8335240599,
+    "borrow_shares": 8076732317389190,
+    "price": 2778413331016461863756600000,
+    "lltv": 860000000000000000,
+    "rate_per_s": 1613189425
+   },
+   "vault": {
+    "address": "0x14a0558b87b3c73c4853023499a9e80411b7a439",
+    "keeper": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "paused": false,
+    "revoked": false,
+    "policy_nonce": 1,
+    "loan_reserve": 150.0,
+    "collateral_reserve": 0.01,
+    "repaid_total": 0.0,
+    "topped_up_total": 0.0,
+    "last_action_at": 0,
+    "action_count": 0,
+    "policy": {
+     "allowed_strategies": 7,
+     "valid_until": 1794254011,
+     "cooldown": 3600,
+     "trigger_ltv": 820000000000000000,
+     "min_ltv_after": 400000000000000000,
+     "max_repay_per_action": 2000000000,
+     "max_top_up_per_action": 1000000000000000000,
+     "max_full_repay": 0,
+     "max_repay_total": 30000000000,
+     "max_top_up_total": 1000000000000000000,
+     "min_loan_reserve": 0,
+     "min_collateral_reserve": 0,
+     "trigger_ltv_pct": 0.82,
+     "min_ltv_after_pct": 0.4,
+     "max_repay_per_action_h": 2000.0,
+     "max_top_up_per_action_h": 1.0,
+     "max_full_repay_h": 0.0,
+     "max_repay_total_h": 30000.0,
+     "max_top_up_total_h": 1.0,
+     "min_loan_reserve_h": 0.0,
+     "min_collateral_reserve_h": 0.0,
+     "strategies": [
+      "REPAY",
+      "TOP_UP",
+      "FULL_REPAY"
+     ]
+    }
+   },
+   "dependencies": {
+    "oracle": {
+     "id": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+     "address": "0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+     "type": "MorphoChainlinkOracleV2",
+     "price": 2778413331016461863756600000,
+     "scale_factor": 10000000000
+    },
+    "feeds": [
+     {
+      "id": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+      "role": "BASE_FEED_1",
+      "side": "base",
+      "address": "0x4270e1817576bba4b640466be79a408ef128f828",
+      "description": "weETH/ETH exchange rate",
+      "decimals": 18,
+      "answer": 1105484156692978102,
+      "round_id": 0,
+      "updated_at": 0,
+      "simulated": false,
+      "age_s": null,
+      "freshness": "no_timestamp",
+      "freshness_note": "computed at call time (exchange-rate adapter): no update time to check",
+      "value": 1.105484156692978
+     },
+     {
+      "id": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+      "role": "BASE_FEED_2",
+      "side": "base",
+      "address": "0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+      "description": "ETH / USD",
+      "decimals": 8,
+      "answer": 251330000000,
+      "round_id": 36893488147419121509,
+      "updated_at": 1791660779,
+      "simulated": false,
+      "age_s": 1249,
+      "max_age_s": 5400,
+      "freshness": "fresh",
+      "value": 2513.3
+     },
+     {
+      "id": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+      "role": "QUOTE_FEED_1",
+      "side": "quote",
+      "address": "0xc3866d726c204c0836e0677a31973c649888973d",
+      "description": "Dummy feed with 12 decimals",
+      "decimals": 12,
+      "answer": 1000000000000,
+      "round_id": 1,
+      "updated_at": 1791662028,
+      "simulated": false,
+      "age_s": 0,
+      "max_age_s": 5400,
+      "freshness": "fresh",
+      "value": 1.0
+     }
+    ],
+    "vaults": [],
+    "assumptions": [
+     "USDC (loan token) is valued as exactly 1 unit of the base feeds' quote currency: a USDC depeg is NOT seen by this oracle",
+     "weETH is valued at its protocol exchange rate, not at a market price: a secondary-market discount is NOT seen by this oracle (no liquidation trigger, but a real loss if sold)"
+    ],
+    "stale": [],
+    "simulated": [],
+    "graph": {
+     "nodes": [
+      {
+       "id": "position",
+       "label": "Borrower position",
+       "kind": "position"
+      },
+      {
+       "id": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+       "label": "weETH (collateral)",
+       "kind": "collateral"
+      },
+      {
+       "id": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "label": "USDC (debt)",
+       "kind": "loan"
+      },
+      {
+       "id": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "label": "Market oracle (MorphoChainlinkOracleV2)",
+       "kind": "oracle"
+      },
+      {
+       "id": "morpho_blue",
+       "label": "Morpho Blue (liquidation engine)",
+       "kind": "protocol"
+      },
+      {
+       "id": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+       "label": "weETH/ETH exchange rate",
+       "kind": "feed",
+       "side": "base",
+       "freshness": "no_timestamp",
+       "simulated": false
+      },
+      {
+       "id": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+       "label": "ETH / USD",
+       "kind": "feed",
+       "side": "base",
+       "freshness": "fresh",
+       "simulated": false
+      },
+      {
+       "id": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+       "label": "Dummy feed with 12 decimals",
+       "kind": "feed",
+       "side": "quote",
+       "freshness": "fresh",
+       "simulated": false
+      }
+     ],
+     "edges": [
+      {
+       "src": "position",
+       "dst": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+       "why": "collateral"
+      },
+      {
+       "src": "position",
+       "dst": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "why": "debt"
+      },
+      {
+       "src": "token:0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+       "dst": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "why": "valued by (drives liquidation)"
+      },
+      {
+       "src": "position",
+       "dst": "morpho_blue",
+       "why": "liquidation when debt > LLTV x collateral value"
+      },
+      {
+       "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "dst": "feed:0x4270e1817576bba4b640466be79a408ef128f828",
+       "why": "multiplies the price"
+      },
+      {
+       "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "dst": "feed:0xc0053f3fbccd593758258334dfce24c2a9a673ad",
+       "why": "multiplies the price"
+      },
+      {
+       "src": "oracle:0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+       "dst": "feed:0xc3866d726c204c0836e0677a31973c649888973d",
+       "why": "divides the price"
+      }
+     ]
+    }
+   }
+  },
+  "updated_at": 1791665618.6057026,
+  "state": "NO_ACTION",
+  "last_event": {
+   "ts": 1791665618.5749247,
+   "run_id": "e5f2a374ce6e",
+   "position": "S3-weETH-no-action",
+   "state": "NO_ACTION",
+   "label": "S3 | user C | weETH/USDC | tiny reserves, full repay disabled",
+   "vault": "0x14a0558b87b3c73c4853023499a9e80411b7a439",
+   "reason": "no authorized action can reach the target within the policy and the funded reserves: REPAY: reserve holds 150.00 USDC < required 584.58 USDC (funds must be pre-deposited in the RescueVault) | TOP_UP: reserve holds 0.010000 weETH < required 0.292267 weETH (funds must be pre-deposited in the RescueVault) | FULL_REPAY: needs 8,335.24 USDC > per-action cap 0.00 USDC",
+   "decision": "NO_ACTION",
+   "alert": true
+  },
+  "last_terminal": {
+   "state": "NO_ACTION",
+   "at": 1791665618.5749247,
+   "reason": "no authorized action can reach the target within the policy and the funded reserves: REPAY: reserve holds 150.00 USDC < required 584.58 USDC (funds must be pre-deposited in the RescueVault) | TOP_UP: reserve holds 0.010000 weETH < required 0.292267 weETH (funds must be pre-deposited in the RescueVault) | FULL_REPAY: needs 8,335.24 USDC > per-action cap 0.00 USDC",
+   "tx_hash": null
+  }
+ },
+ "S2-cbBTC-topup": {
+  "reference_deps": {
+   "block": 26164288,
+   "oracle": {
+    "price": 755114106268600000000000000000000000000
+   },
+   "feeds": [
+    {
+     "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+     "role": "BASE_FEED_1",
+     "side": "base",
+     "answer": 7551141062686,
+     "description": "FAULTLINE SIMULATED SHOCK (local fork only)"
+    }
+   ]
+  },
+  "last_snapshot": {
+   "block": 26164288,
+   "timestamp": 1791662046,
+   "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+   "beneficiary": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+   "loan": {
+    "symbol": "USDC",
+    "decimals": 6,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+   },
+   "collateral": {
+    "symbol": "cbBTC",
+    "decimals": 8,
+    "address": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+   },
+   "collateral_amount": 0.52509364,
+   "collateral_value": 39650.561467,
+   "debt": 31117.342254,
+   "ltv": 0.7847894481872105,
+   "lltv": 0.86,
+   "buffer": 2982.140607,
+   "healthy": true,
+   "borrow_apr_onchain": 0.048973534257024,
+   "oracle_price_raw": 755114106268600000000000000000000000000,
+   "raw": {
+    "collateral": 52509364,
+    "debt": 31117342254,
+    "borrow_shares": 28057461395499050,
+    "price": 755114106268600000000000000000000000000,
+    "lltv": 860000000000000000,
+    "rate_per_s": 1552940584
+   },
+   "vault": {
+    "address": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
+    "keeper": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "paused": false,
+    "revoked": false,
+    "policy_nonce": 1,
+    "loan_reserve": 100.0,
+    "collateral_reserve": 0.17490636,
+    "repaid_total": 0.0,
+    "topped_up_total": 0.02509364,
+    "last_action_at": 1791662043,
+    "action_count": 1,
+    "policy": {
+     "allowed_strategies": 7,
+     "valid_until": 1794254020,
+     "cooldown": 3600,
+     "trigger_ltv": 820000000000000000,
+     "min_ltv_after": 400000000000000000,
+     "max_repay_per_action": 5000000000,
+     "max_top_up_per_action": 15000000,
+     "max_full_repay": 0,
+     "max_repay_total": 30000000000,
+     "max_top_up_total": 20000000,
+     "min_loan_reserve": 0,
+     "min_collateral_reserve": 100000,
+     "trigger_ltv_pct": 0.82,
+     "min_ltv_after_pct": 0.4,
+     "max_repay_per_action_h": 5000.0,
+     "max_top_up_per_action_h": 0.15,
+     "max_full_repay_h": 0.0,
+     "max_repay_total_h": 30000.0,
+     "max_top_up_total_h": 0.2,
+     "min_loan_reserve_h": 0.0,
+     "min_collateral_reserve_h": 0.001,
+     "strategies": [
+      "REPAY",
+      "TOP_UP",
+      "FULL_REPAY"
+     ]
+    }
+   },
+   "dependencies": {
+    "oracle": {
+     "id": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+     "address": "0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+     "type": "MorphoChainlinkOracleV2",
+     "price": 755114106268600000000000000000000000000,
+     "scale_factor": 100000000000000000000000000
+    },
+    "feeds": [
+     {
+      "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+      "role": "BASE_FEED_1",
+      "side": "base",
+      "address": "0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+      "description": "FAULTLINE SIMULATED SHOCK (local fork only)",
+      "decimals": 8,
+      "answer": 7551141062686,
+      "round_id": 129127208515966886330,
+      "updated_at": 1791662046,
+      "simulated": true,
+      "age_s": 0,
+      "max_age_s": 5400,
+      "freshness": "fresh",
+      "value": 75511.41062686,
+      "original_description": "BTC / USD"
+     }
+    ],
+    "vaults": [],
+    "assumptions": [
+     "USDC (loan token) is valued as exactly 1 unit of the base feeds' quote currency: a USDC depeg is NOT seen by this oracle",
+     "cbBTC (collateral) is priced through FAULTLINE SIMULATED SHOCK (local fork only): a cbBTC discount to that reference is NOT seen by this oracle"
+    ],
+    "stale": [],
+    "simulated": [
+     "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c"
+    ],
+    "graph": {
+     "nodes": [
+      {
+       "id": "position",
+       "label": "Borrower position",
+       "kind": "position"
+      },
+      {
+       "id": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+       "label": "cbBTC (collateral)",
+       "kind": "collateral"
+      },
+      {
+       "id": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "label": "USDC (debt)",
+       "kind": "loan"
+      },
+      {
+       "id": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+       "label": "Market oracle (MorphoChainlinkOracleV2)",
+       "kind": "oracle"
+      },
+      {
+       "id": "morpho_blue",
+       "label": "Morpho Blue (liquidation engine)",
+       "kind": "protocol"
+      },
+      {
+       "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+       "label": "FAULTLINE SIMULATED SHOCK (local fork only)",
+       "kind": "feed",
+       "side": "base",
+       "freshness": "fresh",
+       "simulated": true
+      }
+     ],
+     "edges": [
+      {
+       "src": "position",
+       "dst": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+       "why": "collateral"
+      },
+      {
+       "src": "position",
+       "dst": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "why": "debt"
+      },
+      {
+       "src": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+       "dst": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+       "why": "valued by (drives liquidation)"
+      },
+      {
+       "src": "position",
+       "dst": "morpho_blue",
+       "why": "liquidation when debt > LLTV x collateral value"
+      },
+      {
+       "src": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+       "dst": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+       "why": "multiplies the price"
+      }
+     ]
+    }
+   }
+  },
+  "updated_at": 1791665618.8404124,
+  "state": "WATCHING",
+  "last_event": {
+   "ts": 1791665618.8073862,
+   "run_id": "e5f2a374ce6e",
+   "position": "S2-cbBTC-topup",
+   "state": "WATCHING",
+   "label": "S2 | user B | cbBTC/USDC | cbBTC reserve, 100 USDC",
+   "vault": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
+   "decision": "HOLD",
+   "why": "position healthy and inside the scenario target; on-chain LTV 78.48% is below the trigger 82.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve)",
+   "snapshot": {
+    "block": 26164288,
+    "timestamp": 1791662046,
+    "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+    "beneficiary": "0x90f79bf6eb2c4f870365e785982e1f101e93b906",
+    "loan": {
+     "symbol": "USDC",
+     "decimals": 6,
+     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    },
+    "collateral": {
+     "symbol": "cbBTC",
+     "decimals": 8,
+     "address": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+    },
+    "collateral_amount": 0.52509364,
+    "collateral_value": 39650.561467,
+    "debt": 31117.342254,
+    "ltv": 0.7847894481872105,
+    "lltv": 0.86,
+    "buffer": 2982.140607,
+    "healthy": true,
+    "borrow_apr_onchain": 0.048973534257024,
+    "oracle_price_raw": 755114106268600000000000000000000000000,
+    "raw": {
+     "collateral": 52509364,
+     "debt": 31117342254,
+     "borrow_shares": 28057461395499050,
+     "price": 755114106268600000000000000000000000000,
+     "lltv": 860000000000000000,
+     "rate_per_s": 1552940584
+    },
+    "vault": {
+     "address": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
+     "keeper": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+     "paused": false,
+     "revoked": false,
+     "policy_nonce": 1,
+     "loan_reserve": 100.0,
+     "collateral_reserve": 0.17490636,
+     "repaid_total": 0.0,
+     "topped_up_total": 0.02509364,
+     "last_action_at": 1791662043,
+     "action_count": 1,
+     "policy": {
+      "allowed_strategies": 7,
+      "valid_until": 1794254020,
+      "cooldown": 3600,
+      "trigger_ltv": 820000000000000000,
+      "min_ltv_after": 400000000000000000,
+      "max_repay_per_action": 5000000000,
+      "max_top_up_per_action": 15000000,
+      "max_full_repay": 0,
+      "max_repay_total": 30000000000,
+      "max_top_up_total": 20000000,
+      "min_loan_reserve": 0,
+      "min_collateral_reserve": 100000,
+      "trigger_ltv_pct": 0.82,
+      "min_ltv_after_pct": 0.4,
+      "max_repay_per_action_h": 5000.0,
+      "max_top_up_per_action_h": 0.15,
+      "max_full_repay_h": 0.0,
+      "max_repay_total_h": 30000.0,
+      "max_top_up_total_h": 0.2,
+      "min_loan_reserve_h": 0.0,
+      "min_collateral_reserve_h": 0.001,
+      "strategies": [
+       "REPAY",
+       "TOP_UP",
+       "FULL_REPAY"
+      ]
+     }
+    },
+    "dependencies": {
+     "oracle": {
+      "id": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+      "address": "0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+      "type": "MorphoChainlinkOracleV2",
+      "price": 755114106268600000000000000000000000000,
+      "scale_factor": 100000000000000000000000000
+     },
+     "feeds": [
+      {
+       "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+       "role": "BASE_FEED_1",
+       "side": "base",
+       "address": "0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+       "description": "FAULTLINE SIMULATED SHOCK (local fork only)",
+       "decimals": 8,
+       "answer": 7551141062686,
+       "round_id": 129127208515966886330,
+       "updated_at": 1791662046,
+       "simulated": true,
+       "age_s": 0,
+       "max_age_s": 5400,
+       "freshness": "fresh",
+       "value": 75511.41062686,
+       "original_description": "BTC / USD"
+      }
+     ],
+     "vaults": [],
+     "assumptions": [
+      "USDC (loan token) is valued as exactly 1 unit of the base feeds' quote currency: a USDC depeg is NOT seen by this oracle",
+      "cbBTC (collateral) is priced through FAULTLINE SIMULATED SHOCK (local fork only): a cbBTC discount to that reference is NOT seen by this oracle"
+     ],
+     "stale": [],
+     "simulated": [
+      "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c"
+     ],
+     "graph": {
+      "nodes": [
+       {
+        "id": "position",
+        "label": "Borrower position",
+        "kind": "position"
+       },
+       {
+        "id": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "label": "cbBTC (collateral)",
+        "kind": "collateral"
+       },
+       {
+        "id": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "label": "USDC (debt)",
+        "kind": "loan"
+       },
+       {
+        "id": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+        "label": "Market oracle (MorphoChainlinkOracleV2)",
+        "kind": "oracle"
+       },
+       {
+        "id": "morpho_blue",
+        "label": "Morpho Blue (liquidation engine)",
+        "kind": "protocol"
+       },
+       {
+        "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+        "label": "FAULTLINE SIMULATED SHOCK (local fork only)",
+        "kind": "feed",
+        "side": "base",
+        "freshness": "fresh",
+        "simulated": true
+       }
+      ],
+      "edges": [
+       {
+        "src": "position",
+        "dst": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "why": "collateral"
+       },
+       {
+        "src": "position",
+        "dst": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "why": "debt"
+       },
+       {
+        "src": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "dst": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+        "why": "valued by (drives liquidation)"
+       },
+       {
+        "src": "position",
+        "dst": "morpho_blue",
+        "why": "liquidation when debt > LLTV x collateral value"
+       },
+       {
+        "src": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+        "dst": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+        "why": "multiplies the price"
+       }
+      ]
+     }
+    }
+   }
+  },
+  "pending": null,
+  "last_terminal": {
+   "state": "CONFIRMED",
+   "at": 1791665614.713075,
+   "reason": null,
+   "tx_hash": "0x7ccb73ccc688c2f5414316655a3112b50e8a8f45cbf03d97bf6291e08bca9050"
+  }
+ },
+ "S4-cbBTC-full-repay": {
+  "reference_deps": {
+   "block": 26164288,
+   "oracle": {
+    "price": 755114106268600000000000000000000000000
+   },
+   "feeds": [
+    {
+     "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+     "role": "BASE_FEED_1",
+     "side": "base",
+     "answer": 7551141062686,
+     "description": "FAULTLINE SIMULATED SHOCK (local fork only)"
+    }
+   ]
+  },
+  "last_snapshot": {
+   "block": 26164288,
+   "timestamp": 1791662046,
+   "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+   "beneficiary": "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc",
+   "loan": {
+    "symbol": "USDC",
+    "decimals": 6,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+   },
+   "collateral": {
+    "symbol": "cbBTC",
+    "decimals": 8,
+    "address": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+   },
+   "collateral_amount": 0.3,
+   "collateral_value": 22653.423188,
+   "debt": 0.0,
+   "ltv": 0.0,
+   "lltv": 0.86,
+   "buffer": 19481.943941,
+   "healthy": true,
+   "borrow_apr_onchain": 0.048973534257024,
+   "oracle_price_raw": 755114106268600000000000000000000000000,
+   "raw": {
+    "collateral": 30000000,
+    "debt": 0,
+    "borrow_shares": 0,
+    "price": 755114106268600000000000000000000000000,
+    "lltv": 860000000000000000,
+    "rate_per_s": 1552940584
+   },
+   "vault": {
+    "address": "0x7d2314ab4d89a01120276384217739b04501c430",
+    "keeper": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+    "paused": false,
+    "revoked": false,
+    "policy_nonce": 1,
+    "loan_reserve": 2329.594792,
+    "collateral_reserve": 0.0,
+    "repaid_total": 18670.405208,
+    "topped_up_total": 0.0,
+    "last_action_at": 1791662046,
+    "action_count": 1,
+    "policy": {
+     "allowed_strategies": 4,
+     "valid_until": 1794254026,
+     "cooldown": 3600,
+     "trigger_ltv": 820000000000000000,
+     "min_ltv_after": 400000000000000000,
+     "max_repay_per_action": 0,
+     "max_top_up_per_action": 0,
+     "max_full_repay": 25000000000,
+     "max_repay_total": 30000000000,
+     "max_top_up_total": 0,
+     "min_loan_reserve": 100000000,
+     "min_collateral_reserve": 0,
+     "trigger_ltv_pct": 0.82,
+     "min_ltv_after_pct": 0.4,
+     "max_repay_per_action_h": 0.0,
+     "max_top_up_per_action_h": 0.0,
+     "max_full_repay_h": 25000.0,
+     "max_repay_total_h": 30000.0,
+     "max_top_up_total_h": 0.0,
+     "min_loan_reserve_h": 100.0,
+     "min_collateral_reserve_h": 0.0,
+     "strategies": [
+      "FULL_REPAY"
+     ]
+    }
+   },
+   "dependencies": {
+    "oracle": {
+     "id": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+     "address": "0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+     "type": "MorphoChainlinkOracleV2",
+     "price": 755114106268600000000000000000000000000,
+     "scale_factor": 100000000000000000000000000
+    },
+    "feeds": [
+     {
+      "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+      "role": "BASE_FEED_1",
+      "side": "base",
+      "address": "0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+      "description": "FAULTLINE SIMULATED SHOCK (local fork only)",
+      "decimals": 8,
+      "answer": 7551141062686,
+      "round_id": 129127208515966886330,
+      "updated_at": 1791662046,
+      "simulated": true,
+      "age_s": 0,
+      "max_age_s": 5400,
+      "freshness": "fresh",
+      "value": 75511.41062686,
+      "original_description": "BTC / USD"
+     }
+    ],
+    "vaults": [],
+    "assumptions": [
+     "USDC (loan token) is valued as exactly 1 unit of the base feeds' quote currency: a USDC depeg is NOT seen by this oracle",
+     "cbBTC (collateral) is priced through FAULTLINE SIMULATED SHOCK (local fork only): a cbBTC discount to that reference is NOT seen by this oracle"
+    ],
+    "stale": [],
+    "simulated": [
+     "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c"
+    ],
+    "graph": {
+     "nodes": [
+      {
+       "id": "position",
+       "label": "Borrower position",
+       "kind": "position"
+      },
+      {
+       "id": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+       "label": "cbBTC (collateral)",
+       "kind": "collateral"
+      },
+      {
+       "id": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "label": "USDC (debt)",
+       "kind": "loan"
+      },
+      {
+       "id": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+       "label": "Market oracle (MorphoChainlinkOracleV2)",
+       "kind": "oracle"
+      },
+      {
+       "id": "morpho_blue",
+       "label": "Morpho Blue (liquidation engine)",
+       "kind": "protocol"
+      },
+      {
+       "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+       "label": "FAULTLINE SIMULATED SHOCK (local fork only)",
+       "kind": "feed",
+       "side": "base",
+       "freshness": "fresh",
+       "simulated": true
+      }
+     ],
+     "edges": [
+      {
+       "src": "position",
+       "dst": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+       "why": "collateral"
+      },
+      {
+       "src": "position",
+       "dst": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+       "why": "debt"
+      },
+      {
+       "src": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+       "dst": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+       "why": "valued by (drives liquidation)"
+      },
+      {
+       "src": "position",
+       "dst": "morpho_blue",
+       "why": "liquidation when debt > LLTV x collateral value"
+      },
+      {
+       "src": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+       "dst": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+       "why": "multiplies the price"
+      }
+     ]
+    }
+   }
+  },
+  "updated_at": 1791665619.1189141,
+  "state": "WATCHING",
+  "last_event": {
+   "ts": 1791665619.08614,
+   "run_id": "e5f2a374ce6e",
+   "position": "S4-cbBTC-full-repay",
+   "state": "WATCHING",
+   "label": "S4 | user D | cbBTC/USDC | policy: close the debt",
+   "vault": "0x7d2314ab4d89a01120276384217739b04501c430",
+   "decision": "HOLD",
+   "why": "position healthy and inside the scenario target; on-chain LTV 0.00% is below the trigger 82.00% the owner set: the RescueVault would refuse any action (a hypothetical scenario alone never unlocks the reserve)",
+   "snapshot": {
+    "block": 26164288,
+    "timestamp": 1791662046,
+    "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+    "beneficiary": "0x9965507d1a55bcc2695c58ba16fb37d819b0a4dc",
+    "loan": {
+     "symbol": "USDC",
+     "decimals": 6,
+     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    },
+    "collateral": {
+     "symbol": "cbBTC",
+     "decimals": 8,
+     "address": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+    },
+    "collateral_amount": 0.3,
+    "collateral_value": 22653.423188,
+    "debt": 0.0,
+    "ltv": 0.0,
+    "lltv": 0.86,
+    "buffer": 19481.943941,
+    "healthy": true,
+    "borrow_apr_onchain": 0.048973534257024,
+    "oracle_price_raw": 755114106268600000000000000000000000000,
+    "raw": {
+     "collateral": 30000000,
+     "debt": 0,
+     "borrow_shares": 0,
+     "price": 755114106268600000000000000000000000000,
+     "lltv": 860000000000000000,
+     "rate_per_s": 1552940584
+    },
+    "vault": {
+     "address": "0x7d2314ab4d89a01120276384217739b04501c430",
+     "keeper": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+     "paused": false,
+     "revoked": false,
+     "policy_nonce": 1,
+     "loan_reserve": 2329.594792,
+     "collateral_reserve": 0.0,
+     "repaid_total": 18670.405208,
+     "topped_up_total": 0.0,
+     "last_action_at": 1791662046,
+     "action_count": 1,
+     "policy": {
+      "allowed_strategies": 4,
+      "valid_until": 1794254026,
+      "cooldown": 3600,
+      "trigger_ltv": 820000000000000000,
+      "min_ltv_after": 400000000000000000,
+      "max_repay_per_action": 0,
+      "max_top_up_per_action": 0,
+      "max_full_repay": 25000000000,
+      "max_repay_total": 30000000000,
+      "max_top_up_total": 0,
+      "min_loan_reserve": 100000000,
+      "min_collateral_reserve": 0,
+      "trigger_ltv_pct": 0.82,
+      "min_ltv_after_pct": 0.4,
+      "max_repay_per_action_h": 0.0,
+      "max_top_up_per_action_h": 0.0,
+      "max_full_repay_h": 25000.0,
+      "max_repay_total_h": 30000.0,
+      "max_top_up_total_h": 0.0,
+      "min_loan_reserve_h": 100.0,
+      "min_collateral_reserve_h": 0.0,
+      "strategies": [
+       "FULL_REPAY"
+      ]
+     }
+    },
+    "dependencies": {
+     "oracle": {
+      "id": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+      "address": "0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+      "type": "MorphoChainlinkOracleV2",
+      "price": 755114106268600000000000000000000000000,
+      "scale_factor": 100000000000000000000000000
+     },
+     "feeds": [
+      {
+       "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+       "role": "BASE_FEED_1",
+       "side": "base",
+       "address": "0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+       "description": "FAULTLINE SIMULATED SHOCK (local fork only)",
+       "decimals": 8,
+       "answer": 7551141062686,
+       "round_id": 129127208515966886330,
+       "updated_at": 1791662046,
+       "simulated": true,
+       "age_s": 0,
+       "max_age_s": 5400,
+       "freshness": "fresh",
+       "value": 75511.41062686,
+       "original_description": "BTC / USD"
+      }
+     ],
+     "vaults": [],
+     "assumptions": [
+      "USDC (loan token) is valued as exactly 1 unit of the base feeds' quote currency: a USDC depeg is NOT seen by this oracle",
+      "cbBTC (collateral) is priced through FAULTLINE SIMULATED SHOCK (local fork only): a cbBTC discount to that reference is NOT seen by this oracle"
+     ],
+     "stale": [],
+     "simulated": [
+      "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c"
+     ],
+     "graph": {
+      "nodes": [
+       {
+        "id": "position",
+        "label": "Borrower position",
+        "kind": "position"
+       },
+       {
+        "id": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "label": "cbBTC (collateral)",
+        "kind": "collateral"
+       },
+       {
+        "id": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "label": "USDC (debt)",
+        "kind": "loan"
+       },
+       {
+        "id": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+        "label": "Market oracle (MorphoChainlinkOracleV2)",
+        "kind": "oracle"
+       },
+       {
+        "id": "morpho_blue",
+        "label": "Morpho Blue (liquidation engine)",
+        "kind": "protocol"
+       },
+       {
+        "id": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+        "label": "FAULTLINE SIMULATED SHOCK (local fork only)",
+        "kind": "feed",
+        "side": "base",
+        "freshness": "fresh",
+        "simulated": true
+       }
+      ],
+      "edges": [
+       {
+        "src": "position",
+        "dst": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "why": "collateral"
+       },
+       {
+        "src": "position",
+        "dst": "token:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "why": "debt"
+       },
+       {
+        "src": "token:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "dst": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+        "why": "valued by (drives liquidation)"
+       },
+       {
+        "src": "position",
+        "dst": "morpho_blue",
+        "why": "liquidation when debt > LLTV x collateral value"
+       },
+       {
+        "src": "oracle:0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+        "dst": "feed:0xf4030086522a5beea4988f8ca5b36dbc97bee88c",
+        "why": "multiplies the price"
+       }
+      ]
+     }
+    }
+   }
+  },
+  "pending": null,
+  "last_terminal": {
+   "state": "CONFIRMED",
+   "at": 1791665617.370576,
+   "reason": null,
+   "tx_hash": "0xeea9ca52ce4919469bfb9ceaa7ad4209694eb37da986410ea77b765effa6aee5"
+  }
+ }
+}

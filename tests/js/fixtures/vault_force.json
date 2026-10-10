@@ -1,0 +1,2767 @@
+{
+ "schema": "faultline.vault/1",
+ "input": {
+  "address": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+  "checksum": "verified",
+  "chain_id": 1,
+  "value_usd": 1000000.0,
+  "horizon_days": 30,
+  "shock": null,
+  "severity": null,
+  "value_semantics": "value_usd is a HYPOTHETICAL exposure converted to vault shares at the pinned block's share price; it is not proof that anyone holds these shares"
+ },
+ "vault": {
+  "address": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+  "name": "Belem RWA EURCV",
+  "symbol": "rwaEURCV",
+  "version": "v2",
+  "factory": "0xA1D94F746dEfa1928926b84fB2596c06926C0405",
+  "factory_name": "Morpho VaultV2Factory",
+  "chain_id": 1,
+  "chain": "Ethereum mainnet",
+  "asset": {
+   "address": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+   "symbol": "EURCV",
+   "decimals": 18,
+   "currency": "EUR",
+   "price_usd": 1.1193701261900912,
+   "price_source": "DefiLlama coins current ethereum:0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+   "price_age_s": 1179.8776502609253,
+   "fx": {
+    "pair": "EUR/USD",
+    "rate": 1.12015,
+    "updated_at": 1791635759,
+    "source": "Chainlink 0xb49f677943BC038e9857d61E7d053CaA2C1734C1 @ block 26164196"
+   },
+   "peg_vs_eur": 0.9993037773424017,
+   "decomposition": "USD price 1.11937 = EUR/USD 1.12015 (FX) x token/EUR 0.99930 (peg): FX moves and token depeg are separate risks"
+  },
+  "share_decimals": 18,
+  "share_price": 1.000924336753748,
+  "fees": {
+   "performance": 0.1,
+   "management_annual": 0.0,
+   "source": "VaultV2 performanceFee() / managementFee() (per second, annualised)"
+  },
+  "gates": {
+   "sendSharesGate": "0x0000000000000000000000000000000000000000",
+   "receiveAssetsGate": "0x0000000000000000000000000000000000000000",
+   "receiveSharesGate": "0x0000000000000000000000000000000000000000",
+   "sendAssetsGate": "0x0000000000000000000000000000000000000000",
+   "withdraw_open": true
+  },
+  "liquidity_adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+  "liquidity_market": "0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+  "adapters": [
+   {
+    "address": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "real_assets_raw": "4710652456300203657182177",
+    "market_ids": [
+     "0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+     "0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+     "0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce"
+    ],
+    "type": "MorphoMarketV1AdapterV2",
+    "supported": true,
+    "force_deallocate_penalty": 0.0,
+    "force_deallocate_penalty_raw": 0
+   }
+  ],
+  "detection": "Morpho VaultV2Factory (0xA1D94F746dEfa1928926b84fB2596c06926C0405) confirms the contract on-chain; code 21808 bytes",
+  "url": "https://app.morpho.org/ethereum/vault/0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
+ },
+ "snapshot": {
+  "as_of_block": 26164196,
+  "block_timestamp": 1791661343,
+  "observed_at": 1791661353.5590968,
+  "age_s": 20.51565718650818,
+  "total_assets": 4710652.459752142,
+  "total_assets_raw": "4710652459752142557755580",
+  "total_supply_raw": "4706256652064098915373233",
+  "idle_raw": "3451938900573403",
+  "cross_checks": [
+   {
+    "field": "totalAssets",
+    "onchain_raw": "4710652459752142557755580",
+    "api_raw": "4710651994729211731378176",
+    "rel_diff": 9.87173082284328e-08,
+    "tolerance": 0.02,
+    "ok": true,
+    "source": "Morpho GraphQL vaultV2ByAddress"
+   },
+   {
+    "field": "asset_price_usd",
+    "defillama": 1.1193701261900912,
+    "morpho_api": 1.1193701261900912,
+    "rel_diff": 0.0,
+    "tolerance": 0.01,
+    "ok": true
+   },
+   {
+    "field": "net_apy_excl_rewards",
+    "onchain": 0.026153580155489038,
+    "api_excluding_rewards": 0.02628683081659524,
+    "abs_diff": 0.00013325066110620246,
+    "tolerance_abs": 0.005,
+    "ok": true,
+    "source": "Morpho GraphQL vaultV2ByAddress"
+   }
+  ],
+  "api": {
+   "status": "ok",
+   "fetched_at": 1791661353.8793411,
+   "cached": false,
+   "source": "Morpho GraphQL vaultV2ByAddress"
+  },
+  "api_net_apy_excl_rewards": 0.02628683081659524,
+  "api_net_apy_incl_rewards": 0.02628683081659524
+ },
+ "allocations": {
+  "items": [
+   {
+    "market_id": "0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+    "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "loan_token": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "collateral_token": "0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+    "collateral_symbol": "mGLOeuro",
+    "oracle": "0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.77,
+    "supply_raw": "4040688482654362300172343",
+    "supply_assets": 4040688.4826543625,
+    "supply_usd": 4523025.976723662,
+    "share_of_vault": 0.8577768190665819,
+    "market_total_supply": 4040690.4857377694,
+    "market_total_borrow": 3678947.1887949365,
+    "market_liquidity": 361743.296942833,
+    "vault_share_of_market": 0.9999995042720015,
+    "utilization": 0.910474880909671,
+    "supply_apy": 0.030976663011990587,
+    "borrow_apy": 0.034022534461402465,
+    "borrowers_indexed": 2,
+    "borrow_coverage": 1.0,
+    "borrowers_status": "ok",
+    "largest_borrower_share": 0.999999510152724,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26164196",
+    "as_of_block": 26164196,
+    "url": "https://app.morpho.org/ethereum/market/0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0"
+   },
+   {
+    "market_id": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+    "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "loan_token": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "collateral_token": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    "collateral_symbol": "WBTC",
+    "oracle": "0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "supply_raw": "455554011911088908905193",
+    "supply_assets": 455554.0119110889,
+    "supply_usd": 509933.5517993179,
+    "share_of_vault": 0.09670720050000431,
+    "market_total_supply": 4615754.429494442,
+    "market_total_borrow": 4114179.31870411,
+    "market_liquidity": 501575.1107903326,
+    "vault_share_of_market": 0.0986954611363467,
+    "utilization": 0.8913340996684546,
+    "supply_apy": 0.017526944723715795,
+    "borrow_apy": 0.019663720629823557,
+    "borrowers_indexed": 50,
+    "borrow_coverage": 0.9999974479230049,
+    "borrowers_status": "ok",
+    "largest_borrower_share": 0.25599197248556405,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26164196",
+    "as_of_block": 26164196,
+    "url": "https://app.morpho.org/ethereum/market/0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e"
+   },
+   {
+    "market_id": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+    "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "loan_token": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "collateral_token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+    "collateral_symbol": "cbBTC",
+    "oracle": "0xba75fd248bf33d669d4c5adf25d3e32779656e47",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "supply_raw": "116441048537154630302732",
+    "supply_assets": 116441.04853715462,
+    "supply_usd": 130340.6311947413,
+    "share_of_vault": 0.02471866679446807,
+    "market_total_supply": 13398145.790164843,
+    "market_total_borrow": 11985225.212242477,
+    "market_liquidity": 1412920.5779223663,
+    "vault_share_of_market": 0.008690833072038247,
+    "utilization": 0.8945435734130056,
+    "supply_apy": 0.017216034690982134,
+    "borrow_apy": 0.019245607707287827,
+    "borrowers_indexed": 40,
+    "borrow_coverage": 1.0,
+    "borrowers_status": "ok",
+    "largest_borrower_share": 0.4102473118535939,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26164196",
+    "as_of_block": 26164196,
+    "url": "https://app.morpho.org/ethereum/market/0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce"
+   },
+   {
+    "market_id": "0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+    "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "loan_token": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "collateral_token": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+    "collateral_symbol": "wstETH",
+    "oracle": "0x44d6d497fb53294f283983e2931972840eb3dd90",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "supply_raw": "97965912675915763118933",
+    "supply_assets": 97965.91267591577,
+    "supply_usd": 109660.1160343673,
+    "share_of_vault": 0.020796675940952428,
+    "market_total_supply": 1752504.5875772585,
+    "market_total_borrow": 1572779.1654521707,
+    "market_liquidity": 179725.42212508782,
+    "vault_share_of_market": 0.05590051710583438,
+    "utilization": 0.897446532580238,
+    "supply_apy": 0.01769167091650465,
+    "borrow_apy": 0.019713342549376768,
+    "borrowers_indexed": 39,
+    "borrow_coverage": 1.0,
+    "borrowers_status": "ok",
+    "largest_borrower_share": 0.2613161054327836,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26164196",
+    "as_of_block": 26164196,
+    "url": "https://app.morpho.org/ethereum/market/0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1"
+   },
+   {
+    "market_id": "0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+    "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "loan_token": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "collateral_token": "0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f",
+    "collateral_symbol": "steakEURCV",
+    "oracle": "0x078f2bf7628e82d738b6b956dfad5114c8fc55f1",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.915,
+    "supply_raw": "2000460219605580262",
+    "supply_assets": 2.0004602196055803,
+    "supply_usd": 2.239255408458156,
+    "share_of_vault": 4.246673336013494e-07,
+    "market_total_supply": 2.030544160476158,
+    "market_total_borrow": 1.030544160476158,
+    "market_liquidity": 1.0,
+    "vault_share_of_market": 0.9851842961822002,
+    "utilization": 0.5075211761139427,
+    "supply_apy": 0.005694035290334391,
+    "borrow_apy": 0.011219305830612343,
+    "borrowers_indexed": 2,
+    "borrow_coverage": 1.0,
+    "borrowers_status": "ok",
+    "largest_borrower_share": 0.9737799861168015,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26164196",
+    "as_of_block": 26164196,
+    "url": "https://app.morpho.org/ethereum/market/0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82"
+   },
+   {
+    "market_id": "0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+    "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "loan_token": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "collateral_token": "0xc6dec62c975f20e60635ddd1341f3ea35bc284c5",
+    "collateral_symbol": "oTFYe",
+    "oracle": "0x396d968154355ce6001f3d3d59ceff1eb20750eb",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.77,
+    "supply_raw": "1000061462449102714",
+    "supply_assets": 1.0000614624491027,
+    "supply_usd": 1.1194389254194992,
+    "share_of_vault": 2.1229786552789383e-07,
+    "market_total_supply": 1.500474606907789,
+    "market_total_borrow": 0.4502426853749995,
+    "market_liquidity": 1.0502319215327893,
+    "vault_share_of_market": 0.6664967589888451,
+    "utilization": 0.30006684771751624,
+    "supply_apy": 0.002330704678999069,
+    "borrow_apy": 0.007767284845786099,
+    "borrowers_indexed": 1,
+    "borrow_coverage": 1.0,
+    "borrowers_status": "ok",
+    "largest_borrower_share": 1.0,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26164196",
+    "as_of_block": 26164196,
+    "url": "https://app.morpho.org/ethereum/market/0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba"
+   }
+  ],
+  "idle_raw": "3451938900573403",
+  "idle_assets": 0.003451938900573403,
+  "idle_usd": 0.003863997282735335,
+  "idle_share": 7.327942211969149e-10,
+  "total_assets": 4710652.459752142,
+  "total_assets_usd": 5272963.638310419,
+  "unattributed_assets": 0.0,
+  "unattributed_share": 0.0,
+  "coverage": 1.0,
+  "reconciliation": {
+   "adapters": [
+    {
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "type": "MorphoMarketV1AdapterV2",
+     "reported_raw": "4710652456300203657182177",
+     "markets_raw": "4710652456300203657182177",
+     "gap_raw": "0",
+     "gap_pct": 0.0
+    }
+   ],
+   "markets_raw": "4710652456300203657182177",
+   "idle_raw": "3451938900573403",
+   "total_assets_raw": "4710652459752142557755580",
+   "unattributed_raw": "0",
+   "unattributed_pct": 0.0,
+   "gap_pct": 0.0,
+   "tolerance": 0.005,
+   "within_tolerance": true,
+   "coverage": 1.0,
+   "rule": "coverage = (idle + supply resolved in Morpho markets) / totalAssets; any shortfall is kept as an 'unattributed' exposure with a conservative failure model (never zero risk)"
+  },
+  "unit": "EURCV",
+  "decimals": 18,
+  "displayed": "all markets (no truncation)"
+ },
+ "dependencies": {
+  "nodes": [
+   {
+    "id": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "label": "Belem RWA EURCV (Morpho Vault V2)",
+    "role": "lending",
+    "layer": "protocol",
+    "p_fail_horizon": 0.00019575,
+    "loss_given_failure": 0.7,
+    "affected_fraction": 1.0,
+    "affected_usd_if_fails": 700000.0,
+    "expected_loss_usd": 137.02499999999998,
+    "exposed_allocations": [],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); base 1.36%/y x 0.35 (2 audits x0.7, TVL>=$1B x0.5) -> 0.24%/y; x0.5 = vault contracts + adapters + curator share of Morpho risk",
+    "lgf_source": "structural assumption: loss-given-failure 70% for a vault contract / curator failure (priors.LGF)",
+    "address": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "version": "v2"
+   },
+   {
+    "id": "chain:1",
+    "label": "Ethereum",
+    "role": "chain",
+    "layer": "chain",
+    "p_fail_horizon": 0.0004119,
+    "loss_given_failure": 0.3,
+    "affected_fraction": 1.0,
+    "affected_usd_if_fails": 300000.0,
+    "expected_loss_usd": 123.56999999999998,
+    "exposed_allocations": [],
+    "decision_neutral": false,
+    "source": "assumption: 0.5%/y serious L1 incident",
+    "lgf_source": "structural assumption: loss-given-failure 30% (priors.LGF)"
+   },
+   {
+    "id": "morpho_blue",
+    "label": "Morpho Blue (singleton)",
+    "role": "morpho_blue",
+    "layer": "protocol",
+    "p_fail_horizon": 0.00019575,
+    "loss_given_failure": 0.7,
+    "affected_fraction": 0.9999999992672057,
+    "affected_usd_if_fails": 699999.9994870439,
+    "expected_loss_usd": 137.02499989958883,
+    "exposed_allocations": [
+     "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+     "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+     "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); base 1.36%/y x 0.35 (2 audits x0.7, TVL>=$1B x0.5) -> 0.24%/y; x0.5 = singleton-contract share",
+    "lgf_source": "structural assumption: loss-given-failure 70% (priors.LGF)",
+    "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
+   },
+   {
+    "id": "asset:0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "label": "EURCV (deposit asset)",
+    "role": "stablecoin",
+    "layer": "yield_source",
+    "p_fail_horizon": 0.00862238,
+    "loss_given_failure": 0.3,
+    "affected_fraction": 0.0,
+    "affected_usd_if_fails": 0.0,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [],
+    "decision_neutral": true,
+    "source": "assumption: 10%/y depeg (no DefiLlama price history for EURCV)",
+    "lgf_source": "structural assumption: 30% (priors.LGF stablecoin)",
+    "address": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2"
+   },
+   {
+    "id": "fx:EURUSD",
+    "label": "EUR/USD exchange rate",
+    "role": "fx",
+    "layer": "oracle",
+    "p_fail_horizon": 0.0,
+    "loss_given_failure": 0.0,
+    "affected_fraction": 0.0,
+    "affected_usd_if_fails": 0.0,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [],
+    "decision_neutral": true,
+    "source": "look-through only: FX is a valuation convention, not a failure",
+    "lgf_source": ""
+   },
+   {
+    "id": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "label": "Adapter MorphoMarketV1AdapterV2",
+    "role": "adapter",
+    "layer": "lending",
+    "p_fail_horizon": 0.0,
+    "loss_given_failure": 0.0,
+    "affected_fraction": 0.9999999992672057,
+    "affected_usd_if_fails": 0.0,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [],
+    "decision_neutral": false,
+    "source": "look-through only: adapter risk carried by the vault and its markets",
+    "lgf_source": "",
+    "address": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "type": "MorphoMarketV1AdapterV2"
+   },
+   {
+    "id": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+    "label": "Morpho market mGLOeuro/EURCV (LLTV 77.0%)",
+    "role": "market",
+    "layer": "lending",
+    "p_fail_horizon": 0.0,
+    "loss_given_failure": 0.7,
+    "affected_fraction": 0.8577768190665818,
+    "affected_usd_if_fails": 600443.7733466072,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [
+     "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0"
+    ],
+    "decision_neutral": false,
+    "source": "look-through only: market risk carried by its collateral, oracle and Morpho Blue nodes (shock it for an isolated market failure)",
+    "lgf_source": "structural assumption (shock only)",
+    "market_id": "0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+    "lltv": 0.77
+   },
+   {
+    "id": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+    "label": "mGLOeuro (collateral)",
+    "role": "collateral",
+    "layer": "yield_source",
+    "p_fail_horizon": 0.00084195,
+    "loss_given_failure": 0.5,
+    "affected_fraction": 0.5227530119414575,
+    "affected_usd_if_fails": 261376.50597072876,
+    "expected_loss_usd": 220.06594920205507,
+    "exposed_allocations": [
+     "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); base 1.36%/y x 1.50 (no DefiLlama match -> x1.5 (unknown protocol)) -> 1.02%/y; x0.5 = token-level share of issuer / wrapper impairment",
+    "lgf_source": "assumption: collateral loses 50% in a jump (no time to liquidate)",
+    "address": "0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+    "collateral_kind": "issued_token"
+   },
+   {
+    "id": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+    "label": "Oracle 0x2b43e079...",
+    "role": "oracle",
+    "layer": "oracle",
+    "p_fail_horizon": 0.0003915,
+    "loss_given_failure": 0.4,
+    "affected_fraction": 0.0423855104531691,
+    "affected_usd_if_fails": 16954.204181267643,
+    "expected_loss_usd": 6.637570936966281,
+    "exposed_allocations": [
+     "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
+    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "address": "0x2b43e079d9637570e29ebe945de9053b0bf647b9"
+   },
+   {
+    "id": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+    "label": "Morpho market WBTC/EURCV (LLTV 86.0%)",
+    "role": "market",
+    "layer": "lending",
+    "p_fail_horizon": 0.0,
+    "loss_given_failure": 0.7,
+    "affected_fraction": 0.09670720050000431,
+    "affected_usd_if_fails": 67695.04035000302,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [
+     "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e"
+    ],
+    "decision_neutral": false,
+    "source": "look-through only: market risk carried by its collateral, oracle and Morpho Blue nodes (shock it for an isolated market failure)",
+    "lgf_source": "structural assumption (shock only)",
+    "market_id": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+    "lltv": 0.86
+   },
+   {
+    "id": "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    "label": "WBTC (collateral)",
+    "role": "collateral",
+    "layer": "yield_source",
+    "p_fail_horizon": 0.00019575,
+    "loss_given_failure": 0.5,
+    "affected_fraction": 0.012953978132248637,
+    "affected_usd_if_fails": 6476.989066124319,
+    "expected_loss_usd": 1.2678706096938355,
+    "exposed_allocations": [
+     "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); base 1.36%/y x 0.35 (2 audits x0.7, TVL>=$1B x0.5) -> 0.24%/y; x0.5 = token-level share of issuer / wrapper impairment",
+    "lgf_source": "assumption: collateral loses 50% in a jump (no time to liquidate)",
+    "address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    "collateral_kind": "issued_token"
+   },
+   {
+    "id": "oracle:0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4",
+    "label": "Oracle 0x40721232...",
+    "role": "oracle",
+    "layer": "oracle",
+    "p_fail_horizon": 0.0003915,
+    "loss_given_failure": 0.4,
+    "affected_fraction": 0.007942678787290191,
+    "affected_usd_if_fails": 3177.071514916077,
+    "expected_loss_usd": 1.243823498089644,
+    "exposed_allocations": [
+     "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
+    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "address": "0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4"
+   },
+   {
+    "id": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+    "label": "Morpho market wstETH/EURCV (LLTV 86.0%)",
+    "role": "market",
+    "layer": "lending",
+    "p_fail_horizon": 0.0,
+    "loss_given_failure": 0.7,
+    "affected_fraction": 0.020796675940952428,
+    "affected_usd_if_fails": 14557.673158666697,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [
+     "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1"
+    ],
+    "decision_neutral": false,
+    "source": "look-through only: market risk carried by its collateral, oracle and Morpho Blue nodes (shock it for an isolated market failure)",
+    "lgf_source": "structural assumption (shock only)",
+    "market_id": "0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+    "lltv": 0.86
+   },
+   {
+    "id": "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+    "label": "wstETH (collateral)",
+    "role": "collateral",
+    "layer": "yield_source",
+    "p_fail_horizon": 0.00084195,
+    "loss_given_failure": 0.5,
+    "affected_fraction": 0.0004133233510540571,
+    "affected_usd_if_fails": 206.66167552702854,
+    "expected_loss_usd": 0.17399879770998167,
+    "exposed_allocations": [
+     "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); base 1.36%/y x 1.50 (no DefiLlama match -> x1.5 (unknown protocol)) -> 1.02%/y; x0.5 = token-level share of issuer / wrapper impairment",
+    "lgf_source": "assumption: collateral loses 50% in a jump (no time to liquidate)",
+    "address": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+    "collateral_kind": "issued_token"
+   },
+   {
+    "id": "oracle:0x44d6d497fb53294f283983e2931972840eb3dd90",
+    "label": "Oracle 0x44d6d497...",
+    "role": "oracle",
+    "layer": "oracle",
+    "p_fail_horizon": 0.0003915,
+    "loss_given_failure": 0.4,
+    "affected_fraction": 0.0016119782541364864,
+    "affected_usd_if_fails": 644.7913016545946,
+    "expected_loss_usd": 0.25243579459777377,
+    "exposed_allocations": [
+     "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
+    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "address": "0x44d6d497fb53294f283983e2931972840eb3dd90"
+   },
+   {
+    "id": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+    "label": "Morpho market steakEURCV/EURCV (LLTV 91.5%)",
+    "role": "market",
+    "layer": "lending",
+    "p_fail_horizon": 0.0,
+    "loss_given_failure": 0.7,
+    "affected_fraction": 4.246673336013494e-07,
+    "affected_usd_if_fails": 0.2972671335209446,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [
+     "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82"
+    ],
+    "decision_neutral": false,
+    "source": "look-through only: market risk carried by its collateral, oracle and Morpho Blue nodes (shock it for an isolated market failure)",
+    "lgf_source": "structural assumption (shock only)",
+    "market_id": "0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+    "lltv": 0.915
+   },
+   {
+    "id": "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f",
+    "label": "steakEURCV (collateral)",
+    "role": "collateral",
+    "layer": "yield_source",
+    "p_fail_horizon": 0.00084195,
+    "loss_given_failure": 0.5,
+    "affected_fraction": 1.5389973040564087e-09,
+    "affected_usd_if_fails": 0.0007694986520282043,
+    "expected_loss_usd": 6.478793900751465e-07,
+    "exposed_allocations": [
+     "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); base 1.36%/y x 1.50 (no DefiLlama match -> x1.5 (unknown protocol)) -> 1.02%/y; x0.5 = token-level share of issuer / wrapper impairment",
+    "lgf_source": "assumption: collateral loses 50% in a jump (no time to liquidate)",
+    "address": "0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f",
+    "collateral_kind": "issued_token"
+   },
+   {
+    "id": "oracle:0x078f2bf7628e82d738b6b956dfad5114c8fc55f1",
+    "label": "Oracle 0x078f2bf7...",
+    "role": "oracle",
+    "layer": "oracle",
+    "p_fail_horizon": 0.0003915,
+    "loss_given_failure": 0.4,
+    "affected_fraction": 1.7999725610209963e-07,
+    "affected_usd_if_fails": 0.07199890244083985,
+    "expected_loss_usd": 2.8187570305588802e-05,
+    "exposed_allocations": [
+     "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
+    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "address": "0x078f2bf7628e82d738b6b956dfad5114c8fc55f1"
+   },
+   {
+    "id": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+    "label": "Morpho market oTFYe/EURCV (LLTV 77.0%)",
+    "role": "market",
+    "layer": "lending",
+    "p_fail_horizon": 0.0,
+    "loss_given_failure": 0.7,
+    "affected_fraction": 2.1229786552789383e-07,
+    "affected_usd_if_fails": 0.14860850586952568,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [
+     "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba"
+    ],
+    "decision_neutral": false,
+    "source": "look-through only: market risk carried by its collateral, oracle and Morpho Blue nodes (shock it for an isolated market failure)",
+    "lgf_source": "structural assumption (shock only)",
+    "market_id": "0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+    "lltv": 0.77
+   },
+   {
+    "id": "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5",
+    "label": "oTFYe (collateral)",
+    "role": "collateral",
+    "layer": "yield_source",
+    "p_fail_horizon": 0.00084195,
+    "loss_given_failure": 0.5,
+    "affected_fraction": 0.0,
+    "affected_usd_if_fails": 0.0,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [
+     "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); base 1.36%/y x 1.50 (no DefiLlama match -> x1.5 (unknown protocol)) -> 1.02%/y; x0.5 = token-level share of issuer / wrapper impairment",
+    "lgf_source": "assumption: collateral loses 50% in a jump (no time to liquidate)",
+    "address": "0xc6dec62c975f20e60635ddd1341f3ea35bc284c5",
+    "collateral_kind": "issued_token"
+   },
+   {
+    "id": "oracle:0x396d968154355ce6001f3d3d59ceff1eb20750eb",
+    "label": "Oracle 0x396d9681...",
+    "role": "oracle",
+    "layer": "oracle",
+    "p_fail_horizon": 0.0003915,
+    "loss_given_failure": 0.4,
+    "affected_fraction": 8.201634227630803e-08,
+    "affected_usd_if_fails": 0.03280653691052322,
+    "expected_loss_usd": 1.2843759200469839e-05,
+    "exposed_allocations": [
+     "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
+    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "address": "0x396d968154355ce6001f3d3d59ceff1eb20750eb"
+   },
+   {
+    "id": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+    "label": "Morpho market cbBTC/EURCV (LLTV 86.0%)",
+    "role": "market",
+    "layer": "lending",
+    "p_fail_horizon": 0.0,
+    "loss_given_failure": 0.7,
+    "affected_fraction": 0.02471866679446807,
+    "affected_usd_if_fails": 17303.06675612765,
+    "expected_loss_usd": 0.0,
+    "exposed_allocations": [
+     "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce"
+    ],
+    "decision_neutral": false,
+    "source": "look-through only: market risk carried by its collateral, oracle and Morpho Blue nodes (shock it for an isolated market failure)",
+    "lgf_source": "structural assumption (shock only)",
+    "market_id": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+    "lltv": 0.86
+   },
+   {
+    "id": "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+    "label": "cbBTC (collateral)",
+    "role": "collateral",
+    "layer": "yield_source",
+    "p_fail_horizon": 0.00084195,
+    "loss_given_failure": 0.5,
+    "affected_fraction": 0.00999715178386421,
+    "affected_usd_if_fails": 4998.575891932105,
+    "expected_loss_usd": 4.208550972212235,
+    "exposed_allocations": [
+     "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); base 1.36%/y x 1.50 (no DefiLlama match -> x1.5 (unknown protocol)) -> 1.02%/y; x0.5 = token-level share of issuer / wrapper impairment",
+    "lgf_source": "assumption: collateral loses 50% in a jump (no time to liquidate)",
+    "address": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+    "collateral_kind": "issued_token"
+   },
+   {
+    "id": "oracle:0xba75fd248bf33d669d4c5adf25d3e32779656e47",
+    "label": "Oracle 0xba75fd24...",
+    "role": "oracle",
+    "layer": "oracle",
+    "p_fail_horizon": 0.0003915,
+    "loss_given_failure": 0.4,
+    "affected_fraction": 0.0019702121809191606,
+    "affected_usd_if_fails": 788.0848723676643,
+    "expected_loss_usd": 0.3085352275319405,
+    "exposed_allocations": [
+     "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce"
+    ],
+    "decision_neutral": false,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 613 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1284 protocols with TVL >= $1,000,000 = 6.91%/y); oracle manipulation = 12% of incidents, x3 for being a shared single point of failure, feed quality x1.00 (vault oracle: feed quality not individually assessed (assumption x1.0)) -> 0.48%/y",
+    "lgf_source": "assumption: oracle over-prices collateral by 40% when it fails",
+    "address": "0xba75fd248bf33d669d4c5adf25d3e32779656e47"
+   }
+  ],
+  "edges": [
+   {
+    "src": "pos",
+    "dst": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "transmission": 1.0,
+    "why": "measured: depositor holds vault shares (share price convertToAssets at the pinned block)",
+    "relation_type": "holds_shares",
+    "source": "VaultV2/MetaMorpho convertToAssets",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "pos",
+    "dst": "chain:1",
+    "transmission": 1.0,
+    "why": "vault, markets and redemption settle on Ethereum",
+    "relation_type": "settles_on",
+    "source": "chain_id 1",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "assumption"
+   },
+   {
+    "src": "pos",
+    "dst": "asset:0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "transmission": 0.0,
+    "why": "decision-neutral: redeeming returns EURCV, so its depeg hits STAY and EXIT alike (shown as a what-if scenario, not in the STAY/EXIT margin)",
+    "relation_type": "denominated_in",
+    "source": "VaultV2.asset()",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "asset:0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+    "dst": "fx:EURUSD",
+    "transmission": 0.0,
+    "why": "EUR-denominated: USD value moves with EUR/USD (decision-neutral unless converting to USD)",
+    "relation_type": "valued_in",
+    "source": "Chainlink EUR/USD",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "dst": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "transmission": 0.9999999992672057,
+    "why": "measured: adapter holds 100.00% of totalAssets in Morpho markets",
+    "relation_type": "allocates_to",
+    "source": "adapter marketIds + Morpho position()",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "dst": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+    "transmission": 0.8577768196951557,
+    "why": "measured: 85.78% of the adapter supplied to this market",
+    "relation_type": "supplies",
+    "source": "Morpho Blue position(id, holder)",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+    "dst": "morpho_blue",
+    "transmission": 1.0,
+    "why": "market lives in the Morpho Blue singleton",
+    "relation_type": "hosted_by",
+    "source": "Morpho Blue",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+    "dst": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+    "transmission": 0.6094277675984628,
+    "why": "model: a 50% jump drop leaves bad debt = 30.47% of market supply after liquidating 2/2 on-chain borrower positions (LIF 1.074); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+    "relation_type": "collateralized_by",
+    "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+    "dst": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+    "transmission": 0.04941321508232444,
+    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 1.98% of market supply; under-pricing only hurts borrowers",
+    "relation_type": "priced_by",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "dst": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+    "transmission": 0.09670720057087079,
+    "why": "measured: 9.67% of the adapter supplied to this market",
+    "relation_type": "supplies",
+    "source": "Morpho Blue position(id, holder)",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+    "dst": "morpho_blue",
+    "transmission": 1.0,
+    "why": "market lives in the Morpho Blue singleton",
+    "relation_type": "hosted_by",
+    "source": "Morpho Blue",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+    "dst": "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    "transmission": 0.13395050280923043,
+    "why": "model: a 50% jump drop leaves bad debt = 6.70% of market supply after liquidating 29/50 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+    "relation_type": "collateralized_by",
+    "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+    "dst": "oracle:0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4",
+    "transmission": 0.08213120373895878,
+    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.29% of market supply; under-pricing only hurts borrowers",
+    "relation_type": "priced_by",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "dst": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+    "transmission": 0.020796675956192112,
+    "why": "measured: 2.08% of the adapter supplied to this market",
+    "relation_type": "supplies",
+    "source": "Morpho Blue position(id, holder)",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+    "dst": "morpho_blue",
+    "transmission": 1.0,
+    "why": "market lives in the Morpho Blue singleton",
+    "relation_type": "hosted_by",
+    "source": "Morpho Blue",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+    "dst": "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+    "transmission": 0.01987449110750187,
+    "why": "model: a 50% jump drop leaves bad debt = 0.99% of market supply after liquidating 16/39 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+    "relation_type": "collateralized_by",
+    "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+    "dst": "oracle:0x44d6d497fb53294f283983e2931972840eb3dd90",
+    "transmission": 0.07751134165447127,
+    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.10% of market supply; under-pricing only hurts borrowers",
+    "relation_type": "priced_by",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "dst": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+    "transmission": 4.246673339125432e-07,
+    "why": "measured: 0.00% of the adapter supplied to this market",
+    "relation_type": "supplies",
+    "source": "Morpho Blue position(id, holder)",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+    "dst": "morpho_blue",
+    "transmission": 1.0,
+    "why": "market lives in the Morpho Blue singleton",
+    "relation_type": "hosted_by",
+    "source": "Morpho Blue",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+    "dst": "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f",
+    "transmission": 0.003624006798462914,
+    "why": "model: a 50% jump drop leaves bad debt = 0.18% of market supply after liquidating 1/2 on-chain borrower positions (LIF 1.026); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+    "relation_type": "collateralized_by",
+    "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+    "dst": "oracle:0x078f2bf7628e82d738b6b956dfad5114c8fc55f1",
+    "transmission": 0.4238547254757051,
+    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 16.95% of market supply; under-pricing only hurts borrowers",
+    "relation_type": "priced_by",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "dst": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+    "transmission": 2.1229786568346448e-07,
+    "why": "measured: 0.00% of the adapter supplied to this market",
+    "relation_type": "supplies",
+    "source": "Morpho Blue position(id, holder)",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+    "dst": "morpho_blue",
+    "transmission": 1.0,
+    "why": "market lives in the Morpho Blue singleton",
+    "relation_type": "hosted_by",
+    "source": "Morpho Blue",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+    "dst": "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5",
+    "transmission": 0.0,
+    "why": "model: a 50% jump drop leaves bad debt = 0.00% of market supply after liquidating 1/1 on-chain borrower positions (LIF 1.074); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+    "relation_type": "collateralized_by",
+    "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+    "dst": "oracle:0x396d968154355ce6001f3d3d59ceff1eb20750eb",
+    "transmission": 0.3863267398961762,
+    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 15.45% of market supply; under-pricing only hurts borrowers",
+    "relation_type": "priced_by",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+    "dst": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+    "transmission": 0.02471866681258177,
+    "why": "measured: 2.47% of the adapter supplied to this market",
+    "relation_type": "supplies",
+    "source": "Morpho Blue position(id, holder)",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+    "dst": "morpho_blue",
+    "transmission": 1.0,
+    "why": "market lives in the Morpho Blue singleton",
+    "relation_type": "hosted_by",
+    "source": "Morpho Blue",
+    "as_of_block": 26164196,
+    "confidence": "high",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+    "dst": "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+    "transmission": 0.4044373374579219,
+    "why": "model: a 50% jump drop leaves bad debt = 20.22% of market supply after liquidating 23/40 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing.",
+    "relation_type": "collateralized_by",
+    "source": "Morpho Blue idToMarketParams + borrower positions (API list, on-chain totals/oracle)",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   },
+   {
+    "src": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+    "dst": "oracle:0xba75fd248bf33d669d4c5adf25d3e32779656e47",
+    "transmission": 0.07970543869947247,
+    "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.19% of market supply; under-pricing only hurts borrowers",
+    "relation_type": "priced_by",
+    "source": "Morpho Blue idToMarketParams.oracle + market liquidity",
+    "as_of_block": 26164196,
+    "confidence": "medium",
+    "transmission_type": "mechanistic"
+   }
+  ],
+  "path_aggregation": "sum"
+ },
+ "risk": {
+  "horizon_days": 30,
+  "expected_loss_usd": 631.6298780169038,
+  "expected_loss_pct": 0.0006316298780169038,
+  "label": "expected (probability-weighted over the horizon)",
+  "band_usd": [
+   113.1163721903583,
+   3233.0631186087858
+  ],
+  "dependence_bounds_usd": [
+   220.06594920205507,
+   631.7787766176544
+  ],
+  "var95_usd": 0.0,
+  "mc_mean_usd": 798.7856234738028,
+  "formula": "central = V(1 - prod(1 - p_i LGF_i T_i)): exact expectation under independence + best-path transmission; dependence-free bounds [V max p_i h_i, V min(1, sum p_i h_i)]; band low = independence at low parameters, high = union bound at high parameters (any correlation). Paths are SUMMED over a vault's allocations (each share of assets is exposed once; capped at 100%).",
+  "drivers": [
+   {
+    "id": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+    "label": "mGLOeuro (collateral)",
+    "expected_loss_usd": 220.06594920205507,
+    "paths": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+       "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702"
+      ],
+      "transmission": 0.5227530119414575
+     }
+    ]
+   },
+   {
+    "id": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "label": "Belem RWA EURCV (Morpho Vault V2)",
+    "expected_loss_usd": 137.02499999999998,
+    "paths": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
+      ],
+      "transmission": 1.0
+     }
+    ]
+   },
+   {
+    "id": "morpho_blue",
+    "label": "Morpho Blue (singleton)",
+    "expected_loss_usd": 137.02499989958883,
+    "paths": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+       "morpho_blue"
+      ],
+      "transmission": 0.8577768190665818
+     },
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+       "morpho_blue"
+      ],
+      "transmission": 0.09670720050000431
+     },
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+       "morpho_blue"
+      ],
+      "transmission": 0.02471866679446807
+     }
+    ]
+   },
+   {
+    "id": "chain:1",
+    "label": "Ethereum",
+    "expected_loss_usd": 123.56999999999998,
+    "paths": [
+     {
+      "path": [
+       "pos",
+       "chain:1"
+      ],
+      "transmission": 1.0
+     }
+    ]
+   },
+   {
+    "id": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+    "label": "Oracle 0x2b43e079...",
+    "expected_loss_usd": 6.637570936966281,
+    "paths": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+       "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9"
+      ],
+      "transmission": 0.0423855104531691
+     }
+    ]
+   }
+  ],
+  "parameters": {
+   "nodes": [
+    {
+     "id": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+     "label": "Belem RWA EURCV (Morpho Vault V2)",
+     "role": "lending",
+     "mechanism": "Morpho market incident -> collateral stuck or lost",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.00019575,
+      "low": 9.7875e-05,
+      "high": 0.00058725,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.7,
+      "low": 0.35,
+      "high": 1.0,
+      "why": "structural assumption: loss-given-failure 70% for a vault contract / curator failure (priors.LGF)"
+     }
+    },
+    {
+     "id": "chain:1",
+     "label": "Ethereum",
+     "role": "chain",
+     "mechanism": "L1 halt / rollback / consensus failure",
+     "p_fail_horizon": {
+      "class": "scenario_assumption",
+      "central": 0.0004119,
+      "low": 8.238000000000001e-05,
+      "high": 0.0016476,
+      "why": "assumption: 0.5%/y serious L1 incident; band x0.2-x4.0"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.3,
+      "low": 0.15,
+      "high": 0.44999999999999996,
+      "why": "structural assumption: loss-given-failure 30% (priors.LGF)"
+     }
+    },
+    {
+     "id": "morpho_blue",
+     "label": "Morpho Blue (singleton)",
+     "role": "morpho_blue",
+     "mechanism": "Morpho Blue singleton contract exploit",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.00019575,
+      "low": 9.7875e-05,
+      "high": 0.00058725,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.7,
+      "low": 0.35,
+      "high": 1.0,
+      "why": "structural assumption: loss-given-failure 70% (priors.LGF)"
+     }
+    },
+    {
+     "id": "asset:0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+     "label": "EURCV (deposit asset)",
+     "role": "stablecoin",
+     "mechanism": "stablecoin depeg (observed history)",
+     "p_fail_horizon": {
+      "class": "scenario_assumption",
+      "central": 0.00862238,
+      "low": 0.0017244760000000002,
+      "high": 0.03448952,
+      "why": "assumption: 10%/y depeg (no DefiLlama price history for EURCV); band x0.2-x4.0"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.3,
+      "low": 0.15,
+      "high": 0.44999999999999996,
+      "why": "structural assumption: 30% (priors.LGF stablecoin)"
+     }
+    },
+    {
+     "id": "fx:EURUSD",
+     "label": "EUR/USD exchange rate",
+     "role": "fx",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "not_used",
+      "low": 0.0,
+      "central": 0.0,
+      "high": 0.0,
+      "why": "look-through node: risk carried by the parent token prior (no double counting)"
+     },
+     "loss_given_failure": {
+      "class": "not_used",
+      "central": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "why": ""
+     }
+    },
+    {
+     "id": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "label": "Adapter MorphoMarketV1AdapterV2",
+     "role": "adapter",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "not_used",
+      "low": 0.0,
+      "central": 0.0,
+      "high": 0.0,
+      "why": "look-through node: risk carried by the parent token prior (no double counting)"
+     },
+     "loss_given_failure": {
+      "class": "not_used",
+      "central": 0.0,
+      "low": 0.0,
+      "high": 0.0,
+      "why": ""
+     }
+    },
+    {
+     "id": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "label": "Morpho market mGLOeuro/EURCV (LLTV 77.0%)",
+     "role": "market",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "not_used",
+      "low": 0.0,
+      "central": 0.0,
+      "high": 0.0,
+      "why": "look-through node: risk carried by the parent token prior (no double counting)"
+     },
+     "loss_given_failure": {
+      "class": "not_used",
+      "central": 0.7,
+      "low": 0.7,
+      "high": 0.7,
+      "why": "structural assumption (shock only)"
+     }
+    },
+    {
+     "id": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+     "label": "mGLOeuro (collateral)",
+     "role": "collateral",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.00084195,
+      "low": 0.000420975,
+      "high": 0.0025258499999999996,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.5,
+      "low": 0.25,
+      "high": 0.75,
+      "why": "assumption: collateral loses 50% in a jump (no time to liquidate)"
+     }
+    },
+    {
+     "id": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+     "label": "Oracle 0x2b43e079...",
+     "role": "oracle",
+     "mechanism": "oracle failure / manipulation -> wrong collateral price -> bad liquidations / bad debt",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.0003915,
+      "low": 0.00019575,
+      "high": 0.0011745,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.4,
+      "low": 0.2,
+      "high": 0.6000000000000001,
+      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+     }
+    },
+    {
+     "id": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+     "label": "Morpho market WBTC/EURCV (LLTV 86.0%)",
+     "role": "market",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "not_used",
+      "low": 0.0,
+      "central": 0.0,
+      "high": 0.0,
+      "why": "look-through node: risk carried by the parent token prior (no double counting)"
+     },
+     "loss_given_failure": {
+      "class": "not_used",
+      "central": 0.7,
+      "low": 0.7,
+      "high": 0.7,
+      "why": "structural assumption (shock only)"
+     }
+    },
+    {
+     "id": "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+     "label": "WBTC (collateral)",
+     "role": "collateral",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.00019575,
+      "low": 9.7875e-05,
+      "high": 0.00058725,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.5,
+      "low": 0.25,
+      "high": 0.75,
+      "why": "assumption: collateral loses 50% in a jump (no time to liquidate)"
+     }
+    },
+    {
+     "id": "oracle:0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4",
+     "label": "Oracle 0x40721232...",
+     "role": "oracle",
+     "mechanism": "oracle failure / manipulation -> wrong collateral price -> bad liquidations / bad debt",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.0003915,
+      "low": 0.00019575,
+      "high": 0.0011745,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.4,
+      "low": 0.2,
+      "high": 0.6000000000000001,
+      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+     }
+    },
+    {
+     "id": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "label": "Morpho market wstETH/EURCV (LLTV 86.0%)",
+     "role": "market",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "not_used",
+      "low": 0.0,
+      "central": 0.0,
+      "high": 0.0,
+      "why": "look-through node: risk carried by the parent token prior (no double counting)"
+     },
+     "loss_given_failure": {
+      "class": "not_used",
+      "central": 0.7,
+      "low": 0.7,
+      "high": 0.7,
+      "why": "structural assumption (shock only)"
+     }
+    },
+    {
+     "id": "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+     "label": "wstETH (collateral)",
+     "role": "collateral",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.00084195,
+      "low": 0.000420975,
+      "high": 0.0025258499999999996,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.5,
+      "low": 0.25,
+      "high": 0.75,
+      "why": "assumption: collateral loses 50% in a jump (no time to liquidate)"
+     }
+    },
+    {
+     "id": "oracle:0x44d6d497fb53294f283983e2931972840eb3dd90",
+     "label": "Oracle 0x44d6d497...",
+     "role": "oracle",
+     "mechanism": "oracle failure / manipulation -> wrong collateral price -> bad liquidations / bad debt",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.0003915,
+      "low": 0.00019575,
+      "high": 0.0011745,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.4,
+      "low": 0.2,
+      "high": 0.6000000000000001,
+      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+     }
+    },
+    {
+     "id": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+     "label": "Morpho market steakEURCV/EURCV (LLTV 91.5%)",
+     "role": "market",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "not_used",
+      "low": 0.0,
+      "central": 0.0,
+      "high": 0.0,
+      "why": "look-through node: risk carried by the parent token prior (no double counting)"
+     },
+     "loss_given_failure": {
+      "class": "not_used",
+      "central": 0.7,
+      "low": 0.7,
+      "high": 0.7,
+      "why": "structural assumption (shock only)"
+     }
+    },
+    {
+     "id": "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f",
+     "label": "steakEURCV (collateral)",
+     "role": "collateral",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.00084195,
+      "low": 0.000420975,
+      "high": 0.0025258499999999996,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.5,
+      "low": 0.25,
+      "high": 0.75,
+      "why": "assumption: collateral loses 50% in a jump (no time to liquidate)"
+     }
+    },
+    {
+     "id": "oracle:0x078f2bf7628e82d738b6b956dfad5114c8fc55f1",
+     "label": "Oracle 0x078f2bf7...",
+     "role": "oracle",
+     "mechanism": "oracle failure / manipulation -> wrong collateral price -> bad liquidations / bad debt",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.0003915,
+      "low": 0.00019575,
+      "high": 0.0011745,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.4,
+      "low": 0.2,
+      "high": 0.6000000000000001,
+      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+     }
+    },
+    {
+     "id": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "label": "Morpho market oTFYe/EURCV (LLTV 77.0%)",
+     "role": "market",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "not_used",
+      "low": 0.0,
+      "central": 0.0,
+      "high": 0.0,
+      "why": "look-through node: risk carried by the parent token prior (no double counting)"
+     },
+     "loss_given_failure": {
+      "class": "not_used",
+      "central": 0.7,
+      "low": 0.7,
+      "high": 0.7,
+      "why": "structural assumption (shock only)"
+     }
+    },
+    {
+     "id": "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5",
+     "label": "oTFYe (collateral)",
+     "role": "collateral",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.00084195,
+      "low": 0.000420975,
+      "high": 0.0025258499999999996,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.5,
+      "low": 0.25,
+      "high": 0.75,
+      "why": "assumption: collateral loses 50% in a jump (no time to liquidate)"
+     }
+    },
+    {
+     "id": "oracle:0x396d968154355ce6001f3d3d59ceff1eb20750eb",
+     "label": "Oracle 0x396d9681...",
+     "role": "oracle",
+     "mechanism": "oracle failure / manipulation -> wrong collateral price -> bad liquidations / bad debt",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.0003915,
+      "low": 0.00019575,
+      "high": 0.0011745,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.4,
+      "low": 0.2,
+      "high": 0.6000000000000001,
+      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+     }
+    },
+    {
+     "id": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+     "label": "Morpho market cbBTC/EURCV (LLTV 86.0%)",
+     "role": "market",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "not_used",
+      "low": 0.0,
+      "central": 0.0,
+      "high": 0.0,
+      "why": "look-through node: risk carried by the parent token prior (no double counting)"
+     },
+     "loss_given_failure": {
+      "class": "not_used",
+      "central": 0.7,
+      "low": 0.7,
+      "high": 0.7,
+      "why": "structural assumption (shock only)"
+     }
+    },
+    {
+     "id": "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+     "label": "cbBTC (collateral)",
+     "role": "collateral",
+     "mechanism": "other",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.00084195,
+      "low": 0.000420975,
+      "high": 0.0025258499999999996,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.5,
+      "low": 0.25,
+      "high": 0.75,
+      "why": "assumption: collateral loses 50% in a jump (no time to liquidate)"
+     }
+    },
+    {
+     "id": "oracle:0xba75fd248bf33d669d4c5adf25d3e32779656e47",
+     "label": "Oracle 0xba75fd24...",
+     "role": "oracle",
+     "mechanism": "oracle failure / manipulation -> wrong collateral price -> bad liquidations / bad debt",
+     "p_fail_horizon": {
+      "class": "calibrated",
+      "central": 0.0003915,
+      "low": 0.00019575,
+      "high": 0.0011745,
+      "why": "cohort hack base rate x modifiers; low x0.5 (assumption), high x3.0 (all incidents / all protocols >= $1M, the broad DefiLlama rate)"
+     },
+     "loss_given_failure": {
+      "class": "scenario_assumption",
+      "central": 0.4,
+      "low": 0.2,
+      "high": 0.6000000000000001,
+      "why": "assumption: oracle over-prices collateral by 40% when it fails"
+     }
+    }
+   ],
+   "edges": [
+    {
+     "src": "pos",
+     "dst": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+     "transmission": 1.0,
+     "class": "protocol-derived",
+     "low": 1.0,
+     "high": 1.0,
+     "why": "measured: depositor holds vault shares (share price convertToAssets at the pinned block)"
+    },
+    {
+     "src": "pos",
+     "dst": "chain:1",
+     "transmission": 1.0,
+     "class": "scenario_assumption",
+     "low": 0.75,
+     "high": 1.0,
+     "why": "vault, markets and redemption settle on Ethereum"
+    },
+    {
+     "src": "pos",
+     "dst": "asset:0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+     "transmission": 0.0,
+     "class": "scenario_assumption",
+     "low": 0.0,
+     "high": 0.0,
+     "why": "decision-neutral: redeeming returns EURCV, so its depeg hits STAY and EXIT alike (shown as a what-if scenario, not in the STAY/EXIT margin)"
+    },
+    {
+     "src": "asset:0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+     "dst": "fx:EURUSD",
+     "transmission": 0.0,
+     "class": "scenario_assumption",
+     "low": 0.0,
+     "high": 0.0,
+     "why": "EUR-denominated: USD value moves with EUR/USD (decision-neutral unless converting to USD)"
+    },
+    {
+     "src": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+     "dst": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "transmission": 0.9999999992672057,
+     "class": "protocol-derived",
+     "low": 0.9999999992672057,
+     "high": 0.9999999992672057,
+     "why": "measured: adapter holds 100.00% of totalAssets in Morpho markets"
+    },
+    {
+     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "dst": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "transmission": 0.8577768196951557,
+     "class": "protocol-derived",
+     "low": 0.8577768196951557,
+     "high": 0.8577768196951557,
+     "why": "measured: 85.78% of the adapter supplied to this market"
+    },
+    {
+     "src": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "dst": "morpho_blue",
+     "transmission": 1.0,
+     "class": "scenario_assumption",
+     "low": 0.75,
+     "high": 1.0,
+     "why": "market lives in the Morpho Blue singleton"
+    },
+    {
+     "src": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "dst": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+     "transmission": 0.6094277675984628,
+     "class": "scenario_assumption",
+     "low": 0.45707082569884716,
+     "high": 0.7617847094980785,
+     "why": "model: a 50% jump drop leaves bad debt = 30.47% of market supply after liquidating 2/2 on-chain borrower positions (LIF 1.074); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+    },
+    {
+     "src": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "dst": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+     "transmission": 0.04941321508232444,
+     "class": "scenario_assumption",
+     "low": 0.037059911311743333,
+     "high": 0.06176651885290555,
+     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 1.98% of market supply; under-pricing only hurts borrowers"
+    },
+    {
+     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "dst": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+     "transmission": 0.09670720057087079,
+     "class": "protocol-derived",
+     "low": 0.09670720057087079,
+     "high": 0.09670720057087079,
+     "why": "measured: 9.67% of the adapter supplied to this market"
+    },
+    {
+     "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+     "dst": "morpho_blue",
+     "transmission": 1.0,
+     "class": "scenario_assumption",
+     "low": 0.75,
+     "high": 1.0,
+     "why": "market lives in the Morpho Blue singleton"
+    },
+    {
+     "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+     "dst": "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+     "transmission": 0.13395050280923043,
+     "class": "scenario_assumption",
+     "low": 0.10046287710692282,
+     "high": 0.16743812851153805,
+     "why": "model: a 50% jump drop leaves bad debt = 6.70% of market supply after liquidating 29/50 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+    },
+    {
+     "src": "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+     "dst": "oracle:0x40721232bbd09e15e5fc6c4f1e20a8465be6a8e4",
+     "transmission": 0.08213120373895878,
+     "class": "scenario_assumption",
+     "low": 0.06159840280421909,
+     "high": 0.10266400467369848,
+     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.29% of market supply; under-pricing only hurts borrowers"
+    },
+    {
+     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "dst": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "transmission": 0.020796675956192112,
+     "class": "protocol-derived",
+     "low": 0.020796675956192112,
+     "high": 0.020796675956192112,
+     "why": "measured: 2.08% of the adapter supplied to this market"
+    },
+    {
+     "src": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "dst": "morpho_blue",
+     "transmission": 1.0,
+     "class": "scenario_assumption",
+     "low": 0.75,
+     "high": 1.0,
+     "why": "market lives in the Morpho Blue singleton"
+    },
+    {
+     "src": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "dst": "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+     "transmission": 0.01987449110750187,
+     "class": "scenario_assumption",
+     "low": 0.014905868330626402,
+     "high": 0.024843113884377335,
+     "why": "model: a 50% jump drop leaves bad debt = 0.99% of market supply after liquidating 16/39 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+    },
+    {
+     "src": "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "dst": "oracle:0x44d6d497fb53294f283983e2931972840eb3dd90",
+     "transmission": 0.07751134165447127,
+     "class": "scenario_assumption",
+     "low": 0.05813350624085345,
+     "high": 0.09688917706808908,
+     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.10% of market supply; under-pricing only hurts borrowers"
+    },
+    {
+     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "dst": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+     "transmission": 4.246673339125432e-07,
+     "class": "protocol-derived",
+     "low": 4.246673339125432e-07,
+     "high": 4.246673339125432e-07,
+     "why": "measured: 0.00% of the adapter supplied to this market"
+    },
+    {
+     "src": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+     "dst": "morpho_blue",
+     "transmission": 1.0,
+     "class": "scenario_assumption",
+     "low": 0.75,
+     "high": 1.0,
+     "why": "market lives in the Morpho Blue singleton"
+    },
+    {
+     "src": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+     "dst": "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f",
+     "transmission": 0.003624006798462914,
+     "class": "scenario_assumption",
+     "low": 0.0027180050988471855,
+     "high": 0.004530008498078643,
+     "why": "model: a 50% jump drop leaves bad debt = 0.18% of market supply after liquidating 1/2 on-chain borrower positions (LIF 1.026); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+    },
+    {
+     "src": "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+     "dst": "oracle:0x078f2bf7628e82d738b6b956dfad5114c8fc55f1",
+     "transmission": 0.4238547254757051,
+     "class": "scenario_assumption",
+     "low": 0.3178910441067788,
+     "high": 0.5298184068446313,
+     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 16.95% of market supply; under-pricing only hurts borrowers"
+    },
+    {
+     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "dst": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "transmission": 2.1229786568346448e-07,
+     "class": "protocol-derived",
+     "low": 2.1229786568346448e-07,
+     "high": 2.1229786568346448e-07,
+     "why": "measured: 0.00% of the adapter supplied to this market"
+    },
+    {
+     "src": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "dst": "morpho_blue",
+     "transmission": 1.0,
+     "class": "scenario_assumption",
+     "low": 0.75,
+     "high": 1.0,
+     "why": "market lives in the Morpho Blue singleton"
+    },
+    {
+     "src": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "dst": "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5",
+     "transmission": 0.0,
+     "class": "scenario_assumption",
+     "low": 0.0,
+     "high": 0.0,
+     "why": "model: a 50% jump drop leaves bad debt = 0.00% of market supply after liquidating 1/1 on-chain borrower positions (LIF 1.074); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+    },
+    {
+     "src": "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "dst": "oracle:0x396d968154355ce6001f3d3d59ceff1eb20750eb",
+     "transmission": 0.3863267398961762,
+     "class": "scenario_assumption",
+     "low": 0.28974505492213215,
+     "high": 0.4829084248702203,
+     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 15.45% of market supply; under-pricing only hurts borrowers"
+    },
+    {
+     "src": "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "dst": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+     "transmission": 0.02471866681258177,
+     "class": "protocol-derived",
+     "low": 0.02471866681258177,
+     "high": 0.02471866681258177,
+     "why": "measured: 2.47% of the adapter supplied to this market"
+    },
+    {
+     "src": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+     "dst": "morpho_blue",
+     "transmission": 1.0,
+     "class": "scenario_assumption",
+     "low": 0.75,
+     "high": 1.0,
+     "why": "market lives in the Morpho Blue singleton"
+    },
+    {
+     "src": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+     "dst": "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+     "transmission": 0.4044373374579219,
+     "class": "scenario_assumption",
+     "low": 0.30332800309344143,
+     "high": 0.5055466718224023,
+     "why": "model: a 50% jump drop leaves bad debt = 20.22% of market supply after liquidating 23/40 on-chain borrower positions (LIF 1.044); transmission = bad debt / (supply x drop). Liquidations alone cost suppliers nothing."
+    },
+    {
+     "src": "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+     "dst": "oracle:0xba75fd248bf33d669d4c5adf25d3e32779656e47",
+     "transmission": 0.07970543869947247,
+     "class": "scenario_assumption",
+     "low": 0.05977907902460435,
+     "high": 0.09963179837434058,
+     "why": "model: over-pricing by 40% lets borrowers drain free liquidity against collateral worth (1-40%)/LLTV of the debt -> loss 3.19% of market supply; under-pricing only hurts borrowers"
+    }
+   ],
+   "classes": "observed = measured on public data for this asset; calibrated = public base rate adjusted by metadata; protocol-derived = read from contracts; scenario_assumption = expert weight with a band; not_used = carried elsewhere (no double counting)"
+  },
+  "loss_bounds": "0 <= loss <= value_usd (no liability beyond the shares)"
+ },
+ "exit": {
+  "basis": "USD at the deposit-asset price (EURCV $1.11937); same horizon 30d",
+  "comparison_basis": {
+   "kind": "full_position",
+   "fraction": 1.0,
+   "assets": 893359.5569533542,
+   "usd": 1000000.0,
+   "route": "force_deallocate",
+   "position_expected_loss_usd": 631.6298780169038,
+   "position_carry_usd": 2149.609327848414,
+   "residual_expected_loss_usd": 0.0,
+   "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
+   "why": "the whole position is executable now by a simulated route"
+  },
+  "notional_assets": 893359.5569533542,
+  "notional_usd": 1000000.0,
+  "hypothetical": "value_usd is a HYPOTHETICAL exposure converted to vault shares at the pinned block's share price; it is not proof that anyone holds these shares",
+  "shares_hypothetical": "892534554460676073719110",
+  "theoretical_value_usd": 1000000.0,
+  "immediately_withdrawable_assets": 893359.5569533542,
+  "immediately_withdrawable_usd": 1000000.0,
+  "blocked_or_deferred_assets": 0.0,
+  "blocked_or_deferred_usd": 0.0,
+  "unavailable_liquidity_note": "blocked/deferred = amount no SIMULATED route can withdraw now (not a loss)",
+  "withdrawal_feasibility": "full_via_force_deallocate",
+  "executable_route": "force_deallocate",
+  "executable_assets": 893359.5569533542,
+  "executable_usd": 1000000.0,
+  "routes": {
+   "ordinary": {
+    "capacity_assets": 361743.30039477185,
+    "capacity_usd": 404924.6438113159,
+    "status": "simulated_partial",
+    "gas": {
+     "gas_usd": 0.06528807009509545,
+     "gas_why": "389,054 gas x 0.067 gwei (eth_gasPrice) x ETH $2,515 (DefiLlama)",
+     "gas_units": 389054
+    },
+    "what": "idle + liquidity adapter market (VaultV2) / withdrawQueue (V1): plain redeem"
+   },
+   "force_deallocate": {
+    "status": "simulated",
+    "capacity_assets": 1031706.2735803936,
+    "capacity_usd": 1154861.181648794,
+    "penalty_usd": 0.0,
+    "gas": {
+     "gas_usd": 0.10861017345249481,
+     "gas_why": "647,212 gas x 0.067 gwei (eth_gasPrice) x ETH $2,515 (DefiLlama)",
+     "gas_units": 647212
+    },
+    "what": "VaultV2.multicall([forceDeallocate(other markets)..., redeem]) in one transaction"
+   },
+   "unconfirmed": []
+  },
+  "capacity": {
+   "ordinary_assets": 361743.30039477185,
+   "ordinary_usd": 404924.6438113159,
+   "idle_assets": 0.003451938900573403,
+   "rows": [
+    {
+     "market": "0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "collateral": "mGLOeuro",
+     "available_raw": "361743296942832959356928",
+     "path": "liquidity adapter",
+     "available": 361743.29694283294
+    }
+   ],
+   "with_force_deallocate_assets": 1031706.2735803936,
+   "with_force_deallocate_usd": 1154861.181648794,
+   "rule": "idle + min(liquidity-adapter supply, free liquidity) of the liquidityData market (VaultV2 exit path)",
+   "shared_with_other_depositors": true,
+   "api_cross_check": {
+    "onchain_raw": "361743300394771859930331",
+    "api_raw": "361743300394771869707524",
+    "rel_diff": 2.7027986390708858e-17,
+    "ok": true,
+    "source": "Morpho REST v0 vaults-v2 withdrawal-options"
+   },
+   "contract_max_redeem": 0,
+   "contract_max_redeem_note": "VaultV2 maxWithdraw/maxRedeem return 0 by design: not used as a limit"
+  },
+  "simulation": {
+   "status": "reverted",
+   "reason": "{'code': 3, 'message': 'execution reverted: insufficient liquidity', 'data': '0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000",
+   "shares": "892534554460676073719110",
+   "block": 26164196,
+   "max_redeem_contract": 0,
+   "share_balance_slot": 12,
+   "fetched_at": 1791661356.8381371
+  },
+  "simulation_partial": {
+   "status": "simulated",
+   "shares": "361047827317726460984425",
+   "assets_out_raw": "361381557094377088145468",
+   "block": 26164196,
+   "gas_estimate": 389054,
+   "max_redeem_contract": 0,
+   "share_balance_slot": 12,
+   "fetched_at": 1791661357.3777838,
+   "method": "eth_call redeem() with a state override on the share balance of 0xdEaD (read-only, no tx)",
+   "assets_requested_raw": "361381557094377088070400"
+  },
+  "simulation_force_deallocate": {
+   "shares": "892534554460676073719110",
+   "final_redeem_shares": "892534554460676073719110",
+   "block": 26164196,
+   "share_balance_slot": 12,
+   "steps": 2,
+   "fetched_at": 1791661357.5170643,
+   "method": "eth_call VaultV2.multicall([forceDeallocate(...)..., redeem(...)]) with a state override on the share balance of 0xdEaD (read-only, no tx)",
+   "status": "simulated",
+   "assets_out_raw": "893359556953354151318760",
+   "gas_estimate": 647212,
+   "assets_requested_raw": "893359556953354151133184",
+   "penalty_assets_raw": 0
+  },
+  "execution_cost_usd": 0.10861017345249481,
+  "withdrawal_friction_usd": 0.0,
+  "gas_usd": 0.10861017345249481,
+  "force_deallocate_penalty_usd": 0.0,
+  "execution_note": "execution = gas + friction of the compared route at its simulated size; friction includes any forceDeallocate penalty (paid in shares)",
+  "gas_units": 647212,
+  "gas_why": "647,212 gas x 0.067 gwei (eth_gasPrice) x ETH $2,515 (DefiLlama)",
+  "exit_fee_usd": 0.0,
+  "exit_fee_note": "no withdrawal fee in VaultV2 / MetaMorpho; performance and management fees are already in the share price (reflected in the net APY)",
+  "quote_status": "simulated",
+  "carry": {
+   "status": "estimated",
+   "usd": 2149.609327848414,
+   "low_usd": 1074.804663924207,
+   "high_usd": 3224.413991772621,
+   "net_apy_onchain": 0.026153580155489038,
+   "gross_apy_onchain": 0.02905953350609893,
+   "performance_fee": 0.1,
+   "management_fee_annual": 0.0,
+   "net_apy_api": 0.02628683081659524,
+   "net_apy_api_incl_rewards": 0.02628683081659524,
+   "apy_cross_check": {
+    "onchain": 0.026153580155489038,
+    "api_excluding_rewards": 0.02628683081659524,
+    "abs_diff": 0.00013325066110620246,
+    "tolerance_abs": 0.005,
+    "ok": true
+   },
+   "reference_apy": 0.0,
+   "rewards_api": [],
+   "rewards_usd_not_counted": 0.0,
+   "formula": "V x net APY 2.62% (sum share_m x supply APY_m x (1 - perf fee) - mgmt fee, on-chain IRM) x 30/365",
+   "note": "forgone yield if redeemed and left un-deployed (reference 0%: assumption). Past/current APY is not a promise; band +-50%. Counted on the EXIT side. Token incentives (rewards_api, Morpho API) are NOT counted: off-chain programme, paid in other tokens, can stop at any time (conservative for STAY).",
+   "compared_usd": 2149.609327848414,
+   "compared_fraction": 1.0
+  },
+  "exit_side_usd": 2149.7179380218668,
+  "exit_band_usd": [
+   1074.8589690109334,
+   3224.5769070327997
+  ],
+  "usd_conversion": {
+   "status": "indicative",
+   "amount_in_raw": "893359556953354151133184",
+   "usdc_out_raw": 991364140268,
+   "usdc_out": 991364.140268,
+   "value_in_usd": 1000000.0,
+   "proceeds_usd": 986150.9089808961,
+   "cost_usd": 13849.313410888542,
+   "gas_usd": 0.22239178465698511,
+   "source": "KyberSwap aggregator route (public API, indicative: not simulated on-chain)",
+   "fetched_at": 1791661358.5145342,
+   "counted_in_decision": false,
+   "why": "redeeming returns EURCV; converting to USD is a separate treasury choice (indicative quote, not simulated) shown for information"
+  },
+  "force_deallocate": {
+   "status": "simulated",
+   "assets": 669962.9731856218,
+   "usd": 749936.5378374782,
+   "simulable_assets": 669962.9731856218,
+   "rows": [
+    {
+     "market": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+     "collateral": "WBTC",
+     "available_raw": "455554011911088908905193",
+     "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
+     "available": 455554.0119110889
+    },
+    {
+     "market": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+     "collateral": "cbBTC",
+     "available_raw": "116441048537154630302732",
+     "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
+     "available": 116441.04853715462
+    },
+    {
+     "market": "0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "collateral": "wstETH",
+     "available_raw": "97965912675915763118933",
+     "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
+     "available": 97965.91267591577
+    },
+    {
+     "market": "0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "collateral": "oTFYe",
+     "available_raw": "1000061462449102714",
+     "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
+     "available": 1.0000614624491027
+    },
+    {
+     "market": "0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+     "collateral": "steakEURCV",
+     "available_raw": "1000000000000000000",
+     "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
+     "available": 1.0
+    }
+   ],
+   "plan": {
+    "need_assets": 531616.2565585823,
+    "deallocated_assets": 532147.8728151409,
+    "covers_full": true,
+    "rule": "cover (amount - ordinary capacity) x (1 + 0.1%); cheapest penalty first, then deepest free liquidity; <= 99.9% of each market's free liquidity",
+    "steps": [
+     {
+      "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+      "market": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+      "collateral": "WBTC",
+      "assets": 455098.4578991778,
+      "assets_raw": "455098457899177819996287",
+      "penalty_rate": 0.0,
+      "penalty_assets": 0.0,
+      "penalty_usd": 0.0
+     },
+     {
+      "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+      "market": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+      "collateral": "cbBTC",
+      "assets": 77049.41491596305,
+      "assets_raw": "77049414915963053540007",
+      "penalty_rate": 0.0,
+      "penalty_assets": 0.0,
+      "penalty_usd": 0.0
+     }
+    ]
+   },
+   "simulation": {
+    "shares": "892534554460676073719110",
+    "final_redeem_shares": "892534554460676073719110",
+    "block": 26164196,
+    "share_balance_slot": 12,
+    "steps": 2,
+    "fetched_at": 1791661357.5170643,
+    "method": "eth_call VaultV2.multicall([forceDeallocate(...)..., redeem(...)]) with a state override on the share balance of 0xdEaD (read-only, no tx)",
+    "status": "simulated",
+    "assets_out_raw": "893359556953354151318760",
+    "gas_estimate": 647212,
+    "assets_requested_raw": "893359556953354151133184",
+    "penalty_assets_raw": 0
+   },
+   "used_in_verdict": true,
+   "penalty_cost_usd": 0.0,
+   "api_force_deallocatable": [
+    {
+     "adapter": "0xA671880d813D4cacacA63984bc0Ab676c400A874",
+     "assets": 669962.9334344707,
+     "penalty": 0.0
+    }
+   ],
+   "reserves": [
+    "the curator can raise the forceDeallocate penalty (VaultV2 cap 2%, timelocked; timelock length for this selector UNVERIFIED)",
+    "withdrawable liquidity is shared with every depositor: first come, first served",
+    "the other markets' liquidity also belongs to their other lenders and can be borrowed out at any block"
+   ],
+   "note": "forceDeallocate is permissionless: it moves assets from non-liquidity markets to idle (adapter penalty, taken from the caller's shares) before a redeem. Counted as executable ONLY when the multicall simulation succeeds for the amount."
+  }
+ },
+ "decision": {
+  "verdict": "REVIEW",
+  "colour": "amber",
+  "point_verdict": "STAY",
+  "confidence": "low",
+  "lean": "lean STAY (conditional): STAY holds if the true risk is below x3.40 the central estimate",
+  "reasons": [
+   "uncertainty bands overlap: staying loss $113-$3,233 vs exit $1,075-$3,225",
+   "full exit executable only through forceDeallocate: multicall simulated at block 26164196 (penalty $0.00, 647,212 gas); liquidity is shared, first come first served"
+  ],
+  "blockers": [],
+  "comparison_basis": {
+   "kind": "full_position",
+   "fraction": 1.0,
+   "assets": 893359.5569533542,
+   "usd": 1000000.0,
+   "route": "force_deallocate",
+   "position_expected_loss_usd": 631.6298780169038,
+   "position_carry_usd": 2149.609327848414,
+   "residual_expected_loss_usd": 0.0,
+   "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
+   "why": "the whole position is executable now by a simulated route"
+  },
+  "expected_loss_usd": 631.6298780169038,
+  "loss_band_usd": [
+   113.1163721903583,
+   3233.0631186087858
+  ],
+  "position_expected_loss_usd": 631.6298780169038,
+  "residual_expected_loss_usd": 0.0,
+  "execution_cost_usd": 0.10861017345249481,
+  "carry_usd": 2149.609327848414,
+  "exit_side_usd": 2149.7179380218668,
+  "exit_band_usd": [
+   1074.8589690109334,
+   3224.5769070327997
+  ],
+  "margin_usd": -1518.088060004963,
+  "margin_convention": "margin_usd = expected_loss_usd - (execution_cost_usd + carry_usd), all on comparison_basis (same size w); > 0: staying costs more on central values (Phase 0.5 convention)",
+  "margin_with_usd_conversion_usd": -15367.401470893505,
+  "breakeven_risk_multiplier": 3.4034456140219755,
+  "withdrawal_feasibility": "full_via_force_deallocate",
+  "executable_route": "force_deallocate",
+  "horizon_days": 30,
+  "rule": "EXIT if loss_low > exit_high; STAY if loss_high < exit_low; else REVIEW (lean = central comparison). Stale / replayed / approximated inputs force REVIEW. A partial / zero / unknown exit downgrades EXIT to REVIEW (never an executable 100% EXIT); an exit is executable only through a route whose simulation succeeded (ordinary redeem or forceDeallocate multicall). Partial: every compared term is for the executable tranche.",
+  "explanation": "REVIEW (uncertain): the estimate does not support a firm decision. Staying: expected loss $632 [$113-$3,233] over 30d. Exiting: execution $0.11 + forgone carry $2,150 = $2,150 [$1,075-$3,225]. Margin (loss - exit side) = $-1,518: exiting costs more on central values (point verdict STAY). Withdrawal feasibility: full_via_force_deallocate ($1,000,000 immediately). Why: uncertainty bands overlap: staying loss $113-$3,233 vs exit $1,075-$3,225; full exit executable only through forceDeallocate: multicall simulated at block 26164196 (penalty $0.00, 647,212 gas); liquidity is shared, first come first served.",
+  "freshness": {
+   "items": [
+    {
+     "kind": "onchain_state",
+     "source": "Ethereum JSON-RPC eth_call @ pinned block",
+     "fetched_at": 1791661343,
+     "age_seconds": 20.51565718650818,
+     "max_age_seconds": 120,
+     "stale": false,
+     "decisive": true,
+     "as_of_block": 26164196,
+     "replay": false,
+     "policy": "oracle price and debt change every block; 120 s ~ 10 blocks"
+    },
+    {
+     "kind": "exit_quote",
+     "source": "eth_call redeem() / multicall simulation (state override)",
+     "fetched_at": 1791661357.5170643,
+     "age_seconds": 5.998592853546143,
+     "max_age_seconds": 60,
+     "stale": false,
+     "decisive": true,
+     "as_of_block": 26164196,
+     "replay": false,
+     "policy": "quotes move with every swap; past 60 s it is no longer the price you can execute"
+    },
+    {
+     "kind": "market_data",
+     "source": "Morpho GraphQL (cross-check, labels, borrowers)",
+     "fetched_at": 1791661353.8793411,
+     "age_seconds": 9.636316061019897,
+     "max_age_seconds": 900,
+     "stale": false,
+     "decisive": false,
+     "as_of_block": null,
+     "replay": false,
+     "policy": "pool/market aggregates drift slowly; 15 min keeps the graph context current"
+    },
+    {
+     "kind": "priors",
+     "source": "DefiLlama hacks / protocols / stablecoin prices",
+     "fetched_at": 1791661353.5590968,
+     "age_seconds": 9.956560373306274,
+     "max_age_seconds": 604800,
+     "stale": false,
+     "decisive": false,
+     "as_of_block": null,
+     "replay": false,
+     "policy": "multi-year incident / depeg statistics; a week-old copy changes nothing material"
+    }
+   ],
+   "label": "fresh",
+   "policy_ttl_s": {
+    "exit_quote": 60,
+    "onchain_state": 120,
+    "market_data": 900,
+    "priors": 604800
+   },
+   "price_max_age_s": 3600
+  }
+ },
+ "scenarios": [
+  {
+   "name": "Collateral crash: mGLOeuro (collateral)",
+   "description": "mGLOeuro (collateral) drops 40% in a jump (hypothesis); borrowers are liquidated on-chain; suppliers only lose the residual bad debt",
+   "label": "conditional_on_shock",
+   "shocked": [
+    {
+     "id": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+     "severity": 0.4,
+     "label": "mGLOeuro (collateral)"
+    }
+   ],
+   "loss_usd": 157455.03424013118,
+   "loss_pct": 0.1574550342401312,
+   "loss_incl_background_risk_usd": 157801.87168355365,
+   "paths": {
+    "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+       "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702"
+      ],
+      "transmission": 0.39363758560032797
+     }
+    ]
+   },
+   "by_node_usd": {
+    "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702": 157455.03424013118
+   },
+   "immediately_withdrawable_usd": 404924.6438113159,
+   "withdrawal_feasibility": "partial",
+   "withdrawable_with_force_deallocate_usd": 1000000.0,
+   "force_deallocate_route": "confirmed: simulated at the pinned block for the full amount (this scenario leaves free liquidity unchanged)",
+   "liquidity_factor": 1.0,
+   "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
+  },
+  {
+   "name": "Oracle failure: Oracle 0x2b43e079...",
+   "description": "the oracle over-prices collateral by 40% (hypothesis); free liquidity is borrowed against overvalued collateral",
+   "label": "conditional_on_shock",
+   "shocked": [
+    {
+     "id": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+     "severity": 0.4,
+     "label": "Oracle 0x2b43e079..."
+    }
+   ],
+   "loss_usd": 16954.204181267585,
+   "loss_pct": 0.016954204181267585,
+   "loss_incl_background_risk_usd": 17568.604319286198,
+   "paths": {
+    "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+       "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9"
+      ],
+      "transmission": 0.0423855104531691
+     }
+    ]
+   },
+   "by_node_usd": {
+    "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": 16954.20418126764
+   },
+   "immediately_withdrawable_usd": 404924.6438113159,
+   "withdrawal_feasibility": "partial",
+   "withdrawable_with_force_deallocate_usd": 1000000.0,
+   "force_deallocate_route": "confirmed: simulated at the pinned block for the full amount (this scenario leaves free liquidity unchanged)",
+   "liquidity_factor": 1.0,
+   "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
+  },
+  {
+   "name": "Market failure: Morpho market mGLOeuro/EURCV (LLTV 77.0%)",
+   "description": "isolated failure of the largest market (hypothesis: suppliers lose 70% of it)",
+   "label": "conditional_on_shock",
+   "shocked": [
+    {
+     "id": "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+     "severity": 0.7,
+     "label": "Morpho market mGLOeuro/EURCV (LLTV 77.0%)"
+    }
+   ],
+   "loss_usd": 600443.7733466071,
+   "loss_pct": 0.6004437733466071,
+   "loss_incl_background_risk_usd": 600696.1449973092,
+   "paths": {
+    "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0"
+      ],
+      "transmission": 0.8577768190665818
+     }
+    ]
+   },
+   "by_node_usd": {
+    "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0": 600443.7733466071
+   },
+   "immediately_withdrawable_usd": 404924.6438113159,
+   "withdrawal_feasibility": "partial",
+   "withdrawable_with_force_deallocate_usd": 1000000.0,
+   "force_deallocate_route": "confirmed: simulated at the pinned block for the full amount (this scenario leaves free liquidity unchanged)",
+   "liquidity_factor": 1.0,
+   "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
+  },
+  {
+   "name": "Liquidity crisis",
+   "description": "all markets' free liquidity is borrowed out (hypothesis): no direct loss, but the ordinary exit is limited to idle assets",
+   "label": "conditional_on_shock",
+   "shocked": [],
+   "loss_usd": 0.0,
+   "loss_pct": 0.0,
+   "loss_incl_background_risk_usd": 623.1927455224717,
+   "paths": {},
+   "by_node_usd": {},
+   "immediately_withdrawable_usd": 0.003863997282735335,
+   "withdrawal_feasibility": "partial",
+   "withdrawable_with_force_deallocate_usd": 0.003863997282735335,
+   "force_deallocate_route": "none: no other market liquidity under this scenario",
+   "liquidity_factor": 0.0,
+   "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
+  },
+  {
+   "name": "Correlated: collateral crash + oracle failure + liquidity crisis",
+   "description": "every non-stable collateral drops 40%, the main oracle fails and liquidity is exhausted - joint hypothesis",
+   "label": "conditional_on_shock",
+   "shocked": [
+    {
+     "id": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+     "severity": 0.4,
+     "label": "mGLOeuro (collateral)"
+    },
+    {
+     "id": "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+     "severity": 0.4,
+     "label": "WBTC (collateral)"
+    },
+    {
+     "id": "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+     "severity": 0.4,
+     "label": "wstETH (collateral)"
+    },
+    {
+     "id": "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f",
+     "severity": 0.4,
+     "label": "steakEURCV (collateral)"
+    },
+    {
+     "id": "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5",
+     "severity": 0.4,
+     "label": "oTFYe (collateral)"
+    },
+    {
+     "id": "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+     "severity": 0.4,
+     "label": "cbBTC (collateral)"
+    },
+    {
+     "id": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+     "severity": 0.4,
+     "label": "Oracle 0x2b43e079..."
+    }
+   ],
+   "loss_usd": 160367.68839911185,
+   "loss_pct": 0.16036768839911186,
+   "loss_incl_background_risk_usd": 160701.4988022939,
+   "paths": {
+    "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+       "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702"
+      ],
+      "transmission": 0.39363758560032797
+     }
+    ],
+    "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+       "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+      ],
+      "transmission": 0.002342814995136434
+     }
+    ],
+    "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+       "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0"
+      ],
+      "transmission": 5.277696936259892e-05
+     }
+    ],
+    "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+       "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f"
+      ],
+      "transmission": 0.0
+     }
+    ],
+    "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+       "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5"
+      ],
+      "transmission": 0.0
+     }
+    ],
+    "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+       "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf"
+      ],
+      "transmission": 0.00625287852595343
+     }
+    ],
+    "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": [
+     {
+      "path": [
+       "pos",
+       "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+       "adapter:0xa671880d813d4cacaca63984bc0ab676c400a874",
+       "market:0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0",
+       "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9"
+      ],
+      "transmission": 0.0
+     }
+    ]
+   },
+   "by_node_usd": {
+    "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702": 157455.03424013118,
+    "collateral:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": 937.1259980545736,
+    "collateral:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0": 21.11078774503957,
+    "collateral:0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f": 0.0,
+    "collateral:0xc6dec62c975f20e60635ddd1341f3ea35bc284c5": 0.0,
+    "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf": 2501.151410381372,
+    "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9": 0.0
+   },
+   "immediately_withdrawable_usd": 0.003863997282735335,
+   "withdrawal_feasibility": "partial",
+   "withdrawable_with_force_deallocate_usd": 0.003863997282735335,
+   "force_deallocate_route": "none: no other market liquidity under this scenario",
+   "liquidity_factor": 0.0,
+   "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
+  },
+  {
+   "name": "Deposit asset depeg: EURCV -10%",
+   "description": "EURCV loses 10% vs its peg (hypothesis)",
+   "label": "conditional_on_shock",
+   "shocked": [
+    {
+     "id": "asset:0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+     "severity": 0.1,
+     "label": "EURCV"
+    }
+   ],
+   "loss_usd": 100000.0,
+   "loss_pct": 0.1,
+   "decision_neutral": true,
+   "stay_loss_usd": 100000.0,
+   "exit_to_asset_loss_usd": 100000.0,
+   "note": "redeeming returns the same asset: STAY and EXIT lose the same; only converting to USD before the depeg avoids it (see usd_conversion)",
+   "paths": {},
+   "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
+  }
+ ],
+ "sensitivity": {
+  "base_expected_loss_usd": 631.6298780169038,
+  "tornado_p_x0.5_x2": [
+   {
+    "id": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+    "label": "mGLOeuro (collateral)",
+    "low_usd": 521.6421989872044,
+    "high_usd": 851.6052360763026
+   },
+   {
+    "id": "vault:0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "label": "Belem RWA EURCV (Morpho Vault V2)",
+    "low_usd": 563.1512692774177,
+    "high_usd": 768.5870954956542
+   },
+   {
+    "id": "morpho_blue",
+    "label": "Morpho Blue (singleton)",
+    "low_usd": 563.1512693277108,
+    "high_usd": 768.587095395512
+   },
+   {
+    "id": "chain:1",
+    "label": "Ethereum",
+    "low_usd": 569.8762723759243,
+    "high_usd": 755.137089299085
+   },
+   {
+    "id": "oracle:0x2b43e079d9637570e29ebe945de9053b0bf647b9",
+    "label": "Oracle 0x2b43e079...",
+    "low_usd": 628.3131667776943,
+    "high_usd": 638.2633004955451
+   },
+   {
+    "id": "collateral:0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+    "label": "cbBTC (collateral)",
+    "low_usd": 629.5269228036027,
+    "high_usd": 635.8357884433951
+   }
+  ],
+  "collateral_crash_curve": {
+   "node": "collateral:0x2f8bae126b8d416c009b82ccd60e4f9cabbd7702",
+   "label": "mGLOeuro (collateral)",
+   "points": [
+    {
+     "drop": 0.1,
+     "loss_usd": 0.0
+    },
+    {
+     "drop": 0.2,
+     "loss_usd": 0.0
+    },
+    {
+     "drop": 0.3,
+     "loss_usd": 53533.56250953367
+    },
+    {
+     "drop": 0.4,
+     "loss_usd": 157455.03424013118
+    },
+    {
+     "drop": 0.5,
+     "loss_usd": 261376.5059707287
+    },
+    {
+     "drop": 0.6,
+     "loss_usd": 365298.0440450242
+    },
+    {
+     "drop": 0.8,
+     "loss_usd": 573141.1456158733
+    }
+   ],
+   "label_kind": "conditional_on_shock"
+  },
+  "breakeven_risk_multiplier": 3.4034456140219755,
+  "note": "risk must be x breakeven the central estimate for the exit side to be worth paying (same basis as the decision: both sides for the same tranche)"
+ },
+ "warnings": [],
+ "assumptions": [
+  "value_usd is a hypothetical exposure: converted to vault shares at the pinned share price; no holding is claimed",
+  "collateral 'failure' = 50% jump drop (no time to liquidate before it); suppliers lose only the bad debt left after on-chain liquidations (Morpho Blue liquidation math, LIF from LLTV)",
+  "borrowers missing from the indexed list are assumed to sit at the LLTV (worst case)",
+  "oracle failure = 40% over-pricing; free liquidity drained against overvalued collateral",
+  "vault contracts / curator and Morpho Blue share one Morpho protocol prior (x0.5 each, Phase 0.5 split); chain prior 0.5%/y",
+  "deposit asset depeg and EUR/USD are decision-neutral (held after redeeming too): shown as context / what-if",
+  "carry = on-chain net APY (supply APY of each market x share, net of fees) over the horizon, reference 0%, band +-50%",
+  "ordinary withdrawal capacity is shared with every other depositor and can change every block",
+  "probabilities are horizon-scaled annual base rates (DefiLlama), not forecasts; this is not investment advice"
+ ],
+ "provenance": {
+  "live": 113,
+  "cached": 0,
+  "oldest_cache_ts": null,
+  "cached_urls": [],
+  "mode": "live",
+  "rpc": "public Ethereum JSON-RPC (no key)",
+  "indexer": "https://blue-api.morpho.org/graphql",
+  "prices": "DefiLlama coins + Chainlink EUR/USD",
+  "simulation": "eth_call with state override (read-only)"
+ },
+ "mode": "live",
+ "as_of_block": 26164196,
+ "timestamp": 1791661353.5590968,
+ "age_s": 20.51565718650818
+}

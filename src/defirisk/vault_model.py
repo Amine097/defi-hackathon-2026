@@ -42,6 +42,89 @@ HYPOTHETICAL = ("value_usd is a HYPOTHETICAL exposure converted to vault shares 
                 "is not proof that anyone holds these shares")
 
 
+# ---- liquidity -------------------------------------------------------------------------------------------------
+def capacity(snap: dict, liquidity_factor: float = 1.0) -> dict:
+    """Withdrawal capacity by route, in raw asset units, from on-chain state at the pinned block.
+    V2 ordinary route: idle + liquidity adapter's position in the liquidityData market, capped by that market's free
+        liquidity (maxWithdraw/maxRedeem return 0 by design and are NOT used). Gates closed -> 0 on every route.
+    V2 forceDeallocate route (permissionless, adapter penalty <= 2%): every OTHER market's min(vault supply, free
+        liquidity) can be moved to idle first. 'simulable' rows (Morpho market adapters, data = abi.encode(MarketParams))
+        are confirmed only by a multicall simulation; other adapter types stay 'theoretical' (never called executable).
+    V1: idle + sum over the withdrawQueue of min(vault supply, market liquidity); no forceDeallocate on MetaMorpho V1."""
+    idle = snap["idle_raw"]
+    rows = []
+    if snap["version"] == "v2":
+        if not snap["gates"].get("withdraw_open", True):
+            return {"ordinary_raw": 0, "idle_raw": idle, "rows": [], "rule": "withdrawal gate set: ordinary exit blocked",
+                    "force_raw": 0, "force_simulable_raw": 0, "force_rows": []}
+        liq_m = snap.get("liquidity_market")
+        ads = {a["address"].lower(): a for a in snap["adapters"]}
+        ordinary = idle
+        force_rows = []
+        for m in snap["markets"]:
+            avail = min(m["vault_supply_raw"], int(m["liquidity_raw"] * liquidity_factor))
+            if m["id"] == liq_m and m.get("holder", "").lower() == (snap.get("liquidity_adapter") or "").lower():
+                ordinary += avail
+                rows.append({"market": m["id"], "collateral": m["collateral_symbol"], "available_raw": avail, "path": "liquidity adapter"})
+            elif avail > 0:
+                ad = ads.get((m.get("holder") or "").lower(), {})
+                pen_raw = ad.get("force_deallocate_penalty_raw")
+                if pen_raw is None and ad.get("force_deallocate_penalty") is not None:
+                    pen_raw = round(ad["force_deallocate_penalty"] * morpho.WAD)
+                simulable = ad.get("type") in vr.FORCE_ADAPTER_TYPES and pen_raw is not None and "lltv_raw" in m
+                force_rows.append({"market": m["id"], "collateral": m["collateral_symbol"], "available_raw": avail,
+                                   "penalty": ad.get("force_deallocate_penalty"), "penalty_raw": pen_raw,
+                                   "adapter": m.get("holder"), "adapter_type": ad.get("type"),
+                                   "route": "simulable" if simulable else "theoretical",
+                                   "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, "
+                                          "onBehalf) then redeem, checked by a multicall simulation" if simulable else
+                                          f"adapter type {ad.get('type')}: forceDeallocate route not simulated (theoretical)"})
+        force_rows.sort(key=lambda r: (r["penalty_raw"] if r["penalty_raw"] is not None else morpho.WAD, -r["available_raw"]))
+        return {"ordinary_raw": ordinary, "idle_raw": idle, "rows": rows, "force_raw": sum(r["available_raw"] for r in force_rows),
+                "force_simulable_raw": sum(r["available_raw"] for r in force_rows if r["route"] == "simulable"),
+                "force_rows": force_rows,
+                "rule": "idle + min(liquidity-adapter supply, free liquidity) of the liquidityData market (VaultV2 exit path)"}
+    ordinary = idle
+    for m in sorted(snap["markets"], key=lambda m: m.get("withdraw_queue_index", 0)):
+        avail = min(m["vault_supply_raw"], int(m["liquidity_raw"] * liquidity_factor))
+        ordinary += avail
+        rows.append({"market": m["id"], "collateral": m["collateral_symbol"], "available_raw": avail,
+                     "path": f"withdrawQueue[{m.get('withdraw_queue_index')}]"})
+    return {"ordinary_raw": ordinary, "idle_raw": idle, "rows": rows, "force_raw": 0, "force_simulable_raw": 0, "force_rows": [],
+            "rule": "idle + sum over withdrawQueue of min(vault supply, free liquidity) (MetaMorpho V1)"}
+
+
+FORCE_MARGIN = 0.001  # deallocate 0.1% more than the shortfall (interest accrued / rounding between reads)
+EXECUTABLE = ("full", "full_via_force_deallocate")  # feasibilities that allow a firm 100% EXIT (route simulated)
+
+
+def force_plan(snap: dict, cap: dict, assets_raw: int) -> dict:
+    """Which markets to forceDeallocate, how much, and the penalty, to cover the shortfall of the ordinary route.
+    Cheapest penalty first, then deepest liquidity; never more than 99.9% of a market's free liquidity. Covers the full
+    amount if possible, else the largest amount the force route can reach (partial)."""
+    by_id = {m["id"]: m for m in snap["markets"]}
+    need = max(assets_raw - cap["ordinary_raw"], 0)
+    target = need + math.ceil(need * FORCE_MARGIN) + 1 if need else 0
+    steps, got = [], 0
+    for r in cap["force_rows"]:
+        if r["route"] != "simulable" or got >= target:
+            continue
+        usable = r["available_raw"] * 999 // 1000
+        take = min(usable, target - got)
+        if take <= 0:
+            continue
+        pen = -(-take * r["penalty_raw"] // morpho.WAD)  # mulDivUp(assets, penalty, WAD): VaultV2.forceDeallocate
+        steps.append({"adapter": r["adapter"], "market": r["market"], "collateral": r["collateral"],
+                      "data": vr.market_params_data(by_id[r["market"]]), "assets_raw": take, "penalty_wad": r["penalty_raw"],
+                      "penalty_assets_raw": pen})
+        got += take
+    return {"need_raw": need, "target_raw": target, "deallocated_raw": got, "covers_full": bool(steps) and got >= target,
+            "steps": steps, "penalty_assets_raw": sum(s["penalty_assets_raw"] for s in steps),
+            "max_assets_raw": cap["ordinary_raw"] * 999 // 1000 + got,
+            "rule": f"cover (amount - ordinary capacity) x (1 + {FORCE_MARGIN:.1%}); cheapest penalty first, then deepest "
+                    "free liquidity; <= 99.9% of each market's free liquidity"}
+
+
 # ---- network reads that depend on the request (exit simulation, gas, conversion, priors) ------------------------
 def reads(req: dict, snap: dict) -> dict:
     from .core.decision import _gas_usd
@@ -54,21 +137,53 @@ def reads(req: dict, snap: dict) -> dict:
     assets_raw = int(req["value_usd"] / px * 10 ** ad)
     cap = capacity(snap)
     out["assets_raw"] = assets_raw
-    shares = assets_raw * 10 ** dec // snap["share_price_raw"] if snap["share_price_raw"] else 0
-    sim = vr.simulate_redeem(snap["address"], snap["version"], shares, snap["as_of_block"])
+    sp_raw = snap["share_price_raw"]
+    shares = assets_raw * 10 ** dec // sp_raw if sp_raw else 0
+    blk = snap["as_of_block"]
+    sim = vr.simulate_redeem(snap["address"], snap["version"], shares, blk)
     out["sim"] = sim
-    if sim["status"] == "reverted" and cap["ordinary_raw"] and cap["ordinary_raw"] < assets_raw:
+    short = sim["status"] == "reverted" and cap["ordinary_raw"] < assets_raw
+    if short and cap["ordinary_raw"]:
         part = cap["ordinary_raw"] * 999 // 1000
-        psh = part * 10 ** dec // snap["share_price_raw"]
-        out["sim_partial"] = dict(vr.simulate_redeem(snap["address"], snap["version"], psh, snap["as_of_block"]),
-                                  assets_requested_raw=part)
+        psh = part * 10 ** dec // sp_raw
+        out["sim_partial"] = dict(vr.simulate_redeem(snap["address"], snap["version"], psh, blk), assets_requested_raw=part)
+    if short and snap["version"] == "v2" and cap.get("force_simulable_raw"):
+        plan = force_plan(snap, cap, assets_raw)
+        out["force_plan"] = plan
+        if plan["covers_full"]:
+            pen_sh = sum(vr.preview(snap["address"], "previewWithdraw", s["penalty_assets_raw"], blk) or 0
+                         for s in plan["steps"] if s["penalty_assets_raw"])
+            final = shares - pen_sh - (len(plan["steps"]) if pen_sh else 0)  # penalty is paid in 0xdEaD's own shares
+            out["sim_force"] = dict(vr.simulate_force_exit(snap["address"], snap["version"], shares, plan["steps"], final, blk),
+                                    assets_requested_raw=assets_raw, penalty_assets_raw=plan["penalty_assets_raw"])
+        elif plan["steps"]:
+            part = plan["max_assets_raw"]
+            psh = part * 10 ** dec // sp_raw
+            out["sim_force_partial"] = dict(vr.simulate_force_exit(snap["address"], snap["version"], shares, plan["steps"], psh, blk),
+                                            assets_requested_raw=part, penalty_assets_raw=plan["penalty_assets_raw"])
+    route_sims = {"ordinary": sim, "ordinary_partial": out.get("sim_partial"), "force_deallocate": out.get("sim_force"),
+                  "force_deallocate_partial": out.get("sim_force_partial")}
+    out["route_gas"] = {}
+    for k, s in route_sims.items():
+        if s and s.get("status") == "simulated" and s.get("gas_estimate"):
+            g_usd, g_why = _gas_usd(s["gas_estimate"])
+            out["route_gas"][k] = {"gas_usd": g_usd, "gas_why": g_why, "gas_units": s["gas_estimate"]}
     gas_units = (sim.get("gas_estimate") or (out.get("sim_partial") or {}).get("gas_estimate"))
     if snap["version"] == "v1":
-        out["max_withdraw_v1"] = vr.max_withdraw_v1(snap["address"], snap["total_supply_raw"], snap["as_of_block"])
+        out["max_withdraw_v1"] = vr.max_withdraw_v1(snap["address"], snap["total_supply_raw"], blk)
     if gas_units:
-        out["gas_usd"], out["gas_why"] = _gas_usd(gas_units)
+        first = out["route_gas"].get("ordinary") or out["route_gas"].get("ordinary_partial")
+        out["gas_usd"], out["gas_why"] = (first["gas_usd"], first["gas_why"]) if first else _gas_usd(gas_units)
         out["gas_units"] = gas_units
-    imm = min(assets_raw, cap["ordinary_raw"])
+    # USD conversion quote sized like the compared exit (full amount if a full route simulated, else the tranche)
+    if sim.get("status") == "simulated" or (out.get("sim_force") or {}).get("status") == "simulated":
+        imm = assets_raw
+    elif (out.get("sim_force_partial") or {}).get("status") == "simulated":
+        imm = out["sim_force_partial"]["assets_requested_raw"]
+    elif (out.get("sim_partial") or {}).get("status") == "simulated":
+        imm = out["sim_partial"]["assets_requested_raw"]
+    else:
+        imm = min(assets_raw, cap["ordinary_raw"])
     if snap["asset_symbol"] and snap["asset_symbol"].upper() != "USDC" and imm > 0:
         out["conversion"] = vr.conversion_quote(snap["asset_address"], imm, px, ad)
     else:
@@ -112,42 +227,6 @@ def priors_ctx(snap: dict, H: int) -> dict:
 def _strip(p: dict | None) -> dict | None:
     return {k: p.get(k) for k in ("name", "slug", "tvl", "audits", "listedAt", "url", "category")} if p else None
 
-
-# ---- liquidity -------------------------------------------------------------------------------------------------
-def capacity(snap: dict, liquidity_factor: float = 1.0) -> dict:
-    """Ordinary (standard) withdrawal capacity, in raw asset units, from on-chain state at the pinned block.
-    V2: idle + liquidity adapter's position in the liquidityData market, capped by that market's free liquidity
-        (maxWithdraw/maxRedeem return 0 by design and are NOT used). Gates closed -> 0.
-    V1: idle + sum over the withdrawQueue of min(vault supply, market liquidity)."""
-    idle = snap["idle_raw"]
-    rows = []
-    if snap["version"] == "v2":
-        if not snap["gates"].get("withdraw_open", True):
-            return {"ordinary_raw": 0, "idle_raw": idle, "rows": [], "rule": "withdrawal gate set: ordinary exit blocked",
-                    "force_raw": 0, "force_rows": []}
-        liq_m = snap.get("liquidity_market")
-        ordinary = idle
-        force_rows = []
-        for m in snap["markets"]:
-            avail = min(m["vault_supply_raw"], int(m["liquidity_raw"] * liquidity_factor))
-            if m["id"] == liq_m and m.get("holder", "").lower() == (snap.get("liquidity_adapter") or "").lower():
-                ordinary += avail
-                rows.append({"market": m["id"], "collateral": m["collateral_symbol"], "available_raw": avail, "path": "liquidity adapter"})
-            elif avail > 0:
-                ad = next((a for a in snap["adapters"] if a["address"] == m.get("holder")), {})
-                force_rows.append({"market": m["id"], "collateral": m["collateral_symbol"], "available_raw": avail,
-                                   "penalty": ad.get("force_deallocate_penalty")})
-        return {"ordinary_raw": ordinary, "idle_raw": idle, "rows": rows, "force_raw": sum(r["available_raw"] for r in force_rows),
-                "force_rows": force_rows,
-                "rule": "idle + min(liquidity-adapter supply, free liquidity) of the liquidityData market (VaultV2 exit path)"}
-    ordinary = idle
-    for m in sorted(snap["markets"], key=lambda m: m.get("withdraw_queue_index", 0)):
-        avail = min(m["vault_supply_raw"], int(m["liquidity_raw"] * liquidity_factor))
-        ordinary += avail
-        rows.append({"market": m["id"], "collateral": m["collateral_symbol"], "available_raw": avail,
-                     "path": f"withdrawQueue[{m.get('withdraw_queue_index')}]"})
-    return {"ordinary_raw": ordinary, "idle_raw": idle, "rows": rows, "force_raw": 0, "force_rows": [],
-            "rule": "idle + sum over withdrawQueue of min(vault supply, free liquidity) (MetaMorpho V1)"}
 
 
 # ---- market loss mechanics (fractions of the market's total supply) ---------------------------------------------
@@ -467,24 +546,47 @@ def assess(req: dict, snap: dict, rd: dict, prov: dict) -> dict:
                                                                          "paths": routes(g, d["id"], 3)} for d in drivers],
             "parameters": uncertainty.inventory(g), "loss_bounds": "0 <= loss <= value_usd (no liability beyond the shares)"}
 
-    # --- exit side
+    # --- exit side: routes (ordinary / forceDeallocate) and ONE economic basis for the compared action
     cap = capacity(snap)
     A = rd.get("assets_raw") or 0
-    imm = min(A, cap["ordinary_raw"])
-    blocked = max(A - imm, 0)
     sim_r = rd.get("sim") or {}
+    sp = rd.get("sim_partial") or {}
+    sf = rd.get("sim_force") or {}
+    sfp = rd.get("sim_force_partial") or {}
+    plan = rd.get("force_plan") or {}
+    ok = lambda s: (s or {}).get("status") == "simulated"  # noqa: E731
+    ordinary = cap["ordinary_raw"]
+    force_cap = ordinary + cap.get("force_simulable_raw", 0)
+    route, tranche_raw, tranche_sim = None, 0, {}
     if not px or sim_r.get("status") == "unavailable":
         feas = "unknown"
-    elif cap["ordinary_raw"] <= 0:
+    elif ordinary <= 0 and not ok(sf) and not ok(sfp):
         feas = "zero"
-    elif A <= cap["ordinary_raw"] and sim_r.get("status") == "simulated":
-        feas = "full"
-    elif A <= cap["ordinary_raw"]:
+    elif ok(sim_r):
+        feas, route, tranche_raw, tranche_sim = "full", "ordinary", A, sim_r
+    elif A <= ordinary:
         feas = "unknown"
         blockers.append(f"redeem simulation {sim_r.get('status')} although on-chain capacity covers the amount")
+    elif ok(sf):
+        feas, route, tranche_raw, tranche_sim = "full_via_force_deallocate", "force_deallocate", A, sf
     else:
         feas = "partial"
-    if sim_r.get("status") == "simulated" and A > cap["ordinary_raw"] * (1 + CAPACITY_XCHECK_TOL):
+        if ok(sfp):
+            route, tranche_raw, tranche_sim = "force_deallocate_partial", sfp["assets_requested_raw"], sfp
+        elif ok(sp):
+            route, tranche_raw, tranche_sim = "ordinary_partial", sp["assets_requested_raw"], sp
+        else:
+            route, tranche_raw = "ordinary_partial_unsimulated", ordinary
+    if feas in EXECUTABLE:
+        imm = A
+    elif feas == "partial":
+        imm = min(A, force_cap if route == "force_deallocate_partial" else ordinary)
+    elif feas == "zero":
+        imm = 0
+    else:
+        imm = min(A, ordinary)
+    blocked = max(A - imm, 0)
+    if ok(sim_r) and A > ordinary * (1 + CAPACITY_XCHECK_TOL):
         warnings.append("redeem simulation succeeded above the computed ordinary capacity: capacity model is conservative")
     wo = snap.get("withdrawal_options_api") or {}
     cap_check = None
@@ -502,21 +604,41 @@ def assess(req: dict, snap: dict, rd: dict, prov: dict) -> dict:
                      "rel_diff": d, "ok": d <= CAPACITY_XCHECK_TOL, "source": mw["method"]}
         if d > CAPACITY_XCHECK_TOL:
             warnings.append(f"MetaMorpho maxWithdraw differs from the withdrawQueue capacity by {d:.1%}")
-    out_raw = sim_r.get("assets_out_raw") if sim_r.get("status") == "simulated" else None
-    friction_raw = max(A - out_raw, 0) if out_raw is not None else 0
-    sp = rd.get("sim_partial") or {}
-    if out_raw is None and sp.get("status") == "simulated":
-        friction_raw = max(sp["assets_requested_raw"] - sp["assets_out_raw"], 0)
-    gas_usd = rd.get("gas_usd")
+
+    # execution cost of the route actually compared (tranche = what that route moves), never a mix of sizes
+    penalty_raw = 0
+    if route == "force_deallocate":
+        penalty_raw = sf.get("penalty_assets_raw") or 0
+    elif route == "force_deallocate_partial":
+        penalty_raw = sfp.get("penalty_assets_raw") or 0
+    if ok(tranche_sim):
+        friction_raw = max(tranche_raw - tranche_sim["assets_out_raw"], 0)
+        if route == "force_deallocate_partial":  # penalty paid from the shares that stay invested
+            friction_raw += penalty_raw
+    else:
+        friction_raw = 0
+    rg = (rd.get("route_gas") or {}).get(route or "")
+    if rg:
+        gas_usd, gas_why, gas_units = rg["gas_usd"], rg["gas_why"], rg["gas_units"]
+    elif route in (None, "ordinary", "ordinary_partial", "ordinary_partial_unsimulated"):
+        gas_usd, gas_why, gas_units = rd.get("gas_usd"), rd.get("gas_why"), rd.get("gas_units")
+    else:
+        gas_usd = gas_why = gas_units = None
     if gas_usd is None:
         gas_usd = 0.0
         if feas != "zero":
             blockers.append("gas of the redeem could not be simulated")
     exec_usd = (usd(friction_raw) or 0.0) + gas_usd
-    quote_status = "simulated" if sim_r.get("status") == "simulated" else (
-        "simulated_partial" if (rd.get("sim_partial") or {}).get("status") == "simulated" else "unavailable")
+    quote_status = ("simulated" if feas in EXECUTABLE else
+                    "simulated_partial" if ok(tranche_sim) else "unavailable")
     ex = {"usd": exec_usd, "slippage_and_fees_usd": usd(friction_raw) or 0.0, "gas_usd": gas_usd,
-          "quote_status": "simulated" if quote_status.startswith("simulated") else "unavailable", "method": "vault_redeem_eth_call"}
+          "quote_status": "simulated" if quote_status.startswith("simulated") else "unavailable",
+          "method": "vault_multicall_force_deallocate_eth_call" if (route or "").startswith("force") else "vault_redeem_eth_call"}
+    # w = share of the position the compared action really moves. Full routes: 1. Partial: the simulated tranche.
+    # No executable route (zero / unknown): the full position, labelled hypothetical (never an EXIT).
+    w = (tranche_raw / A) if (feas == "partial" and A) else 1.0
+    basis_kind = {"full": "full_position", "full_via_force_deallocate": "full_position", "partial": "executable_tranche"}.get(
+        feas, "hypothetical_full_position")
 
     fees = snap.get("fees") or {}
     gross = sum((m["vault_supply_raw"] / TA) * m["supply_apy"] for m in snap["markets"]) if TA else 0.0
@@ -543,46 +665,128 @@ def assess(req: dict, snap: dict, rd: dict, prov: dict) -> dict:
           "note": "forgone yield if redeemed and left un-deployed (reference 0%: assumption). Past/current APY is not a "
                   "promise; band +-50%. Counted on the EXIT side. Token incentives (rewards_api, Morpho API) are NOT "
                   "counted: off-chain programme, paid in other tokens, can stop at any time (conservative for STAY)."}
-    eb = uncertainty.exit_band(ex, cr)
+    # ONE economic basis (P0-B): every compared term is for the same fraction w of the position. Full routes: w = 1.
+    cr_cmp = {"status": cr["status"], "usd": carry_usd * w, "low_usd": cr["low_usd"] * w, "high_usd": cr["high_usd"] * w}
+    lb_cmp = {"central_usd": lb["central_usd"] * w, "low_usd": lb["low_usd"] * w, "high_usd": lb["high_usd"] * w}
+    eb = uncertainty.exit_band(ex, cr_cmp)
+    cmp_raw = tranche_raw if feas == "partial" else A
+    basis = {
+        "kind": basis_kind, "fraction": w, "assets": unit(cmp_raw), "usd": V * w, "route": route,
+        "position_expected_loss_usd": lb["central_usd"], "position_carry_usd": carry_usd,
+        "residual_expected_loss_usd": lb["central_usd"] * (1 - w),
+        "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated "
+                "cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
+        "why": {"full_position": "the whole position is executable now by a simulated route",
+                "executable_tranche": f"only {w:.1%} of the position is executable now by a simulated route: the decision "
+                                      "compares exiting THAT tranche with keeping it",
+                "hypothetical_full_position": "no exit route is confirmed executable now: full position compared "
+                                              "hypothetically, never an EXIT"}[basis_kind]}
     conv = rd.get("conversion") or {}
+    rgas = rd.get("route_gas") or {}
+    pen_usd = usd(penalty_raw) or 0.0
+    trying_force = bool(plan) or bool(sf) or bool(sfp)
+    if snap["version"] != "v2":
+        f_status = "not_applicable"
+    elif not snap["gates"].get("withdraw_open", True):
+        f_status = "blocked_by_gate"
+    elif not cap["force_rows"]:
+        f_status = "no_other_liquidity"
+    elif ok(sim_r) and feas == "full":
+        f_status = "not_needed"
+    elif ok(sf):
+        f_status = "simulated"
+    elif ok(sfp):
+        f_status = "simulated_partial"
+    elif sf or sfp:
+        f_status = (sf or sfp).get("status") or "unavailable"
+    else:
+        f_status = "theoretical_not_simulated"
+    sim_f = sf or sfp
+    f_plan = None
+    if plan:
+        f_plan = {"need_assets": unit(plan["need_raw"]), "deallocated_assets": unit(plan["deallocated_raw"]),
+                  "covers_full": plan["covers_full"], "rule": plan["rule"],
+                  "steps": [{"adapter": s["adapter"], "market": s["market"], "collateral": s["collateral"],
+                             "assets": unit(s["assets_raw"]), "assets_raw": str(s["assets_raw"]),
+                             "penalty_rate": s["penalty_wad"] / morpho.WAD, "penalty_assets": unit(s["penalty_assets_raw"]),
+                             "penalty_usd": usd(s["penalty_assets_raw"])} for s in plan["steps"]]}
+    unconfirmed = []
+    if cap["force_raw"] and f_status not in ("simulated", "not_needed"):
+        unconfirmed.append({"route": "forceDeallocate", "assets": unit(cap["force_raw"]), "usd": usd(cap["force_raw"]),
+                            "status": f_status, "why": "computed from on-chain free liquidity of the other markets; not "
+                            "confirmed by a successful simulation for this amount: never counted as executable"})
+    _sim = lambda s: {k: (str(v) if isinstance(v, int) and not isinstance(v, bool) and abs(v) > 2 ** 53 else v)  # noqa: E731
+                      for k, v in (s or {}).items()} or None
     exit_ = {
         "basis": f"USD at the deposit-asset price ({snap['asset_symbol']} ${px or float('nan'):.5f}); same horizon {H}d",
+        "comparison_basis": basis,
         "notional_assets": unit(A), "notional_usd": V, "hypothetical": HYPOTHETICAL,
         "shares_hypothetical": str(sim_r.get("shares")) if sim_r.get("shares") is not None else None,
         "theoretical_value_usd": V,
         "immediately_withdrawable_assets": unit(imm), "immediately_withdrawable_usd": usd(imm),
         "blocked_or_deferred_assets": unit(blocked), "blocked_or_deferred_usd": usd(blocked),
-        "withdrawal_feasibility": feas,
+        "unavailable_liquidity_note": "blocked/deferred = amount no SIMULATED route can withdraw now (not a loss)",
+        "withdrawal_feasibility": feas, "executable_route": route,
+        "executable_assets": unit(cmp_raw) if (route and ok(tranche_sim)) else 0.0,
+        "executable_usd": (usd(cmp_raw) if (route and ok(tranche_sim)) else 0.0),
+        "routes": {
+            "ordinary": {"capacity_assets": unit(ordinary), "capacity_usd": usd(ordinary),
+                         "status": "simulated" if ok(sim_r) else ("simulated_partial" if ok(sp) else sim_r.get("status", "not_simulated")),
+                         "gas": rgas.get("ordinary") or rgas.get("ordinary_partial"),
+                         "what": "idle + liquidity adapter market (VaultV2) / withdrawQueue (V1): plain redeem"},
+            "force_deallocate": {"status": f_status, "capacity_assets": unit(force_cap), "capacity_usd": usd(force_cap),
+                                 "penalty_usd": pen_usd, "gas": rgas.get("force_deallocate") or rgas.get("force_deallocate_partial"),
+                                 "what": "VaultV2.multicall([forceDeallocate(other markets)..., redeem]) in one transaction"},
+            "unconfirmed": unconfirmed,
+        },
         "capacity": {"ordinary_assets": unit(cap["ordinary_raw"]), "ordinary_usd": usd(cap["ordinary_raw"]),
                      "idle_assets": unit(cap["idle_raw"]), "rows": [{**r, "available": unit(r["available_raw"]),
                                                                      "available_raw": str(r["available_raw"])} for r in cap["rows"]],
+                     "with_force_deallocate_assets": unit(force_cap), "with_force_deallocate_usd": usd(force_cap),
                      "rule": cap["rule"], "shared_with_other_depositors": True, "api_cross_check": cap_check,
                      "contract_max_redeem": sim_r.get("max_redeem_contract"),
                      "contract_max_redeem_note": "VaultV2 maxWithdraw/maxRedeem return 0 by design: not used as a limit"
                      if snap["version"] == "v2" else "MetaMorpho maxWithdraw is a valid bound for V1"},
-        "simulation": {k: (str(v) if isinstance(v, int) and v > 2 ** 53 else v) for k, v in sim_r.items()},
-        "simulation_partial": {k: (str(v) if isinstance(v, int) and v > 2 ** 53 else v) for k, v in (rd.get("sim_partial") or {}).items()} or None,
+        "simulation": _sim(sim_r) or {},
+        "simulation_partial": _sim(sp),
+        "simulation_force_deallocate": _sim(sim_f),
         "execution_cost_usd": exec_usd, "withdrawal_friction_usd": usd(friction_raw) or 0.0, "gas_usd": gas_usd,
-        "gas_units": rd.get("gas_units"), "gas_why": rd.get("gas_why"),
+        "force_deallocate_penalty_usd": pen_usd,
+        "execution_note": "execution = gas + friction of the compared route at its simulated size; friction includes any "
+                          "forceDeallocate penalty (paid in shares)",
+        "gas_units": gas_units, "gas_why": gas_why,
         "exit_fee_usd": 0.0, "exit_fee_note": "no withdrawal fee in VaultV2 / MetaMorpho; performance and management fees are "
                                               "already in the share price (reflected in the net APY)",
-        "quote_status": quote_status, "carry": cr, "exit_side_usd": eb["central_usd"], "exit_band_usd": [eb["low_usd"], eb["high_usd"]],
+        "quote_status": quote_status, "carry": {**cr, "compared_usd": carry_usd * w, "compared_fraction": w},
+        "exit_side_usd": eb["central_usd"], "exit_band_usd": [eb["low_usd"], eb["high_usd"]],
         "usd_conversion": {**conv, "counted_in_decision": False,
                            "why": f"redeeming returns {snap['asset_symbol']}; converting to USD is a separate treasury choice "
                                   "(indicative quote, not simulated) shown for information"},
-        "force_deallocate": {"status": "nonstandard", "assets": unit(cap["force_raw"]), "usd": usd(cap["force_raw"]),
-                             "rows": [{**r, "available": unit(r["available_raw"]), "available_raw": str(r["available_raw"])} for r in cap["force_rows"]],
-                             "penalty_cost_usd": sum((usd(r["available_raw"]) or 0) * (r["penalty"] or 0) for r in cap["force_rows"]),
+        "force_deallocate": {"status": f_status, "assets": unit(cap["force_raw"]), "usd": usd(cap["force_raw"]),
+                             "simulable_assets": unit(cap.get("force_simulable_raw", 0)),
+                             "rows": [{**r, "available": unit(r["available_raw"]), "available_raw": str(r["available_raw"]),
+                                       "penalty_raw": None if r.get("penalty_raw") is None else str(r["penalty_raw"])}
+                                      for r in cap["force_rows"]],
+                             "plan": f_plan, "simulation": _sim(sim_f), "used_in_verdict": (route or "").startswith("force"),
+                             "penalty_cost_usd": pen_usd if plan else sum((usd(r["available_raw"]) or 0) * (r["penalty"] or 0)
+                                                                          for r in cap["force_rows"]),
                              "api_force_deallocatable": [{"adapter": a["address"], "assets": unit(a["force_deallocatable_raw"]),
                                                           "penalty": a["penalty"]} for a in wo.get("adapters", [])],
-                             "note": "forceDeallocate moves assets from non-liquidity markets to idle (permissionless, with the "
-                                     "adapter penalty): NOT part of the standard exit, not simulated, not used in the verdict"},
+                             "reserves": ["the curator can raise the forceDeallocate penalty (VaultV2 cap 2%, timelocked; "
+                                          "timelock length for this selector UNVERIFIED)",
+                                          "withdrawable liquidity is shared with every depositor: first come, first served",
+                                          "the other markets' liquidity also belongs to their other lenders and can be "
+                                          "borrowed out at any block"],
+                             "note": "forceDeallocate is permissionless: it moves assets from non-liquidity markets to idle "
+                                     "(adapter penalty, taken from the caller's shares) before a redeem. Counted as executable "
+                                     "ONLY when the multicall simulation succeeds for the amount."},
     }
 
     # --- freshness + verdict
     replay = prov.get("cached", 0) > 0 or os.getenv("DEFIRISK_OFFLINE") == "1"
+    quote_at = (tranche_sim or sim_r).get("fetched_at") if route else sim_r.get("fetched_at")
     items = [freshness.item("onchain_state", snap["block_timestamp"], "Ethereum JSON-RPC eth_call @ pinned block", snap["as_of_block"], replay),
-             freshness.item("exit_quote", sim_r.get("fetched_at"), "eth_call redeem() simulation (state override)", snap["as_of_block"], replay),
+             freshness.item("exit_quote", quote_at, "eth_call redeem() / multicall simulation (state override)", snap["as_of_block"], replay),
              freshness.item("market_data", api.get("fetched_at") if api.get("status") == "ok" else None, "Morpho GraphQL (cross-check, labels, borrowers)", replay=replay),
              freshness.item("priors", snap["observed_at"], "DefiLlama hacks / protocols / stablecoin prices", replay=replay)]
     for it in items:
@@ -594,41 +798,52 @@ def assess(req: dict, snap: dict, rd: dict, prov: dict) -> dict:
     fresh = {"items": items, "label": "replay" if replay else ("stale" if any(i["stale"] and i["decisive"] for i in items) else "fresh"),
              "policy_ttl_s": freshness.TTL_S, "price_max_age_s": PRICE_MAX_AGE_S}
     blockers = list(dict.fromkeys(blockers))
-    sig = uncertainty.robust_signal(lb, eb, cr, blockers)
+    sig = uncertainty.robust_signal(lb_cmp, eb, cr_cmp, blockers)
     verdict, reasons = sig["verdict"], list(sig["reasons"])
-    if feas != "full" and (verdict == "EXIT" or sig["point_verdict"] == "EXIT"):
+    if feas not in EXECUTABLE and (verdict == "EXIT" or sig["point_verdict"] == "EXIT"):
+        how = (" even with forceDeallocate (simulated)" if f_status in ("simulated_partial", "reverted") else
+               "; a forceDeallocate route is theoretical (not simulated)" if f_status == "theoretical_not_simulated" else "")
         reasons.append(f"exit not fully executable now ({feas}): only {unit(imm):,.0f} {snap['asset_symbol']} "
-                       f"(${usd(imm) or 0:,.0f}) can be withdrawn immediately, {unit(blocked):,.0f} need reallocation / "
-                       "forceDeallocate / waiting -> partial exit, not a 100% EXIT")
+                       f"(${usd(imm) or 0:,.0f}) can be withdrawn immediately{how}, {unit(blocked):,.0f} need reallocation "
+                       "/ waiting -> partial exit, not a 100% EXIT")
         if verdict == "EXIT":
             verdict = "REVIEW"
-    if feas != "full" and verdict == "STAY":
+    if feas not in EXECUTABLE and verdict == "STAY":
         reasons.append(f"note: an exit would be {feas} today (immediate ${usd(imm) or 0:,.0f} of ${V:,.0f})")
-    margin = lb["central_usd"] - eb["central_usd"]
+    if feas == "full_via_force_deallocate":
+        reasons.append(f"full exit executable only through forceDeallocate: multicall simulated at block {snap['as_of_block']} "
+                       f"(penalty ${pen_usd:,.2f}{f', {gas_units:,} gas' if gas_units else ''}); liquidity is shared, first "
+                       "come first served")
+    margin = lb_cmp["central_usd"] - eb["central_usd"]
     point = sig["point_verdict"]
     lean = None
     if verdict == "REVIEW":
         lean = sig["lean"] or f"lean {point} (conditional)"
-        if point == "EXIT" and feas != "full":
+        if point == "EXIT" and feas not in EXECUTABLE:
             lean += f"; partial: exit ${usd(imm) or 0:,.0f} now"
     colour = {"STAY": "green", "EXIT": "red", "REVIEW": "amber"}[verdict]
+    conv_ok = conv.get("status") == "indicative" and cmp_raw and abs(conv.get("amount_in_raw", 0) - cmp_raw) <= 0.005 * cmp_raw
     decision = {
         "verdict": verdict, "colour": colour, "point_verdict": point, "confidence": "low" if verdict == "REVIEW" else sig["confidence"],
         "lean": lean, "reasons": reasons, "blockers": blockers,
-        "expected_loss_usd": lb["central_usd"], "loss_band_usd": [lb["low_usd"], lb["high_usd"]],
-        "execution_cost_usd": exec_usd, "carry_usd": carry_usd, "exit_side_usd": eb["central_usd"],
+        "comparison_basis": basis,
+        "expected_loss_usd": lb_cmp["central_usd"], "loss_band_usd": [lb_cmp["low_usd"], lb_cmp["high_usd"]],
+        "position_expected_loss_usd": lb["central_usd"], "residual_expected_loss_usd": lb["central_usd"] * (1 - w),
+        "execution_cost_usd": exec_usd, "carry_usd": carry_usd * w, "exit_side_usd": eb["central_usd"],
         "exit_band_usd": [eb["low_usd"], eb["high_usd"]], "margin_usd": margin,
-        "margin_convention": "margin_usd = expected_loss_usd - (execution_cost_usd + carry_usd); > 0: staying costs more "
-                             "on central values (Phase 0.5 convention)",
-        "margin_with_usd_conversion_usd": (margin - conv["cost_usd"]) if conv.get("status") == "indicative" else None,
+        "margin_convention": "margin_usd = expected_loss_usd - (execution_cost_usd + carry_usd), all on comparison_basis "
+                             "(same size w); > 0: staying costs more on central values (Phase 0.5 convention)",
+        "margin_with_usd_conversion_usd": (margin - conv["cost_usd"]) if conv_ok else None,
         "breakeven_risk_multiplier": sig["breakeven_risk_multiplier_incl_carry"],
-        "withdrawal_feasibility": feas, "horizon_days": H, "rule": sig["rule"] + " A partial / zero / unknown exit downgrades "
-        "EXIT to REVIEW (never an executable 100% EXIT).",
-        "explanation": _explain(verdict, point, lb, eb, exec_usd, carry_usd, margin, H, feas, imm and usd(imm), reasons),
+        "withdrawal_feasibility": feas, "executable_route": route, "horizon_days": H,
+        "rule": sig["rule"] + " A partial / zero / unknown exit downgrades EXIT to REVIEW (never an executable 100% EXIT); "
+        "an exit is executable only through a route whose simulation succeeded (ordinary redeem or forceDeallocate multicall). "
+        "Partial: every compared term is for the executable tranche.",
+        "explanation": _explain(verdict, point, lb_cmp, eb, exec_usd, carry_usd * w, margin, H, feas, imm and usd(imm), reasons, basis),
         "freshness": fresh}
 
     scen = scenarios(req, snap, rd, g, cap, A, ex, cr)
-    sens = sensitivity(req, snap, rd, g, lb, eb)
+    sens = sensitivity(req, snap, rd, g, lb, eb, lb_cmp)
     if not (0 <= lb["central_usd"] <= V):
         raise AssertionError("loss outside [0, value_usd]")
     return {"allocations": allocations, "dependencies": {"nodes": nodes, "edges": edges, "path_aggregation": "sum"},
@@ -636,12 +851,19 @@ def assess(req: dict, snap: dict, rd: dict, prov: dict) -> dict:
             "warnings": list(dict.fromkeys(warnings)), "cross_checks": xchecks}
 
 
-def _explain(verdict, point, lb, eb, exec_usd, carry_usd, margin, H, feas, imm_usd, reasons) -> str:
+def _explain(verdict, point, lb, eb, exec_usd, carry_usd, margin, H, feas, imm_usd, reasons, basis=None) -> str:
     head = {"STAY": "STAY: even the high estimate of the loss from staying is below the low estimate of the exit side.",
             "EXIT": "EXIT: even the low estimate of the loss from staying exceeds the high estimate of the exit side, and the "
                     "full exit is executable now.",
             "REVIEW": "REVIEW (uncertain): the estimate does not support a firm decision."}[verdict]
-    return (f"{head} Staying: expected loss ${lb['central_usd']:,.0f} [${lb['low_usd']:,.0f}-${lb['high_usd']:,.0f}] over {H}d. "
+    kind = (basis or {}).get("kind")
+    scope = ""
+    if kind == "executable_tranche":
+        scope = (f" Compared on the executable tranche only ({basis['fraction']:.1%} of the position, ${basis['usd']:,.0f}); "
+                 f"the rest (expected loss ${basis['residual_expected_loss_usd']:,.0f}) stays exposed.")
+    elif kind == "hypothetical_full_position":
+        scope = " No exit route is confirmed executable now: the full exit is compared hypothetically."
+    return (f"{head}{scope} Staying: expected loss ${lb['central_usd']:,.0f} [${lb['low_usd']:,.0f}-${lb['high_usd']:,.0f}] over {H}d. "
             f"Exiting: execution ${exec_usd:,.2f} + forgone carry ${carry_usd:,.0f} = ${eb['central_usd']:,.0f} "
             f"[${eb['low_usd']:,.0f}-${eb['high_usd']:,.0f}]. Margin (loss - exit side) = ${margin:,.0f}: "
             f"{'staying' if margin > 0 else 'exiting'} costs more on central values (point verdict {point}). "
@@ -669,12 +891,19 @@ def _scenario(req, snap, rd, base_g, name, desc, sev: dict, liquidity_factor=1.0
     px = snap["asset_price"].get("price_usd") or 0
     imm = min(A, c2["ordinary_raw"])
     ad = snap["asset_decimals"]
+    with_force = min(A, c2["ordinary_raw"] + c2["force_raw"])
+    force_now = liquidity_factor == 1.0 and (rd.get("sim_force") or {}).get("status") == "simulated"
     out = {"name": name, "description": desc, "label": "conditional_on_shock", "shocked": [
                {"id": k, "severity": v, "label": next((n.label for n in g.nodes if n.id == k), k)} for k, v in sev.items()],
            "loss_usd": cl["usd"], "loss_pct": cl["pct"], "loss_incl_background_risk_usd": exp_after,
            "paths": {k: routes(g, k, 4) for k in sev}, "by_node_usd": cl["by_node"],
            "immediately_withdrawable_usd": imm / 10 ** ad * px, "withdrawal_feasibility":
                "full" if A <= c2["ordinary_raw"] and c2["ordinary_raw"] > 0 else ("zero" if c2["ordinary_raw"] == 0 else "partial"),
+           "withdrawable_with_force_deallocate_usd": with_force / 10 ** ad * px,
+           "force_deallocate_route": ("confirmed: simulated at the pinned block for the full amount (this scenario leaves "
+                                      "free liquidity unchanged)" if force_now else
+                                      "theoretical: computed from free liquidity under this scenario, not simulated")
+           if c2["force_raw"] else "none: no other market liquidity under this scenario",
            "liquidity_factor": liquidity_factor, "vault": snap["address"]}
     if neutral:
         out.update(neutral)
@@ -729,7 +958,7 @@ def scenarios(req, snap, rd, g, cap, A, ex, cr) -> list[dict]:
     return out
 
 
-def sensitivity(req, snap, rd, g, lb, eb) -> dict:
+def sensitivity(req, snap, rd, g, lb, eb, lb_cmp=None) -> dict:
     V = req["value_usd"]
     rows = []
     for n in g.nodes:
@@ -753,10 +982,12 @@ def sensitivity(req, snap, rd, g, lb, eb) -> dict:
         for s in (0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8):
             g2, _ = build_graph(req, snap, rd["priors"], sev={coll.id: s})
             crash.append({"drop": s, "loss_usd": conditional_loss(g2, [coll.id])["usd"]})
+    cmp_base = (lb_cmp or lb)["central_usd"]
     return {"base_expected_loss_usd": base, "tornado_p_x0.5_x2": top, "collateral_crash_curve": {"node": coll.id if coll else None,
             "label": coll.label if coll else None, "points": crash, "label_kind": "conditional_on_shock"},
-            "breakeven_risk_multiplier": (eb["central_usd"] / base) if base > 0 else None,
-            "note": "risk must be x breakeven the central estimate for the exit side to be worth paying"}
+            "breakeven_risk_multiplier": (eb["central_usd"] / cmp_base) if cmp_base > 0 else None,
+            "note": "risk must be x breakeven the central estimate for the exit side to be worth paying (same basis as "
+                    "the decision: both sides for the same tranche)"}
 
 
 # ---- entry point ---------------------------------------------------------------------------------------------------

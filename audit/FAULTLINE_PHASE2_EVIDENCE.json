@@ -1,0 +1,1348 @@
+{
+ "schema": "faultline.phase2.evidence/1",
+ "phase": "Phase 2 - Autonomous Countermove (+ P0 vault fixes)",
+ "spec": "docs/FAULTLINE_Countermove_v3_Autonomous_Crisis_Response.md",
+ "generated_at": "2026-10-10T21:20:48+00:00",
+ "collector": "scripts/collect_phase2_evidence.py --live --fork",
+ "scope": "local Anvil fork (chain id 31337) + read-only mainnet eth_call; no mainnet transaction, no real funds, no personal key (keeper key derived from the public Anvil test mnemonic)",
+ "status_labels": {
+  "LIVE": "read now on Ethereum mainnet (read-only)",
+  "SIMULATED": "local fork state or controlled shock",
+  "CONFIRMED": "mined on the local fork and verified",
+  "FAILED": "reverted / not executed",
+  "NO ACTION": "nothing sent, with the reason"
+ },
+ "git": {
+  "head": "88da12ad1bc9e1366363003c6ed0908aaa01a4a2",
+  "branch": "main",
+  "working_tree_changes": 42,
+  "note": "evidence collected on the working tree (Phase 2 changes not committed at collection time)"
+ },
+ "environment": {
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.6",
+  "node": "v22.19.0",
+  "forge": "forge Version: 1.8.5 (commit 51a52c59cf)",
+  "anvil": "anvil Version: 1.8.5",
+  "cast": "cast Version: 1.8.5",
+  "solc": {
+   "RescueVault.sol": "0.8.26+commit.8a97fa7a",
+   "Morpho.sol": "0.8.19+commit.7dd6d404"
+  },
+  "foundry_profile": {
+   "optimizer_runs": 200,
+   "evm_version": "cancun",
+   "fuzz_runs": 512,
+   "invariant_runs": 64,
+   "invariant_depth": 64
+  },
+  "solidity_dependencies": [
+   {
+    "name": "forge-std",
+    "repo": "https://github.com/foundry-rs/forge-std",
+    "tag": "v1.17.0",
+    "pinned": "f3dae6e6ee",
+    "installed_head": "f3dae6e6ee381f25eb6a246f7da9b85c91a68219",
+    "ok": true
+   },
+   {
+    "name": "openzeppelin-contracts",
+    "repo": "https://github.com/OpenZeppelin/openzeppelin-contracts",
+    "tag": "v5.6.1",
+    "pinned": "5fd1781b14",
+    "installed_head": "5fd1781b1454fd1ef8e722282f86f9293cacf256",
+    "ok": true
+   },
+   {
+    "name": "morpho-blue",
+    "repo": "https://github.com/morpho-org/morpho-blue",
+    "tag": "v1.0.0",
+    "pinned": "55d2d99304",
+    "installed_head": "55d2d99304fb3fb930c688462ae2ccabb1d533ad",
+    "ok": true
+   }
+  ]
+ },
+ "tests": {
+  "pytest_offline": {
+   "command": "python -m pytest -q -p no:cacheprovider ",
+   "exit_code": 0,
+   "seconds": 74.9,
+   "passed": 207,
+   "failed": 0,
+   "skipped": 16,
+   "summary_line": "207 passed, 16 skipped in 74.24s (0:01:14)",
+   "failed_tests": [],
+   "by_file": {
+    "tests/test_api_payload.py": {
+     "passed": 1,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_compliance.py": {
+     "passed": 15,
+     "failed": 0,
+     "skipped": 1
+    },
+    "tests/test_countermove_api.py": {
+     "passed": 6,
+     "failed": 0,
+     "skipped": 1
+    },
+    "tests/test_countermove_e2e.py": {
+     "passed": 16,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_countermove_engine.py": {
+     "passed": 32,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_decision_coherence.py": {
+     "passed": 8,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_hardening.py": {
+     "passed": 23,
+     "failed": 0,
+     "skipped": 2
+    },
+    "tests/test_http_cache.py": {
+     "passed": 1,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_lineage.py": {
+     "passed": 12,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_pipeline.py": {
+     "passed": 1,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_portfolio.py": {
+     "passed": 1,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_vault.py": {
+     "passed": 73,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_vault_live.py": {
+     "passed": 0,
+     "failed": 0,
+     "skipped": 12
+    },
+    "tests/test_vault_p0.py": {
+     "passed": 18,
+     "failed": 0,
+     "skipped": 0
+    }
+   }
+  },
+  "node": {
+   "command": "node --test tests/js/countermove_view.test.mjs tests/js/decision_view.test.mjs tests/js/vault_view.test.mjs",
+   "exit_code": 0,
+   "seconds": 0.3,
+   "files": [
+    "tests/js/countermove_view.test.mjs",
+    "tests/js/decision_view.test.mjs",
+    "tests/js/vault_view.test.mjs"
+   ],
+   "tests": 27,
+   "passed": 27,
+   "failed": 0,
+   "skipped": 0
+  },
+  "forge": {
+   "command": "cd contracts; forge test --json",
+   "exit_code": 0,
+   "seconds": 2.4,
+   "passed": 29,
+   "failed": 0,
+   "skipped": 1,
+   "suites": {
+    "test/RescueVault.t.sol:RescueVaultTest": [
+     {
+      "test": "testFuzz_ltvAgreesWithMorphoHealth(uint256)",
+      "status": "passed",
+      "fuzz_runs": 512,
+      "median_gas": 97752
+     },
+     {
+      "test": "testFuzz_repay_respectsPolicyOrRevertsCleanly(uint256,uint256,uint256)",
+      "status": "passed",
+      "fuzz_runs": 512,
+      "median_gas": 316544
+     },
+     {
+      "test": "testFuzz_topUp_respectsPolicyOrRevertsCleanly(uint256,uint256)",
+      "status": "passed",
+      "fuzz_runs": 512,
+      "median_gas": 310433
+     },
+     {
+      "test": "test_autoRepay_reducesDebt_improvesLtv()",
+      "status": "passed",
+      "gas": 407303
+     },
+     {
+      "test": "test_autoTopUp_addsCollateral_debtUnchanged()",
+      "status": "passed",
+      "gas": 343336
+     },
+     {
+      "test": "test_constructor_rejectsUnknownMarket()",
+      "status": "passed",
+      "gas": 19202
+     },
+     {
+      "test": "test_cumulativeCap_acrossActions()",
+      "status": "passed",
+      "gas": 700670
+     },
+     {
+      "test": "test_depositOnlyMarketTokens()",
+      "status": "passed",
+      "gas": 466437
+     },
+     {
+      "test": "test_emergencyFullRepay_closesDebt_keepsCollateral()",
+      "status": "passed",
+      "gas": 377763
+     },
+     {
+      "test": "test_expiry_pause_strategy()",
+      "status": "passed",
+      "gas": 330020
+     },
+     {
+      "test": "test_hold_whenNotAtRisk_noTokenMoves()",
+      "status": "passed",
+      "gas": 134083
+     },
+     {
+      "test": "test_insufficientReserve()",
+      "status": "passed",
+      "gas": 260035
+     },
+     {
+      "test": "test_interestAccrued_isIncludedOnChain()",
+      "status": "passed",
+      "gas": 480886
+     },
+     {
+      "test": "test_invalidPolicies()",
+      "status": "passed",
+      "gas": 175625
+     },
+     {
+      "test": "test_ltvFloor_and_keeperBound()",
+      "status": "passed",
+      "gas": 526331
+     },
+     {
+      "test": "test_maliciousKeeper_cannotSpendOutsidePolicy()",
+      "status": "passed",
+      "gas": 1263999
+     },
+     {
+      "test": "test_noArbitraryCallsNoEth()",
+      "status": "passed",
+      "gas": 184246
+     },
+     {
+      "test": "test_noPolicy_noAction()",
+      "status": "passed",
+      "gas": 107923
+     },
+     {
+      "test": "test_onlyKeeperCanExecute()",
+      "status": "passed",
+      "gas": 324088
+     },
+     {
+      "test": "test_onlyOwnerAdministers()",
+      "status": "passed",
+      "gas": 315150
+     },
+     {
+      "test": "test_partialRepay_cannotExceedDebt_fullRepayBounds()",
+      "status": "passed",
+      "gas": 641687
+     },
+     {
+      "test": "test_policyChange_invalidatesPendingPlan_andResetsBudget()",
+      "status": "passed",
+      "gas": 396750
+     },
+     {
+      "test": "test_reserveFloor()",
+      "status": "passed",
+      "gas": 492433
+     },
+     {
+      "test": "test_revoke_isIrreversible_ownerStillRecoversReserves()",
+      "status": "passed",
+      "gas": 229601
+     }
+    ],
+    "test/RescueVaultFork.t.sol:RescueVaultForkTest": [
+     {
+      "test": "test_fork_realMorpho_repayAndTopUp()",
+      "status": "skipped",
+      "gas": 0,
+      "reason": "set FORK_RPC_URL to run against the real Morpho Blue market"
+     }
+    ],
+    "test/RescueVaultInvariant.t.sol:RescueVaultInvariantTest": [
+     {
+      "test": "invariant_capsNeverExceeded()",
+      "status": "passed",
+      "invariant_runs": 64,
+      "invariant_calls": 4096,
+      "invariant_reverts": 1263,
+      "invariants": [
+       {
+        "name": "invariant_capsNeverExceeded",
+        "status": "Success"
+       },
+       {
+        "name": "invariant_noBorrowNoCollateralWithdrawal",
+        "status": "Success"
+       },
+       {
+        "name": "invariant_noPrivilegeEscalation",
+        "status": "Success"
+       },
+       {
+        "name": "invariant_tokenConservation",
+        "status": "Success"
+       }
+      ],
+      "handler_calls": {
+       "attackerTries": {
+        "calls": 460,
+        "reverts": 0
+       },
+       "keeperFullRepay": {
+        "calls": 458,
+        "reverts": 454
+       },
+       "keeperRepay": {
+        "calls": 472,
+        "reverts": 423
+       },
+       "keeperTopUp": {
+        "calls": 439,
+        "reverts": 386
+       },
+       "movePrice": {
+        "calls": 437,
+        "reverts": 0
+       },
+       "ownerDeposit": {
+        "calls": 461,
+        "reverts": 0
+       },
+       "ownerResetPolicy": {
+        "calls": 446,
+        "reverts": 0
+       },
+       "ownerWithdraw": {
+        "calls": 463,
+        "reverts": 0
+       },
+       "warp": {
+        "calls": 460,
+        "reverts": 0
+       }
+      }
+     }
+    ],
+    "test/RescueVaultTokens.t.sol:RescueVaultTokensTest": [
+     {
+      "test": "test_decimals_6_loan_8_collateral()",
+      "status": "passed",
+      "gas": 2875525
+     },
+     {
+      "test": "test_falseReturningToken_isRefused()",
+      "status": "passed",
+      "gas": 394270
+     },
+     {
+      "test": "test_feeOnTransferCollateral_isRefused()",
+      "status": "passed",
+      "gas": 1830209
+     },
+     {
+      "test": "test_reentrancyThroughTokenHook_isBlocked()",
+      "status": "passed",
+      "gas": 2377647
+     }
+    ]
+   }
+  },
+  "pytest_live": {
+   "command": "python -m pytest -q -p no:cacheprovider tests/test_vault_live.py tests/test_countermove_api.py tests/test_compliance.py tests/test_vault.py tests/test_hardening.py (DEFIRISK_LIVE_TESTS=1)",
+   "exit_code": 0,
+   "seconds": 190.0,
+   "passed": 133,
+   "failed": 0,
+   "skipped": 0,
+   "summary_line": "133 passed in 189.41s (0:03:09)",
+   "failed_tests": [],
+   "by_file": {
+    "tests/test_compliance.py": {
+     "passed": 16,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_countermove_api.py": {
+     "passed": 7,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_hardening.py": {
+     "passed": 25,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_vault.py": {
+     "passed": 73,
+     "failed": 0,
+     "skipped": 0
+    },
+    "tests/test_vault_live.py": {
+     "passed": 12,
+     "failed": 0,
+     "skipped": 0
+    }
+   }
+  },
+  "forge_fork": {
+   "command": "cd contracts; forge test --json --match-contract Fork --fork-url $env:FORK_RPC_URL --fork-block-number 26164248 --compute-units-per-second 40 --fork-retries 10 --fork-retry-backoff 1500",
+   "exit_code": 0,
+   "seconds": 8.8,
+   "passed": 1,
+   "failed": 0,
+   "skipped": 0,
+   "suites": {
+    "test/RescueVaultFork.t.sol:RescueVaultForkTest": [
+     {
+      "test": "test_fork_realMorpho_repayAndTopUp()",
+      "status": "passed",
+      "gas": 784085
+     }
+    ]
+   }
+  }
+ },
+ "p0_vault": {
+  "what": "P0-A: VaultV2 forceDeallocate exit route simulated and used; P0-B: partial exits compared on one economic basis",
+  "recorded": {
+   "fixture": "data/fixtures/vault_0xd6d4b804014ef27836dbe9f8f6bf6c71251548ec_1m.json",
+   "recorded_at": "2026-10-10T19:42:38Z",
+   "label": "replay (dated real snapshot, re-evaluated offline by tests/test_vault_p0.py)",
+   "as_of_block": 26164196,
+   "verdict": "REVIEW",
+   "point_verdict": "STAY",
+   "expected_loss_usd": 631.6298780169038,
+   "exit_side_usd": 2149.7179380218668,
+   "margin_usd": -1518.088060004963,
+   "withdrawal_feasibility": "full_via_force_deallocate",
+   "executable_route": "force_deallocate",
+   "coverage": 1.0,
+   "markets": 6
+  },
+  "live": {
+   "status": "LIVE",
+   "as_of_block": 26164685,
+   "mode": "live",
+   "elapsed_s": 11.0,
+   "withdrawal_feasibility": "full_via_force_deallocate",
+   "executable_route": "force_deallocate",
+   "comparison_basis": {
+    "kind": "full_position",
+    "fraction": 1.0,
+    "assets": 893633.9352485004,
+    "usd": 1000000.0,
+    "route": "force_deallocate",
+    "position_expected_loss_usd": 631.6417673517539,
+    "position_carry_usd": 2150.566100254813,
+    "residual_expected_loss_usd": 0.0,
+    "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
+    "why": "the whole position is executable now by a simulated route"
+   },
+   "immediately_withdrawable_usd": 1000000.0,
+   "blocked_or_deferred_usd": 0.0,
+   "ordinary_route": {
+    "status": "simulated_partial",
+    "capacity_usd": 404800.31713900703,
+    "gas": {
+     "gas_usd": 0.06100367142959222,
+     "gas_why": "389,054 gas x 0.063 gwei (eth_gasPrice) x ETH $2,506 (DefiLlama)",
+     "gas_units": 389054
+    }
+   },
+   "force_deallocate_route": {
+    "status": "simulated",
+    "capacity_usd": 1154509.0187919054,
+    "penalty_usd": 0.0,
+    "gas": {
+     "gas_usd": 0.10148473023628184,
+     "gas_why": "647,224 gas x 0.063 gwei (eth_gasPrice) x ETH $2,506 (DefiLlama)",
+     "gas_units": 647224
+    }
+   },
+   "force_plan": {
+    "need_assets": 531890.6348537286,
+    "deallocated_assets": 532422.5254885823,
+    "covers_full": true,
+    "rule": "cover (amount - ordinary capacity) x (1 + 0.1%); cheapest penalty first, then deepest free liquidity; <= 99.9% of each market's free liquidity",
+    "steps": [
+     {
+      "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+      "market": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
+      "collateral": "WBTC",
+      "assets": 455099.930446539,
+      "assets_raw": "455099930446539005669919",
+      "penalty_rate": 0.0,
+      "penalty_assets": 0.0,
+      "penalty_usd": 0.0
+     },
+     {
+      "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+      "market": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
+      "collateral": "cbBTC",
+      "assets": 77322.59504204331,
+      "assets_raw": "77322595042043305775367",
+      "penalty_rate": 0.0,
+      "penalty_assets": 0.0,
+      "penalty_usd": 0.0
+     }
+    ]
+   },
+   "force_simulation": {
+    "status": "simulated"
+   },
+   "verdict": "REVIEW",
+   "point_verdict": "STAY",
+   "expected_loss_usd": 631.64,
+   "exit_side_usd": 2150.67
+  }
+ },
+ "fork_demo": {
+  "source": "data/countermove/demo/latest/summary.json",
+  "label": "SIMULATED environment (local Anvil fork); CONFIRMED = mined on that fork and verified",
+  "generated_at": "2026-10-10T20:53:40+00:00",
+  "duration_s": 83.7,
+  "environment": {
+   "kind": "local Anvil fork of Ethereum mainnet (SIMULATED environment)",
+   "fork_rpc": "https://eth-mainnet.public.blastapi.io",
+   "fork_block": 26164248,
+   "fork_block_timestamp": 1791661967,
+   "chain_id": 31337,
+   "rpc": "http://127.0.0.1:8547",
+   "morpho_blue": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+   "markets": {
+    "weETH/USDC": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
+    "cbBTC/USDC": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64"
+   },
+   "keeper": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+   "notes": [
+    "real Morpho Blue, markets, oracles, IRMs and liquidity at the pinned block",
+    "test funds written into local storage (not real tokens)",
+    "price crises are SIMULATED controlled shocks of one real feed each",
+    "no transaction was sent to Ethereum mainnet"
+   ]
+  },
+  "all_expected": true,
+  "keeper_runs": [
+   {
+    "tag": "pre_crisis",
+    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_pre_crisis.json --journal-dir data/countermove/demo/latest --interval 1 --once",
+    "seconds": 3.4,
+    "results": [
+     [
+      "S1-weETH-repay",
+      "WATCHING",
+      null
+     ],
+     [
+      "S3-weETH-no-action",
+      "WATCHING",
+      null
+     ],
+     [
+      "S2-cbBTC-topup",
+      "WATCHING",
+      null
+     ],
+     [
+      "S4-cbBTC-full-repay",
+      "WATCHING",
+      null
+     ]
+    ]
+   },
+   {
+    "tag": "phase_A_weETH",
+    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_phase_A_weETH.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6",
+    "seconds": 3.7,
+    "results": [
+     [
+      "S1-weETH-repay",
+      "CONFIRMED",
+      "0x4b9254ebda91ddc69a362ebf2b8d88ddb19320f55f507b46b62974b3a51387e2"
+     ],
+     [
+      "S3-weETH-no-action",
+      "NO_ACTION",
+      null
+     ]
+    ]
+   },
+   {
+    "tag": "phase_B_cbBTC",
+    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_phase_B_cbBTC.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6",
+    "seconds": 5.5,
+    "results": [
+     [
+      "S2-cbBTC-topup",
+      "CONFIRMED",
+      "0x7ccb73ccc688c2f5414316655a3112b50e8a8f45cbf03d97bf6291e08bca9050"
+     ],
+     [
+      "S4-cbBTC-full-repay",
+      "CONFIRMED",
+      "0xeea9ca52ce4919469bfb9ceaa7ad4209694eb37da986410ea77b765effa6aee5"
+     ]
+    ]
+   },
+   {
+    "tag": "post_crisis",
+    "command": "python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_post_crisis.json --journal-dir data/countermove/demo/latest --interval 1 --once",
+    "seconds": 2.7,
+    "results": [
+     [
+      "S1-weETH-repay",
+      "WATCHING",
+      null
+     ],
+     [
+      "S3-weETH-no-action",
+      "NO_ACTION",
+      null
+     ],
+     [
+      "S2-cbBTC-topup",
+      "WATCHING",
+      null
+     ],
+     [
+      "S4-cbBTC-full-repay",
+      "WATCHING",
+      null
+     ]
+    ]
+   }
+  ],
+  "scenarios": [
+   {
+    "scenario": "S1",
+    "label": "S1 | user A | weETH/USDC | USDC reserve",
+    "user": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    "rescue_vault": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
+    "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
+    "expected_final_state": "CONFIRMED",
+    "final_state": "CONFIRMED",
+    "states": [
+     "WATCHING",
+     "DETECTED",
+     "PLANNING",
+     "VALIDATING",
+     "EXECUTING",
+     "CONFIRMED",
+     "WATCHING"
+    ],
+    "simulated_shock": {
+     "original_description": "weETH/ETH exchange rate",
+     "shock_bps": 900,
+     "label": "SIMULATED controlled shock on a local fork (anvil_setCode); not a mainnet event"
+    },
+    "ltv_at_detection": 824175901244967781,
+    "trigger_ltv": 820000000000000000,
+    "decision": "EXECUTE",
+    "chosen": {
+     "strategy": "REPAY",
+     "amount": 1086.501385,
+     "token": "USDC",
+     "amount_raw": 1086501385,
+     "keeper_bound": 783203260975168118,
+     "bound_kind": "maxLtvAfter (WAD)"
+    },
+    "candidates": [
+     {
+      "strategy": "REPAY",
+      "status": "eligible",
+      "required": 1086.501385,
+      "token": "USDC",
+      "rejected_at": null,
+      "reason": null
+     },
+     {
+      "strategy": "TOP_UP",
+      "status": "rejected",
+      "required": 0.5432081666257763,
+      "token": "weETH",
+      "rejected_at": "feasibility",
+      "reason": "reserve holds 0.050000 weETH < required 0.543208 weETH (funds must be pre-deposited in the RescueVault)"
+     },
+     {
+      "strategy": "FULL_REPAY",
+      "status": "rejected",
+      "required": 20838.101931,
+      "token": "USDC",
+      "rejected_at": "feasibility",
+      "reason": "reserve holds 5,000.00 USDC < required 20,838.10 USDC (funds must be pre-deposited in the RescueVault)"
+     }
+    ],
+    "why": "REPAY 1,086.50 USDC is the minimal amount that keeps the liquidation buffer >= 250.00 USDC in every configured scenario. Rejected: TOP_UP rejected at feasibility: reserve holds 0.050000 weETH < required 0.543208 weETH (funds must be pre-deposited in the RescueVault); FULL_REPAY rejected at feasibility: reserve holds 5,000.00 USDC < required 20,838.10 USDC (funds must be pre-deposited in the RescueVault).",
+    "no_action_reason": null,
+    "user_nonce_unchanged": true,
+    "user_signed_during_crisis": false,
+    "end_vault": {
+     "loan_reserve": 3913498615,
+     "collateral_reserve": 50000000000000000,
+     "repaid_total": 1086501385,
+     "topped_up_total": 0,
+     "action_count": 1,
+     "policy_nonce": 1,
+     "paused": false
+    },
+    "execution": {
+     "tx_hash": "0x4b9254ebda91ddc69a362ebf2b8d88ddb19320f55f507b46b62974b3a51387e2",
+     "block": 26164285,
+     "from": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+     "to": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
+     "status": 1,
+     "gas_used": 306222,
+     "signed_by": "keeper (anvil test account #1) - no user signature",
+     "action_id": "0xef95b0054d471eee8f02630e384cde709d020732c2f6b3783f50541503ae324d",
+     "signer_is_keeper": true
+    },
+    "verification": {
+     "verified": true,
+     "checks_passed": 15,
+     "checks_total": 15,
+     "checks": [
+      "receipt status = 1 (mined, not reverted)",
+      "RescueExecuted event emitted by the vault",
+      "event action id = planned action id",
+      "event strategy = planned strategy",
+      "reserve decreased by exactly the event amount",
+      "Morpho Repay event on behalf of the beneficiary",
+      "event amount = planned amount",
+      "debt decreased by the repaid amount (+-2 wei share rounding)",
+      "collateral unchanged",
+      "re-read debt = event debt after (+-1)",
+      "repaidTotal increased by the amount",
+      "LTV improved (event)",
+      "LTV after <= keeper bound",
+      "liquidation buffer increased",
+      "vault holds no Morpho position of its own"
+     ],
+     "event": {
+      "action_id": "0xef95b0054d471eee8f02630e384cde709d020732c2f6b3783f50541503ae324d",
+      "strategy": "REPAY",
+      "assets": 1086501385,
+      "debt_before": 20838102032,
+      "debt_after": 19751600647,
+      "collateral_before": 10000000000000000000,
+      "collateral_after": 10000000000000000000,
+      "ltv_before": 824175905239658194,
+      "ltv_after": 781203264969858531,
+      "policy_nonce": 1,
+      "tx_hash": "0x4b9254ebda91ddc69a362ebf2b8d88ddb19320f55f507b46b62974b3a51387e2",
+      "block": 26164285
+     },
+     "before": {
+      "debt": 20838101931,
+      "collateral": 10000000000000000000,
+      "price": 2528356131224980293957600000,
+      "ltv": 824175905239658194,
+      "buffer": 905760797,
+      "reserve": 5000000000
+     },
+     "after": {
+      "debt": 19751600647,
+      "collateral": 10000000000000000000,
+      "price": 2528356131224980293957600000,
+      "ltv": 781203264969858531,
+      "buffer": 1992262081,
+      "reserve": 3913498615
+     },
+     "remaining_limits": {
+      "repaid_total": 1086501385,
+      "topped_up_total": 0,
+      "policy": {
+       "allowed_strategies": 7,
+       "valid_until": 1794254002,
+       "cooldown": 3600,
+       "trigger_ltv": 820000000000000000,
+       "min_ltv_after": 400000000000000000,
+       "max_repay_per_action": 5000000000,
+       "max_top_up_per_action": 1000000000000000000,
+       "max_full_repay": 25000000000,
+       "max_repay_total": 30000000000,
+       "max_top_up_total": 1000000000000000000,
+       "min_loan_reserve": 100000000,
+       "min_collateral_reserve": 10000000000000000
+      },
+      "loan_reserve": 3913498615,
+      "collateral_reserve": 50000000000000000,
+      "paused": false,
+      "revoked": false,
+      "action_count": 1
+     }
+    }
+   },
+   {
+    "scenario": "S2",
+    "label": "S2 | user B | cbBTC/USDC | cbBTC reserve, 100 USDC",
+    "user": "0x90F79bf6EB2c4f870365E785982E1f101E93b906",
+    "rescue_vault": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
+    "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+    "expected_final_state": "CONFIRMED",
+    "final_state": "CONFIRMED",
+    "states": [
+     "WATCHING",
+     "DETECTED",
+     "PLANNING",
+     "VALIDATING",
+     "EXECUTING",
+     "CONFIRMED",
+     "WATCHING"
+    ],
+    "simulated_shock": {
+     "original_description": "BTC / USD",
+     "shock_bps": 900,
+     "label": "SIMULATED controlled shock on a local fork (anvil_setCode); not a mainnet event"
+    },
+    "ltv_at_detection": 824175889551868958,
+    "trigger_ltv": 820000000000000000,
+    "decision": "EXECUTE",
+    "chosen": {
+     "strategy": "TOP_UP",
+     "amount": 0.02509364,
+     "token": "cbBTC",
+     "amount_raw": 2509364,
+     "keeper_bound": 786789442083892093,
+     "bound_kind": "maxLtvAfter (WAD)"
+    },
+    "candidates": [
+     {
+      "strategy": "REPAY",
+      "status": "rejected",
+      "required": 1499.008563,
+      "token": "USDC",
+      "rejected_at": "feasibility",
+      "reason": "reserve holds 100.00 USDC < required 1,499.01 USDC (funds must be pre-deposited in the RescueVault)"
+     },
+     {
+      "strategy": "TOP_UP",
+      "status": "eligible",
+      "required": 0.02509364,
+      "token": "cbBTC",
+      "rejected_at": null,
+      "reason": null
+     },
+     {
+      "strategy": "FULL_REPAY",
+      "status": "rejected",
+      "required": 31117.342012,
+      "token": "USDC",
+      "rejected_at": "security",
+      "reason": "needs 31,117.34 USDC > per-action cap 0.00 USDC"
+     }
+    ],
+    "why": "TOP_UP 0.025094 cbBTC is the minimal amount that keeps the liquidation buffer >= 250.00 USDC in every configured scenario. A unit of collateral only adds LLTV x scenario price to the buffer (efficiency 0.86 x price factor) while a repaid unit adds 1:1, so TOP_UP wins only when the loan-token route is unavailable or not preferred. Rejected: REPAY rejected at feasibility: reserve holds 100.00 USDC < required 1,499.01 USDC (funds must be pre-deposited in the RescueVault); FULL_REPAY rejected at security: needs 31,117.34 USDC > per-action cap 0.00 USDC.",
+    "no_action_reason": null,
+    "user_nonce_unchanged": true,
+    "user_signed_during_crisis": false,
+    "end_vault": {
+     "loan_reserve": 100000000,
+     "collateral_reserve": 17490636,
+     "repaid_total": 0,
+     "topped_up_total": 2509364,
+     "action_count": 1,
+     "policy_nonce": 1,
+     "paused": false
+    },
+    "execution": {
+     "tx_hash": "0x7ccb73ccc688c2f5414316655a3112b50e8a8f45cbf03d97bf6291e08bca9050",
+     "block": 26164287,
+     "from": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+     "to": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
+     "status": 1,
+     "gas_used": 279145,
+     "signed_by": "keeper (anvil test account #1) - no user signature",
+     "action_id": "0x4cb555caad40c9a7a340e411d8ab65b95997c500c7227b35d3c04c06cdd8ca5a",
+     "signer_is_keeper": true
+    },
+    "verification": {
+     "verified": true,
+     "checks_passed": 14,
+     "checks_total": 14,
+     "checks": [
+      "receipt status = 1 (mined, not reverted)",
+      "RescueExecuted event emitted by the vault",
+      "event action id = planned action id",
+      "event strategy = planned strategy",
+      "reserve decreased by exactly the event amount",
+      "Morpho SupplyCollateral event on behalf of the beneficiary",
+      "event amount = planned amount",
+      "collateral increased by exactly the amount",
+      "borrow shares unchanged (debt not modified)",
+      "toppedUpTotal increased by the amount",
+      "LTV improved (event)",
+      "LTV after <= keeper bound",
+      "liquidation buffer increased",
+      "vault holds no Morpho position of its own"
+     ],
+     "event": {
+      "action_id": "0x4cb555caad40c9a7a340e411d8ab65b95997c500c7227b35d3c04c06cdd8ca5a",
+      "strategy": "TOP_UP",
+      "assets": 2509364,
+      "debt_before": 31117342108,
+      "debt_after": 31117342108,
+      "collateral_before": 50000000,
+      "collateral_after": 52509364,
+      "ltv_before": 824175892094531033,
+      "ltv_after": 784789444505043180,
+      "policy_nonce": 1,
+      "tx_hash": "0x7ccb73ccc688c2f5414316655a3112b50e8a8f45cbf03d97bf6291e08bca9050",
+      "block": 26164287
+     },
+     "before": {
+      "debt": 31117342012,
+      "collateral": 50000000,
+      "price": 755114106268600000000000000000000000000,
+      "ltv": 824175892094531033,
+      "buffer": 1352564557,
+      "reserve": 20000000
+     },
+     "after": {
+      "debt": 31117342108,
+      "collateral": 52509364,
+      "price": 755114106268600000000000000000000000000,
+      "ltv": 784789444505043180,
+      "buffer": 2982140753,
+      "reserve": 17490636
+     },
+     "remaining_limits": {
+      "repaid_total": 0,
+      "topped_up_total": 2509364,
+      "policy": {
+       "allowed_strategies": 7,
+       "valid_until": 1794254020,
+       "cooldown": 3600,
+       "trigger_ltv": 820000000000000000,
+       "min_ltv_after": 400000000000000000,
+       "max_repay_per_action": 5000000000,
+       "max_top_up_per_action": 15000000,
+       "max_full_repay": 0,
+       "max_repay_total": 30000000000,
+       "max_top_up_total": 20000000,
+       "min_loan_reserve": 0,
+       "min_collateral_reserve": 100000
+      },
+      "loan_reserve": 100000000,
+      "collateral_reserve": 17490636,
+      "paused": false,
+      "revoked": false,
+      "action_count": 1
+     }
+    }
+   },
+   {
+    "scenario": "S3",
+    "label": "S3 | user C | weETH/USDC | tiny reserves, full repay disabled",
+    "user": "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+    "rescue_vault": "0x14a0558b87b3c73c4853023499a9e80411b7a439",
+    "market_id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
+    "expected_final_state": "NO_ACTION",
+    "final_state": "NO_ACTION",
+    "states": [
+     "WATCHING",
+     "DETECTED",
+     "PLANNING",
+     "NO_ACTION",
+     "DETECTED",
+     "PLANNING",
+     "NO_ACTION"
+    ],
+    "simulated_shock": {
+     "original_description": "weETH/ETH exchange rate",
+     "shock_bps": 900,
+     "label": "SIMULATED controlled shock on a local fork (anvil_setCode); not a mainnet event"
+    },
+    "ltv_at_detection": 824175908093225812,
+    "trigger_ltv": 820000000000000000,
+    "decision": "NO_ACTION",
+    "chosen": null,
+    "candidates": [
+     {
+      "strategy": "REPAY",
+      "status": "rejected",
+      "required": 584.578966,
+      "token": "USDC",
+      "rejected_at": "feasibility",
+      "reason": "reserve holds 150.00 USDC < required 584.58 USDC (funds must be pre-deposited in the RescueVault)"
+     },
+     {
+      "strategy": "TOP_UP",
+      "status": "rejected",
+      "required": 0.29226657293084624,
+      "token": "weETH",
+      "rejected_at": "feasibility",
+      "reason": "reserve holds 0.010000 weETH < required 0.292267 weETH (funds must be pre-deposited in the RescueVault)"
+     },
+     {
+      "strategy": "FULL_REPAY",
+      "status": "rejected",
+      "required": 8335.240841,
+      "token": "USDC",
+      "rejected_at": "security",
+      "reason": "needs 8,335.24 USDC > per-action cap 0.00 USDC"
+     }
+    ],
+    "why": "no authorized action can reach the target within the policy and the funded reserves: REPAY: reserve holds 150.00 USDC < required 584.58 USDC (funds must be pre-deposited in the RescueVault) | TOP_UP: reserve holds 0.010000 weETH < required 0.292267 weETH (funds must be pre-deposited in the RescueVault) | FULL_REPAY: needs 8,335.24 USDC > per-action cap 0.00 USDC",
+    "no_action_reason": "no authorized action can reach the target within the policy and the funded reserves: REPAY: reserve holds 150.00 USDC < required 584.58 USDC (funds must be pre-deposited in the RescueVault) | TOP_UP: reserve holds 0.010000 weETH < required 0.292267 weETH (funds must be pre-deposited in the RescueVault) | FULL_REPAY: needs 8,335.24 USDC > per-action cap 0.00 USDC",
+    "user_nonce_unchanged": true,
+    "user_signed_during_crisis": false,
+    "end_vault": {
+     "loan_reserve": 150000000,
+     "collateral_reserve": 10000000000000000,
+     "repaid_total": 0,
+     "topped_up_total": 0,
+     "action_count": 0,
+     "policy_nonce": 1,
+     "paused": false
+    }
+   },
+   {
+    "scenario": "S4",
+    "label": "S4 | user D | cbBTC/USDC | policy: close the debt",
+    "user": "0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc",
+    "rescue_vault": "0x7d2314ab4d89a01120276384217739b04501c430",
+    "market_id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+    "expected_final_state": "CONFIRMED",
+    "final_state": "CONFIRMED",
+    "states": [
+     "WATCHING",
+     "DETECTED",
+     "PLANNING",
+     "VALIDATING",
+     "EXECUTING",
+     "CONFIRMED",
+     "WATCHING"
+    ],
+    "simulated_shock": {
+     "original_description": "BTC / USD",
+     "shock_bps": 900,
+     "label": "SIMULATED controlled shock on a local fork (anvil_setCode); not a mainnet event"
+    },
+    "ltv_at_detection": 824175885695284704,
+    "trigger_ltv": 820000000000000000,
+    "decision": "EXECUTE",
+    "chosen": {
+     "strategy": "FULL_REPAY",
+     "amount": 18670.40512,
+     "token": "USDC",
+     "amount_raw": 18670405120,
+     "keeper_bound": 18689075526,
+     "bound_kind": "maxAssets"
+    },
+    "candidates": [
+     {
+      "strategy": "REPAY",
+      "status": "rejected",
+      "required": 999.391615,
+      "token": "USDC",
+      "rejected_at": "security",
+      "reason": "REPAY is not among the strategies the owner authorized"
+     },
+     {
+      "strategy": "TOP_UP",
+      "status": "rejected",
+      "required": 0.01672998,
+      "token": "cbBTC",
+      "rejected_at": "security",
+      "reason": "TOP_UP is not among the strategies the owner authorized"
+     },
+     {
+      "strategy": "FULL_REPAY",
+      "status": "eligible",
+      "required": 18670.40512,
+      "token": "USDC",
+      "rejected_at": null,
+      "reason": null
+     }
+    ],
+    "why": "FULL_REPAY closes the whole accrued debt (18,670.41 USDC): no debt, no borrowing liquidation risk; the collateral is NOT sold or withdrawn. Rejected: REPAY rejected at security: REPAY is not among the strategies the owner authorized; TOP_UP rejected at security: TOP_UP is not among the strategies the owner authorized.",
+    "no_action_reason": null,
+    "user_nonce_unchanged": true,
+    "user_signed_during_crisis": false,
+    "end_vault": {
+     "loan_reserve": 2329594792,
+     "collateral_reserve": 0,
+     "repaid_total": 18670405208,
+     "topped_up_total": 0,
+     "action_count": 1,
+     "policy_nonce": 1,
+     "paused": false
+    },
+    "execution": {
+     "tx_hash": "0xeea9ca52ce4919469bfb9ceaa7ad4209694eb37da986410ea77b765effa6aee5",
+     "block": 26164288,
+     "from": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
+     "to": "0x7d2314ab4d89a01120276384217739b04501c430",
+     "status": 1,
+     "gas_used": 276851,
+     "signed_by": "keeper (anvil test account #1) - no user signature",
+     "action_id": "0x6c8ab02dccea5335deda431d50bb715d073fa3fa14fdc9214ef82c9c3e1eff3a",
+     "signer_is_keeper": true
+    },
+    "verification": {
+     "verified": true,
+     "checks_passed": 12,
+     "checks_total": 12,
+     "checks": [
+      "receipt status = 1 (mined, not reverted)",
+      "RescueExecuted event emitted by the vault",
+      "event action id = planned action id",
+      "event strategy = planned strategy",
+      "reserve decreased by exactly the event amount",
+      "Morpho Repay event on behalf of the beneficiary",
+      "borrow shares = 0 (debt fully repaid)",
+      "collateral unchanged (not sold, not withdrawn)",
+      "repaid amount within the keeper bound",
+      "LTV improved (event)",
+      "liquidation buffer increased",
+      "vault holds no Morpho position of its own"
+     ],
+     "event": {
+      "action_id": "0x6c8ab02dccea5335deda431d50bb715d073fa3fa14fdc9214ef82c9c3e1eff3a",
+      "strategy": "FULL_REPAY",
+      "assets": 18670405208,
+      "debt_before": 18670405208,
+      "debt_after": 0,
+      "collateral_before": 30000000,
+      "collateral_after": 30000000,
+      "ltv_before": 824175889579907318,
+      "ltv_after": 0,
+      "policy_nonce": 1,
+      "tx_hash": "0xeea9ca52ce4919469bfb9ceaa7ad4209694eb37da986410ea77b765effa6aee5",
+      "block": 26164288
+     },
+     "before": {
+      "debt": 18670405120,
+      "collateral": 30000000,
+      "price": 755114106268600000000000000000000000000,
+      "ltv": 824175889579907318,
+      "buffer": 811538821,
+      "reserve": 21000000000
+     },
+     "after": {
+      "debt": 0,
+      "collateral": 30000000,
+      "price": 755114106268600000000000000000000000000,
+      "ltv": 0,
+      "buffer": 19481943941,
+      "reserve": 2329594792
+     },
+     "remaining_limits": {
+      "repaid_total": 18670405208,
+      "topped_up_total": 0,
+      "policy": {
+       "allowed_strategies": 4,
+       "valid_until": 1794254026,
+       "cooldown": 3600,
+       "trigger_ltv": 820000000000000000,
+       "min_ltv_after": 400000000000000000,
+       "max_repay_per_action": 0,
+       "max_top_up_per_action": 0,
+       "max_full_repay": 25000000000,
+       "max_repay_total": 30000000000,
+       "max_top_up_total": 0,
+       "min_loan_reserve": 100000000,
+       "min_collateral_reserve": 0
+      },
+      "loan_reserve": 2329594792,
+      "collateral_reserve": 0,
+      "paused": false,
+      "revoked": false,
+      "action_count": 1
+     }
+    }
+   }
+  ]
+ },
+ "security": {
+  "slither": {
+   "tool": "slither 0.11.6",
+   "raw_output": "audit/FAULTLINE_PHASE2_SLITHER.txt",
+   "contracts_analyzed": 25,
+   "detectors": 102,
+   "results": 52,
+   "by_detector": {
+    "reentrancy-balance": 6,
+    "uninitialized-state": 4,
+    "reentrancy-no-eth": 3,
+    "unused-return": 2,
+    "missing-zero-check": 6,
+    "reentrancy-benign": 6,
+    "timestamp": 2,
+    "missing-inheritance": 2,
+    "naming-convention": 16,
+    "constable-states": 5
+   },
+   "results_counted": 52,
+   "requiring_code_change": 0,
+   "triage": "docs/FAULTLINE_PHASE2_SECURITY_REPORT.md section 6"
+  },
+  "forge_lint": {
+   "tool": "forge lint (Foundry)",
+   "total": 30,
+   "by_lint": {
+    "warning[block-timestamp]": 3,
+    "warning[incorrect-strict-equality]": 3,
+    "warning[missing-events-access-control]": 2,
+    "warning[missing-zero-check]": 6,
+    "warning[reentrancy-events]": 1,
+    "warning[reentrancy-no-eth]": 4,
+    "warning[uninitialized-state]": 5,
+    "warning[unsafe-typecast]": 4,
+    "warning[unused-return]": 2
+   },
+   "on_rescue_vault": 16,
+   "on_test_only_sim_contracts": 14,
+   "requiring_code_change": 0,
+   "triage": "docs/FAULTLINE_PHASE2_SECURITY_REPORT.md section 6"
+  },
+  "secrets_scan": {
+   "files_scanned": 400,
+   "excluded": [
+    ".git/",
+    ".venv/",
+    "node_modules/",
+    "contracts/lib/",
+    "contracts/out/",
+    "contracts/cache/",
+    "contracts/out-deploy/",
+    "contracts/broadcast/",
+    "data/cache/",
+    "resources/"
+   ],
+   "anvil_test_private_keys_checked": 10,
+   "anvil_private_keys_found_in": [],
+   "private_key_assignments_found_in": [],
+   "public_anvil_test_mnemonic_referenced_in": [
+    "docs/FAULTLINE_PHASE2_DEMO_GUIDE.md",
+    "scripts/collect_phase2_evidence.py",
+    "src/defirisk/countermove/signer.py"
+   ],
+   "note": "the Anvil mnemonic is public and worthless; keys are derived from it at run time and never stored",
+   "ok": true
+  },
+  "disclaimer": "NOT AUDITED: tests and static analysis are not a security guarantee for real funds"
+ },
+ "go_no_go": [
+  {
+   "criterion": "P0 vault corrections validated",
+   "status": "PASS",
+   "evidence": "tests/test_vault_p0.py; Belem $1M recorded + LIVE re-assessment"
+  },
+  {
+   "criterion": "Existing risk engine did not regress",
+   "status": "PASS",
+   "evidence": "pytest offline (Phase 0.5/1 + Phase 2), Node view-model tests, live checks"
+  },
+  {
+   "criterion": "RescueVault enforces the configured permissions",
+   "status": "PASS",
+   "evidence": "Foundry unit/fuzz/token/invariant suites; e2e malicious keeper transactions revert"
+  },
+  {
+   "criterion": "AUTO-REPAY works automatically on the fork",
+   "status": "PASS",
+   "evidence": "S1"
+  },
+  {
+   "criterion": "AUTO-TOP-UP works automatically on the fork",
+   "status": "PASS",
+   "evidence": "S2"
+  },
+  {
+   "criterion": "Comparator chooses by justified rules",
+   "status": "PASS",
+   "evidence": "S1-S4 decisions; every rejected candidate has a stage and a reason; engine tests"
+  },
+  {
+   "criterion": "No extra user signature at trigger time",
+   "status": "PASS",
+   "evidence": "user nonces unchanged; rescue transactions signed by the keeper"
+  },
+  {
+   "criterion": "Executed amounts respect the authorizations",
+   "status": "PASS",
+   "evidence": "event amount <= per-action cap, totals <= cumulative caps, reserve >= floor, full repay <= keeper bound"
+  },
+  {
+   "criterion": "Monitoring independent of the browser",
+   "status": "PASS",
+   "evidence": "keeper runs as a separate OS process"
+  },
+  {
+   "criterion": "Results confirmed and verified on-chain",
+   "status": "PASS",
+   "evidence": "receipt + events + re-read state"
+  },
+  {
+   "criterion": "Dangerous / unauthorized situation -> NO ACTION",
+   "status": "PASS",
+   "evidence": "S3 sent nothing; e2e stale feed / gas cap / watch-only / paused / no-safe-action"
+  },
+  {
+   "criterion": "Security and regression tests pass",
+   "status": "PASS",
+   "evidence": "pytest_offline: 207 passed / 0 failed / 16 skipped, node: 27 passed / 0 failed / 0 skipped, forge: 29 passed / 0 failed / 1 skipped, pytest_live: 133 passed / 0 failed / 0 skipped, forge_fork: 1 passed / 0 failed / 0 skipped"
+  },
+  {
+   "criterion": "Frontend shows real simulation and transaction results",
+   "status": "PASS",
+   "evidence": "/countermove.html from the recorded run; proof-checked statuses"
+  },
+  {
+   "criterion": "Demonstration scenarios reproducible",
+   "status": "PASS",
+   "evidence": "scripts/countermove_fork_demo.py -> all_expected"
+  },
+  {
+   "criterion": "Limits and assumptions documented",
+   "status": "PASS",
+   "evidence": "four Phase 2 documents; secrets scan clean"
+  }
+ ],
+ "verdict": "GO - prototype validated on a local test environment (not an authorization to manage real funds)",
+ "collection_seconds": 290.3
+}

@@ -13,4 +13,6 @@ The [Official Belem PDF](core/BelemCapital_EPFL-Hackathon_DeFi-Risk-Dependency-C
 
 **Phase 1 — Vault Risk Analyzer** (`/vault.html`, `/api/vault`): [spec](core/BELEM_PHASE_1_VAULT_RISK_ANALYZER.md) · [validation](core/BELEM_PHASE1_VALIDATION.md) · [progress](core/BELEM_PHASE1_PROGRESS.md) · [evidence](../audit/BELEM_PHASE1_EVIDENCE.json).
 
+**Phase 2 — Autonomous Countermove** (`/countermove.html`, `/api/countermove`, `contracts/`, local fork only): [reference spec](FAULTLINE_Countermove_v3_Autonomous_Crisis_Response.md) · [implementation report](FAULTLINE_PHASE2_IMPLEMENTATION_REPORT.md) · [security report](FAULTLINE_PHASE2_SECURITY_REPORT.md) · [demo guide](FAULTLINE_PHASE2_DEMO_GUIDE.md) · [progress](FAULTLINE_PHASE2_PROGRESS.md) · [evidence](../audit/FAULTLINE_PHASE2_EVIDENCE.json). Also contains the P0 fixes of the Phase 1 vault exit model (forceDeallocate route, single economic basis).
+
 **Statuses:** “implemented” means code exists; it does not establish correctness or real-data operation. “Specified” means the behavior is documented but no implementation has been identified. The P0/P1/P2 ranking comes from the team roadmap (image from October 10, 2026), not the official PDF: Breaking Point is a product P0, not an explicit challenge requirement.

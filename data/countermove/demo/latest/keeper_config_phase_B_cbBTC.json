@@ -1,0 +1,57 @@
+{
+ "rpc_url": "http://127.0.0.1:8547",
+ "positions": [
+  {
+   "id": "S2-cbBTC-topup",
+   "label": "S2 | user B | cbBTC/USDC | cbBTC reserve, 100 USDC",
+   "rescue_vault": "0xb8dca186d8ee95fcc1073d5410e01f60e7121588",
+   "engine": {
+    "safety_margin": "250",
+    "interest_horizon_s": 86400,
+    "ranking": "min_capital"
+   },
+   "scenarios": [
+    {
+     "id": "follow_on",
+     "label": "BTC / USD -8% follow-on",
+     "shocks": [
+      {
+       "dependency": "BASE_FEED_1",
+       "drop": 0.08
+      }
+     ]
+    }
+   ],
+   "retry_after_failed_s": 0,
+   "realert_s": 0
+  },
+  {
+   "id": "S4-cbBTC-full-repay",
+   "label": "S4 | user D | cbBTC/USDC | policy: close the debt",
+   "rescue_vault": "0x7d2314ab4d89a01120276384217739b04501c430",
+   "engine": {
+    "safety_margin": "250",
+    "interest_horizon_s": 86400,
+    "ranking": "min_capital"
+   },
+   "scenarios": [
+    {
+     "id": "follow_on",
+     "label": "BTC / USD -8% follow-on",
+     "shocks": [
+      {
+       "dependency": "BASE_FEED_1",
+       "drop": 0.08
+      }
+     ]
+    }
+   ],
+   "retry_after_failed_s": 0,
+   "realert_s": 0
+  }
+ ],
+ "limits": {
+  "receipt_timeout_s": 60,
+  "max_gas_units": 700000
+ }
+}

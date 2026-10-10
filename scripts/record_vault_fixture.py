@@ -1,10 +1,11 @@
 """Record a dated offline fixture of a vault analysis (Phase 1, V24).
 
-    PYTHONPATH=src python scripts/record_vault_fixture.py 0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec [value_usd]
+    PYTHONPATH=src python scripts/record_vault_fixture.py 0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec [value_usd] [suffix]
 
-Writes data/fixtures/vault_<address>.json = the exact inputs of the pure `vault_model.assess()` step (on-chain snapshot,
-request-dependent reads incl. the redeem simulation, provenance) plus the live payload's headline figures, so tests can
-replay the model deterministically without network. Read-only: no transaction is sent.
+Writes data/fixtures/vault_<address>[_<suffix>].json = the exact inputs of the pure `vault_model.assess()` step (on-chain
+snapshot, request-dependent reads incl. the redeem / forceDeallocate multicall simulations, provenance) plus the live
+payload's headline figures, so tests can replay the model deterministically without network. Read-only: no transaction
+is sent.
 """
 import json
 import sys
@@ -20,7 +21,7 @@ from defirisk.data import http  # noqa: E402
 from defirisk.vault_input import parse_request  # noqa: E402
 
 
-def record(address: str, value_usd: str = "100000") -> Path:
+def record(address: str, value_usd: str = "100000", suffix: str = "") -> Path:
     req = parse_request({"address": address, "value_usd": value_usd})
     http.reset_provenance()
     snap = vr.snapshot(req["address"])
@@ -37,12 +38,13 @@ def record(address: str, value_usd: str = "100000") -> Path:
            "live_headline": {"as_of_block": live["as_of_block"], "verdict": d["verdict"], "point_verdict": d["point_verdict"],
                              "expected_loss_usd": d["expected_loss_usd"], "exit_side_usd": d["exit_side_usd"],
                              "margin_usd": d["margin_usd"], "withdrawal_feasibility": d["withdrawal_feasibility"],
+                             "executable_route": d.get("executable_route"),
                              "coverage": live["allocations"]["coverage"], "markets": len(live["allocations"]["items"])}}
-    path = ROOT / "data" / "fixtures" / f"vault_{req['address'].lower()}.json"
+    path = ROOT / "data" / "fixtures" / f"vault_{req['address'].lower()}{('_' + suffix) if suffix else ''}.json"
     path.write_text(json.dumps(out, indent=1, allow_nan=False), encoding="utf-8")
     return path
 
 
 if __name__ == "__main__":
-    p = record(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "100000")
+    p = record(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else "100000", sys.argv[3] if len(sys.argv) > 3 else "")
     print(f"wrote {p.relative_to(ROOT)}")

@@ -51,7 +51,7 @@ def _common(p, addr, version):
     if d["verdict"] == "REVIEW":
         assert d["confidence"] == "low" and d["reasons"]
     if d["verdict"] == "EXIT":
-        assert d["withdrawal_feasibility"] == "full"
+        assert d["withdrawal_feasibility"] in ("full", "full_via_force_deallocate")
     for s in p["scenarios"]:
         assert 0 <= s["loss_usd"] <= p["input"]["value_usd"]
     roles = {n["role"] for n in p["dependencies"]["nodes"]}
@@ -94,12 +94,38 @@ def test_live_carry_from_onchain_apy(results):
 
 
 def test_live_belem_large_position_partial():
+    """P0-A: a position above the ordinary capacity is either confirmed whole through the forceDeallocate multicall
+    simulation, or reported partial with the unavailable remainder (never an unsimulated route counted as executable)."""
     from defirisk import vault_model as vm
     p = vm.analyze(_req(BELEM, value=1_000_000))
     _common(p, BELEM, "v2")
-    if p["exit"]["withdrawal_feasibility"] != "full":
+    e = p["exit"]
+    if e["withdrawal_feasibility"] not in ("full", "full_via_force_deallocate"):
         assert p["decision"]["verdict"] in ("REVIEW", "STAY")
-        assert p["exit"]["blocked_or_deferred_usd"] > 0
+        assert e["blocked_or_deferred_usd"] > 0
+    if e["withdrawal_feasibility"] == "full_via_force_deallocate":
+        assert e["routes"]["force_deallocate"]["status"] == "simulated"
+        assert e["simulation_force_deallocate"]["status"] == "simulated"
+
+
+def test_live_belem_1m_force_deallocate_route():
+    """Audit F1 acceptance: Belem $1M exits through VaultV2.multicall([forceDeallocate..., redeem]) (eth_call, status
+    ok), immediately withdrawable >= 99.9% of V, penalty = the on-chain forceDeallocatePenalty of the adapters used."""
+    from defirisk import vault_model as vm
+    p = vm.analyze(_req(BELEM, value=1_000_000))
+    e, V = p["exit"], 1_000_000
+    if e["routes"]["ordinary"]["status"] == "simulated":
+        pytest.skip("ordinary liquidity currently covers $1M: the forceDeallocate route is not needed at this block")
+    assert e["withdrawal_feasibility"] == "full_via_force_deallocate", e["routes"]
+    assert e["executable_route"] == "force_deallocate" and e["immediately_withdrawable_usd"] >= 0.999 * V
+    f = e["force_deallocate"]
+    assert f["simulation"]["status"] == "simulated" and f["plan"]["covers_full"]
+    rates = {a["address"].lower(): a["force_deallocate_penalty"] for a in p["vault"]["adapters"]}
+    for s in f["plan"]["steps"]:
+        assert s["penalty_rate"] == pytest.approx(rates[s["adapter"].lower()], abs=1e-18)
+    assert e["force_deallocate_penalty_usd"] == pytest.approx(sum(s["penalty_usd"] for s in f["plan"]["steps"]), abs=1e-9)
+    assert e["execution_cost_usd"] == pytest.approx(e["gas_usd"] + e["withdrawal_friction_usd"])
+    assert p["decision"]["comparison_basis"]["kind"] == "full_position"
 
 
 @pytest.mark.parametrize("qs,code,err", [

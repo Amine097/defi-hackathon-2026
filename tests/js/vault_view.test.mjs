@@ -6,10 +6,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   buildQuery, verdictView, modeBadge, errorText, shockOptions, layoutGraph, sharedDependencies, fmtUsd, esc,
+  routeRows, basisText, EXECUTABLE,
 } from '../../public/assets/js/vault/view.js';
 
 const load = (k) => JSON.parse(readFileSync(new URL(`./fixtures/vault_${k}.json`, import.meta.url), 'utf8'));
-const P = { stay: load('stay'), exit: load('exit'), review: load('review') };
+const P = { stay: load('stay'), exit: load('exit'), review: load('review'), force: load('force'), partial: load('partial') };
 const BELEM = '0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec';
 
 for (const [k, cls, sign] of [['stay', 'stay', -1], ['exit', 'exit', 1], ['review', 'warn', 0]]) {
@@ -91,4 +92,50 @@ test('shock options = backend dependency ids; shared dependencies counted once',
 
 test('esc neutralises HTML from on-chain strings', () => {
   assert.equal(esc('<img src=x onerror=alert(1)>"\''), '&lt;img src=x onerror=alert(1)&gt;&quot;&#39;');
+});
+
+// ---- Phase 2 P0-A / P0-B (vault depositor): exit routes and one economic basis ----------------------------------
+test('P0-A forceDeallocate payload: consistent, full via a SIMULATED multicall, routes listed', () => {
+  const p = P.force, d = p.decision;
+  assert.equal(d.withdrawal_feasibility, 'full_via_force_deallocate');
+  assert.ok(EXECUTABLE.has(d.withdrawal_feasibility));
+  const v = verdictView(d);
+  assert.deepEqual(v.issues, []);
+  assert.equal(v.basisText, 'whole position');
+  const rows = routeRows(p.exit);
+  assert.equal(rows.length, 2);
+  const force = rows.find((r) => /forceDeallocate/.test(r.name));
+  assert.ok(force.confirmed && force.status === 'simulated');
+  assert.ok(!rows.find((r) => /Ordinary/.test(r.name)).confirmed || p.exit.routes.ordinary.status === 'simulated_partial');
+  assert.equal(p.exit.blocked_or_deferred_usd, 0);
+});
+
+test('P0-A EXIT is accepted through the simulated forceDeallocate route, rejected on a partial one', () => {
+  const e = structuredClone(P.exit.decision);
+  assert.deepEqual(verdictView({ ...e, withdrawal_feasibility: 'full_via_force_deallocate' }).issues, []);
+  assert.ok(!verdictView({ ...e, withdrawal_feasibility: 'partial' }).consistent);
+});
+
+test('P0-A an unconfirmed route is shown as unconfirmed, never as executable', () => {
+  const p = structuredClone(P.partial);
+  const rows = routeRows(p.exit);
+  for (const r of rows.filter((x) => /unconfirmed/.test(x.name))) assert.equal(r.confirmed, false);
+  p.exit.routes.unconfirmed = [{ route: 'forceDeallocate', status: 'theoretical_not_simulated', usd: 5e5 }];
+  const u = routeRows(p.exit).find((x) => /unconfirmed/.test(x.name));
+  assert.equal(u.confirmed, false);
+  assert.equal(u.status, 'theoretical_not_simulated');
+});
+
+test('P0-B partial payload: tranche basis named, identities hold, mixed basis is flagged', () => {
+  const d = P.partial.decision;
+  assert.equal(d.comparison_basis.kind, 'executable_tranche');
+  const v = verdictView(d);
+  assert.deepEqual(v.issues, []);
+  assert.match(v.basisText, /executable tranche only/);
+  assert.match(basisText(d.comparison_basis), /residual expected loss/);
+  const exitSide = d.execution_cost_usd + d.carry_usd;
+  const mixed = { ...d, expected_loss_usd: d.position_expected_loss_usd, margin_usd: d.position_expected_loss_usd - exitSide };
+  const vm = verdictView(mixed);
+  assert.ok(!vm.consistent);
+  assert.ok(vm.issues.some((i) => /mixed basis/.test(i)));
 });

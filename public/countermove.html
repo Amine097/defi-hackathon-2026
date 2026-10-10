@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaultLine · Autonomous Countermove</title>
+<meta name="description" content="Configure your emergency defenses once. When a verified crisis threatens a Morpho Blue position, FaultLine chooses and executes an authorized response - and proves what happened.">
+<link rel="icon" href="/assets/brand/logo.svg">
+<link rel="stylesheet" href="/assets/css/theme.css">
+<link rel="stylesheet" href="/assets/css/vault.css">
+<link rel="stylesheet" href="/assets/css/countermove.css">
+</head>
+<body>
+<header id="nav"></header>
+
+<main class="container cm">
+  <h1>Autonomous Countermove</h1>
+  <p class="muted">Configure your emergency defenses once. When a crisis on one of your Morpho Blue position's real dependencies
+    pushes it toward liquidation, FaultLine compares the actions you pre-authorized, executes the best feasible one through your
+    RescueVault — no new signature from you — and proves the result on-chain. If no action is safe and authorized, it does nothing
+    and says why. Every figure below comes from the backend; this page only displays it.</p>
+
+  <div class="cm-env" id="env" hidden>
+    <span class="badge badge-sim" title="Local Anvil fork of Ethereum mainnet at a pinned block">SIMULATED</span>
+    <div><p id="envText"></p><p class="muted" id="envNotes"></p></div>
+  </div>
+  <div id="status" class="va-status" role="status" aria-live="polite">Loading the recorded keeper run…</div>
+  <div id="error" class="va-error" role="alert" hidden></div>
+
+  <section id="result" hidden>
+    <div class="cm-tabs" id="tabs" role="tablist" aria-label="Protected positions"></div>
+
+    <div class="card" id="head">
+      <div class="va-sum-head">
+        <div><h2 id="pTitle">—</h2><p class="muted mono" id="pMeta"></p></div>
+        <div class="va-badges" id="pBadges"></div>
+      </div>
+      <ul class="cm-steps" id="steps" aria-label="Keeper state machine"></ul>
+      <p class="cm-why" id="pWhy"></p>
+      <ul class="va-warnings" id="pIssues"></ul>
+    </div>
+
+    <div class="cm-cols" style="margin-top:var(--space-4)">
+      <section class="card cm-col" aria-labelledby="hBefore">
+        <h2 id="hBefore">1 · Before the crisis</h2>
+        <dl class="cm-kv" id="before"></dl>
+        <h3>Dependencies (what prices the collateral)</h3>
+        <ul class="va-list" id="deps"></ul>
+        <h3>Your policy (signed before going offline)</h3>
+        <dl class="cm-kv" id="policy"></dl>
+        <h3>Reserves needed</h3>
+        <p class="muted" style="font-size:.8rem">Minimal amount to keep the configured follow-on scenario inside the margin after a first hit (backend what-if, same engine).</p>
+        <div class="table-wrap"><table class="table" id="reserves"></table></div>
+      </section>
+
+      <section class="card cm-col" aria-labelledby="hDuring">
+        <h2 id="hDuring">2 · During the crisis</h2>
+        <dl class="cm-kv" id="crisis"></dl>
+        <h3>Dependency that moved</h3>
+        <ul class="va-list" id="movers"></ul>
+        <h3>Actions compared</h3>
+        <div class="table-wrap"><table class="table" id="cands"></table></div>
+        <p class="muted" style="font-size:.8rem" id="rule"></p>
+        <h3>Pre-send validation</h3>
+        <ul class="cm-checks" id="validation"></ul>
+      </section>
+
+      <section class="card cm-col" aria-labelledby="hAfter">
+        <h2 id="hAfter">3 · After the intervention</h2>
+        <div id="after"></div>
+        <h3>Verification (re-read on-chain)</h3>
+        <ul class="cm-checks" id="checks"></ul>
+        <h3>Protections still active</h3>
+        <dl class="cm-kv" id="protections"></dl>
+        <h3>Limits remaining</h3>
+        <dl class="cm-kv" id="limits"></dl>
+      </section>
+    </div>
+
+    <details class="card va-details" style="margin-top:var(--space-4)">
+      <summary><h2>Keeper process (runs without any browser)</h2></summary>
+      <div class="table-wrap"><table class="table" id="runs"></table></div>
+    </details>
+
+    <details class="card va-details" style="margin-top:var(--space-4)" id="liveBox">
+      <summary><h2>LIVE dependencies on Ethereum mainnet</h2></summary>
+      <p class="muted">Read-only eth_call of the same markets' oracles and feeds, now. Not used to sign anything.</p>
+      <button class="btn" id="liveBtn" type="button">Read live dependencies</button>
+      <div id="live" class="cm-out"></div>
+    </details>
+
+    <details class="card va-details" style="margin-top:var(--space-4)">
+      <summary><h2>Configure a policy (you sign it, not FaultLine)</h2></summary>
+      <p class="muted">FaultLine validates the policy with the same rules as the contract and prepares the transaction for your own wallet.
+        The keeper never holds your key and cannot change this policy.</p>
+      <form class="cm-draft" id="draft">
+        <label>Strategies<select name="strategies"><option value="REPAY,TOP_UP" selected>Repay + top-up</option>
+          <option value="REPAY,TOP_UP,FULL_REPAY">Repay + top-up + full repay</option><option value="REPAY">Repay only</option>
+          <option value="TOP_UP">Top-up only</option><option value="FULL_REPAY">Full repay only</option></select></label>
+        <label>Trigger LTV<input name="trigger_ltv" type="number" step="0.005" value="0.82"></label>
+        <label>LTV floor after action<input name="min_ltv_after" type="number" step="0.01" value="0.4"></label>
+        <label>Market LLTV<input name="lltv" type="number" step="0.005" value="0.86"></label>
+        <label>Max repay per action<input name="max_repay_per_action" type="number" value="5000"></label>
+        <label>Max repay total<input name="max_repay_total" type="number" value="20000"></label>
+        <label>Max full repay<input name="max_full_repay" type="number" value="0"></label>
+        <label>Min loan reserve kept<input name="min_loan_reserve" type="number" value="100"></label>
+        <label>Max top-up per action<input name="max_top_up_per_action" type="number" step="0.01" value="1"></label>
+        <label>Max top-up total<input name="max_top_up_total" type="number" step="0.01" value="1"></label>
+        <label>Min collateral reserve kept<input name="min_collateral_reserve" type="number" step="0.001" value="0.01"></label>
+        <label>Valid for (days)<input name="valid_days" type="number" value="30"></label>
+        <div class="va-actions"><button class="btn btn-primary" type="submit">Validate &amp; prepare transaction</button></div>
+      </form>
+      <div id="draftOut" class="cm-out"></div>
+    </details>
+  </section>
+</main>
+<footer id="footer"></footer>
+<script src="/assets/js/shell.js"></script>
+<script type="module" src="/assets/js/countermove.js"></script>
+</body>
+</html>

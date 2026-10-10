@@ -1,0 +1,228 @@
+# Slither 0.11.6 (isolated venv, not a project dependency) - run from contracts/ on 2026-10-10
+# command: slither . --filter-paths "lib/|test/" --exclude-dependencies
+# triage: docs/FAULTLINE_PHASE2_SECURITY_REPORT.md section 6 (52 results, none requiring a code change)
+
+'forge clean' running (wd: contracts)
+'forge config --json' running
+'forge build --build-info --deny never --skip ./test/** ./script/** --force' running (wd: contracts)
+INFO:Detectors:
+Detector: reentrancy-balance
+Reentrancy in RescueVault._pull(address,uint256,uint256,uint8,uint256) (src/RescueVault.sol#317-335):
+	External call allowing reentrancy:
+	- MORPHO.supplyCollateral(marketParams(),assets,BENEFICIARY,) (src/RescueVault.sol#323-324)
+	Balance read before the call:
+	- vaultBefore = IERC20(token).balanceOf(address(this)) (src/RescueVault.sol#320)
+	Possible stale balance used after the call in a condition:
+	- IERC20(token).balanceOf(address(this)) + assets != vaultBefore (src/RescueVault.sol#332-334)
+		- stale variable `vaultBefore`
+Reentrancy in RescueVault._pull(address,uint256,uint256,uint8,uint256) (src/RescueVault.sol#317-335):
+	External call allowing reentrancy:
+	- MORPHO.supplyCollateral(marketParams(),assets,BENEFICIARY,) (src/RescueVault.sol#323-324)
+	Balance read before the call:
+	- morphoBefore = IERC20(token).balanceOf(address(MORPHO)) (src/RescueVault.sol#321-322)
+	Possible stale balance used after the call in a condition:
+	- IERC20(token).balanceOf(address(MORPHO)) != morphoBefore + assets (src/RescueVault.sol#334-335)
+		- stale variable `morphoBefore`
+Reentrancy in RescueVault._pull(address,uint256,uint256,uint8,uint256) (src/RescueVault.sol#317-335):
+	External call allowing reentrancy:
+	- (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+	Balance read before the call:
+	- vaultBefore = IERC20(token).balanceOf(address(this)) (src/RescueVault.sol#320)
+	Possible stale balance used after the call in a condition:
+	- IERC20(token).balanceOf(address(this)) + assets != vaultBefore (src/RescueVault.sol#332-334)
+		- stale variable `vaultBefore`
+Reentrancy in RescueVault._pull(address,uint256,uint256,uint8,uint256) (src/RescueVault.sol#317-335):
+	External call allowing reentrancy:
+	- (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+	Balance read before the call:
+	- morphoBefore = IERC20(token).balanceOf(address(MORPHO)) (src/RescueVault.sol#321-322)
+	Possible stale balance used after the call in a condition:
+	- IERC20(token).balanceOf(address(MORPHO)) != morphoBefore + assets (src/RescueVault.sol#334-335)
+		- stale variable `morphoBefore`
+Reentrancy in RescueVault._pull(address,uint256,uint256,uint8,uint256) (src/RescueVault.sol#317-335):
+	External call allowing reentrancy:
+	- (repaid_scope_0,repaidShares) = MORPHO.repay(marketParams(),0,shares,BENEFICIARY,) (src/RescueVault.sol#328-330)
+	Balance read before the call:
+	- vaultBefore = IERC20(token).balanceOf(address(this)) (src/RescueVault.sol#320)
+	Possible stale balance used after the call in a condition:
+	- IERC20(token).balanceOf(address(this)) + assets != vaultBefore (src/RescueVault.sol#332-334)
+		- stale variable `vaultBefore`
+Reentrancy in RescueVault._pull(address,uint256,uint256,uint8,uint256) (src/RescueVault.sol#317-335):
+	External call allowing reentrancy:
+	- (repaid_scope_0,repaidShares) = MORPHO.repay(marketParams(),0,shares,BENEFICIARY,) (src/RescueVault.sol#328-330)
+	Balance read before the call:
+	- morphoBefore = IERC20(token).balanceOf(address(MORPHO)) (src/RescueVault.sol#321-322)
+	Possible stale balance used after the call in a condition:
+	- IERC20(token).balanceOf(address(MORPHO)) != morphoBefore + assets (src/RescueVault.sol#334-335)
+		- stale variable `morphoBefore`
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities
+INFO:Detectors:
+Detector: uninitialized-state
+ShockFeed.baseAnswer (src/sim/ShockFeed.sol#10-11) is never initialized. It is used in:
+	- ShockFeed.latestAnswer() (src/sim/ShockFeed.sol#22-26)
+ShockFeed.shockBps (src/sim/ShockFeed.sol#11-12) is never initialized. It is used in:
+	- ShockFeed.latestAnswer() (src/sim/ShockFeed.sol#22-26)
+ShockFeed.roundId (src/sim/ShockFeed.sol#13-14) is never initialized. It is used in:
+	- ShockFeed.latestRoundData() (src/sim/ShockFeed.sol#26-31)
+ShockFeed.timestampMode (src/sim/ShockFeed.sol#14-15) is never initialized. It is used in:
+	- ShockFeed.latestRoundData() (src/sim/ShockFeed.sol#26-31)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#uninitialized-state-variables
+INFO:Detectors:
+Detector: reentrancy-no-eth
+Reentrancy in RescueVault.executeFullRepay(bytes32,uint256,uint256) (src/RescueVault.sol#261-273):
+	External calls:
+	- s0 = _preflight(STRATEGY_FULL_REPAY,actionId,expectedPolicyNonce) (src/RescueVault.sol#262-263)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	- _pull(LOAN_TOKEN,needed,p.minLoanReserve,STRATEGY_FULL_REPAY,s0.borrowShares) (src/RescueVault.sol#268-269)
+		- MORPHO.supplyCollateral(marketParams(),assets,BENEFICIARY,) (src/RescueVault.sol#323-324)
+		- (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+		- (repaid_scope_0,repaidShares) = MORPHO.repay(marketParams(),0,shares,BENEFICIARY,) (src/RescueVault.sol#328-330)
+	State variables written after the call(s):
+	- _record(actionId,STRATEGY_FULL_REPAY,needed,s0,s1) (src/RescueVault.sol#271-273)
+		- lastActionAt = block.timestamp (src/RescueVault.sol#347)
+	RescueVault.lastActionAt (src/RescueVault.sol#78-79) can be used in cross function reentrancies:
+	- RescueVault.lastActionAt (src/RescueVault.sol#78-79)
+Reentrancy in RescueVault.executeRepay(bytes32,uint256,uint256,uint256) (src/RescueVault.sol#217-233):
+	External calls:
+	- s0 = _preflight(STRATEGY_REPAY,actionId,expectedPolicyNonce) (src/RescueVault.sol#218-219)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	- _pull(LOAN_TOKEN,assets,p.minLoanReserve,STRATEGY_REPAY,0) (src/RescueVault.sol#226-227)
+		- MORPHO.supplyCollateral(marketParams(),assets,BENEFICIARY,) (src/RescueVault.sol#323-324)
+		- (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+		- (repaid_scope_0,repaidShares) = MORPHO.repay(marketParams(),0,shares,BENEFICIARY,) (src/RescueVault.sol#328-330)
+	State variables written after the call(s):
+	- _record(actionId,STRATEGY_REPAY,assets,s0,s1) (src/RescueVault.sol#231-233)
+		- lastActionAt = block.timestamp (src/RescueVault.sol#347)
+	RescueVault.lastActionAt (src/RescueVault.sol#78-79) can be used in cross function reentrancies:
+	- RescueVault.lastActionAt (src/RescueVault.sol#78-79)
+Reentrancy in RescueVault.executeTopUp(bytes32,uint256,uint256,uint256) (src/RescueVault.sol#235-254):
+	External calls:
+	- s0 = _preflight(STRATEGY_TOP_UP,actionId,expectedPolicyNonce) (src/RescueVault.sol#239-240)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	- _pull(COLLATERAL_TOKEN,assets,p.minCollateralReserve,STRATEGY_TOP_UP,0) (src/RescueVault.sol#247)
+		- MORPHO.supplyCollateral(marketParams(),assets,BENEFICIARY,) (src/RescueVault.sol#323-324)
+		- (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+		- (repaid_scope_0,repaidShares) = MORPHO.repay(marketParams(),0,shares,BENEFICIARY,) (src/RescueVault.sol#328-330)
+	State variables written after the call(s):
+	- _record(actionId,STRATEGY_TOP_UP,assets,s0,s1) (src/RescueVault.sol#253-254)
+		- lastActionAt = block.timestamp (src/RescueVault.sol#347)
+	RescueVault.lastActionAt (src/RescueVault.sol#78-79) can be used in cross function reentrancies:
+	- RescueVault.lastActionAt (src/RescueVault.sol#78-79)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-2
+INFO:Detectors:
+Detector: unused-return
+RescueVault._pull(address,uint256,uint256,uint8,uint256) (src/RescueVault.sol#317-335) ignores return value by (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+SimChainlinkOracle._get(address) (src/sim/LocalSim.sol#67-74) ignores return value by (None,a,None,None,None) = IFeed(feed).latestRoundData() (src/sim/LocalSim.sol#71-72)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#unused-return
+INFO:Detectors:
+Detector: missing-zero-check
+RescueVault.constructor(IMorpho,MarketParams,address,address).keeper_ (src/RescueVault.sol#138) lacks a zero-check on :
+		- keeper = keeper_ (src/RescueVault.sol#153)
+RescueVault.setKeeper(address).newKeeper (src/RescueVault.sol#170-171) lacks a zero-check on :
+		- keeper = newKeeper (src/RescueVault.sol#174-175)
+SimChainlinkOracle.constructor(address,address,address,address,uint256).baseFeed1 (src/sim/LocalSim.sol#61) lacks a zero-check on :
+		- BASE_FEED_1 = baseFeed1 (src/sim/LocalSim.sol#63)
+SimChainlinkOracle.constructor(address,address,address,address,uint256).baseFeed2 (src/sim/LocalSim.sol#61) lacks a zero-check on :
+		- BASE_FEED_2 = baseFeed2 (src/sim/LocalSim.sol#63-64)
+SimChainlinkOracle.constructor(address,address,address,address,uint256).quoteFeed1 (src/sim/LocalSim.sol#61-63) lacks a zero-check on :
+		- QUOTE_FEED_1 = quoteFeed1 (src/sim/LocalSim.sol#64-65)
+SimChainlinkOracle.constructor(address,address,address,address,uint256).quoteFeed2 (src/sim/LocalSim.sol#63) lacks a zero-check on :
+		- QUOTE_FEED_2 = quoteFeed2 (src/sim/LocalSim.sol#65-66)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#missing-zero-address-validation
+INFO:Detectors:
+Detector: reentrancy-benign
+Reentrancy in RescueVault.executeFullRepay(bytes32,uint256,uint256) (src/RescueVault.sol#261-273):
+	External calls:
+	- s0 = _preflight(STRATEGY_FULL_REPAY,actionId,expectedPolicyNonce) (src/RescueVault.sol#262-263)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	State variables written after the call(s):
+	- repaidTotal += needed (src/RescueVault.sol#268)
+Reentrancy in RescueVault.executeFullRepay(bytes32,uint256,uint256) (src/RescueVault.sol#261-273):
+	External calls:
+	- s0 = _preflight(STRATEGY_FULL_REPAY,actionId,expectedPolicyNonce) (src/RescueVault.sol#262-263)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	- _pull(LOAN_TOKEN,needed,p.minLoanReserve,STRATEGY_FULL_REPAY,s0.borrowShares) (src/RescueVault.sol#268-269)
+		- MORPHO.supplyCollateral(marketParams(),assets,BENEFICIARY,) (src/RescueVault.sol#323-324)
+		- (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+		- (repaid_scope_0,repaidShares) = MORPHO.repay(marketParams(),0,shares,BENEFICIARY,) (src/RescueVault.sol#328-330)
+	State variables written after the call(s):
+	- _record(actionId,STRATEGY_FULL_REPAY,needed,s0,s1) (src/RescueVault.sol#271-273)
+		- actionCount += 1 (src/RescueVault.sol#347-348)
+Reentrancy in RescueVault.executeRepay(bytes32,uint256,uint256,uint256) (src/RescueVault.sol#217-233):
+	External calls:
+	- s0 = _preflight(STRATEGY_REPAY,actionId,expectedPolicyNonce) (src/RescueVault.sol#218-219)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	State variables written after the call(s):
+	- repaidTotal += assets (src/RescueVault.sol#226)
+Reentrancy in RescueVault.executeRepay(bytes32,uint256,uint256,uint256) (src/RescueVault.sol#217-233):
+	External calls:
+	- s0 = _preflight(STRATEGY_REPAY,actionId,expectedPolicyNonce) (src/RescueVault.sol#218-219)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	- _pull(LOAN_TOKEN,assets,p.minLoanReserve,STRATEGY_REPAY,0) (src/RescueVault.sol#226-227)
+		- MORPHO.supplyCollateral(marketParams(),assets,BENEFICIARY,) (src/RescueVault.sol#323-324)
+		- (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+		- (repaid_scope_0,repaidShares) = MORPHO.repay(marketParams(),0,shares,BENEFICIARY,) (src/RescueVault.sol#328-330)
+	State variables written after the call(s):
+	- _record(actionId,STRATEGY_REPAY,assets,s0,s1) (src/RescueVault.sol#231-233)
+		- actionCount += 1 (src/RescueVault.sol#347-348)
+Reentrancy in RescueVault.executeTopUp(bytes32,uint256,uint256,uint256) (src/RescueVault.sol#235-254):
+	External calls:
+	- s0 = _preflight(STRATEGY_TOP_UP,actionId,expectedPolicyNonce) (src/RescueVault.sol#239-240)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	State variables written after the call(s):
+	- toppedUpTotal += assets (src/RescueVault.sol#246-247)
+Reentrancy in RescueVault.executeTopUp(bytes32,uint256,uint256,uint256) (src/RescueVault.sol#235-254):
+	External calls:
+	- s0 = _preflight(STRATEGY_TOP_UP,actionId,expectedPolicyNonce) (src/RescueVault.sol#239-240)
+		- MORPHO.accrueInterest(marketParams()) (src/RescueVault.sol#308)
+	- _pull(COLLATERAL_TOKEN,assets,p.minCollateralReserve,STRATEGY_TOP_UP,0) (src/RescueVault.sol#247)
+		- MORPHO.supplyCollateral(marketParams(),assets,BENEFICIARY,) (src/RescueVault.sol#323-324)
+		- (repaid,None) = MORPHO.repay(marketParams(),assets,0,BENEFICIARY,) (src/RescueVault.sol#324-325)
+		- (repaid_scope_0,repaidShares) = MORPHO.repay(marketParams(),0,shares,BENEFICIARY,) (src/RescueVault.sol#328-330)
+	State variables written after the call(s):
+	- _record(actionId,STRATEGY_TOP_UP,assets,s0,s1) (src/RescueVault.sol#253-254)
+		- actionCount += 1 (src/RescueVault.sol#347-348)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+INFO:Detectors:
+Detector: timestamp
+RescueVault.setPolicy(RescueVault.Policy) (src/RescueVault.sol#159-170) uses timestamp for comparisons
+	Dangerous comparisons:
+	- p.validUntil <= block.timestamp (src/RescueVault.sol#166)
+RescueVault._preflight(uint8,bytes32,uint256) (src/RescueVault.sol#290-312) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > p.validUntil (src/RescueVault.sol#301)
+	- lastActionAt != 0 && block.timestamp < lastActionAt + p.cooldown (src/RescueVault.sol#304-306)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+Detector: missing-inheritance
+SimFeed (src/sim/LocalSim.sol#23-44) should inherit from IFeed (src/sim/LocalSim.sol#44-49)
+ShockFeed (src/sim/ShockFeed.sol#9-31) should inherit from IFeed (src/sim/LocalSim.sol#44-49)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#missing-inheritance
+INFO:Detectors:
+Detector: naming-convention
+Variable RescueVault.MORPHO (src/RescueVault.sol#59-60) is not in mixedCase
+Variable RescueVault.OWNER (src/RescueVault.sol#60-63) is not in mixedCase
+Variable RescueVault.BENEFICIARY (src/RescueVault.sol#64) is not in mixedCase
+Variable RescueVault.LOAN_TOKEN (src/RescueVault.sol#65) is not in mixedCase
+Variable RescueVault.COLLATERAL_TOKEN (src/RescueVault.sol#65-66) is not in mixedCase
+Variable RescueVault.ORACLE (src/RescueVault.sol#66-67) is not in mixedCase
+Variable RescueVault.IRM (src/RescueVault.sol#67-68) is not in mixedCase
+Variable RescueVault.LLTV (src/RescueVault.sol#68) is not in mixedCase
+Variable RescueVault.MARKET_ID (src/RescueVault.sol#69) is not in mixedCase
+Variable SimChainlinkOracle.BASE_VAULT (src/sim/LocalSim.sol#53-54) is not in mixedCase
+Variable SimChainlinkOracle.QUOTE_VAULT (src/sim/LocalSim.sol#55) is not in mixedCase
+Variable SimChainlinkOracle.BASE_FEED_1 (src/sim/LocalSim.sol#56) is not in mixedCase
+Variable SimChainlinkOracle.BASE_FEED_2 (src/sim/LocalSim.sol#56-57) is not in mixedCase
+Variable SimChainlinkOracle.QUOTE_FEED_1 (src/sim/LocalSim.sol#57-58) is not in mixedCase
+Variable SimChainlinkOracle.QUOTE_FEED_2 (src/sim/LocalSim.sol#58-59) is not in mixedCase
+Variable SimChainlinkOracle.SCALE_FACTOR (src/sim/LocalSim.sol#59-60) is not in mixedCase
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#conformance-to-solidity-naming-conventions
+INFO:Detectors:
+Detector: constable-states
+ShockFeed.baseAnswer (src/sim/ShockFeed.sol#10-11) should be constant 
+ShockFeed.decimals (src/sim/ShockFeed.sol#12-13) should be constant 
+ShockFeed.roundId (src/sim/ShockFeed.sol#13-14) should be constant 
+ShockFeed.shockBps (src/sim/ShockFeed.sol#11-12) should be constant 
+ShockFeed.timestampMode (src/sim/ShockFeed.sol#14-15) should be constant 
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#state-variables-that-could-be-declared-constant
+INFO:Slither:. analyzed (25 contracts with 102 detectors), 52 result(s) found

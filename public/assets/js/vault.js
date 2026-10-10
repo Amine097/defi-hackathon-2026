@@ -1,7 +1,7 @@
 // Vault Risk Analyzer page (Phase 1). Renders the faultline.vault/1 payload of GET /api/vault.
 // Single source of truth: every USD figure, band, margin and verdict is read from the backend payload.
 import {
-  buildQuery, verdictView, modeBadge, errorText, shockOptions, layoutGraph, sharedDependencies,
+  buildQuery, verdictView, modeBadge, errorText, shockOptions, layoutGraph, sharedDependencies, routeRows, EXECUTABLE,
   fmtUsd, fmtPct, fmtNum, esc, short,
 } from './vault/view.js';
 
@@ -76,7 +76,7 @@ function renderSummary(p) {
     badge(mb.cls, mb.label, mb.tip),
     badge(fr.label === 'fresh' ? 'stay' : 'warn', 'data ' + (fr.label || '?'), (d.blockers || []).join('; ')),
     badge(al.coverage >= 0.95 ? 'stay' : 'warn', 'coverage ' + fmtPct(al.coverage, 1), al.displayed),
-    badge(ex.withdrawal_feasibility === 'full' ? 'stay' : 'warn', 'withdrawal ' + ex.withdrawal_feasibility, ex.capacity && ex.capacity.rule),
+    badge(EXECUTABLE.has(ex.withdrawal_feasibility) ? 'stay' : 'warn', 'withdrawal ' + ex.withdrawal_feasibility, ex.capacity && ex.capacity.rule),
     badge('', 'quote ' + ex.quote_status, ex.simulation && ex.simulation.method),
   ].join(' ');
 
@@ -91,7 +91,7 @@ function renderSummary(p) {
   $('vReasons').innerHTML = [...(d.reasons || []), ...(d.blockers || []).map((b) => 'blocker: ' + b)].map((r) => `<li>${esc(r)}</li>`).join('');
 
   $('kLoss').textContent = fmtUsd(d.expected_loss_usd);
-  $('kLossBand').textContent = `band ${fmtUsd(d.loss_band_usd[0])} – ${fmtUsd(d.loss_band_usd[1])} over ${d.horizon_days} d`;
+  $('kLossBand').textContent = `band ${fmtUsd(d.loss_band_usd[0])} – ${fmtUsd(d.loss_band_usd[1])} over ${d.horizon_days} d · basis: ${vv.basisText}`;
   $('kExit').textContent = fmtUsd(d.exit_side_usd);
   $('kExitBand').textContent = `band ${fmtUsd(d.exit_band_usd[0])} – ${fmtUsd(d.exit_band_usd[1])} (execution + carry)`;
   const km = $('kMargin');
@@ -102,12 +102,12 @@ function renderSummary(p) {
 
   const conv = ex.usd_conversion || {};
   $('costBreakdown').innerHTML = `<table class="table"><tbody>
-    <tr><td>Gas (simulated redeem)</td><td class="num">${fmtUsd(ex.gas_usd)}</td><td class="muted">${esc(ex.gas_why)}</td></tr>
-    <tr><td>Withdrawal friction</td><td class="num">${fmtUsd(ex.withdrawal_friction_usd)}</td><td class="muted">assets requested − assets out of the simulated redeem</td></tr>
+    <tr><td>Gas (simulated ${esc(ex.executable_route || 'redeem')})</td><td class="num">${fmtUsd(ex.gas_usd)}</td><td class="muted">${esc(ex.gas_why)}</td></tr>
+    <tr><td>Withdrawal friction</td><td class="num">${fmtUsd(ex.withdrawal_friction_usd)}</td><td class="muted">assets requested − assets out of the simulated route (incl. forceDeallocate penalty ${fmtUsd(ex.force_deallocate_penalty_usd)})</td></tr>
     <tr><td>Exit fee</td><td class="num">${fmtUsd(ex.exit_fee_usd)}</td><td class="muted">${esc(ex.exit_fee_note)}</td></tr>
     <tr class="va-sub"><td>= Execution cost</td><td class="num">${fmtUsd(d.execution_cost_usd)}</td><td></td></tr>
     <tr><td>+ Carry forgone (${d.horizon_days} d)</td><td class="num">${fmtUsd(d.carry_usd)}</td><td class="muted">${esc(ex.carry.formula)}</td></tr>
-    <tr class="va-sub"><td>= Exit side</td><td class="num">${fmtUsd(d.exit_side_usd)}</td><td class="muted">compared with the expected loss ${fmtUsd(d.expected_loss_usd)}</td></tr>
+    <tr class="va-sub"><td>= Exit side</td><td class="num">${fmtUsd(d.exit_side_usd)}</td><td class="muted">compared with the expected loss ${fmtUsd(d.expected_loss_usd)} (${esc(vv.basisText)})</td></tr>
     <tr><td>Optional ${esc(v.asset.symbol)} → USD conversion</td><td class="num">${conv.status === 'indicative' ? fmtUsd(conv.cost_usd) : '—'}</td>
       <td class="muted">${esc(conv.status)}: not counted in the decision (${esc(conv.why || '')})</td></tr>
   </tbody></table>`;
@@ -116,7 +116,8 @@ function renderSummary(p) {
     ? `<span class="badge badge-stay">figures consistent</span> <span class="muted">margin = loss − (execution + carry); colour, lean and explanation agree with the backend decision.</span>`
     : `<span class="badge badge-exit">inconsistent payload</span> ${esc(vv.issues.join('; '))}: do not act on this result.`;
   const warns = [...(p.warnings || [])];
-  if (ex.withdrawal_feasibility !== 'full') warns.unshift(`Only ${fmtUsd(ex.immediately_withdrawable_usd)} of ${fmtUsd(ex.theoretical_value_usd)} can be withdrawn now; ${fmtUsd(ex.blocked_or_deferred_usd)} is blocked or deferred.`);
+  if (!EXECUTABLE.has(ex.withdrawal_feasibility)) warns.unshift(`Only ${fmtUsd(ex.immediately_withdrawable_usd)} of ${fmtUsd(ex.theoretical_value_usd)} can be withdrawn now by a simulated route; ${fmtUsd(ex.blocked_or_deferred_usd)} is blocked or deferred.`);
+  else if (ex.withdrawal_feasibility === 'full_via_force_deallocate') warns.unshift(`The full ${fmtUsd(ex.theoretical_value_usd)} is withdrawable now only through forceDeallocate (multicall simulated); ordinary capacity alone is ${fmtUsd(ex.capacity.ordinary_usd)}. Liquidity is shared: first come, first served.`);
   $('warnings').innerHTML = warns.map((w) => `<li>${esc(w)}</li>`).join('');
 }
 
@@ -180,9 +181,9 @@ function renderRisk(p) {
 }
 
 function renderScenarios(p) {
-  $('scenTable').innerHTML = '<thead><tr><th>Scenario</th><th class="num">Loss</th><th class="num">% of exposure</th><th class="num">Withdrawable after</th><th>What happens</th></tr></thead><tbody>' +
+  $('scenTable').innerHTML = '<thead><tr><th>Scenario</th><th class="num">Loss</th><th class="num">% of exposure</th><th class="num">Withdrawable after (ordinary)</th><th class="num">With forceDeallocate</th><th>What happens</th></tr></thead><tbody>' +
     p.scenarios.map((s) => `<tr><td>${esc(s.name)}</td><td class="num">${fmtUsd(s.loss_usd)}</td><td class="num">${fmtPct(s.loss_pct, 2)}</td>
-      <td class="num">${fmtUsd(s.immediately_withdrawable_usd)}</td><td class="muted">${esc(s.description)}</td></tr>`).join('') + '</tbody>';
+      <td class="num">${fmtUsd(s.immediately_withdrawable_usd)}</td><td class="num" title="${esc(s.force_deallocate_route || '')}">${s.withdrawable_with_force_deallocate_usd == null ? '—' : fmtUsd(s.withdrawable_with_force_deallocate_usd) + (/^confirmed/.test(s.force_deallocate_route || '') ? ' ✓' : ' (theoretical)')}</td><td class="muted">${esc(s.description)}</td></tr>`).join('') + '</tbody>';
   const sel = $('shockNode'), chosen = p.input.shock;
   sel.innerHTML = shockOptions(p.dependencies.nodes).map((o) => `<option value="${esc(o.id)}"${o.id === chosen ? ' selected' : ''}>${esc(o.label)} (${esc(o.role)})</option>`).join('');
   if (p.input.severity != null) $('shockSev').value = p.input.severity;
@@ -211,7 +212,12 @@ function renderExit(p) {
     ${c.contract_max_redeem_note ? `<p class="muted">${esc(c.contract_max_redeem_note)}</p>` : ''}
     <p>Redeem simulation: <b>${esc(sim.status)}</b>${sim.block ? ' at block ' + esc(sim.block) : ''}${sim.gas_estimate ? ', ' + fmtNum(sim.gas_estimate, 0) + ' gas' : ''}. <span class="muted">${esc(sim.method || '')}</span></p>
     ${e.simulation_partial ? `<p>Partial redeem simulation: <b>${esc(e.simulation_partial.status)}</b>.</p>` : ''}
-    <p>Force-deallocate path (${esc(f.status)}): ${fmtNum(f.assets, 2)} ${esc(p.vault.asset.symbol)} (${fmtUsd(f.usd)}), penalty ${fmtUsd(f.penalty_cost_usd)}. <span class="muted">Not counted as ordinary liquidity.</span></p>
+    <table class="table"><thead><tr><th>Exit route</th><th>Status</th><th class="num">Capacity</th><th class="num">Gas</th><th class="num">Penalty</th></tr></thead><tbody>
+      ${routeRows(e).map((r) => `<tr><td>${esc(r.name)}</td><td><span class="badge badge-${r.confirmed ? 'stay' : 'warn'}">${esc(r.status)}</span></td>
+        <td class="num">${fmtUsd(r.capacity)}</td><td class="num">${r.gas == null ? '—' : fmtUsd(r.gas)}</td><td class="num">${r.penalty == null ? '—' : fmtUsd(r.penalty)}</td></tr>`).join('')}
+    </tbody><caption class="muted">A route counts as executable only when its simulation succeeded for the amount (eth_call, no transaction). Executable route: ${esc(e.executable_route || 'none')}.</caption></table>
+    ${f.plan ? `<p>forceDeallocate plan: ${f.plan.steps.map((s) => `${esc(s.collateral || 'idle')} ${fmtNum(s.assets, 2)} (penalty ${fmtPct(s.penalty_rate, 2)})`).join(' + ')} to cover ${fmtNum(f.plan.need_assets, 2)} ${esc(p.vault.asset.symbol)} beyond ordinary capacity. <span class="muted">${esc(f.plan.rule)}</span></p>` : ''}
+    <p>Force-deallocate path (${esc(f.status)}): ${fmtNum(f.assets, 2)} ${esc(p.vault.asset.symbol)} (${fmtUsd(f.usd)}) of other-market liquidity, penalty ${fmtUsd(f.penalty_cost_usd)}. <span class="muted">${esc(f.note)} ${esc((f.reserves || []).join('; '))}</span></p>
     <p>Carry: net APY on-chain ${fmtPct(e.carry.net_apy_onchain, 2)} (API excl. rewards ${fmtPct(e.carry.net_apy_api, 2)}${e.carry.apy_cross_check ? (e.carry.apy_cross_check.ok ? ', cross-check ok' : ', cross-check MISMATCH') : ''});
       token rewards not counted ${fmtUsd(e.carry.rewards_usd_not_counted)}. <span class="muted">${esc(e.carry.note)}</span></p>`;
 }

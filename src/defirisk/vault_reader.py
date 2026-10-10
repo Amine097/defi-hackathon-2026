@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 
-from . import morpho
+from . import abi, morpho
 from .data import http, sources
 from .keccak import keccak256, selector
 from .vault_input import VaultError
@@ -187,6 +187,7 @@ def _v2_adapter(vault: str, ad: str, block: int) -> dict:
             "supported": False}
     pen = _call(vault, "forceDeallocatePenalty(address)", _pad(ad), block)
     info["force_deallocate_penalty"] = pen[0] / morpho.WAD if pen else None
+    info["force_deallocate_penalty_raw"] = pen[0] if pen else None
     n = _call(ad, "marketIdsLength()", "", block)
     if n is not None:
         info["type"] = "MorphoMarketV1AdapterV2"
@@ -453,6 +454,52 @@ def simulate_redeem(vault: str, version: str, shares: int, block: int) -> dict:
             "gas_estimate": int(g["result"], 16) if g and g.get("result") else None, "max_redeem_contract": max_redeem,
             "share_balance_slot": slot, "fetched_at": http.now(),
             "method": "eth_call redeem() with a state override on the share balance of 0xdEaD (read-only, no tx)"}
+
+
+FORCE_ADAPTER_TYPES = ("MorphoMarketV1AdapterV2", "MorphoMarketV1Adapter")  # data = abi.encode(MarketParams)
+MARKET_PARAMS_TYPES = ["address", "address", "address", "address", "uint256"]
+
+
+def market_params_data(m: dict) -> str:
+    """abi.encode(MarketParams): the `data` a Morpho market adapter expects in (force)deallocate."""
+    return "0x" + abi.encode_tuple(MARKET_PARAMS_TYPES, abi.market_params_tuple(m)).hex()
+
+
+def preview(vault: str, fn: str, amount: int, block: int) -> int | None:
+    """previewRedeem / previewWithdraw at the pinned block (VaultV2 accrues interest in the view)."""
+    w = _call(vault, f"{fn}(uint256)", f"{amount:064x}", block)
+    return w[0] if w else None
+
+
+def simulate_force_exit(vault: str, version: str, shares: int, steps: list[dict], final_shares: int, block: int) -> dict:
+    """eth_call VaultV2.multicall([forceDeallocate(adapter, abi.encode(MarketParams), assets, 0xdEaD) for each step,
+    redeem(final_shares, 0xdEaD, 0xdEaD)]) sent by 0xdEaD holding `shares` (state override) at the pinned block.
+    multicall delegatecalls itself, so msg.sender stays 0xdEaD and the forceDeallocate penalty (if any) is charged to
+    0xdEaD's own shares. Read-only: no transaction is sent. Success = no revert; assets out = previewRedeem(final_shares)
+    at the same block (forceDeallocate leaves the share price unchanged up to rounding: VaultV2 dev note)."""
+    slot = _share_slot(vault, version, block)
+    if slot is None:
+        return {"status": "unavailable", "reason": "no RPC accepted state overrides or share balance slot not verified"}
+    ov = _with_shares(vault, slot, shares)
+    calls = [abi.encode_call("forceDeallocate(address,bytes,uint256,address)",
+                             [s["adapter"], s["data"], s["assets_raw"], sources.DEAD]) for s in steps]
+    calls.append(abi.encode_call("redeem(uint256,address,address)", [final_shares, sources.DEAD, sources.DEAD]))
+    data = abi.encode_call("multicall(bytes[])", [calls])
+    call = {"from": sources.DEAD, "to": vault, "data": data}
+    r = sources._override_rpc("eth_call", [dict(call, gas=hex(15_000_000)), hex(block), ov])
+    base = {"shares": shares, "final_redeem_shares": final_shares, "block": block, "share_balance_slot": slot,
+            "steps": len(steps), "fetched_at": http.now(),
+            "method": "eth_call VaultV2.multicall([forceDeallocate(...)..., redeem(...)]) with a state override on the "
+                      "share balance of 0xdEaD (read-only, no tx)"}
+    if not r:
+        return {**base, "status": "unavailable", "reason": "RPC did not answer the simulation"}
+    if r.get("error") is not None or r.get("result") is None:
+        return {**base, "status": "reverted", "reason": str(r.get("error"))[:200]}
+    out = preview(vault, "previewRedeem", final_shares, block)
+    g = sources._override_rpc("eth_estimateGas", [call, hex(block), ov])
+    return {**base, "status": "simulated" if out is not None else "unavailable", "assets_out_raw": out,
+            "gas_estimate": int(g["result"], 16) if g and g.get("result") else None,
+            **({} if out is not None else {"reason": "previewRedeem unreadable"})}
 
 
 # ---- entry point -----------------------------------------------------------------------------------------------

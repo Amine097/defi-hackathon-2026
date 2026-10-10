@@ -1958,6 +1958,18 @@
  },
  "exit": {
   "basis": "USD at the deposit-asset price (EURCV $1.11931); same horizon 30d",
+  "comparison_basis": {
+   "kind": "full_position",
+   "fraction": 1.0,
+   "assets": 89341.06507577442,
+   "usd": 100000.0,
+   "route": "ordinary",
+   "position_expected_loss_usd": 63.33061450753963,
+   "position_carry_usd": 0.0,
+   "residual_expected_loss_usd": 0.0,
+   "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
+   "why": "the whole position is executable now by a simulated route"
+  },
   "notional_assets": 89341.06507577442,
   "notional_usd": 100000.0,
   "hypothetical": "value_usd is a HYPOTHETICAL exposure converted to vault shares at the pinned block's share price; it is not proof that anyone holds these shares",
@@ -1967,7 +1979,29 @@
   "immediately_withdrawable_usd": 100000.0,
   "blocked_or_deferred_assets": 0.0,
   "blocked_or_deferred_usd": 0.0,
+  "unavailable_liquidity_note": "blocked/deferred = amount no SIMULATED route can withdraw now (not a loss)",
   "withdrawal_feasibility": "full",
+  "executable_route": "ordinary",
+  "executable_assets": 89341.06507577442,
+  "executable_usd": 100000.0,
+  "routes": {
+   "ordinary": {
+    "capacity_assets": 361743.30039477185,
+    "capacity_usd": 404901.48632989783,
+    "status": "simulated",
+    "gas": null,
+    "what": "idle + liquidity adapter market (VaultV2) / withdrawQueue (V1): plain redeem"
+   },
+   "force_deallocate": {
+    "status": "not_needed",
+    "capacity_assets": 1031701.3705269676,
+    "capacity_usd": 1154789.6475735235,
+    "penalty_usd": 0.0,
+    "gas": null,
+    "what": "VaultV2.multicall([forceDeallocate(other markets)..., redeem]) in one transaction"
+   },
+   "unconfirmed": []
+  },
   "capacity": {
    "ordinary_assets": 361743.30039477185,
    "ordinary_usd": 404901.48632989783,
@@ -1981,6 +2015,8 @@
      "available": 361743.29694283294
     }
    ],
+   "with_force_deallocate_assets": 1031701.3705269676,
+   "with_force_deallocate_usd": 1154789.6475735235,
    "rule": "idle + min(liquidity-adapter supply, free liquidity) of the liquidityData market (VaultV2 exit path)",
    "shared_with_other_depositors": true,
    "api_cross_check": {
@@ -2005,9 +2041,12 @@
    "method": "eth_call redeem() with a state override on the share balance of 0xdEaD (read-only, no tx)"
   },
   "simulation_partial": null,
+  "simulation_force_deallocate": null,
   "execution_cost_usd": 0.08785369067836042,
   "withdrawal_friction_usd": 0.0,
   "gas_usd": 0.08785369067836042,
+  "force_deallocate_penalty_usd": 0.0,
+  "execution_note": "execution = gas + friction of the compared route at its simulated size; friction includes any forceDeallocate penalty (paid in shares)",
   "gas_units": 389054,
   "gas_why": "389,054 gas x 0.090 gwei (eth_gasPrice) x ETH $2,508 (DefiLlama)",
   "exit_fee_usd": 0.0,
@@ -2035,7 +2074,9 @@
    "rewards_api": [],
    "rewards_usd_not_counted": 0.0,
    "formula": "V x net APY 0.00% (sum share_m x supply APY_m x (1 - perf fee) - mgmt fee, on-chain IRM) x 30/365",
-   "note": "forgone yield if redeemed and left un-deployed (reference 0%: assumption). Past/current APY is not a promise; band +-50%. Counted on the EXIT side. Token incentives (rewards_api, Morpho API) are NOT counted: off-chain programme, paid in other tokens, can stop at any time (conservative for STAY)."
+   "note": "forgone yield if redeemed and left un-deployed (reference 0%: assumption). Past/current APY is not a promise; band +-50%. Counted on the EXIT side. Token incentives (rewards_api, Morpho API) are NOT counted: off-chain programme, paid in other tokens, can stop at any time (conservative for STAY).",
+   "compared_usd": 0.0,
+   "compared_fraction": 1.0
   },
   "exit_side_usd": 0.08785369067836042,
   "exit_band_usd": [
@@ -2057,46 +2098,75 @@
    "why": "redeeming returns EURCV; converting to USD is a separate treasury choice (indicative quote, not simulated) shown for information"
   },
   "force_deallocate": {
-   "status": "nonstandard",
+   "status": "not_needed",
    "assets": 669958.0701321957,
    "usd": 749888.1612436256,
+   "simulable_assets": 669958.0701321957,
    "rows": [
     {
      "market": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e",
      "collateral": "WBTC",
      "available_raw": "455550672357655105396832",
      "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
      "available": 455550.67235765513
-    },
-    {
-     "market": "0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
-     "collateral": "wstETH",
-     "available_raw": "97965187902646861334985",
-     "penalty": 0.0,
-     "available": 97965.18790264687
-    },
-    {
-     "market": "0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
-     "collateral": "steakEURCV",
-     "available_raw": "1000000000000000000",
-     "penalty": 0.0,
-     "available": 1.0
-    },
-    {
-     "market": "0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
-     "collateral": "oTFYe",
-     "available_raw": "1000060808954232511",
-     "penalty": 0.0,
-     "available": 1.0000608089542324
     },
     {
      "market": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce",
      "collateral": "cbBTC",
      "available_raw": "116440209811084768768389",
      "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
      "available": 116440.20981108477
+    },
+    {
+     "market": "0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1",
+     "collateral": "wstETH",
+     "available_raw": "97965187902646861334985",
+     "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
+     "available": 97965.18790264687
+    },
+    {
+     "market": "0x237dd7d99a2a8b7583d7f746f1a1b95ea62f727ed7601902e6fe1c1bcf1cf8ba",
+     "collateral": "oTFYe",
+     "available_raw": "1000060808954232511",
+     "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
+     "available": 1.0000608089542324
+    },
+    {
+     "market": "0xcde1b09204b4a790e47ef833d4235762121a0e44c4dbb91cd9a2093e88ac6e82",
+     "collateral": "steakEURCV",
+     "available_raw": "1000000000000000000",
+     "penalty": 0.0,
+     "penalty_raw": "0",
+     "adapter": "0xa671880d813d4cacaca63984bc0ab676c400a874",
+     "adapter_type": "MorphoMarketV1AdapterV2",
+     "route": "simulable",
+     "why": "Morpho market adapter: forceDeallocate(adapter, abi.encode(MarketParams), assets, onBehalf) then redeem, checked by a multicall simulation",
+     "available": 1.0
     }
    ],
+   "plan": null,
+   "simulation": null,
+   "used_in_verdict": false,
    "penalty_cost_usd": 0.0,
    "api_force_deallocatable": [
     {
@@ -2105,7 +2175,12 @@
      "penalty": 0.0
     }
    ],
-   "note": "forceDeallocate moves assets from non-liquidity markets to idle (permissionless, with the adapter penalty): NOT part of the standard exit, not simulated, not used in the verdict"
+   "reserves": [
+    "the curator can raise the forceDeallocate penalty (VaultV2 cap 2%, timelocked; timelock length for this selector UNVERIFIED)",
+    "withdrawable liquidity is shared with every depositor: first come, first served",
+    "the other markets' liquidity also belongs to their other lenders and can be borrowed out at any block"
+   ],
+   "note": "forceDeallocate is permissionless: it moves assets from non-liquidity markets to idle (adapter penalty, taken from the caller's shares) before a redeem. Counted as executable ONLY when the multicall simulation succeeds for the amount."
   }
  },
  "decision": {
@@ -2116,11 +2191,25 @@
   "lean": null,
   "reasons": [],
   "blockers": [],
+  "comparison_basis": {
+   "kind": "full_position",
+   "fraction": 1.0,
+   "assets": 89341.06507577442,
+   "usd": 100000.0,
+   "route": "ordinary",
+   "position_expected_loss_usd": 63.33061450753963,
+   "position_carry_usd": 0.0,
+   "residual_expected_loss_usd": 0.0,
+   "rule": "compared terms share one size: loss avoided = EL x w, forgone carry = carry x w, execution = simulated cost of that same tranche; residual EL x (1 - w) stays exposed (its later exit is uncertain)",
+   "why": "the whole position is executable now by a simulated route"
+  },
   "expected_loss_usd": 63.33061450753963,
   "loss_band_usd": [
    11.345879118973556,
    324.12965052963125
   ],
+  "position_expected_loss_usd": 63.33061450753963,
+  "residual_expected_loss_usd": 0.0,
   "execution_cost_usd": 0.08785369067836042,
   "carry_usd": 0.0,
   "exit_side_usd": 0.08785369067836042,
@@ -2129,12 +2218,13 @@
    0.13178053601754064
   ],
   "margin_usd": 63.24276081686127,
-  "margin_convention": "margin_usd = expected_loss_usd - (execution_cost_usd + carry_usd); > 0: staying costs more on central values (Phase 0.5 convention)",
+  "margin_convention": "margin_usd = expected_loss_usd - (execution_cost_usd + carry_usd), all on comparison_basis (same size w); > 0: staying costs more on central values (Phase 0.5 convention)",
   "margin_with_usd_conversion_usd": -76.34834927718944,
   "breakeven_risk_multiplier": 0.0013872230888885703,
   "withdrawal_feasibility": "full",
+  "executable_route": "ordinary",
   "horizon_days": 30,
-  "rule": "EXIT if loss_low > exit_high; STAY if loss_high < exit_low; else REVIEW (lean = central comparison). Stale / replayed / approximated inputs force REVIEW. A partial / zero / unknown exit downgrades EXIT to REVIEW (never an executable 100% EXIT).",
+  "rule": "EXIT if loss_low > exit_high; STAY if loss_high < exit_low; else REVIEW (lean = central comparison). Stale / replayed / approximated inputs force REVIEW. A partial / zero / unknown exit downgrades EXIT to REVIEW (never an executable 100% EXIT); an exit is executable only through a route whose simulation succeeded (ordinary redeem or forceDeallocate multicall). Partial: every compared term is for the executable tranche.",
   "explanation": "EXIT: even the low estimate of the loss from staying exceeds the high estimate of the exit side, and the full exit is executable now. Staying: expected loss $63 [$11-$324] over 30d. Exiting: execution $0.09 + forgone carry $0 = $0 [$0-$0]. Margin (loss - exit side) = $63: staying costs more on central values (point verdict EXIT). Withdrawal feasibility: full ($100,000 immediately).",
   "freshness": {
    "items": [
@@ -2152,7 +2242,7 @@
     },
     {
      "kind": "exit_quote",
-     "source": "eth_call redeem() simulation (state override)",
+     "source": "eth_call redeem() / multicall simulation (state override)",
      "fetched_at": 1791648040.4753861,
      "age_seconds": 13.555798053741455,
      "max_age_seconds": 60,
@@ -2231,6 +2321,8 @@
    },
    "immediately_withdrawable_usd": 100000.0,
    "withdrawal_feasibility": "full",
+   "withdrawable_with_force_deallocate_usd": 100000.0,
+   "force_deallocate_route": "theoretical: computed from free liquidity under this scenario, not simulated",
    "liquidity_factor": 1.0,
    "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
   },
@@ -2267,6 +2359,8 @@
    },
    "immediately_withdrawable_usd": 100000.0,
    "withdrawal_feasibility": "full",
+   "withdrawable_with_force_deallocate_usd": 100000.0,
+   "force_deallocate_route": "theoretical: computed from free liquidity under this scenario, not simulated",
    "liquidity_factor": 1.0,
    "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
   },
@@ -2302,6 +2396,8 @@
    },
    "immediately_withdrawable_usd": 100000.0,
    "withdrawal_feasibility": "full",
+   "withdrawable_with_force_deallocate_usd": 100000.0,
+   "force_deallocate_route": "theoretical: computed from free liquidity under this scenario, not simulated",
    "liquidity_factor": 1.0,
    "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
   },
@@ -2317,6 +2413,8 @@
    "by_node_usd": {},
    "immediately_withdrawable_usd": 0.0038637763022476273,
    "withdrawal_feasibility": "partial",
+   "withdrawable_with_force_deallocate_usd": 0.0038637763022476273,
+   "force_deallocate_route": "none: no other market liquidity under this scenario",
    "liquidity_factor": 0.0,
    "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
   },
@@ -2461,6 +2559,8 @@
    },
    "immediately_withdrawable_usd": 0.0038637763022476273,
    "withdrawal_feasibility": "partial",
+   "withdrawable_with_force_deallocate_usd": 0.0038637763022476273,
+   "force_deallocate_route": "none: no other market liquidity under this scenario",
    "liquidity_factor": 0.0,
    "vault": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec"
   },
@@ -2561,7 +2661,7 @@
    "label_kind": "conditional_on_shock"
   },
   "breakeven_risk_multiplier": 0.0013872230888885703,
-  "note": "risk must be x breakeven the central estimate for the exit side to be worth paying"
+  "note": "risk must be x breakeven the central estimate for the exit side to be worth paying (same basis as the decision: both sides for the same tranche)"
  },
  "warnings": [
   "on-chain net APY 0.00% differs from Morpho API (excl. rewards) 2.62%"

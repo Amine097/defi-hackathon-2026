@@ -1,0 +1,57 @@
+{
+ "rpc_url": "http://127.0.0.1:8547",
+ "positions": [
+  {
+   "id": "S1-weETH-repay",
+   "label": "S1 | user A | weETH/USDC | USDC reserve",
+   "rescue_vault": "0x0b4a26e6e966a4dbc45cce672372be17de0590a6",
+   "engine": {
+    "safety_margin": "250",
+    "interest_horizon_s": 86400,
+    "ranking": "min_capital"
+   },
+   "scenarios": [
+    {
+     "id": "follow_on",
+     "label": "ETH / USD -8% follow-on",
+     "shocks": [
+      {
+       "dependency": "BASE_FEED_2",
+       "drop": 0.08
+      }
+     ]
+    }
+   ],
+   "retry_after_failed_s": 0,
+   "realert_s": 0
+  },
+  {
+   "id": "S3-weETH-no-action",
+   "label": "S3 | user C | weETH/USDC | tiny reserves, full repay disabled",
+   "rescue_vault": "0x14a0558b87b3c73c4853023499a9e80411b7a439",
+   "engine": {
+    "safety_margin": "250",
+    "interest_horizon_s": 86400,
+    "ranking": "min_capital"
+   },
+   "scenarios": [
+    {
+     "id": "follow_on",
+     "label": "ETH / USD -8% follow-on",
+     "shocks": [
+      {
+       "dependency": "BASE_FEED_2",
+       "drop": 0.08
+      }
+     ]
+    }
+   ],
+   "retry_after_failed_s": 0,
+   "realert_s": 0
+  }
+ ],
+ "limits": {
+  "receipt_timeout_s": 60,
+  "max_gas_units": 700000
+ }
+}

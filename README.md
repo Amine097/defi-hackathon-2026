@@ -14,10 +14,19 @@ Click a node to simulate its failure and watch it propagate; the side panel show
 ## Demo: Belem vault risk (Phase 1)
 1. `python scripts/dev_server.py 8000`, open http://localhost:8000/vault.html
 2. Click **Use the Belem vault example** (fills `0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec`), set the amount (USD, hypothetical) and horizon, click **Analyze vault** (live on-chain, ~10-20 s).
-3. Read the verdict card (STAY / EXIT / REVIEW, lean, margin = expected loss − (execution + carry)), then allocations, the dependency graph, withdrawal capacity (partial exit above ~$405k), scenarios and sensitivity.
+3. Read the verdict card (STAY / EXIT / REVIEW, lean, margin = expected loss − (execution + carry)), then allocations, the dependency graph, withdrawal capacity (ordinary route ≈ $405k for Belem; larger exits through the simulated `forceDeallocate` route, e.g. $1M fully withdrawable), scenarios and sensitivity.
 4. Pick a dependency in **Custom shock: dependency**, set a severity and click **Run custom shock** to re-run the analysis under that failure.
 5. Deep link: `/vault.html?address=0x…&value_usd=1000000&horizon_days=90`. API: `/api/vault?address=0x…&value_usd=100000&horizon_days=30[&shock=<node id>&severity=0.6]`.
 6. Offline, deterministic replay of the dated vault fixtures (`data/fixtures/vault_*.json`, payloads labelled `replay`): `$env:PYTHONPATH='src'; python -m pytest tests/test_vault.py`. Live cross-checks: add `$env:DEFIRISK_LIVE_TESTS='1'`; evidence: `python scripts/collect_vault_evidence.py`.
+
+## Demo: Autonomous Countermove (Phase 2, local fork)
+A Morpho Blue borrower pre-authorizes a narrowly permissioned **RescueVault** (`contracts/`); a keeper process
+(`python -m defirisk.countermove`) detects a crisis, picks the cheapest safe defense and executes it without any user
+signature: AUTO-REPAY, AUTO-TOP-UP, NO ACTION or EMERGENCY FULL REPAY. Local Anvil fork only: no mainnet transaction,
+no real funds, no personal key; the contract is **not audited**.
+1. `python scripts/dev_server.py 8000`, open http://localhost:8000/countermove.html (recorded fork run; LIVE button = read-only mainnet oracle reads).
+2. Reproduce (Foundry 1.8.5): `contracts\install_deps.ps1`, `forge build` in `contracts/`, then `python scripts/countermove_fork_demo.py`.
+3. Docs: [implementation report](docs/FAULTLINE_PHASE2_IMPLEMENTATION_REPORT.md) · [security report](docs/FAULTLINE_PHASE2_SECURITY_REPORT.md) · [demo guide](docs/FAULTLINE_PHASE2_DEMO_GUIDE.md) · [progress](docs/FAULTLINE_PHASE2_PROGRESS.md) · evidence `audit/FAULTLINE_PHASE2_EVIDENCE.json` (`python scripts/collect_phase2_evidence.py --live --fork`).
 
 ## Setup
     python -m venv .venv
@@ -47,4 +56,6 @@ Click a node to simulate its failure and watch it propagate; the side panel show
 - `src/defirisk/cli.py`: command-line entry point; `api_payload.py` builds JSON for the web UI.
 - `src/defirisk/*.py`: compatibility imports for existing callers; new code should import from `core` or `data`.
 - `api/analyze.py`: Vercel function exposing `/api/analyze`.
+- `src/defirisk/countermove/`: Phase 2 keeper (watcher, dependency engine, countermove engine, guarded executor, verifier, journal); `api/countermove.py` exposes `/api/countermove`.
+- `contracts/`: Foundry project — `RescueVault.sol`, test-only simulation contracts (`src/sim/`), unit / fuzz / invariant / fork tests; dependencies pinned by `install_deps.ps1`.
 - `data/mock_graph.json`: offline fixture.
