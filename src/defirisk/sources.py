@@ -33,6 +33,23 @@ def strip_chain(asset_id: str) -> str:
     return asset_id.split("-", 1)[-1].lower()
 
 
+def pendle_quote(token_in: str, amount_in_raw: int, token_out: str, chain_id: int = 1) -> dict:
+    """Executable swap quote from Pendle's hosted SDK (routes through the PT AMM + aggregators).
+
+    Returns {"amount_out_raw", "price_impact", "fee_usd", "gas_used", "aggregator", "method"}.
+    """
+    r = get_json(f"{PENDLE}/v2/sdk/{chain_id}/convert", params={
+        "receiver": "0x000000000000000000000000000000000000dEaD", "slippage": "0.01", "enableAggregator": "true",
+        "tokensIn": token_in.lower(), "amountsIn": str(int(amount_in_raw)), "tokensOut": token_out.lower()}, timeout=30)
+    route = (r.get("routes") or [None])[0]
+    if not route or not route.get("outputs"):
+        raise RuntimeError("Pendle SDK returned no route")
+    data = route.get("data") or {}
+    return {"amount_out_raw": int(route["outputs"][0]["amount"]), "price_impact": data.get("priceImpact"),
+            "fee_usd": (data.get("fee") or {}).get("usd"), "gas_used": int(data.get("gasUsed") or 0),
+            "aggregator": data.get("aggregatorType"), "method": (route.get("contractParamInfo") or {}).get("method")}
+
+
 # ---- Morpho (GraphQL) -----------------------------------------------------
 _MARKET_FIELDS = """
   marketId lltv listed
@@ -68,6 +85,25 @@ def llama_hacks() -> list[dict]:
     return get_json(f"{LLAMA}/hacks", timeout=40)
 
 
+def llama_prices(coins: list[str]) -> dict:
+    """{'ethereum:0x..' | 'coingecko:ethereum': {'price', 'decimals', 'symbol', 'timestamp'}}"""
+    return get_json(f"https://coins.llama.fi/prices/current/{','.join(coins)}", timeout=20).get("coins", {})
+
+
+def llama_stablecoin_price_history() -> list[dict]:
+    """Daily prices of all tracked stablecoins: [{'date': unix, 'prices': {gecko_id: price}}]."""
+    return get_json("https://stablecoins.llama.fi/stablecoinprices", timeout=40)
+
+
+def llama_stablecoin_gecko_id(symbol: str) -> str | None:
+    """USD-pegged stablecoin with this symbol and the largest supply -> its CoinGecko id (key of the price history)."""
+    assets = get_json("https://stablecoins.llama.fi/stablecoins", timeout=40).get("peggedAssets", [])
+    hits = [a for a in assets if (a.get("symbol") or "").upper() == symbol.upper() and a.get("pegType") == "peggedUSD"
+            and a.get("gecko_id")]
+    best = max(hits, key=lambda a: (a.get("circulating") or {}).get("peggedUSD") or 0, default=None)
+    return best["gecko_id"] if best else None
+
+
 def llama_find_protocol(name: str, protocols: list[dict] | None = None) -> dict | None:
     """Best-effort name match; prefers the highest-TVL protocol whose name or slug contains `name`."""
     protocols = protocols if protocols is not None else llama_protocols()
@@ -76,22 +112,48 @@ def llama_find_protocol(name: str, protocols: list[dict] | None = None) -> dict 
         return None
     hits = [p for p in protocols if key in re.sub(r"[^a-z0-9]", "", (p.get("name") or "").lower())
             or key == re.sub(r"[^a-z0-9]", "", (p.get("slug") or "").lower())]
+    if not hits and "." in name:  # domain-style names (e.g. Pendle's "re.xyz"): match the protocol's website domain
+        dom = name.lower().strip()
+        hits = [p for p in protocols if re.search(r"(^|[/.])" + re.escape(dom) + r"(/|$)",
+                                                  re.sub(r"^https?://", "", (p.get("url") or "").lower()))]
     return max(hits, key=lambda p: p.get("tvl") or 0) if hits else None
 
 
 # ---- JSON-RPC (eth_call) --------------------------------------------------
+def _rpc_call(body: dict, revert_ok: bool = False):
+    """Try every RPC live first, then any cached copy. Returns the JSON-RPC response dict or None.
+    revert_ok: an execution error (contract revert) is a real answer, not an endpoint failure."""
+    for use_cache in (False, True):
+        for url in RPCS:
+            try:
+                r = post_json(url, body, timeout=20, use_cache=use_cache)
+            except Exception:
+                continue
+            err = r.get("error")
+            if r.get("result") is not None or (err and revert_ok and "revert" in str(err).lower()):
+                return r
+    return None
+
+
 def eth_call(to: str, data: str) -> str | None:
     body = {"jsonrpc": "2.0", "id": 1, "method": "eth_call", "params": [{"to": to, "data": data}, "latest"]}
-    for url in RPCS:
-        try:
-            r = post_json(url, body, timeout=20)
-        except Exception:
-            continue
-        if r.get("result") not in (None, "0x"):
-            return r["result"]
-        if r.get("error"):
-            return None
-    return None
+    r = _rpc_call(body, revert_ok=True)
+    return r["result"] if r and r.get("result") not in (None, "0x") else None
+
+
+def _rpc(method: str, params: list):
+    r = _rpc_call({"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
+    return r["result"] if r else None
+
+
+def eth_gas_price_wei() -> int | None:
+    r = _rpc("eth_gasPrice", [])
+    return int(r, 16) if r else None
+
+
+def eth_block_number() -> int | None:
+    r = _rpc("eth_blockNumber", [])
+    return int(r, 16) if r else None
 
 
 def _words(hexstr: str) -> list[int]:

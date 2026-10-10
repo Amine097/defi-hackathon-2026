@@ -6,7 +6,7 @@ See `PLAN.md` and `docs/belem.md`.
 ## UI direction: Pendle X-Ray node graph (hosted on Vercel)
 The main view is an interactive node graph (nodes = chain, yield source, oracle, PT market/AMM, lending, position pockets).
 Click a node to simulate its failure and watch it propagate; the side panel shows STAY vs EXIT.
-- `public/index.html`: the web UI (currently the prototype with mock data inline; to be wired to `/api/analyze`)
+- `public/index.html` (dashboard) and `public/xray.html` (node graph): fed by `/api/analyze`; a badge shows whether numbers are live, replayed from cache, or MOCK
 - `api/analyze.py`: Python serverless function returning the model output as JSON
 - `docs/mockups/pendle-xray-node-graph.html`: untouched copy of the original prototype
 
@@ -18,7 +18,10 @@ Click a node to simulate its failure and watch it propagate; the side panel show
 
 ## Run
     python -m pytest
-    cd src; python -m defirisk.cli     # CLI verdict
+    $env:PYTHONPATH='src'; python -m defirisk.cli auto 1000000   # live discovery + verdict for a $1M position
+    python -m defirisk.cli mock                                  # offline MOCK graph (not real data)
+    python scripts/dev_server.py 8000  # web UI + API locally without the Vercel CLI
+    $env:DEFIRISK_LIVE_TESTS='1'; python -m pytest   # adds on-chain cross-checks against the real APIs
     vercel dev                         # web UI + API locally (npm i -g vercel)
     vercel                             # deploy
 
@@ -31,10 +34,10 @@ Click a node to simulate its failure and watch it propagate; the side panel show
 
 ## Layout
 - `src/defirisk/models.py` shared schema (Position, Node, Edge, DepGraph)
-- `discovery.py` real-data discovery (A) - currently mock
+- `discovery.py` real-data discovery: Pendle API, Morpho GraphQL, DefiLlama, Ethereum RPC (`mock` ref = demo fixture)
 - `propagation.py` graph + Monte Carlo (B/C)
-- `decision.py` exit cost + verdict (C)
+- `decision.py` exit cost (executable Pendle SDK quote + gas; flagged x*y=k fallback) + verdict
 - `portfolio.py` book of pockets, one hit, stay vs exit
 - `scenarios.py` stress overrides; `http.py` cached API calls
-- `api_payload.py` builds the JSON the web UI consumes
+- `api_payload.py` builds the JSON the web UI consumes (`/api/analyze?ref=auto&value_usd=1000000&shock=<node>&severity=0.3`)
 - `data/mock_graph.json` fixture so everyone can work in parallel

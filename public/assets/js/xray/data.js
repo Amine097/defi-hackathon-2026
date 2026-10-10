@@ -8,7 +8,7 @@ const LAYER_ALIAS = {
   position: 'position', pos: 'position', pocket: 'position',
 };
 
-const API_TIMEOUT_MS = 10000;
+const API_TIMEOUT_MS = 60000; // live discovery + executable exit quote takes ~15 s
 
 async function getJson(url, timeout) {
   const ctl = new AbortController();
@@ -32,13 +32,15 @@ export async function loadPayload() {
   else if (src === 'sample') tries.push(['/data/sample.json', 'demo']);
   else {
     const ref = qs.get('ref');
-    tries.push([`/api/analyze${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`, 'live']);
+    tries.push([`/api/analyze${ref ? `?ref=${encodeURIComponent(ref)}` : ''}`, 'api']);
   }
   tries.push(['/data/sample.json', 'demo']);
   let lastErr;
   for (const [url, kind] of tries) {
     try {
-      return { payload: await getJson(url, API_TIMEOUT_MS), kind, url, src };
+      const payload = await getJson(url, API_TIMEOUT_MS);
+      // API answers say where their numbers come from (live|cache|mixed|mock|mock-fallback); static files are demo.
+      return { payload, kind: kind === 'api' ? (payload.source || 'unknown') : kind, url, src };
     } catch (e) {
       lastErr = e;
     }
@@ -92,7 +94,7 @@ export function normalize(p) {
   const pockets = (p.book && Array.isArray(p.book.pockets)) ? p.book.pockets : [];
   const decision = Object.assign({ verdict: '', expected_loss_usd: 0, exit_cost_usd: 0, margin_usd: 0, explanation: '' }, p.decision || {});
   const posValue = num(position.value_usd);
-  const exitRate = posValue > 0 && decision.exit_cost_usd > 0 ? decision.exit_cost_usd / posValue : 0.011;
+  const exitRate = posValue > 0 && decision.exit_cost_usd > 0 ? decision.exit_cost_usd / posValue : 0;
   for (const n of positions) {
     const pk = pockets.find((b) => b.label === n.label || b.label === n.id);
     n.value = num(n.meta.value_usd) || (n.id === position.id ? posValue : 0) || num(pk && pk.value_usd) || posValue / positions.length;

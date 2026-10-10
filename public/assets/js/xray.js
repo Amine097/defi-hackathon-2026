@@ -55,15 +55,24 @@ function start({ payload, kind, url }) {
   const m = buildIndex(normalize(payload));
   S.m = m;
   const badge = $('dataBadge');
-  badge.textContent = kind === 'live' ? 'Live data' : 'Demo data';
-  badge.className = `xr-badge ${kind === 'live' ? 'xr-badge-live' : 'xr-badge-demo'}`;
-  badge.title = kind === 'live' ? `Loaded from ${url}` : `API unavailable or demo selected: showing ${url}`;
+  const LBL = {
+    live: ['Live on-chain data', 'xr-badge-live', `Fetched now from ${url}`],
+    cache: ['Real data (cached)', 'xr-badge-demo', 'Real API responses replayed from data/cache'],
+    mixed: ['Real data (part cached)', 'xr-badge-demo', 'Some API calls served from data/cache'],
+    mock: ['MOCK data', 'xr-badge-err', 'Demo graph requested explicitly: numbers are not real'],
+    'mock-fallback': ['MOCK · live discovery failed', 'xr-badge-err', `Live discovery failed: ${payload.discovery_error || ''}`],
+    demo: ['MOCK · demo data', 'xr-badge-err', `API unavailable or demo selected: showing ${url}`],
+  };
+  const [txt, cls, tip] = LBL[kind] || ['Unknown source', 'xr-badge-err', url];
+  badge.textContent = txt;
+  badge.className = `xr-badge ${cls}`;
+  badge.title = tip + (payload.data_as_of && kind !== 'live' ? ` (as of ${new Date(payload.data_as_of * 1000).toISOString()})` : '');
   const wantedLive = !new URLSearchParams(location.search).get('data');
   const note = $('guideNote');
-  note.textContent = kind === 'demo' && wantedLive
-    ? 'Note: the live /api/analyze backend did not answer, so you are seeing built-in demo data (same model, sample inputs).'
+  note.textContent = (kind === 'demo' || kind === 'mock-fallback') && wantedLive
+    ? 'Note: the live /api/analyze backend did not deliver real data, so you are seeing built-in MOCK data (same model, sample inputs).'
     : '';
-  if (kind === 'demo' && wantedLive) badge.textContent = 'Demo data · API offline';
+  if (kind === 'demo' && wantedLive) badge.textContent = 'MOCK · API offline';
   const guide = $('guide');
   const closeGuide = () => { guide.hidden = true; try { localStorage.setItem('fl-guide', '1'); } catch (e) {} };
   $('helpBtn').addEventListener('click', () => { guide.hidden = false; });
@@ -383,12 +392,13 @@ function failureVerdict(roots, res, c) {
 
 function scenarioVerdict(sc, res) {
   const m = S.m;
-  const exit = S.exitOverride != null || !m.decision.exit_cost_usd ? exitTotalAll() : m.decision.exit_cost_usd;
-  const stay = +sc.expected_loss_usd || 0;
+  const exit = S.exitOverride != null || !(sc.exit_cost_usd || m.decision.exit_cost_usd) ? exitTotalAll() : (+sc.exit_cost_usd || m.decision.exit_cost_usd);
+  const stay = +(sc.conditional_loss_usd != null ? sc.conditional_loss_usd : sc.expected_loss_usd) || 0;
   const verdict = S.exitOverride != null ? (stay > exit ? 'EXIT' : 'STAY') : sc.verdict || (stay > exit ? 'EXIT' : 'STAY');
-  const why = `${esc(sc.description || sc.name)}. Under this scenario the risk model expects <b class="xr-red">${usd(stay)}</b> of loss over ${m.horizon} days vs a certain exit cost of <b>${usd(exit)}</b>`
+  const why = `${esc(sc.description || sc.name)}. If this shock happens, staying loses <b class="xr-red">${usd(stay)}</b> over ${m.horizon} days vs a certain exit cost of <b>${usd(exit)}</b>${sc.exit && sc.exit.liquidity_factor < 1 ? ' (stressed exit liquidity)' : ''}`
     + (verdict === 'EXIT' ? `: <b class="xr-red">exit</b> saves ${usd(stay - exit)}.` : `: <b class="xr-green">stay</b>, exiting would waste ${usd(exit - stay)}.`);
   setVerdict({ mode: 'scenario · server model', title: sc.name, verdict, stay, exit, why, sub: `${pct(stay / (m.totalValue || 1))} of value at risk`,
+    stayLabel: ['Loss if STAY', 'if the shock happens'],
     server: res ? `Client propagation check: ${usd(res.stay)} lost across ${res.exposed.length} ${pluralPos(res.exposed.length)} if the failure is certain.` : '' });
 }
 
@@ -425,7 +435,7 @@ function renderScenarios(m) {
   const box = $('scenarioBtns');
   if (!m.scenarios.length) { box.innerHTML = '<p class="xr-note">No predefined scenarios in this payload: click any node to fail it.</p>'; return; }
   box.innerHTML = m.scenarios.map((s, i) => `<button class="xr-scbtn" title="${esc(s.description || '')} (key ${i + 1})">
-    <span>${esc(s.name)}</span><small class="${s.verdict === 'EXIT' ? 'xr-red' : 'xr-green'}">${usd(+s.expected_loss_usd)} · ${esc(s.verdict || '')}</small></button>`).join('');
+    <span>${esc(s.name)}</span><small class="${s.verdict === 'EXIT' ? 'xr-red' : 'xr-green'}">${usd(+(s.conditional_loss_usd != null ? s.conditional_loss_usd : s.expected_loss_usd))} if it happens · ${esc(s.verdict || '')}</small></button>`).join('');
   [...box.children].forEach((b, i) => b.addEventListener('click', () => runScenario(i)));
 }
 

@@ -147,32 +147,65 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
     ms = mm["state"]
     liq = pdata["liquidity"]["usd"]
 
-    def node(nid, layer, label, p, why, role, **meta):
-        return Node(nid, layer, label, round(p, 6), priors.LGF.get(role, 0.5),
-                    {"role": role, "source": why, "chain": "ethereum", **meta})
+    def node(nid, layer, label, p, why, role, lgf=None, lgf_why=None, **meta):
+        lg = priors.LGF.get(role, 0.5) if lgf is None else lgf
+        return Node(nid, layer, label, round(p, 6), round(lg, 4),
+                    {"role": role, "source": why, "chain": "ethereum",
+                     "lgf_source": lgf_why or f"structural assumption: loss-given-failure {lg:.0%} for role '{role}' (priors.LGF)",
+                     **meta})
 
     def llama_meta(p):
         return {"tvl_usd": p.get("tvl"), "audits": p.get("audits"), "url": p.get("url"),
                 "llama_slug": p.get("slug")} if p else {}
 
+    hist = {}
+
+    def stable_prior(sym):
+        try:
+            gid = sources.llama_stablecoin_gecko_id(sym)
+            if gid and "h" not in hist:
+                hist["h"] = sources.llama_stablecoin_price_history()
+            dep = priors.stablecoin_depeg(gid, hist["h"]) if gid else None
+        except Exception:
+            dep = None
+        return priors.p_stablecoin(dep, H, sym)
+
     nodes: list[Node] = [Node("pos", "protocol", "Position", 0.0, 0.0, {"role": "position"})]
     edges: list[Edge] = []
+
+    def stable_node(sym, address):
+        nid = f"usd_{sym.lower()}"
+        if not any(n.id == nid for n in nodes):
+            p, lgf, why = stable_prior(sym)
+            nodes.append(node(nid, "yield_source", f"{sym} (stablecoin)", p, why, "stablecoin", lgf=lgf,
+                              lgf_why=(f"measured: mean depth of past {sym} depegs (DefiLlama prices)" if lgf else None),
+                              address=address))
+        return nid
 
     p, why = priors.p_chain(H)
     nodes.append(node("chain", "chain", "Ethereum", p, why, "chain"))
 
-    p, why = priors.p_protocol(rates, issuer_llama, H)
-    nodes.append(node("issuer", "yield_source", f"{issuer_name} (issuer)", p, why, "issuer", **llama_meta(issuer_llama),
-                      categories=pend.get("categoryIds")))
-    p, why = priors.p_protocol(rates, issuer_llama, H, share=0.5)
-    nodes.append(node("underlying", "yield_source", f"{underlying['symbol']} (yield source)", p,
-                      why + "; x0.5 = token-level share of issuer risk", "underlying",
-                      address=underlying["address"], price_usd=(underlying.get("price") or {}).get("usd")))
+    # Issuer-entity risk is split across the issuer and its tokens so the total equals ONE protocol prior
+    # (failures are simulated independently; giving each node the full rate would count the issuer 2-3 times).
     has_backing = accounting["address"].lower() != underlying["address"].lower()
-    if has_backing:
-        p, why = priors.p_protocol(rates, issuer_llama, H, share=0.5)
+    backing_stable = has_backing and accounting["symbol"].upper() in STABLES
+    split = {"issuer": 0.5, "underlying": 0.25 if has_backing and not backing_stable else 0.5,
+             "backing": 0.25 if has_backing and not backing_stable else 0.0}
+    p, why = priors.p_protocol(rates, issuer_llama, H, share=split["issuer"])
+    nodes.append(node("issuer", "yield_source", f"{issuer_name} (issuer)", p, why + f"; x{split['issuer']} = entity share of issuer risk",
+                      "issuer", **llama_meta(issuer_llama), categories=pend.get("categoryIds")))
+    p, why = priors.p_protocol(rates, issuer_llama, H, share=split["underlying"])
+    nodes.append(node("underlying", "yield_source", f"{underlying['symbol']} (yield source)", p,
+                      why + f"; x{split['underlying']} = token-level share of issuer risk", "underlying",
+                      address=underlying["address"], price_usd=(underlying.get("price") or {}).get("usd")))
+    backing_id = None
+    if backing_stable:
+        backing_id = stable_node(accounting["symbol"], accounting["address"])
+    elif has_backing:
+        backing_id = "backing"
+        p, why = priors.p_protocol(rates, issuer_llama, H, share=split["backing"])
         nodes.append(node("backing", "yield_source", f"{accounting['symbol']} (backing asset)", p,
-                          why + "; x0.5 = backing share", "backing", address=accounting["address"],
+                          why + f"; x{split['backing']} = backing share of issuer risk", "backing", address=accounting["address"],
                           price_usd=(accounting.get("price") or {}).get("usd")))
 
     p, why = priors.p_protocol(rates, pendle_llama, H)
@@ -182,20 +215,24 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
                       url=f"https://app.pendle.finance/trade/markets/{pm['address']}/swap?view=pt&chain=ethereum"))
 
     p, why = priors.p_oracle(rates, H, mult, qnotes)
-    nodes.append(node("oracle", "oracle", f"Morpho oracle ({q['oracle_type'] or 'unknown'})", p, why, "oracle",
+    has_feed = q["provider"] != "unknown"
+    o_share = 0.5 if has_feed else 1.0
+    nodes.append(node("oracle", "oracle", f"Morpho oracle ({q['oracle_type'] or 'unknown'})", p * o_share,
+                      why + (f"; x{o_share} = oracle-contract share (rest on the feed provider)" if has_feed else ""), "oracle",
                       address=mm["oracle"]["address"], twap_window=None, single_feed=q["single_feed"],
                       sources=q["n_feeds"], heartbeat=None if q["computed_on_read"] else "unknown",
                       provider=q["provider"], feed=q["description"], computed_on_read=q["computed_on_read"],
                       deviation_vs_pendle_pct=q["deviation_vs_pendle_pct"], quality_flags=qnotes))
-    if q["provider"] != "unknown":
+    if has_feed:
         nodes.append(node("feed", "oracle", f"{q['provider']} (feed provider)", p * 0.5,
                           why + "; x0.5 = provider-level share", "feed_provider",
                           address=(q["feeds"] or [None])[0], description=q["description"]))
 
     bad = (mm.get("badDebt") or {}).get("usd") or 0
     warns = [w["type"] for w in mm.get("warnings") or []]
-    p, why = priors.p_protocol(rates, morpho_llama, H)
-    nodes.append(node("lending", "lending", f"Morpho market {pt_sym}/{loan_sym}", p, why, "lending",
+    p, why = priors.p_protocol(rates, morpho_llama, H, share=0.5)
+    nodes.append(node("lending", "lending", f"Morpho market {pt_sym}/{loan_sym}", p, why + "; x0.5 = isolated-market share of Morpho risk",
+                      "lending",
                       market_id=mm["marketId"], lltv=int(mm["lltv"]) / 1e18, utilization=ms["utilization"],
                       supply_usd=ms["supplyAssetsUsd"], borrow_usd=ms["borrowAssetsUsd"], liquidity_usd=ms["liquidityAssetsUsd"],
                       bad_debt_usd=bad, warnings=warns,
@@ -206,9 +243,13 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
     p, why = priors.p_protocol(rates, morpho_llama, H, share=0.5)
     nodes.append(node("morpho", "protocol", "Morpho Blue (protocol)", p, why + "; x0.5 = singleton-contract share",
                       "morpho_blue", **llama_meta(morpho_llama)))
-    p, why = priors.p_protocol(rates, loan_llama, H, share=0.5)
-    nodes.append(node("loan", "protocol", f"{loan_sym} (loan asset)", p, why + "; x0.5 = depeg share", "loan_asset",
-                      address=mm["loanAsset"]["address"], **llama_meta(loan_llama)))
+    if loan_sym.upper() in STABLES:
+        loan_id = stable_node(loan_sym, mm["loanAsset"]["address"])
+    else:
+        loan_id = "loan"
+        p, why = priors.p_protocol(rates, loan_llama, H, share=0.5)
+        nodes.append(node("loan", "protocol", f"{loan_sym} (loan asset)", p, why + "; x0.5 = depeg share", "loan_asset",
+                          address=mm["loanAsset"]["address"], **llama_meta(loan_llama)))
 
     def E(s, d, t, r):
         edges.append(Edge(s, d, t, r))
@@ -217,17 +258,20 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
     E("pos", "lending", 1.0, f"{pt_sym} posted as collateral on Morpho")
     E("amm", "underlying", 0.9, f"SY wraps {underlying['symbol']}")
     E("underlying", "issuer", 0.8, f"{underlying['symbol']} is issued/managed by {issuer_name}")
-    if has_backing:
-        E("underlying", "backing", 0.8, f"{underlying['symbol']} is a claim on {accounting['symbol']}")
-        E("backing", "issuer", 0.8, f"{accounting['symbol']} backing is run by {issuer_name}")
+    if backing_stable:
+        E("underlying", backing_id, 0.8, f"{underlying['symbol']} is accounted in / redeemable for {accounting['symbol']} "
+                                         f"(Pendle SY accounting asset)")
+    elif has_backing:
+        E("underlying", "backing", 0.8, f"{underlying['symbol']} is a claim on {accounting['symbol']} (Pendle SY accounting asset)")
+        E("backing", "issuer", 0.8, f"{accounting['symbol']} is also managed by {issuer_name}")
     E("lending", "oracle", 0.8, "liquidations and borrow limits use this oracle")
     E("oracle", "amm", 0.7 if q["reads_pendle"] else 0.4,
       "feed reads the Pendle market" if q["reads_pendle"] else "oracle prices the PT off market data")
-    if q["provider"] != "unknown":
+    if has_feed:
         E("oracle", "feed", 0.9, f"price comes from the {q['provider']} feed")
         E("feed", "chain", 0.5, "feed publishes on Ethereum")
     E("lending", "morpho", 0.7, "market is a Morpho Blue singleton market")
-    E("lending", "loan", 0.3, f"market liquidity is denominated in {loan_sym}")
+    E("lending", loan_id, 0.3, f"market liquidity is denominated in {loan_sym}")
     for src in ("amm", "lending"):
         E(src, "chain", 1.0, "settles on Ethereum")
 
@@ -247,11 +291,28 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
         n.meta["depth"] = depth.get(n.id)
         n.meta["hidden"] = (depth.get(n.id) or 0) >= 2
 
+    try:
+        block = sources.eth_block_number()
+    except Exception:
+        block = None
+    route = {"pt": pend["pt"]["address"], "pt_decimals": pend["pt"].get("decimals", 18), "pt_price_usd": pt_price,
+             "out": mm["loanAsset"]["address"], "out_symbol": loan_sym, "chain_id": chain_id}
     pos = Position("pos", f"{pt_sym} on Morpho ({loan_sym})", "ethereum", value_usd, H, {
         "exit_pool_liquidity_usd": liq, "ref": ref, "real": True, "pendle_market": pm["address"],
-        "morpho_market": mm["marketId"], "observed_at": int(time.time()),
+        "morpho_market": mm["marketId"], "observed_at": int(time.time()), "block_number": block,
         "concentration": _concentration(morpho_all, by_pt, mm, q),
-        "data_sources": ["Pendle API v1/v2", "Morpho Blue GraphQL", "DefiLlama /hacks /protocols", "Ethereum JSON-RPC (eth_call)"],
+        "data_sources": ["Pendle API v1/v2 + SDK convert (exit quote)", "Morpho Blue GraphQL", "DefiLlama /hacks /protocols",
+                         "DefiLlama stablecoin prices", "Ethereum JSON-RPC (eth_call, eth_gasPrice, eth_blockNumber)"],
         "prior_method": rates["source"],
+        "prior_upper_annual": rates.get("annual_per_protocol_upper"),
+        "prior_central_annual": rates.get("annual_per_protocol"),
+        "exit_route": route,
     })
-    return DepGraph(pos, nodes, edges)
+    g = DepGraph(pos, nodes, edges)
+    if os.environ.get("DEFIRISK_NO_QUOTE") != "1":
+        from .decision import quote_exit
+        try:
+            pos.meta["exit_quote"] = quote_exit(route, value_usd)
+        except Exception as e:  # recorded, decision falls back to the flagged approximation
+            pos.meta["exit_quote_error"] = f"{type(e).__name__}: {e}"[:300]
+    return g

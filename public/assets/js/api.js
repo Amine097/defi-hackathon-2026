@@ -18,9 +18,10 @@
     return d;
   }
 
-  // Resolves { data, source: 'live'|'demo' }; never rejects unless sample.json is also missing.
+  // Resolves { data, source }; source = payload.source from the API (live|cache|mixed|mock|mock-fallback),
+  // or 'demo' when the API is unreachable and the bundled sample is shown. Never rejects unless sample.json is missing.
   async function loadData() {
-    try { return { data: await tryFetch('/api/analyze'), source: 'live' }; }
+    try { const d = await tryFetch('/api/analyze'); return { data: d, source: d.source || 'unknown' }; }
     catch (_) { return { data: await tryFetch('/data/sample.json'), source: 'demo' }; }
   }
 
@@ -35,11 +36,21 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const verdictBadge = (v) => '<span class="badge badge-' + (v === 'EXIT' ? 'exit' : 'stay') + '">' + esc(v) + '</span>';
 
-  function sourceBadge(source) {
-    const live = source === 'live';
-    return '<span class="badge ' + (live ? 'badge-stay' : 'badge-warn') + '" title="' +
-      (live ? 'Data from /api/analyze' : 'API unavailable, using bundled sample data') + '">' +
-      (live ? 'live data' : 'demo data') + '</span>';
+  const SOURCE_LABEL = {
+    live: ['live on-chain data', 'badge-stay', 'Fetched now from Pendle, Morpho, DefiLlama and Ethereum RPC'],
+    cache: ['real data (cached)', 'badge-warn', 'Real API responses replayed from data/cache (see data_as_of)'],
+    mixed: ['real data (part cached)', 'badge-warn', 'Some API calls failed and were served from data/cache'],
+    mock: ['MOCK data', 'badge-exit', 'Demo graph requested explicitly; numbers are not real'],
+    'mock-fallback': ['MOCK (live failed)', 'badge-exit', 'Live discovery failed; showing the demo graph'],
+    demo: ['MOCK (API offline)', 'badge-exit', 'API unreachable; bundled sample data, numbers are not real'],
+  };
+
+  function sourceBadge(source, data) {
+    const [label, cls, tip] = SOURCE_LABEL[source] || ['unknown source', 'badge-exit', 'Payload did not say where its data came from'];
+    let title = tip;
+    if (data && data.data_as_of && source !== 'live') title += ' — as of ' + new Date(data.data_as_of * 1000).toISOString();
+    if (data && data.discovery_error) title += ' — error: ' + data.discovery_error;
+    return '<span class="badge ' + cls + '" title="' + esc(title) + '">' + esc(label) + '</span>';
   }
 
   window.FaultLine = { loadData, fmtUsd, fmtPct, esc, verdictBadge, sourceBadge, LAYER_META };

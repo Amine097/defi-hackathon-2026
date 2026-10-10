@@ -97,7 +97,7 @@
   <section>
     <h2>Stress scenarios</h2>
     <div class="card table-wrap"><table class="table">
-      <thead><tr><th>Scenario</th><th>Description</th><th class="num">Expected loss</th><th>Verdict</th></tr></thead>
+      <thead><tr><th>Scenario</th><th>Description</th><th class="num">Loss if it happens</th><th>Verdict</th></tr></thead>
       <tbody id="scen"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
     </table></div>
   </section>
@@ -117,11 +117,13 @@
     <details class="card">
       <summary>Methodology &amp; assumptions</summary>
       <ul>
-        <li><b>Mock numbers:</b> failure probabilities and loss-given-failure values are placeholders over a 30-day horizon until real data discovery lands.</li>
-        <li><b>Monte Carlo:</b> 20,000 simulations; each node fails independently with its probability.</li>
+        <li><b>Data:</b> the position is a real Pendle PT used as Morpho Blue collateral, discovered live from the Pendle API, Morpho GraphQL, DefiLlama and Ethereum RPC. The position size is an input (default $1M). The badge at the top says whether numbers are live, replayed from cache, or MOCK.</li>
+        <li><b>Failure priors (30-day horizon):</b> DefiLlama hack history for the protocol cohort (TVL &ge; $10M), adjusted by audits / TVL / age; stablecoins use their own DefiLlama price history. Loss-given-failure and edge transmissions are stated assumptions (see each node's source in the X-Ray).</li>
+        <li><b>Expected loss:</b> each node fails independently with its probability; the expected loss is computed exactly (1 &minus; &prod;(1 &minus; p &times; loss-if-fails &times; path transmission)); a 20,000-draw Monte Carlo gives the VaR95 and cross-checks the mean.</li>
         <li><b>Transmission:</b> a failure propagates along dependency edges (A depends on B) scaled by a per-edge transmission factor.</li>
-        <li><b>Exit cost:</b> slippage approximation from exit-pool liquidity plus gas; certain, paid immediately.</li>
-        <li><b>Decision:</b> STAY if expected loss from staying is below the certain exit cost, otherwise EXIT.</li>
+        <li><b>Exit cost:</b> executable Pendle SDK quote for selling the full PT size into the loan asset (slippage + fees), plus gas from eth_gasPrice; certain, paid immediately. If no quote is available a constant-product approximation is used and labelled as such.</li>
+        <li><b>Scenarios:</b> losses are conditional on the shock happening (probability 1), not probability-weighted.</li>
+        <li><b>Decision:</b> STAY if expected loss from staying over the horizon is below the certain exit cost, otherwise EXIT.</li>
       </ul>
     </details>
   </section>
@@ -152,7 +154,7 @@
     return;
   }
   const d = res.data, dec = d.decision;
-  $('src-badge').innerHTML = F.sourceBadge(res.source);
+  $('src-badge').innerHTML = F.sourceBadge(res.source, d);
   $('pos-label').textContent = d.position.label + ' · ' + d.position.chain + ' · ' + d.position.horizon_days + 'd horizon';
 
   const stay = dec.verdict !== 'EXIT';
@@ -161,6 +163,7 @@
   $('explain').textContent = dec.explanation;
   $('k-pos').textContent = F.fmtUsd(d.position.value_usd);
   countUp($('k-loss'), dec.expected_loss_usd);
+  $('k-exit').title = (d.exit && d.exit.basis) || dec.exit_method || '';
   countUp($('k-exit'), dec.exit_cost_usd);
 
   const nodes = Object.fromEntries(d.nodes.map((n) => [n.id, n]));
@@ -173,7 +176,7 @@
   }).join('') || '<span class="muted">No risk drivers</span>';
 
   $('scen').innerHTML = (d.scenarios || []).map((s) =>
-    '<tr><td><b>' + F.esc(s.name) + '</b></td><td class="muted">' + F.esc(s.description) + '</td><td class="num">' + F.fmtUsd(s.expected_loss_usd) + '</td><td>' + F.verdictBadge(s.verdict) + '</td></tr>').join('');
+    '<tr><td><b>' + F.esc(s.name) + '</b></td><td class="muted">' + F.esc(s.description) + '</td><td class="num">' + F.fmtUsd(s.conditional_loss_usd != null ? s.conditional_loss_usd : s.expected_loss_usd) + '</td><td>' + F.verdictBadge(s.verdict) + '</td></tr>').join('');
 
   const b = d.book;
   if (b) {
