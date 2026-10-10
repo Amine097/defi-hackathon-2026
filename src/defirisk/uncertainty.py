@@ -12,8 +12,8 @@ from __future__ import annotations
 
 import math
 
-from .models import DepGraph
-from .propagation import best_paths
+from .core.models import DepGraph, channel_active, edge_weight
+from .core.propagation import best_paths
 
 CLASSES = ("observed", "calibrated", "protocol-derived", "scenario_assumption", "not_used", "unknown")
 LGF_RANGE = {"observed": (0.5, 2.0), "scenario_assumption": (0.5, 1.5)}
@@ -97,6 +97,9 @@ def classify_p(node, g: DepGraph) -> dict:
 def classify_lgf(node) -> dict:
     src = node.meta.get("lgf_source", "")
     lgf = node.loss_given_failure
+    band = node.meta.get("lgf_band")
+    if src.startswith("calibrated") and band:
+        return {"class": "calibrated", "central": lgf, "low": band["low"], "high": min(1.0, band["high"]), "why": src}
     cls = "observed" if src.startswith("measured") else ("not_used" if node.p_fail == 0 else "scenario_assumption")
     lo, hi = LGF_RANGE.get(cls, (1.0, 1.0))
     return {"class": cls, "central": lgf, "low": lgf * lo, "high": min(1.0, lgf * hi), "why": src}
@@ -109,7 +112,8 @@ def inventory(g: DepGraph) -> dict:
             continue
         nodes.append({"id": n.id, "label": n.label, "role": n.meta.get("role"), "mechanism": MECHANISM.get(n.meta.get("role"), "other"),
                       "p_fail_horizon": classify_p(n, g), "loss_given_failure": classify_lgf(n)})
-    edges = [{"src": e.src, "dst": e.dst, "transmission": e.transmission,
+    edges = [{"src": e.src, "dst": e.dst, "transmission": e.transmission, "channel": e.channel,
+              "reaches_position": channel_active(e.channel, g.position),
               "class": "protocol-derived" if e.reason.startswith("measured") else "scenario_assumption",
               "low": e.transmission if e.reason.startswith("measured") else e.transmission * T_RANGE[0],
               "high": e.transmission if e.reason.startswith("measured") else min(1.0, e.transmission * T_RANGE[1]),
@@ -126,11 +130,14 @@ MECHANISM = {
     "issuer": "issuer failure (operational, legal, reserves) -> underlying impaired",
     "backing": "backing asset impairment -> underlying impaired",
     "stablecoin": "stablecoin depeg (observed history)",
-    "amm": "Pendle AMM / contract incident -> PT exit and price impaired",
-    "oracle": "oracle failure / manipulation -> wrong collateral price -> bad liquidations / bad debt",
-    "feed_provider": "feed provider failure -> oracle wrong",
-    "lending": "Morpho market incident -> collateral stuck or lost",
-    "morpho_blue": "Morpho Blue singleton contract exploit",
+    "pendle_core": "Pendle PT / SY contract exploit -> the PT redeems into less (principal)",
+    "amm": "Pendle AMM incident -> selling before maturity costs more or must wait for maturity (exit side, not principal)",
+    "oracle": "oracle failure / manipulation -> wrong collateral price -> wrongful liquidations (borrowers) / bad debt "
+              "(lenders); no effect on collateral without debt",
+    "feed_provider": "feed provider failure -> oracle wrong (same channel as the oracle)",
+    "lending": "Morpho market incident (oracle, IRM, bad debt) -> borrowers liquidated / lenders lose; the collateral "
+               "itself sits in the Morpho Blue singleton",
+    "morpho_blue": "Morpho Blue singleton contract exploit -> collateral held by the contract drained",
     "loan_asset": "loan asset depeg -> debt / liquidity mispriced",
     "chain": "L1 halt / rollback / consensus failure",
     "base_asset": "look-through base asset (what-if only)",
@@ -150,7 +157,7 @@ def _h_values(g: DepGraph, which: str) -> tuple[list[float], list[float], list[s
             tt = 1.0
             for a, b in zip(route, route[1:]):
                 e = next(e for e in g.edges if e.src == a and e.dst == b)
-                w = e.transmission
+                w = edge_weight(e, g.position)
                 if not e.reason.startswith("measured"):  # on-chain allocation weights carry no expert band
                     w = {"low": w * T_RANGE[0], "high": min(1.0, w * T_RANGE[1])}.get(which, w)
                 tt *= w

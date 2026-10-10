@@ -114,9 +114,15 @@ def _check_payload(p):
             assert (r["verdict"] == "EXIT") == (r["p_fail_multiplier"] > be)
     rate = carry / d["value_usd"]
     for pk in p["book"]["pockets"]:
-        assert pk["carry_usd"] == pytest.approx(pk["value_usd"] * rate)
-        assert pk["exit_total_usd"] == pytest.approx(pk["exit_cost_usd"] + pk["carry_usd"])
-        assert pk["verdict"] == ("EXIT" if pk["stay_loss_usd"] > pk["exit_total_usd"] else "STAY")
+        if p["book"].get("mode") == "real_book":  # real pockets: each has its own PT implied APY
+            assert pk["exit_cost_usd"] is None or pk["exit_total_usd"] == pytest.approx(pk["exit_cost_usd"] + pk["carry_usd"])
+            if pk["is_analysed_position"]:
+                assert pk["carry_usd"] == pytest.approx(pk["value_usd"] * rate, rel=1e-3)
+        else:
+            assert pk["carry_usd"] == pytest.approx(pk["value_usd"] * rate)
+            assert pk["exit_total_usd"] == pytest.approx(pk["exit_cost_usd"] + pk["carry_usd"])
+        if pk["verdict"] != "UNKNOWN":
+            assert pk["verdict"] == ("EXIT" if pk["stay_loss_usd"] > pk["exit_total_usd"] else "STAY")
 
 
 def test_payload_every_verdict_uses_exit_side_incl_carry_mock():

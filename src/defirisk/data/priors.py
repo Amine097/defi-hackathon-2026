@@ -8,7 +8,9 @@ Each node gets meta["source"] explaining how its p_fail was obtained.
 """
 from __future__ import annotations
 
+import json
 import time
+from pathlib import Path
 
 from .sources import llama_hacks, llama_protocols, llama_stablecoin_price_history
 
@@ -20,11 +22,31 @@ MIN_PROTOCOL_TVL = 10_000_000
 # (no public dataset gives this per position); tune with Belem's mentors.
 LGF = {
     "chain": 0.30, "issuer": 0.60, "underlying": 0.50, "backing": 0.50, "oracle": 0.40,
-    "feed_provider": 0.40, "amm": 0.60, "lending": 0.70, "morpho_blue": 0.70, "loan_asset": 0.30,
+    "feed_provider": 0.40, "amm": 0.60, "pendle_core": 0.60, "lending": 0.70, "morpho_blue": 0.70, "loan_asset": 0.30,
     "stablecoin": 0.30,
 }
 CHAIN_ANNUAL = 0.005  # assumption: no top-tier L1 has had a multi-day halt/rollback in recent years
 STABLE_FALLBACK_ANNUAL = 0.10  # assumption, only used when a stablecoin has no DefiLlama price history
+
+# Roles whose failure probability comes from the DefiLlama exploit base rate: their loss-given-failure is calibrated on
+# the SAME incidents (share of TVL lost), see scripts/calibrate_lgf.py -> data/calibration/hack_severity.json.
+HACK_ROLES = {"issuer", "underlying", "backing", "pendle_core", "amm", "lending", "morpho_blue", "oracle",
+              "feed_provider", "loan_asset"}
+SEVERITY_FILE = Path(__file__).resolve().parents[3] / "data" / "calibration" / "hack_severity.json"
+
+
+def hack_severity() -> dict | None:
+    """Calibrated exploit severity (mean share of TVL lost, bootstrap CI of the mean), or None if not calibrated."""
+    try:
+        d = json.loads(SEVERITY_FILE.read_text(encoding="utf-8"))
+        s = d["summary"]
+        return {"mean": s["mean"], "low": s["mean_ci95"][0], "high": s["mean_ci95"][1], "median": s["median"],
+                "p90": s["p90"], "n": s["n"], "generated_at": d["generated_at"],
+                "source": (f"calibrated: mean share of TVL lost in {s['n']} DefiLlama exploits (cohort, "
+                           f"{LOOKBACK_YEARS}y) = {s['mean']:.1%} (95% CI {s['mean_ci95'][0]:.1%}-{s['mean_ci95'][1]:.1%}; "
+                           f"median {s['median']:.1%}, p90 {s['p90']:.1%}); data/calibration/hack_severity.json")}
+    except (OSError, ValueError, KeyError, IndexError, TypeError):
+        return None
 
 
 def _horizon(annual: float, horizon_days: int) -> float:

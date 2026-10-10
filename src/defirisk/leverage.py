@@ -85,12 +85,59 @@ def analyze(g, sim, scenarios: list[dict], borrower: str | None) -> dict:
     st["expected"] = _expected(st, sim, V)
     st["drift"] = _drift(st, g.position.horizon_days)
     st["decision"] = _borrower_decision(g, st)
+    st["countermove_suggestion"] = countermove_suggestion(st)
     try:
         liq = morpho.recent_liquidations(mid, 1)
         st["historical_check"] = morpho.verify_liquidation(liq[0]["tx"]) if liq else {"status": "no liquidation found"}
     except Exception as e:
         st["historical_check"] = {"status": "unavailable", "reason": f"{type(e).__name__}: {e}"[:200]}
     return st
+
+
+TRIGGER_GAP = 0.04  # suggested trigger = LLTV - 4 pp (same default as the Countermove dry run)
+FLOOR_GAP = 0.10  # suggested LTV floor after an action = trigger - 10 pp
+FIRST_HITS = (0.05, 0.10, 0.15)
+
+
+def countermove_suggestion(st: dict) -> dict:
+    """Signal -> action: a RescueVault policy for THIS borrower, in the units of /api/countermove?action=policy-draft.
+
+    Reserve per first hit h: repay R so that the LTV after the hit is back at the trigger - 5 pp target:
+    R = max(0, debt - target x collateral value x (1 - h)); or top up T collateral so that
+    debt <= target x (collateral + T) x price x (1 - h). An EXIT verdict suggests closing the debt (FULL_REPAY).
+    The owner signs it; nothing is sent from here."""
+    lltv, ltv = st["lltv"], st.get("ltv") or 0.0
+    debt, cv = st["debt_assets"], st["collateral_value_loan_units"]
+    coll_amt = st["collateral_amount"]
+    price = cv / coll_amt if coll_amt else None
+    trigger = round(max(min(lltv - TRIGGER_GAP, lltv - 0.005), 0.01), 4)
+    floor = round(max(trigger - FLOOR_GAP, 0.0), 4)
+    target = max(trigger - 0.05, floor + 0.01)
+    rows = []
+    for h in FIRST_HITS:
+        v = cv * (1 - h)
+        repay = max(0.0, debt - target * v)
+        top_up = max(0.0, debt / (target * price * (1 - h)) - coll_amt) if price else None
+        rows.append({"first_hit": h, "ltv_after_hit": debt / v if v else None, "liquidatable_after_hit": debt > lltv * v,
+                     "min_repay": repay, "min_top_up": top_up})
+    full = (st.get("decision") or {}).get("verdict") == "EXIT"
+    worst = rows[-1]
+    loan_reserve = debt * 1.01 if full else worst["min_repay"]
+    q = {"strategies": "FULL_REPAY" if full else "REPAY,TOP_UP", "trigger_ltv": trigger, "min_ltv_after": floor, "lltv": lltv,
+         "max_repay_per_action": 0 if full else round(worst["min_repay"], 2),
+         "max_repay_total": round(loan_reserve, 2), "max_full_repay": round(debt * 1.01, 2) if full else 0,
+         "min_loan_reserve": 0, "max_top_up_per_action": 0 if full else round(worst["min_top_up"] or 0, 8),
+         "max_top_up_total": 0 if full else round(worst["min_top_up"] or 0, 8), "min_collateral_reserve": 0,
+         "valid_days": 30, "loan_decimals": st["loan_decimals"], "collateral_decimals": st["collateral_decimals"]}
+    from urllib.parse import urlencode
+    return {"policy_draft_query": q, "policy_draft_url": "/api/countermove?action=policy-draft&" + urlencode(q),
+            "reserve_to_deposit": {"loan_token": round(loan_reserve, 2),
+                                   "collateral_token": 0 if full else round(worst["min_top_up"] or 0, 8)},
+            "reserve_per_first_hit": rows, "already_above_trigger": ltv >= trigger,
+            "why": ("EXIT verdict: close the debt automatically if the trigger is crossed (FULL_REPAY)" if full else
+                    f"act at LTV {trigger:.1%} (LLTV {lltv:.1%} - {TRIGGER_GAP:.0%}); reserve sized for a "
+                    f"{FIRST_HITS[-1]:.0%} first hit, back to {target:.1%}"),
+            "note": "suggestion only: the owner reviews and signs setPolicy with their own wallet; amounts in token units"}
 
 
 def _borrower_decision(g, st: dict) -> dict:

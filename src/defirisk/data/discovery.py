@@ -65,20 +65,39 @@ def _provider(description: str) -> str:
 
 
 def _feed_quality(market: dict, pt_price_usd: float | None) -> dict:
+    """Quality of the market oracle's inputs: EVERY feed (base/quote, 1 and 2) is read on-chain, not only the first."""
     feeds = _feed_addresses(market)
     data = (market.get("oracle") or {}).get("data") or {}
     q = {"feeds": feeds, "n_feeds": len(feeds), "single_feed": len(feeds) <= 1 and not data.get("baseOracleVault"),
          "oracle_type": (market.get("oracle") or {}).get("type"), "description": "", "provider": "unknown",
-         "updated_age_s": None, "computed_on_read": None, "deviation_vs_pendle_pct": None, "reads_pendle": False}
-    info = sources.read_feed(feeds[0]) if feeds else None
+         "updated_age_s": None, "computed_on_read": None, "deviation_vs_pendle_pct": None, "reads_pendle": False,
+         "feed_details": [], "providers": [], "vaults": [v for v in (data.get("baseOracleVault"), data.get("quoteOracleVault"))
+                                                          if v]}
+    infos = []
+    for addr in feeds:
+        try:
+            info = sources.read_feed(addr)
+        except Exception:  # noqa: BLE001 - one unreadable feed must not hide the others
+            info = None
+        infos.append(info)
+        row = {"address": addr, "readable": bool(info)}
+        if info:
+            row.update(description=info["description"], provider=_provider(info["description"]), answer=info["answer"])
+            if os.getenv("DEFIRISK_OFFLINE") != "1":  # cached eth_call results would give a misleading age
+                row["updated_age_s"] = max(0, int(time.time()) - info["updated_at"])
+        q["feed_details"].append(row)
+    q["providers"] = sorted({r["provider"] for r in q["feed_details"] if r.get("provider")})
+    q["unreadable_feeds"] = [r["address"] for r in q["feed_details"] if not r["readable"]]
+    info = infos[0] if infos else None
     if info:
         q["description"] = info["description"]
         q["provider"] = _provider(info["description"])
-        q["reads_pendle"] = "pendle" in info["description"].lower()
-        if os.getenv("DEFIRISK_OFFLINE") != "1":  # cached eth_call results would give a misleading age
-            q["updated_age_s"] = max(0, int(time.time()) - info["updated_at"])
-            q["computed_on_read"] = q["updated_age_s"] < 300
-        if pt_price_usd and market["loanAsset"]["symbol"].upper() in STABLES and info["answer"] > 0:
+        q["reads_pendle"] = any("pendle" in (i or {}).get("description", "").lower() for i in infos)
+        ages = [r["updated_age_s"] for r in q["feed_details"] if r.get("updated_age_s") is not None]
+        if ages:
+            q["updated_age_s"] = max(ages)  # the stalest input bounds the oracle's freshness
+            q["computed_on_read"] = all(a < 300 for a in ages)
+        if pt_price_usd and market["loanAsset"]["symbol"].upper() in STABLES and info["answer"] > 0 and len(feeds) == 1:
             q["deviation_vs_pendle_pct"] = (info["answer"] - pt_price_usd) / pt_price_usd * 100
     return q
 
@@ -89,6 +108,8 @@ def _quality_multiplier(q: dict) -> tuple[float, list[str]]:
         mult *= 1.5; notes.append("single price feed x1.5")
     if q["computed_on_read"]:
         mult *= 1.5; notes.append("feed is computed on read (no heartbeat/staleness guard) x1.5")
+    if q.get("unreadable_feeds"):
+        mult *= 1.5; notes.append(f"{len(q['unreadable_feeds'])} oracle input(s) unreadable on-chain x1.5")
     dev = q["deviation_vs_pendle_pct"]
     if dev is not None and abs(dev) > 2:
         mult *= 1.5; notes.append(f"feed deviates {dev:+.1f}% from Pendle PT price x1.5")
@@ -179,6 +200,73 @@ def _slug(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", s.lower()).strip("_") or "x"
 
 
+BOOK_SIZE = 10
+
+
+def _book_markets(morpho: list[dict], by_pt: dict, details: dict, ours: dict, rates: dict, protocols: list[dict],
+                  stable_prior, H: int, sev: dict | None, morpho_llama, pendle_llama) -> list[dict]:
+    """Real pockets for the book view: the largest listed Morpho markets taking a Pendle PT as collateral (ours first),
+    each with its PRINCIPAL dependencies (collateral without debt) under shared keys, so a dependency common to several
+    pockets is one key: chain, Morpho Blue singleton, Pendle PT/SY contracts, underlying, issuer, backing stablecoin.
+    Same priors as the main graph (DefiLlama base rate x modifiers, calibrated severity, stablecoin history)."""
+    lgf_hack = sev["mean"] if sev else None
+    p_chain, why_chain = priors.p_chain(H)
+    p_morpho, why_morpho = priors.p_protocol(rates, morpho_llama, H, share=0.5)
+    p_pendle, why_pendle = priors.p_protocol(rates, pendle_llama, H, share=0.5)
+    rows = [ours] + [m for m in morpho if m["marketId"] != ours["marketId"]]
+    out, seen = [], set()
+    for m in rows:
+        d = details.get(m["marketId"])
+        if not d or m["marketId"] in seen:
+            continue
+        seen.add(m["marketId"])
+        pa = by_pt.get(m["collateralAsset"]["address"].lower()) or {}
+        und, acc = d["underlyingAsset"], d["accountingAsset"]
+        issuer_name = d.get("protocol") or und["symbol"]
+        ill = sources.llama_find_protocol(issuer_name, protocols) or sources.llama_find_protocol(und["symbol"], protocols)
+        has_backing = acc["address"].lower() != und["address"].lower()
+        backing_stable = has_backing and acc["symbol"].upper() in STABLES
+        u_share = 0.25 if has_backing and not backing_stable else 0.5
+        p_iss, why_iss = priors.p_protocol(rates, ill, H, share=0.5)
+        p_und, why_und = priors.p_protocol(rates, ill, H, share=u_share)
+
+        def dep(key, label, p, why, role, T, lgf=None, node_id=None):
+            lg = lgf if lgf is not None else (lgf_hack if (lgf_hack and role in priors.HACK_ROLES) else priors.LGF.get(role, 0.5))
+            return {"key": key, "label": label, "role": role, "p_fail": p, "lgf": lg, "transmission": T, "source": why,
+                    "node_id": node_id}
+
+        deps = [dep("chain:ethereum", "Ethereum", p_chain, why_chain, "chain", 1.0, node_id="chain"),
+                dep("morpho_blue", "Morpho Blue (protocol)", p_morpho, why_morpho, "morpho_blue", 1.0, node_id="morpho"),
+                dep(f"pendle_core:{d['address'].lower()}", f"Pendle PT / SY contracts ({d['pt']['symbol']})", p_pendle,
+                    why_pendle, "pendle_core", 1.0, node_id="pendle_core"),
+                dep(f"underlying:{und['address'].lower()}", f"{und['symbol']} (yield source)", p_und, why_und, "underlying",
+                    0.9, node_id="underlying"),
+                dep(f"issuer:{_slug(issuer_name)}", f"{issuer_name} (issuer)", p_iss, why_iss, "issuer", 0.72,
+                    node_id="issuer")]
+        if backing_stable:
+            p_s, lgf_s, why_s = stable_prior(acc["symbol"])
+            deps.append(dep(f"stable:{acc['symbol'].upper()}", f"{acc['symbol']} (stablecoin)", p_s, why_s, "stablecoin",
+                            0.72, lgf=lgf_s, node_id=f"usd_{acc['symbol'].lower()}"))
+        elif has_backing:
+            p_b, why_b = priors.p_protocol(rates, ill, H, share=0.25)
+            deps.append(dep(f"backing:{acc['address'].lower()}", f"{acc['symbol']} (backing asset)", p_b, why_b, "backing",
+                            0.72, node_id="backing"))
+        pt = d["pt"]
+        out.append({"market_id": m["marketId"], "label": f"{pt['symbol']} / {m['loanAsset']['symbol']}",
+                    "is_mine": m["marketId"] == ours["marketId"], "pendle_market": d["address"], "expiry": d.get("expiry"),
+                    "loan_symbol": m["loanAsset"]["symbol"], "loan_address": m["loanAsset"]["address"],
+                    "morpho_supply_usd": m["state"].get("supplyAssetsUsd"),
+                    "pool_liquidity_usd": (pa.get("details") or {}).get("liquidity"),
+                    "implied_apy": (pa.get("details") or {}).get("impliedApy"),
+                    "exit_route": {"pt": pt["address"], "pt_decimals": pt.get("decimals", 18),
+                                   "pt_price_usd": (pt.get("price") or {}).get("usd"), "out": m["loanAsset"]["address"],
+                                   "out_symbol": m["loanAsset"]["symbol"], "chain_id": 1},
+                    "dependencies": deps})
+        if len(out) >= BOOK_SIZE:
+            break
+    return out
+
+
 def _attach_lineage(nodes: list[Node], edges: list[Edge], lin, lt: dict, pegs: dict, node) -> None:
     """Add the lineage tokens below the existing underlying/backing nodes (existing nodes are reused by address)."""
     by_addr = {str(n.meta.get("address", "")).lower(): n.id for n in nodes if n.meta.get("address")}
@@ -244,6 +332,10 @@ def _attach_lineage(nodes: list[Node], edges: list[Edge], lin, lt: dict, pegs: d
 # ---------------------------------------------------------------------------
 def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
     chain_id = 1
+    parts = ref.split(":")
+    if ref.startswith("pendle:") and (len(parts) != 3 or parts[1] != str(chain_id)):
+        raise ValueError(f"unsupported ref '{ref}': use pendle:1:<market address> (Ethereum mainnet only for now: other "
+                         "chains need their own RPC, Morpho deployment and gas pricing)")
     pm, mm, morpho_all, by_pt = _select(ref, chain_id)
     pend = sources.pendle_market(pm["address"], chain_id)
     pdata = sources.pendle_market_data(pm["address"], chain_id)
@@ -266,12 +358,18 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
     ms = mm["state"]
     liq = pdata["liquidity"]["usd"]
 
+    sev = priors.hack_severity()
+
     def node(nid, layer, label, p, why, role, lgf=None, lgf_why=None, **meta):
+        band = None
+        if lgf is None and sev and role in priors.HACK_ROLES:
+            lgf, band = sev["mean"], {"low": sev["low"], "high": sev["high"], "p90": sev["p90"]}
+            lgf_why = sev["source"] + (f"; {lgf_why}" if lgf_why else "")
         lg = priors.LGF.get(role, 0.5) if lgf is None else lgf
         return Node(nid, layer, label, round(p, 6), round(lg, 4),
                     {"role": role, "source": why, "chain": "ethereum",
                      "lgf_source": lgf_why or f"structural assumption: loss-given-failure {lg:.0%} for role '{role}' (priors.LGF)",
-                     **meta})
+                     **({"lgf_band": band} if band else {}), **meta})
 
     def llama_meta(p):
         return {"tvl_usd": p.get("tvl"), "audits": p.get("audits"), "url": p.get("url"),
@@ -330,8 +428,16 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
                           why + f"; x{split['backing']} = backing share of issuer risk", "backing", address=accounting["address"],
                           price_usd=(accounting.get("price") or {}).get("usd")))
 
-    p, why = priors.p_protocol(rates, pendle_llama, H)
-    nodes.append(node("amm", "amm", f"Pendle market {pt_sym}", p, why, "amm", address=pm["address"],
+    p, why = priors.p_protocol(rates, pendle_llama, H, share=0.5)
+    nodes.append(node("pendle_core", "amm", f"Pendle PT / SY contracts ({pt_sym})", p,
+                      why + "; x0.5 = PT/SY contract share of Pendle risk (rest on the AMM pool)", "pendle_core",
+                      address=pend["pt"]["address"], sy=(pend.get("sy") or {}).get("address"), expiry=pend["expiry"],
+                      url=f"https://app.pendle.finance/trade/markets/{pm['address']}/swap?view=pt&chain=ethereum"))
+    p, why = priors.p_protocol(rates, pendle_llama, H, share=0.5)
+    nodes.append(node("amm", "amm", f"Pendle AMM pool {pt_sym}", p, why + "; x0.5 = AMM-pool share of Pendle risk", "amm",
+                      lgf_why="exit channel: an AMM failure changes the cost / timing of selling before maturity, not the "
+                              "PT's redemption value; priced on the exit side (stressed exit liquidity)",
+                      address=pm["address"],
                       expiry=pend["expiry"], liquidity_usd=liq, tvl_usd=pdata["totalTvl"]["usd"],
                       pt_discount=pdata.get("ptDiscount"), implied_apy=pdata.get("impliedApy"),
                       url=f"https://app.pendle.finance/trade/markets/{pm['address']}/swap?view=pt&chain=ethereum"))
@@ -344,6 +450,7 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
                       address=mm["oracle"]["address"], twap_window=None, single_feed=q["single_feed"],
                       sources=q["n_feeds"], heartbeat=None if q["computed_on_read"] else "unknown",
                       provider=q["provider"], feed=q["description"], computed_on_read=q["computed_on_read"],
+                      feeds=q["feed_details"], providers=q["providers"], oracle_vaults=q["vaults"],
                       deviation_vs_pendle_pct=q["deviation_vs_pendle_pct"], quality_flags=qnotes))
     if has_feed:
         nodes.append(node("feed", "oracle", f"{q['provider']} (feed provider)", p * 0.5,
@@ -373,12 +480,16 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
         nodes.append(node("loan", "protocol", f"{loan_sym} (loan asset)", p, why + "; x0.5 = depeg share", "loan_asset",
                           address=mm["loanAsset"]["address"], **llama_meta(loan_llama)))
 
-    def E(s, d, t, r):
-        edges.append(Edge(s, d, t, r))
+    def E(s, d, t, r, channel="principal"):
+        edges.append(Edge(s, d, t, r, channel))
 
-    E("pos", "amm", 1.0, f"holds {pt_sym}; exits through the Pendle AMM")
-    E("pos", "lending", 1.0, f"{pt_sym} posted as collateral on Morpho")
-    E("amm", "underlying", 0.9, f"SY wraps {underlying['symbol']}")
+    E("pos", "pendle_core", 1.0, f"holds {pt_sym}: redeems at maturity through Pendle's PT/SY contracts")
+    E("pos", "amm", 1.0, f"sells {pt_sym} before maturity through the Pendle AMM (exit route)", "exit")
+    E("pos", "morpho", 1.0, f"the {pt_sym} collateral is held by the Morpho Blue singleton contract")
+    E("pos", "lending", 1.0, f"{pt_sym} posted as collateral on this market: its oracle and parameters act through the "
+                             f"debt (liquidation); without debt, market losses fall on lenders and borrowers", "debt")
+    E("pendle_core", "underlying", 0.9, f"SY wraps {underlying['symbol']}")
+    E("amm", "pendle_core", 1.0, "the pool trades the PT")
     E("underlying", "issuer", 0.8, f"{underlying['symbol']} is issued/managed by {issuer_name}")
     if backing_stable:
         E("underlying", backing_id, 0.8, f"{underlying['symbol']} is accounted in / redeemable for {accounting['symbol']} "
@@ -394,12 +505,17 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
         E("feed", "chain", 0.5, "feed publishes on Ethereum")
     E("lending", "morpho", 0.7, "market is a Morpho Blue singleton market")
     E("lending", loan_id, 0.3, f"market liquidity is denominated in {loan_sym}")
-    for src in ("amm", "lending"):
+    for src in ("pendle_core", "amm", "lending"):
         E(src, "chain", 1.0, "settles on Ethereum")
 
     # recursive token lineage + look-through (never fatal: the base graph stands on its own)
     details = _pendle_details(morpho_all[:12], by_pt)
     details[mm["marketId"]] = pend
+    try:
+        book_markets = _book_markets(morpho_all, by_pt, details, mm, rates, protocols, stable_prior, H, sev,
+                                     morpho_llama, pendle_llama)
+    except Exception as e:  # the book is a view on top of the analysis: never fatal
+        book_markets = {"error": f"{type(e).__name__}: {e}"[:300]}
     shared, lins, lt, lin_err = None, {}, None, None
     try:
         shared, lins = _portfolio_lookthrough(morpho_all, mm, details)
@@ -449,12 +565,14 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
              "out": mm["loanAsset"]["address"], "out_symbol": loan_sym, "chain_id": chain_id}
     pos = Position("pos", f"{pt_sym} on Morpho ({loan_sym})", "ethereum", value_usd, H, {
         "exit_pool_liquidity_usd": liq, "ref": ref, "real": True, "pendle_market": pm["address"],
+        "exposure_role": "collateral_only",
         "morpho_market": mm["marketId"], "observed_at": http.now(), "block_number": block, "block_timestamp": block_ts,
         "reference_rates": ref_rates,
         "concentration": _concentration(morpho_all, by_pt, mm, q, details) + _lookthrough_rows(shared, nodes),
         "lookthrough": lt and {k: lt[k] for k in ("root", "tokens", "base_assets", "cycles")},
         "coverage": lt and lt["coverage"],
         "shared_exposure": shared,
+        "book_markets": book_markets,
         **({"lineage_error": lin_err} if lin_err else {}),
         "data_sources": ["Pendle API v1/v2 + SDK convert (exit quote)", "Morpho Blue GraphQL", "DefiLlama /hacks /protocols",
                          "DefiLlama stablecoin prices", "Ethereum JSON-RPC (eth_call, eth_gasPrice, eth_blockNumber)",

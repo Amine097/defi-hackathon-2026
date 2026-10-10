@@ -1,0 +1,314 @@
+{
+ "schema": "faultline.hack_severity/1",
+ "generated_at": 1791674315,
+ "method": "loss share = (amount - returned funds) / protocol TVL the day before the hack, capped at 1",
+ "selection": "DefiLlama /hacks: last 3y, >= $1,000,000, not CEX, protocol in the cohort (DefiLlama /protocols TVL >= $10,000,000, not CEX/Chain) - the same incidents as the failure base rate",
+ "sources": [
+  "https://api.llama.fi/hacks",
+  "https://api.llama.fi/protocols",
+  "https://api.llama.fi/protocol/{slug}"
+ ],
+ "summary": {
+  "n": 23,
+  "mean": 0.19216909175574207,
+  "median": 0.11294298036057474,
+  "p25": 0.012617584859992384,
+  "p75": 0.2191231890372573,
+  "p90": 0.4860359583319073,
+  "max": 1.0,
+  "min": 0.001665076189618126,
+  "mean_ci95": [
+   0.09410910772432937,
+   0.31519909042412736
+  ],
+  "mean_ci_method": "bootstrap of the mean, 10,000 resamples, seed 0"
+ },
+ "incidents": [
+  {
+   "name": "Tectonic",
+   "slug": "tectonic",
+   "category": "Lending",
+   "date": 1788048000,
+   "classification": "Token & Share Accounting",
+   "amount_usd": 124470000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 121576088.0,
+   "tvl_date": 1787961600,
+   "loss_share": 1.0
+  },
+  {
+   "name": "Cetus CLMM",
+   "slug": "cetus-clmm",
+   "category": "Dexs",
+   "date": 1747872000,
+   "classification": "Token & Share Accounting",
+   "amount_usd": 223000000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 238138597.0,
+   "tvl_date": 1747785600,
+   "loss_share": 0.9364294692640689
+  },
+  {
+   "name": "Orbit Bridge",
+   "slug": "orbit-bridge",
+   "category": "Bridge",
+   "date": 1703980800,
+   "classification": "Input Validation",
+   "amount_usd": 81700000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 152692399.0,
+   "tvl_date": 1703894400,
+   "loss_share": 0.5350626523328119
+  },
+  {
+   "name": "Balancer V2",
+   "slug": "balancer-v2",
+   "category": "Dexs",
+   "date": 1762128000,
+   "classification": "Token & Share Accounting",
+   "amount_usd": 128000000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 441487121.0,
+   "tvl_date": 1762041600,
+   "loss_share": 0.2899291823282881
+  },
+  {
+   "name": "DxSale",
+   "slug": "dxsale",
+   "category": "Launchpad",
+   "date": 1779926400,
+   "classification": "Rugpull",
+   "amount_usd": 7300000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 25799538.0,
+   "tvl_date": 1779840000,
+   "loss_share": 0.28295080322756166
+  },
+  {
+   "name": "Rhea Lend",
+   "slug": "rhea-lend",
+   "category": "Lending",
+   "date": 1776297600,
+   "classification": "Oracle Manipulation",
+   "amount_usd": 18400000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 80880746.0,
+   "tvl_date": 1776211200,
+   "loss_share": 0.22749542888736463
+  },
+  {
+   "name": "Across",
+   "slug": "across",
+   "category": "Cross Chain Bridge",
+   "date": 1784246400,
+   "classification": "Bridge & Cross-Chain",
+   "amount_usd": 4500000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 21352217.0,
+   "tvl_date": 1784160000,
+   "loss_share": 0.21075094918714998
+  },
+  {
+   "name": "Kelp",
+   "slug": "kelp",
+   "category": "Liquid Restaking",
+   "date": 1776470400,
+   "classification": "Bridge & Cross-Chain",
+   "amount_usd": 293000000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 1591612989.0,
+   "tvl_date": 1776384000,
+   "loss_share": 0.18408997791862078
+  },
+  {
+   "name": "Moonwell Lending",
+   "slug": "moonwell-lending",
+   "category": "Lending",
+   "date": 1787788800,
+   "classification": "Oracle Manipulation",
+   "amount_usd": 8700000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 53747489.0,
+   "tvl_date": 1787702400,
+   "loss_share": 0.16186802698820033
+  },
+  {
+   "name": "Taiko Bridge",
+   "slug": "taiko-bridge",
+   "category": "Canonical Bridge",
+   "date": 1782000000,
+   "classification": "Bridge & Cross-Chain",
+   "amount_usd": 1700000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 12451197.0,
+   "tvl_date": 1781913600,
+   "loss_share": 0.13653305782568537
+  },
+  {
+   "name": "THORChain DEX",
+   "slug": "thorchain-dex",
+   "category": "Dexs",
+   "date": 1778803200,
+   "classification": "Bridge & Cross-Chain",
+   "amount_usd": 10700000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 81285382.0,
+   "tvl_date": 1778716800,
+   "loss_share": 0.1316349845043479
+  },
+  {
+   "name": "Blend Pools V2",
+   "slug": "blend-pools-v2",
+   "category": "Lending",
+   "date": 1771718400,
+   "classification": "Oracle Manipulation",
+   "amount_usd": 10970000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 97128657.0,
+   "tvl_date": 1771632000,
+   "loss_share": 0.11294298036057474
+  },
+  {
+   "name": "Resupply",
+   "slug": "resupply",
+   "category": "Lending",
+   "date": 1750809600,
+   "classification": "Token & Share Accounting",
+   "amount_usd": 9600000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 135057873.0,
+   "tvl_date": 1750723200,
+   "loss_share": 0.07108063963068632
+  },
+  {
+   "name": "Ekubo",
+   "slug": "ekubo",
+   "category": "Dexs",
+   "date": 1777939200,
+   "classification": "Access Control",
+   "amount_usd": 1400000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 36647616.0,
+   "tvl_date": 1777852800,
+   "loss_share": 0.038201666378516956
+  },
+  {
+   "name": "Moonwell Lending",
+   "slug": "moonwell-lending",
+   "category": "Lending",
+   "date": 1771113600,
+   "classification": "Oracle Manipulation",
+   "amount_usd": 1780000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 56744789.0,
+   "tvl_date": 1771027200,
+   "loss_share": 0.0313685191427886
+  },
+  {
+   "name": "dYdX V3",
+   "slug": "dydx-v3",
+   "category": "Derivatives",
+   "date": 1700265600,
+   "classification": "Market Manipulation",
+   "amount_usd": 9000000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 415299297.0,
+   "tvl_date": 1700179200,
+   "loss_share": 0.021671117829992377
+  },
+  {
+   "name": "NEAR Intents",
+   "slug": "near-intents",
+   "category": "Bridge",
+   "date": 1790812800,
+   "classification": "Bridge & Cross-Chain",
+   "amount_usd": 3800000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 241207166.0,
+   "tvl_date": 1790726400,
+   "loss_share": 0.015754092479988758
+  },
+  {
+   "name": "Makina",
+   "slug": "makina",
+   "category": "Onchain Capital Allocator",
+   "date": 1768867200,
+   "classification": "Oracle Manipulation",
+   "amount_usd": 4200000.0,
+   "returned_usd": 3410000.0,
+   "tvl_before_usd": 83323865.0,
+   "tvl_date": 1768780800,
+   "loss_share": 0.009481077239996008
+  },
+  {
+   "name": "Polymarket International",
+   "slug": "polymarket-international",
+   "category": "Prediction Market",
+   "date": 1782345600,
+   "classification": "Frontend & Infrastructure",
+   "amount_usd": 3000000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 437914996.0,
+   "tvl_date": 1782259200,
+   "loss_share": 0.0068506445940481105
+  },
+  {
+   "name": "Moonwell Lending",
+   "slug": "moonwell-lending",
+   "category": "Lending",
+   "date": 1762214400,
+   "classification": "Oracle Manipulation",
+   "amount_usd": 1000000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 167058803.0,
+   "tvl_date": 1762128000,
+   "loss_share": 0.005985916228550973
+  },
+  {
+   "name": "SolvBTC",
+   "slug": "solvbtc",
+   "category": "Bridge",
+   "date": 1772755200,
+   "classification": "Token & Share Accounting",
+   "amount_usd": 2700000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 518050313.0,
+   "tvl_date": 1772668800,
+   "loss_share": 0.005211848988883827
+  },
+  {
+   "name": "Venus Core Pool",
+   "slug": "venus-core-pool",
+   "category": "Lending",
+   "date": 1773532800,
+   "classification": "Token & Share Accounting",
+   "amount_usd": 3700000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 1262368286.0,
+   "tvl_date": 1773446400,
+   "loss_share": 0.002930998854323246
+  },
+  {
+   "name": "Raydium AMM",
+   "slug": "raydium-amm",
+   "category": "Dexs",
+   "date": 1781049600,
+   "classification": "Token & Share Accounting",
+   "amount_usd": 1340000.0,
+   "returned_usd": 0.0,
+   "tvl_before_usd": 804767979.0,
+   "tvl_date": 1780963200,
+   "loss_share": 0.001665076189618126
+  }
+ ],
+ "skipped": [
+  {
+   "name": "Gain",
+   "reason": "no TVL point before the hack"
+  },
+  {
+   "name": "Meteora DAMM V2",
+   "reason": "no TVL point before the hack"
+  }
+ ]
+}

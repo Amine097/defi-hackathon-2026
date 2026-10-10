@@ -21,8 +21,10 @@ class Scenario:
 SCENARIOS = [  # overrides are keyed by node role (or id), resolved per graph by resolve()
     Scenario("Underlying depeg", "Underlying yield-bearing asset loses 30% of its value (hypothesis: severity 0.3)",
              {"underlying": {"p_fail": 1.0, "loss_given_failure": 0.3}}),
-    Scenario("Oracle failure", "PT oracle misprices collateral (severity = node default)", {"oracle": {"p_fail": 1.0}}),
-    Scenario("Liquidity crisis", "Pendle AMM impaired (severity 0.5) and exit liquidity halves (hypothesis)",
+    Scenario("Oracle failure", "PT oracle misprices collateral (severity = node default); reaches the position only "
+             "through debt (liquidation)", {"oracle": {"p_fail": 1.0}}),
+    Scenario("Liquidity crisis", "Pendle AMM impaired (severity 0.5) and exit liquidity halves (hypothesis): selling "
+             "before maturity costs more; the redemption value at maturity is unchanged",
              {"amm": {"p_fail": 1.0, "loss_given_failure": 0.5}}, exit_liquidity_factor=0.5),
     Scenario("Correlated: depeg + oracle + liquidity",
              "Joint stress (hypothesis): underlying loses 30%, the PT oracle misprices (node default severity) and the "

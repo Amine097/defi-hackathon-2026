@@ -157,7 +157,7 @@ def test_stablecoin_depeg_from_price_history():
 
 
 # ---------- M07/M08: provenance is never misrepresented --------------------------------------------------------
-def test_api_labels_mock_and_fallback(monkeypatch):
+def test_api_labels_mock_and_never_falls_back_silently(monkeypatch):
     import analyze
     from defirisk import api_payload
 
@@ -170,8 +170,8 @@ def test_api_labels_mock_and_fallback(monkeypatch):
         return real(ref, use_mock, **kw)
 
     monkeypatch.setattr(analyze, "build_payload", broken)
-    p = analyze._payload("auto")
-    assert p["source"] == "mock-fallback" and "pendle down" in p["discovery_error"]
+    with pytest.raises(RuntimeError, match="pendle down"):
+        analyze._payload("auto")  # the HTTP handler turns this into 502 {"code": "discovery_failed", ...}
 
 
 def test_payload_contract():

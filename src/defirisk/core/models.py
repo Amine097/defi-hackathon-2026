@@ -6,6 +6,29 @@ import json
 
 LAYERS = ["chain", "yield_source", "oracle", "amm", "lending", "protocol"]
 
+# What an edge carries from a dependency to the position. Whether it reaches the position depends on the position's
+# exposure role (position.meta["exposure_role"]):
+#   principal -> always: the dependency can impair the value the position redeems into (token, contract custody, chain)
+#   debt      -> only with debt ("borrower"): oracle / market failures act through liquidation; without debt they fall
+#                on lenders (bad debt) and borrowers, not on idle collateral
+#   exit      -> never a loss on the held value: it changes the cost / timing of exiting (e.g. the AMM a PT is sold
+#                through before maturity); priced on the exit side (stressed exit liquidity), not in the staying loss
+CHANNELS = ("principal", "debt", "exit")
+ROLES = ("collateral_only", "borrower")
+
+
+def channel_active(channel: str, position: "Position") -> bool:
+    if channel == "exit":
+        return False
+    if channel == "debt":
+        return position.meta.get("exposure_role") == "borrower"
+    return True
+
+
+def edge_weight(e: "Edge", position: "Position") -> float:
+    """Transmission used by the loss model: the edge's weight if its channel reaches this position, else 0."""
+    return e.transmission if channel_active(e.channel, position) else 0.0
+
 
 @dataclass
 class Node:
@@ -23,6 +46,7 @@ class Edge:
     dst: str  # the dependency; if dst fails, src is hit
     transmission: float = 1.0  # fraction of dst's loss passed to src (0-1)
     reason: str = ""
+    channel: str = "principal"  # one of CHANNELS
 
 
 @dataclass

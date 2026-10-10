@@ -10,11 +10,16 @@ from .data.discovery import discover
 from .core.propagation import simulate
 
 
-def run(ref: str = "mock", use_mock: bool | None = None, value_usd: float = 1_000_000, horizon_days: int = 30):
+def run(ref: str = "mock", use_mock: bool | None = None, value_usd: float = 1_000_000, horizon_days: int = 30,
+        borrower: str | None = None):
+    """borrower: None = the position is collateral without debt (oracle / market failures cannot reach it);
+    an address or 'auto' = analysed as a borrower (oracle / market failures act through liquidation)."""
     use_mock = (ref == "mock") if use_mock is None else use_mock
     g = discover(ref, use_mock, value_usd, horizon_days)
     if use_mock:
         g.position.value_usd = value_usd
+    if g.position.meta.get("real"):
+        g.position.meta["exposure_role"] = "borrower" if borrower else "collateral_only"
     sim = simulate(g)
     return g, sim, decide_robust(g, sim, exit_cost_for(g))
 

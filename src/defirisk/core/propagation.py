@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import networkx as nx
 import numpy as np
 
-from .models import DepGraph
+from .models import DepGraph, edge_weight
 
 
 @dataclass
@@ -17,12 +17,30 @@ class SimResult:
 
 
 def to_nx(g: DepGraph) -> nx.DiGraph:
+    """Loss-propagation graph: edge weight = transmission if the edge's channel reaches this position, else 0."""
     G = nx.DiGraph()
     for n in g.nodes:
         G.add_node(n.id, obj=n)
     for e in g.edges:
-        G.add_edge(e.src, e.dst, transmission=e.transmission, reason=e.reason)
+        G.add_edge(e.src, e.dst, transmission=edge_weight(e, g.position), reason=e.reason, channel=e.channel,
+                   raw_transmission=e.transmission)
     return G
+
+
+def blocked_channels(g: DepGraph, node_id: str) -> list[str]:
+    """Channels that stop every path from the position to node_id (empty if some path transmits)."""
+    G = to_nx(g)
+    root = g.position.id
+    if node_id == root or not nx.has_path(G, root, node_id):
+        return []
+    out = set()
+    for path in nx.all_simple_paths(G, root, node_id):
+        blocked = [G[a][b]["channel"] for a, b in zip(path, path[1:]) if G[a][b]["transmission"] == 0
+                   and G[a][b]["raw_transmission"] > 0]
+        if not blocked:
+            return []
+        out.update(blocked)
+    return sorted(out)
 
 
 def path_sum(g: DepGraph) -> bool:
