@@ -22,10 +22,12 @@ Click a node to simulate its failure and watch it propagate; the side panel show
 ## Demo: Autonomous Countermove (Phase 2, local fork)
 A Morpho Blue borrower pre-authorizes a narrowly permissioned **RescueVault** (`contracts/`); a keeper process
 (`python -m defirisk.countermove`) detects a crisis, picks the cheapest safe defense and executes it without any user
-signature: AUTO-REPAY, AUTO-TOP-UP, NO ACTION or EMERGENCY FULL REPAY. Local Anvil fork only: no mainnet transaction,
+signature: AUTO-REPAY, AUTO-TOP-UP, NO ACTION or EMERGENCY FULL REPAY. The recorded run has five scenarios (S1–S5);
+S5 is the Belem brief's own example: a Pendle PT (PT-reUSD) used as collateral, incident on the oracle pricing the PT.
+The keeper signs from an encrypted keystore (no key on any command line). Local Anvil fork only: no mainnet transaction,
 no real funds, no personal key; the contract is **not audited**.
 1. `python scripts/dev_server.py 8000`, open http://localhost:8000/countermove.html (recorded fork run; LIVE button = read-only mainnet oracle reads).
-2. Reproduce (Foundry 1.8.5): `contracts\install_deps.ps1`, `forge build` in `contracts/`, then `python scripts/countermove_fork_demo.py`.
+2. Reproduce (Foundry 1.8.5): `contracts\install_deps.ps1`, `forge build` in `contracts/`, then `python scripts/countermove_fork_demo.py` (expects `all expected outcomes: True` for S1–S5).
 3. Docs: [implementation report](docs/FAULTLINE_PHASE2_IMPLEMENTATION_REPORT.md) · [security report](docs/FAULTLINE_PHASE2_SECURITY_REPORT.md) · [demo guide](docs/FAULTLINE_PHASE2_DEMO_GUIDE.md) · [progress](docs/FAULTLINE_PHASE2_PROGRESS.md) · evidence `audit/FAULTLINE_PHASE2_EVIDENCE.json` (`python scripts/collect_phase2_evidence.py --live --fork`).
 
 ## Setup

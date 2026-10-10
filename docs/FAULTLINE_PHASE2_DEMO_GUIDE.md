@@ -2,7 +2,7 @@
 
 > Everything below runs on **your machine** against a **local Anvil fork** (chain id 31337) or reads mainnet with
 > `eth_call` only. Nothing is ever sent to Ethereum mainnet. The only key used to sign is the keeper's key derived from
-> the **public** Anvil test mnemonic; no personal key is needed or accepted. Status labels: **LIVE** (read now on
+> the **public** Anvil test mnemonic, used from an encrypted keystore; no personal key is needed or accepted. Status labels: **LIVE** (read now on
 > mainnet), **SIMULATED** (fork state or controlled shock), **CONFIRMED** (mined on the fork and verified), **FAILED**,
 > **NO ACTION**.
 
@@ -21,7 +21,11 @@
 5. **S2** same crisis logic on cbBTC/USDC, but only 100 USDC in reserve → AUTO-TOP-UP 0.02509364 cbBTC.
    **S3** reserves too small and full repay disabled → **NO ACTION**: nothing sent, the reason is shown.
    **S4** the owner only authorized "close the debt" → EMERGENCY FULL REPAY, collateral kept.
-6. **LIVE** button: the same two markets' oracle feeds read **now** on mainnet (read-only).
+   **S5** the Belem brief's own example: a Pendle PT (PT-reUSD-10DEC2026) used as collateral on Morpho (LLTV 91.5%),
+   SIMULATED −5% incident on the oracle feed pricing the PT → LTV 89.47% ≥ trigger 88%. Two defenses qualify (REPAY
+   1,447.44 USDC or TOP_UP 1,785.66 PT); the engine repays, which commits less reserve value (1,447 vs 1,666 USDC) and
+   adds no exposure to the oracle in incident → LTV 86.37%, 15/15 checks.
+6. **LIVE** button: the same three markets' oracle feeds read **now** on mainnet (read-only).
 7. **Policy draft**: the form validates a policy with the contract's own rules and returns `setPolicy` calldata for the
    user's **own** wallet — FAULTLINE never signs for the user.
 
@@ -80,38 +84,55 @@ node --test tests\js\vault_view.test.mjs tests\js\decision_view.test.mjs tests\j
 The end-to-end keeper tests (`tests/test_countermove_e2e.py`) start their own Anvil (no fork, no network) with the real
 Morpho Blue v1.0.0 bytecode compiled from the pinned sources; they need Foundry on `PATH` and `forge build` done.
 
-## 5. Re-run the full fork demonstration (S1–S4)
+## 5. Re-run the full fork demonstration (S1–S5)
 
 ```powershell
 $env:PATH = "$env:USERPROFILE\.foundry\bin;$env:PATH"; $env:PYTHONPATH = 'src'
-.\.venv\Scripts\python.exe scripts\countermove_fork_demo.py            # ~1.5 min + fork warm-up; add --keep-alive to keep the fork running
+.\.venv\Scripts\python.exe scripts\countermove_fork_demo.py            # ~1.7 min + fork warm-up; add --keep-alive to keep the fork running
 ```
 
-What it does, in order (every user step happens **before** the crisis):
+What it does, in order (every user step happens **before** that user's crisis):
 
-1. Starts `anvil --fork-url $FORK_RPC_URL --fork-block-number 26164248 --chain-id 31337` on port 8547.
+1. Starts `anvil --fork-url $FORK_RPC_URL --fork-block-number 26164248 --chain-id 31337` on port 8547, and creates the
+   keeper's encrypted keystore (public Anvil account #1, random password) in a temporary folder outside the repository,
+   deleted at the end.
 2. Opens four users' positions at 75% LTV on the real weETH/USDC and cbBTC/USDC markets (test balances written into
    local storage), deploys one RescueVault per user, funds the reserves and signs each policy.
-3. Runs the keeper **as a separate OS process** with only the keeper key:
+3. Runs the keeper **as a separate OS process** that receives only the keystore and password-file paths:
    `python -m defirisk.countermove --config data/countermove/demo/latest/keeper_config_<phase>.json --journal-dir data/countermove/demo/latest --interval 1 --until-terminal --max-ticks 6`.
 4. Installs SIMULATED −9% shocks (weETH/ETH feed for S1/S3, BTC/USD feed for S2/S4; the replaced feed's
    `description()` returns "FAULTLINE SIMULATED SHOCK"); the keeper detects, plans, validates, executes, verifies.
-5. Writes `data/countermove/demo/latest/{summary.json, journal.jsonl, state.json, keeper_config_*.json, anvil.log}` and
+5. S5: user E opens 50,000 PT-reUSD-10DEC2026 at 85% LTV on the real PT-reUSD/USDC market, arms a vault (3,000 USDC +
+   5,000 PT, trigger 88%), then a SIMULATED −5% shock of the Ojo PT feed; the keeper runs again (`pre_crisis_S5`,
+   `phase_C_PT`). User E arms after phase B so S1–S4 run on exactly the same blocks (same transaction hashes).
+6. Writes `data/countermove/demo/latest/{summary.json, journal.jsonl, state.json, keeper_config_*.json, anvil.log}` and
    prints one line per scenario. Expected: `S1 CONFIRMED`, `S2 CONFIRMED`, `S3 NO_ACTION`, `S4 CONFIRMED`,
-   `all expected outcomes: True`.
+   `S5 CONFIRMED`, `all expected outcomes: True` (the check also requires the expected strategy per scenario and
+   unchanged user nonces). Recorded hashes: S1 `0x4b9254eb…87e2`, S2 `0x7ccb73cc…9050`, S4 `0xeea9ca52…aee5`,
+   S5 `0xbc1651a0…9ba8`.
 
 The web page reads that directory, so a re-run refreshes the UI. After a re-run, refresh the UI test fixture:
 `$env:FAULTLINE_EXPORT_UI_FIXTURES='1'; .\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider tests\test_countermove_api.py`.
 
 ### Running the keeper by hand (on a running fork)
 
+The keeper signs only from an **encrypted keystore**; a plaintext `FAULTLINE_KEEPER_KEY` is refused. Create the keystore
+once (the public test account here; a real key would be imported with `cast wallet import keeper --interactive`, which
+prompts for it, so it never appears on a command line either):
+
 ```powershell
-$env:FAULTLINE_KEEPER_KEY = (cast wallet private-key --mnemonic "test test test test test test test test test test test junk" --mnemonic-index 1)
+$env:CAST_UNSAFE_PASSWORD = '<choose a password>'   # read by cast from its environment, not from the command line
+cast wallet import keeper --keystore-dir $HOME\.faultline-keeper --mnemonic "test test test test test test test test test test test junk" --mnemonic-index 1
+Remove-Item Env:CAST_UNSAFE_PASSWORD
+Set-Content -NoNewline $HOME\.faultline-keeper\password '<the same password>'
+$env:FAULTLINE_KEEPER_KEYSTORE = "$HOME\.faultline-keeper\keeper"
+$env:FAULTLINE_KEEPER_PASSWORD_FILE = "$HOME\.faultline-keeper\password"
 python -m defirisk.countermove --config <keeper_config.json> --journal-dir data/countermove/journal --interval 3 --until-terminal
 ```
 
-Without `FAULTLINE_KEEPER_KEY` the keeper is **watch-only** (plans and alerts, never signs). It refuses to sign unless
-the RPC is on loopback **and** the chain id is 31337 or 1337. Config: `rpc_url`, `positions[]` (`id`, `rescue_vault`,
+Without `FAULTLINE_KEEPER_KEYSTORE` / `FAULTLINE_KEEPER_PASSWORD_FILE` the keeper is **watch-only** (plans and alerts,
+never signs). It refuses to sign unless the RPC is on loopback **and** the chain id is a local one, and the signer itself
+refuses any chain id other than 31337. Config: `rpc_url`, `positions[]` (`id`, `rescue_vault`,
 `engine` {`safety_margin`, `interest_horizon_s`, `ranking`, `preference`, `allow_partial`}, `scenarios[]`),
 `limits` (`max_gas_units`, `max_fee_per_gas_wei`, `receipt_timeout_s`). See `keeper_config_*.json` in the demo folder.
 
@@ -132,6 +153,7 @@ Without `--live` / `--fork` the collector runs only the offline suites (no netwo
 | Keeper says feeds are **stale** → NO_ACTION | Anvil's clock = fork block time + elapsed wall time; after ~1 h of uptime the real feeds look older than their heartbeat | restart the fork (re-run the demo); this is the fail-closed rule working |
 | `port 8547 already in use` | a previous fork is still running | stop that Anvil process, or `--port 8548` |
 | e2e tests skipped | Foundry or the artifacts are missing | install Foundry, `forge build` in `contracts/` |
+| Keeper exits: "FAULTLINE_KEEPER_KEY (plaintext key) is no longer accepted" | an old shell still exports the raw key | `Remove-Item Env:FAULTLINE_KEEPER_KEY`; use the keystore variables (§5) |
 | Policy draft rejected | the draft breaks a contract rule (e.g. trigger ≥ LLTV, per-action cap > cumulative cap, expiry in the past) | adjust the fields; the error names the rule |
 | LIVE panel "unavailable" | public mainnet RPCs unreachable | nothing is shown rather than stale data; retry later |
 | Slither shows 52 findings | expected | triaged in `docs/FAULTLINE_PHASE2_SECURITY_REPORT.md` §6 (Slither's `forge clean` removes test artifacts: run `forge build` again afterwards) |

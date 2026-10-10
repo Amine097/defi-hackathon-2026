@@ -18,12 +18,12 @@ This log is updated after every work package so the work can resume after an int
 | RescueVault contract | DONE | `contracts/src/RescueVault.sol` (solc 0.8.26, OZ v5.6.1 SafeERC20 + ReentrancyGuard, Morpho Blue v1.0.0 interfaces) |
 | RescueVault tests | DONE | `forge test`: 24 unit/fuzz (3 × 512 runs) + 4 token-quirk + 4 invariants (64 × 64, all actions exercised) + 1 fork test on the real cbBTC/USDC market |
 | Countermove engine (borrower) | DONE | `src/defirisk/countermove/engine.py`, `dependencies.py`; `tests/test_countermove_engine.py` 32 passed (exact + minimal to the wei vs brute force, spec example 460 / 594.32) |
-| Watcher / executor / verifier | DONE | `watcher.py`, `executor.py`, `verifier.py`, `journal.py`, `reader.py`, `chain.py`, `signer.py` (Foundry cast), `devchain.py`; `tests/test_countermove_e2e.py` 16 passed x3 on a local Anvil with the real Morpho Blue bytecode |
-| Fork scenarios S1–S3 (+S4) | DONE | `scripts/countermove_fork_demo.py` → `data/countermove/demo/latest/`: S1 REPAY 1,086.50 USDC (tx `0x4b9254eb…87e2`), S2 TOP_UP 0.02509364 cbBTC (`0x7ccb73cc…9050`), S3 NO_ACTION (nothing sent), S4 FULL_REPAY 18,670.41 USDC (`0xeea9ca52…aee5`); `all_expected = true`; user nonces unchanged |
+| Watcher / executor / verifier | DONE | `watcher.py`, `executor.py`, `verifier.py`, `journal.py`, `reader.py`, `chain.py`, `signer.py` (Foundry cast, encrypted keystore), `devchain.py`; `tests/test_countermove_e2e.py` 17 passed on a local Anvil with the real Morpho Blue bytecode |
+| Fork scenarios S1–S3 (+S4, S5) | DONE | `scripts/countermove_fork_demo.py` → `data/countermove/demo/latest/`: S1 REPAY 1,086.50 USDC (tx `0x4b9254eb…87e2`), S2 TOP_UP 0.02509364 cbBTC (`0x7ccb73cc…9050`), S3 NO_ACTION (nothing sent), S4 FULL_REPAY 18,670.41 USDC (`0xeea9ca52…aee5`), S5 PT-reUSD collateral + PT oracle incident → REPAY 1,447.44 USDC (`0xbc1651a0…9ba8`); `all_expected = true`; user nonces unchanged |
 | Frontend Countermove page | DONE | `public/countermove.html` + `/api/countermove`; Node `countermove_view.test.mjs` 6/6; `tests/test_countermove_api.py` 6 (+1 live); checked in the browser |
 | Security review | DONE | Slither 0.11.6: 52 results, none requiring a code change (`audit/FAULTLINE_PHASE2_SLITHER.txt`); `forge lint` 30 warnings triaged; secrets scan clean (399 files) |
 | Reports + evidence | DONE | `docs/FAULTLINE_PHASE2_{IMPLEMENTATION_REPORT,SECURITY_REPORT,DEMO_GUIDE}.md`, `audit/FAULTLINE_PHASE2_EVIDENCE.json` (`scripts/collect_phase2_evidence.py --live --fork`) |
-| Final validation | DONE — **GO** (test environment only) | pytest offline 207 passed / 16 skipped; live subset 133 passed; Node 27/27; Foundry 29 passed + fork test (run separately) passed; fork demo 4/4 expected; 15/15 GO criteria PASS |
+| Final validation | DONE — **GO** (test environment only) | pytest offline 209 passed / 16 skipped; live subset 134 passed; Node 33/33; Foundry 29 passed + fork test (run separately) passed; fork demo 5/5 expected (S1–S5); 16/16 GO criteria PASS |
 
 ## Log
 
@@ -101,9 +101,26 @@ This log is updated after every work package so the work can resume after an int
    the policy form never sent the market's token decimals, so a cbBTC (8-decimal) policy was encoded with 18 decimals;
    the form now takes percentages, reads LLTV and decimals from the selected market, and shows units. Display only —
    no figure is computed in the browser; Node tests 27 → 33.
+16. Scenario S5 = the Belem brief's own example (layer 3 "incident"): a Pendle PT used as collateral on a lending market,
+   incident on the oracle pricing the PT. Real market PT-reUSD-10DEC2026/USDC (`0x1e9d6146…a4fc64`, LLTV 91.5%), checked at
+   the pinned block first (13.67M USDC liquidity; oracle `0x217d…51f0` = MorphoChainlinkOracleV2 with one feed, "Ojo PT
+   Feed Pendle Chainlink-compatible Oracle", computed at read time, PT ≈ 0.9818 USDC). User E: 50,000 PT at 85% LTV,
+   reserve 3,000 USDC + 5,000 PT, REPAY or TOP_UP allowed, trigger 88%; SIMULATED −5% on the PT feed → 89.47%; target
+   = 250 USDC buffer after a further −5% of the PT feed. Both defenses qualify; REPAY 1,447.44 USDC (rank 1) beats TOP_UP
+   1,785.66 PT = 1,665.52 USDC of value (rank 2, and it would add exposure to the oracle in incident). CONFIRMED,
+   15/15 checks, LTV → 86.37%. User E arms after phase B, so S1–S4 are untouched; the demo now also checks the expected
+   strategy of every scenario. Edge recorded: S5's post-crisis pass re-alerts (follow-on buffer 0.00012 USDC under the
+   margin after one block of 8% APR interest; LTV below the trigger, nothing sent). Tabs: 5 columns.
+17. Signer hardening (security report §7 #8): `cast mktx --private-key` (key in process arguments) replaced by
+   `cast mktx --keystore <file> --password-file <file>` (`KeystoreSigner`): the keeper receives only the two paths
+   (`FAULTLINE_KEEPER_KEYSTORE`, `FAULTLINE_KEEPER_PASSWORD_FILE`), a plaintext `FAULTLINE_KEEPER_KEY` is refused, and
+   the signer refuses any chain id but 31337 before calling cast. The demo creates the keystore of public Anvil account #1
+   per run in a temp folder (random password via cast's environment) and deletes it. `eth_account` was not used: not in
+   the venv, ~20 extra packages. Same key, same deterministic signatures: the regenerated run reproduced S1, S2 and S4
+   hashes byte for byte. pytest offline 209 passed / 16 skipped; e2e 17 (new signer test); Foundry 29 passed.
 
 ## Remaining limits (see the security report §7)
 
 Not audited; local fork only (no mempool / MEV / gas spikes); one keeper process; oracle trust bounded by caps; keeper
-signs with `cast --private-key` (public test key only); DELEVERAGE + SELL / refinance / hedge not built by design.
+signs from an encrypted keystore (hot key; public test key only); DELEVERAGE + SELL / refinance / hedge not built by design.
 Phase 2 changes are in the working tree (not committed).

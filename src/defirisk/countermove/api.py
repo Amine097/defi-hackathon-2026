@@ -214,6 +214,9 @@ def payload(demo: Path = DEMO, live: bool = False) -> dict:
     es = _entries(demo)
     cfg_p = demo / "keeper_config_pre_crisis.json"
     pcfgs = {p["id"]: p for p in json.loads(cfg_p.read_text(encoding="utf-8"))["positions"]} if cfg_p.exists() else {}
+    for extra in sorted(demo.glob("keeper_config_*.json")):  # positions armed later (S5) have their own pre-crisis config
+        for p in json.loads(extra.read_text(encoding="utf-8"))["positions"]:
+            pcfgs.setdefault(p["id"], p)
     positions = [position_view(sc, [e for e in es if e["position"] == sc["position_id"]], pcfgs.get(sc["position_id"]))
                  for sc in summary["scenarios"]]
     body = {"schema": "faultline.countermove/1", "status": "ok", "source": "recorded local mainnet-fork run",

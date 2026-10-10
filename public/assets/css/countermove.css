@@ -12,7 +12,7 @@
 .va-txt-muted { color:var(--muted); }
 
 /* Scenario tabs: compact, outcome first. */
-.cm-tabs { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:var(--space-2); margin:var(--space-4) 0; }
+.cm-tabs { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:var(--space-2); margin:var(--space-4) 0; }
 .cm-tab { text-align:left; background:var(--card); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px;
   color:var(--text); font:inherit; cursor:pointer; display:flex; flex-direction:column; gap:2px; min-width:0; }
 .cm-tab:hover, .cm-tab[aria-selected="true"] { border-color:var(--accent); }

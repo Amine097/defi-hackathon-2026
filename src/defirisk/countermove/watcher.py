@@ -7,11 +7,12 @@
 * PLANNING   Countermove engine: exact minimal amounts, ordered constraints, explicit choice or NO_ACTION.
 * VALIDATING fresh re-read at the latest block + re-plan (same strategy required), stale-feed check, eth_call
              simulation from the keeper, gas / fee caps, keeper gas funds. Any failure -> NO_ACTION (nothing sent).
-* EXECUTING  sign (Foundry cast), journal the tx hash BEFORE broadcast, broadcast, wait for the receipt.
+* EXECUTING  sign (Foundry cast, encrypted keystore), journal the tx hash BEFORE broadcast, broadcast, wait for the receipt.
 * CONFIRMED  receipt + events + re-read Morpho state match the plan (verifier). FAILED otherwise, with the reason.
 RPC errors / timeouts end the cycle without any transaction. A pending (signed, maybe broadcast) action is resolved
 from the chain before anything else is planned: never re-sent blindly. Run:
-    FAULTLINE_KEEPER_KEY=<local test key> python -m defirisk.countermove --config <file> [--once | --interval 3]
+    FAULTLINE_KEEPER_KEYSTORE=<keystore file> FAULTLINE_KEEPER_PASSWORD_FILE=<file> \
+        python -m defirisk.countermove --config <file> [--once | --interval 3]
 """
 from __future__ import annotations
 
@@ -267,12 +268,14 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     cfg = load_config(a.config)
     rpc = RPC(cfg["rpc_url"])
-    key = os.environ.get(cfg.get("keeper_key_env", "FAULTLINE_KEEPER_KEY"))
+    if os.environ.get("FAULTLINE_KEEPER_KEY"):
+        raise SystemExit("FAULTLINE_KEEPER_KEY (plaintext key) is no longer accepted: use an encrypted keystore via "
+                         "FAULTLINE_KEEPER_KEYSTORE + FAULTLINE_KEEPER_PASSWORD_FILE (see docs/FAULTLINE_PHASE2_DEMO_GUIDE.md)")
+    from .signer import KEYSTORE_ENV, PASSWORD_FILE_ENV, KeystoreSigner
     signer = None
-    if key:
-        from .signer import CastSigner
-        rpc.assert_local()
-        signer = CastSigner(key)
+    if os.environ.get(KEYSTORE_ENV) or os.environ.get(PASSWORD_FILE_ENV):
+        rpc.assert_local()  # never even unlock the keystore for a non-local chain
+        signer = KeystoreSigner.from_env()
     journal = Journal(a.journal_dir or cfg.get("journal_dir", "data/countermove/journal"))
     w = Watcher(cfg, rpc, journal, signer)
     print(f"FAULTLINE keeper {'(watch-only)' if signer is None else signer.address} on chain {rpc.chain_id()} -> {journal.dir}",
