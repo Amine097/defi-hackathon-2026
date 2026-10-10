@@ -4,9 +4,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
-from defirisk.cli import run
-from defirisk.portfolio import Pocket, evaluate_book
-from defirisk.scenarios import SCENARIOS
+from defirisk.cli import run  # type: ignore[import-not-found]  # noqa: E402
+from defirisk.portfolio import Pocket, evaluate_book  # type: ignore[import-not-found]  # noqa: E402
+from defirisk.scenarios import SCENARIOS  # type: ignore[import-not-found]  # noqa: E402
 
 
 def test_book_one_pocket_hit():
