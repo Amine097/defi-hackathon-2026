@@ -1,7 +1,7 @@
 {
   "phase": "0.5 risk engine hardening",
-  "generated_at": "2026-10-10T16:30:00+02:00",
-  "base_commit": "9ec4d51 (Phase 0.5 changes uncommitted at time of writing)",
+  "generated_at": "2026-10-10T16:45:00+02:00",
+  "base_commit": "480860e (Phase 0.5 committed and pushed to origin/main)",
   "secrets_recorded": false,
   "commands": [
     {
@@ -233,28 +233,71 @@
       "notes": "graph -> shock -> borrower liquidation -> loss -> exit -> REVIEW, live block data"
     },
     "G11": {
-      "status": "BLOCKED",
-      "condition": "real preview deployment tested",
-      "tests": [],
-      "notes": "Vercel CLI logged out; no preview URL available"
+      "status": "PASS",
+      "condition": "real deployment tested (not just a build), without action on funds",
+      "tests": [
+        "R20 smoke test on https://faultline-sandy-three.vercel.app"
+      ],
+      "notes": "Deviation: tested on the existing production deployment instead of a separate preview; read-only, no funds action. Exact deployed SHA inferred from served code, not read from Vercel."
     },
     "G12": {
-      "status": "BLOCKED",
-      "condition": "docs/evidence current, tests pass, no open H01-H06 reservation",
+      "status": "PASS",
+      "condition": "docs/evidence current, tests pass, zero P0/P1, H01-H06 closed",
       "tests": [
-        "full suite"
+        "full suite offline 54 passed/3 skipped",
+        "live 57 passed"
       ],
-      "notes": "docs and tests done; H06 reservation open because of G11"
+      "notes": "No open P0/P1. One P2 open (X-Ray margin card / guide text use the execution-only comparison, see compliance report D)."
     }
   },
   "summary": {
-    "gates_pass": 10,
-    "gates_blocked": 2,
+    "gates_pass": 12,
+    "gates_blocked": 0,
     "open_p0": 0,
-    "open_p1": 1,
-    "open_p1_items": [
-      "G11 Vercel preview untested"
-    ],
-    "verdict": "BLOCKED"
-  }
+    "open_p1": 0,
+    "open_p2": 1,
+    "verdict": "GO",
+    "verdict_note": "G11 validated on production URL rather than a separate preview (deviation recorded)"
+  },
+  "deployment": {
+    "url": "https://faultline-sandy-three.vercel.app",
+    "type": "production alias (existing deployment), not a separate preview",
+    "deployed_code_check": "served /assets/js/api.js contains signalDetails + REVIEW badge mapping; API returns Phase 0.5 fields (loss_band, exit_band, freshness, liquidation). Exact deployed SHA not readable without Vercel access; behaviour matches 480860e.",
+    "funds_action": "none (read-only GET requests; eth_call simulations only)",
+    "tests": [
+      {
+        "by": "teammate",
+        "at": "2026-10-10T16:40+02:00",
+        "results": {
+          "/": "200 0.03s",
+          "/xray.html": "200 0.16s",
+          "/api/analyze?borrower=auto": "200 18.05s source=live quote_status=simulated freshness=fresh liquidation.mode=borrower_position",
+          "/api/analyze?value_usd=5": "400 0.14s"
+        }
+      },
+      {
+        "by": "agent (independent rerun)",
+        "at": "2026-10-10T16:42+02:00",
+        "results": {
+          "/": "200 0.2s",
+          "/xray.html": "200 0.07s",
+          "/assets/js/api.js": "200, Phase 0.5 code present",
+          "/api/analyze?borrower=auto": "200 13.4s; source=live, block 26162693 (ts 1791643247), verdict REVIEW, lean STAY (x3.00), central loss $1,657, exit execution $1,286, carry $3,680, quote simulated, freshness fresh (no blockers), borrower HF 1.05439, historical check rel. error 4.22e-11; no secret in body",
+          "/api/analyze?value_usd=5": "400 'value_usd must be within [1e3, 1e8]'",
+          "/api/analyze?borrower=0xbad": "400 'borrower must be a 0x-prefixed 20-byte address or auto'",
+          "/api/analyze?shock=usd_usdc&severity=1": "200 6.2s; conditional loss $720,343 (72.0%) vs exit $1,290 -> EXIT (conditional on shock)",
+          "scenarios": "depeg $271k, oracle $321k, liquidity $501k, correlated $752k (dominates components)",
+          "browser /?borrower=auto": "verdict card class 'review', colour rgb(251,191,36), signal line with bands/carry/quote/freshness/borrower HF, badge 'live on-chain data'",
+          "browser /xray.html": "badge REVIEW class 'xr-vbadge review', amber, 10 dependencies, why-text with bands and lean, badge 'Live on-chain data'"
+        }
+      }
+    ]
+  },
+  "open_findings": [
+    {
+      "severity": "P2",
+      "item": "X-Ray 'margin' card shows +$371 'stay costs more' in red and the guide says 'the cheaper one wins' (execution cost only, carry excluded); can read as contradicting the REVIEW / lean STAY signal",
+      "fix": "show margin incl. carry or label it 'execution cost only'; update guide text"
+    }
+  ]
 }

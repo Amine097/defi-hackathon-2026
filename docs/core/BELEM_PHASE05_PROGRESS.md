@@ -1,6 +1,6 @@
 # Phase 0.5 — progress
 
-Updated 2026-10-10. Base commit `9ec4d51`; the Phase 0.5 changes are not yet committed.
+Updated 2026-10-10 16:45. The Phase 0.5 changes are in commit `480860e`, pushed to `origin/main`.
 
 | Item | Status | Evidence |
 |---|---|---|
@@ -9,14 +9,11 @@ Updated 2026-10-10. Base commit `9ec4d51`; the Phase 0.5 changes are not yet com
 | H01 Risk model | DONE | `uncertainty.py`, `decide_robust`; parameter classes, loss/exit bands, carry, correlated scenario; R10–R15 |
 | H04 Historical replay | DONE | `scripts/replay_h04.py` → `data/fixtures/replay_h04.json` (SVB 2023, Morpho liquidation); R16 |
 | H05 Freshness / provenance | DONE | `freshness.py`; TTLs, blockers, labels; API validation; R17–R18 |
-| H06 Demo / preview | **BLOCKED (preview)** | Local e2e PASS (dev server + browser, dashboard and X-Ray show REVIEW, bands, carry, borrower HF). Vercel preview: `npx vercel whoami` → "Logged out" |
+| H06 Demo / deployment | DONE | The local e2e passes. R20 passes on https://faultline-sandy-three.vercel.app: run by the teammate, then rerun independently by the agent, covering HTTP, API, stress scenario and visual rendering. This was the production deployment, not a separate preview (deviation recorded). |
 
-## Open blocker
+## Open items
 
-- **G11 / R20, Vercel preview.**
-  - **Needed:** a logged-in Vercel CLI, or a project token for the FAULTLINE Vercel project.
-  - **Then run:** `npx vercel deploy` (preview, not `--prod`) and smoke-test `/`, `/xray.html` and `/api/analyze?borrower=auto` on the preview URL.
-  - No production deployment and no on-chain transaction are part of this phase.
+- **P2 (UI wording):** the X-Ray margin card and the guide text use the execution-only comparison. See the compliance report, §D.
 
 ## Log
 

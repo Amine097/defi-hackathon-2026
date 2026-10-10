@@ -130,7 +130,7 @@ API: api/analyze.py → api_payload.build_payload      UI: public/index.html, pu
 - **Unmodelled volatility.** Normal PT price volatility (outside failure events) is not modelled. For borrowers this is mitigated by REVIEW when the distance is below 10 %.
 - **SVB replay.** It uses daily data only.
 - **Breakeven multiplier.** `breakeven_risk_multiplier` excludes carry; the lean includes it.
-- **Vercel preview not tested** (CLI logged out). See the progress file.
+- **Deployment** was tested on the production URL (https://faultline-sandy-three.vercel.app, block 26162693), not on a separate preview. On that deployment, the API latency was 13–18 s.
 
 ## 10. Reproduction
 
