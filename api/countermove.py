@@ -3,7 +3,9 @@
 GET /api/countermove[?live=1]            -> faultline.countermove/1: the recorded local mainnet-fork run (SIMULATED
                                             environment, CONFIRMED / FAILED / NO_ACTION per position) [+ LIVE mainnet
                                             dependency reads when live=1]
-GET /api/countermove/policy-draft?...    -> validated setPolicy calldata for the USER's own wallet (never signed here)
+GET /api/countermove?action=policy-draft&...  (alias: /api/countermove/policy-draft, local dev server only: Vercel
+                                            file routing does not reach sub-paths of a function)
+                                         -> validated setPolicy calldata for the USER's own wallet (never signed here)
 This endpoint never signs or sends a transaction: the keeper is a separate local process (python -m defirisk.countermove).
 """
 import json
@@ -21,7 +23,7 @@ def respond(path: str) -> tuple[int, dict]:
     u = urlparse(path)
     q = {k: v[0] for k, v in parse_qs(u.query).items() if v}
     try:
-        if u.path.rstrip("/").endswith("/policy-draft"):
+        if u.path.rstrip("/").endswith("/policy-draft") or q.get("action") == "policy-draft":
             return 200, cm.policy_draft(q)
         return 200, cm.payload(live=q.get("live") == "1")
     except (ValueError, KeyError) as e:

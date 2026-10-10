@@ -236,12 +236,19 @@ $('draft').addEventListener('submit', async (ev) => {
   const q = new URLSearchParams(new FormData(ev.target));
   // The form shows percentages; the API (and the contract) take fractions.
   for (const k of ['trigger_ltv', 'min_ltv_after', 'lltv']) q.set(k, String(Number(q.get(k)) / 100));
+  q.set('action', 'policy-draft');
   $('draftOut').textContent = 'Checking…';
   try {
-    const r = await fetch('/api/countermove/policy-draft?' + q.toString(), { cache: 'no-store' });
+    // Query-string action (not a sub-path): Vercel only routes /api/countermove itself to the function.
+    const r = await fetch('/api/countermove?' + q.toString(), { cache: 'no-store' });
+    const isJson = (r.headers.get('content-type') || '').includes('application/json');
+    if (!isJson) throw new Error(`the policy check service did not answer (HTTP ${r.status})`);
     const body = await r.json();
+    if (!r.ok) throw new Error((body.error && body.error.message) || `HTTP ${r.status}`);
+    const warn = (body.warnings || []).length
+      ? `<ul class="va-warnings">${body.warnings.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
     $('draftOut').innerHTML = body.valid
-      ? `<p>${badge('stay', 'VALID')} Sign this <b>setPolicy</b> call, sent to your RescueVault. <span class="muted">Signer: ${esc(body.signer)}.</span></p>
+      ? `<p>${badge('stay', 'VALID')} Sign this <b>setPolicy</b> call, sent to your RescueVault. <span class="muted">Signer: ${esc(body.signer)}.</span></p>${warn}
          <p class="cm-mono cm-calldata">${esc(body.calldata)}</p>
          <details class="cm-more"><summary>Pause or revoke later</summary>
            <p class="muted">Pause monitoring:</p><p class="cm-mono cm-calldata">${esc(body.pause_calldata)}</p>

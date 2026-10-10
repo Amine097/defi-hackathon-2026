@@ -260,9 +260,17 @@ def policy_draft(q: dict) -> dict:
         errors.append("per-action / full-repay caps cannot exceed the cumulative repay budget")
     if pol["max_top_up_per_action"] > pol["max_top_up_total"]:
         errors.append("per-action top-up cap cannot exceed the cumulative top-up budget")
+    # Accepted by the contract, but such a strategy can never execute: say so instead of silently signing a dead policy.
+    warnings = []
+    for s, caps in (("REPAY", ("max_repay_per_action", "max_repay_total")), ("TOP_UP", ("max_top_up_per_action", "max_top_up_total")),
+                    ("FULL_REPAY", ("max_full_repay", "max_repay_total"))):
+        if s in strategies and any(pol[c] == 0 for c in caps):
+            warnings.append(f"{s} is allowed but its cap is 0: the keeper can never use it")
+    if strategies and len(warnings) == len([s for s in set(strategies) if s in engine.BITS]):
+        warnings.append("no allowed strategy can act: this policy would never protect the position")
     data = abi.encode_call("setPolicy((uint8,uint64,uint32,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))",
                            [[pol[k] for k in contracts.POLICY_FIELDS]]) if not errors else None
-    return _js({"valid": not errors, "errors": errors, "policy": pol, "calldata": data,
+    return _js({"valid": not errors, "errors": errors, "warnings": warnings, "policy": pol, "calldata": data,
                 "signer": "the position owner, with their own wallet, BEFORE any crisis (FAULTLINE never holds this key)",
                 "pause_calldata": abi.encode_call("setPaused(bool)", [True]), "resume_calldata": abi.encode_call("setPaused(bool)", [False]),
                 "revoke_calldata": abi.encode_call("revoke()", [])})

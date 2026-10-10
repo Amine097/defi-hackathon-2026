@@ -91,6 +91,11 @@ def test_policy_draft_rules_match_the_contract():
         r = cm.policy_draft({"trigger_ltv": "0.82", "min_ltv_after": "0.4", **bad})
         assert not r["valid"] and any(msg in e for e in r["errors"]) and r["calldata"] is None
     assert "never holds" in ok["signer"]
+    assert ok["warnings"] == []
+    dead = cm.policy_draft({"strategies": "FULL_REPAY", "trigger_ltv": "0.82", "min_ltv_after": "0.4", "max_full_repay": "0",
+                            "max_repay_total": "20000"})
+    assert dead["valid"], "the contract accepts a zero cap (S3 uses it); it is a warning, not an error"
+    assert any("FULL_REPAY" in w for w in dead["warnings"]) and any("never protect" in w for w in dead["warnings"])
 
 
 def test_http_handler_and_ui_fixture_in_sync(payload):
@@ -100,6 +105,9 @@ def test_http_handler_and_ui_fixture_in_sync(payload):
     assert status == 200 and body["status"] == "ok"
     status, body = handler.respond("/api/countermove/policy-draft?trigger_ltv=0.5&min_ltv_after=0.6")
     assert status == 200 and not body["valid"]
+    # The form uses the query-string form: Vercel does not route /api/countermove/<sub-path> to the function.
+    status, body = handler.respond("/api/countermove?action=policy-draft&trigger_ltv=0.5&min_ltv_after=0.6")
+    assert status == 200 and "valid" in body and not body["valid"]
     if os.getenv("FAULTLINE_EXPORT_UI_FIXTURES") == "1":
         UI_FIX.write_text(json.dumps(payload, indent=1, allow_nan=False), encoding="utf-8")
     saved = json.loads(UI_FIX.read_text(encoding="utf-8"))
