@@ -199,6 +199,7 @@ def test_offline_replay_is_reproducible(monkeypatch):
         pytest.skip("no cached real data (run the live pipeline once)")
     from defirisk.api_payload import build_payload
     monkeypatch.setenv("DEFIRISK_OFFLINE", "1")
+    monkeypatch.setattr(http, "now", lambda: 1.9e9)  # freshness ages depend on the clock: freeze it
     try:
         a = build_payload("auto", False)
     except RuntimeError as e:
@@ -206,6 +207,7 @@ def test_offline_replay_is_reproducible(monkeypatch):
     b = build_payload("auto", False)
     assert a["source"] == "cache" and a["position"]["meta"]["real"] is True
     assert a["decision"] == b["decision"]
+    assert a["decision"]["verdict"] == "REVIEW"  # a cache replay is never presented as a live, firm signal
     assert a["data_as_of"]
 
 

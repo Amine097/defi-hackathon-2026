@@ -20,7 +20,7 @@ import time
 from collections import deque
 from pathlib import Path
 
-from . import exposure, lineage, peg, priors, sources
+from . import exposure, http, lineage, peg, priors, sources
 from .models import DepGraph, Edge, Node, Position
 
 MOCK = Path(__file__).resolve().parents[2] / "data" / "mock_graph.json"
@@ -287,6 +287,7 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
             dep = priors.stablecoin_depeg(gid, hist["h"]) if gid else None
         except Exception:
             dep = None
+        hist.setdefault("dep", {})[sym] = dep
         return priors.p_stablecoin(dep, H, sym)
 
     nodes: list[Node] = [Node("pos", "protocol", "Position", 0.0, 0.0, {"role": "position"})]
@@ -296,9 +297,11 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
         nid = f"usd_{sym.lower()}"
         if not any(n.id == nid for n in nodes):
             p, lgf, why = stable_prior(sym)
+            dep = (hist.get("dep") or {}).get(sym)
             nodes.append(node(nid, "yield_source", f"{sym} (stablecoin)", p, why, "stablecoin", lgf=lgf,
                               lgf_why=(f"measured: mean depth of past {sym} depegs (DefiLlama prices)" if lgf else None),
-                              address=address))
+                              address=address,
+                              depeg_stats={k: dep[k] for k in ("episodes", "years", "severity", "min_price")} if dep else None))
         return nid
 
     p, why = priors.p_chain(H)
@@ -430,11 +433,24 @@ def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
         block = sources.eth_block_number()
     except Exception:
         block = None
-    route = {"pt": pend["pt"]["address"], "pt_decimals": pend["pt"].get("decimals", 18), "pt_price_usd": pt_price,
+    block_ts, ref_rates = None, None
+    if block:
+        try:
+            b = sources.eth_block(block)
+            block_ts = b and b["timestamp"]
+        except Exception:
+            pass
+        try:  # reference rate for the carry (USDC supply APY on the same Morpho market), non-fatal
+            from .morpho import market_rates
+            ref_rates = market_rates(mm["marketId"], block)
+        except Exception as e:
+            ref_rates = {"error": f"{type(e).__name__}: {e}"[:200]}
+    route =  {"pt": pend["pt"]["address"], "pt_decimals": pend["pt"].get("decimals", 18), "pt_price_usd": pt_price,
              "out": mm["loanAsset"]["address"], "out_symbol": loan_sym, "chain_id": chain_id}
     pos = Position("pos", f"{pt_sym} on Morpho ({loan_sym})", "ethereum", value_usd, H, {
         "exit_pool_liquidity_usd": liq, "ref": ref, "real": True, "pendle_market": pm["address"],
-        "morpho_market": mm["marketId"], "observed_at": int(time.time()), "block_number": block,
+        "morpho_market": mm["marketId"], "observed_at": http.now(), "block_number": block, "block_timestamp": block_ts,
+        "reference_rates": ref_rates,
         "concentration": _concentration(morpho_all, by_pt, mm, q, details) + _lookthrough_rows(shared, nodes),
         "lookthrough": lt and {k: lt[k] for k in ("root", "tokens", "base_assets", "cycles")},
         "coverage": lt and lt["coverage"],

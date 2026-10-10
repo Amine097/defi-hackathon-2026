@@ -16,6 +16,13 @@ CACHE_DIR = Path(__file__).resolve().parents[2] / "data" / "cache"
 # Provenance of every response served since the last reset(): lets the payload say honestly whether the
 # numbers come from live calls or from the disk cache (and how old that cache is).
 _PROV = {"live": 0, "cached": 0, "oldest_cache_ts": None, "cached_urls": []}
+# Metadata of the most recent response (fetch time + whether it came from the cache), for freshness checks.
+LAST = {"fetched_at": None, "cached": False, "url": None}
+
+
+def now() -> float:
+    """Injectable clock (tests monkeypatch this): every freshness computation goes through it."""
+    return time.time()
 
 
 def reset_provenance() -> None:
@@ -54,10 +61,11 @@ def _cached(method: str, url: str, params=None, body=None, timeout: float = 8.0,
             try:
                 if not rpc_error:  # never cache JSON-RPC errors (rate limits...)
                     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-                    path.write_text(json.dumps({"url": url, "fetched_at": int(time.time()), "data": data}), encoding="utf-8")
+                    path.write_text(json.dumps({"url": url, "fetched_at": int(now()), "data": data}), encoding="utf-8")
             except OSError:  # read-only filesystem (e.g. Vercel): skip caching, committed cache still read
                 pass
             _PROV["live"] += 1
+            LAST.update(fetched_at=now(), cached=False, url=url)
             return data
         except Exception as e:
             if not use_cache or not path.exists():
@@ -67,6 +75,7 @@ def _cached(method: str, url: str, params=None, body=None, timeout: float = 8.0,
         raise RuntimeError(f"offline mode and no cached copy for {url}")
     stored = json.loads(path.read_text(encoding="utf-8"))
     _note_cached(url, path, stored)
+    LAST.update(fetched_at=stored.get("fetched_at") or int(path.stat().st_mtime), cached=True, url=url)
     return stored["data"]
 
 

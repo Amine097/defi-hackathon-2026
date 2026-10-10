@@ -1,0 +1,260 @@
+{
+  "phase": "0.5 risk engine hardening",
+  "generated_at": "2026-10-10T16:30:00+02:00",
+  "base_commit": "9ec4d51 (Phase 0.5 changes uncommitted at time of writing)",
+  "secrets_recorded": false,
+  "commands": [
+    {
+      "cmd": "$env:PYTHONPATH='src'; python -m pytest -q",
+      "exit_code": 0,
+      "result": "54 passed, 3 skipped (live tests gated)"
+    },
+    {
+      "cmd": "$env:PYTHONPATH='src'; $env:DEFIRISK_LIVE_TESTS='1'; python -m pytest -q",
+      "exit_code": 0,
+      "result": "57 passed in 68.8s"
+    },
+    {
+      "cmd": "python scripts/replay_h04.py",
+      "exit_code": 0,
+      "result": "data/fixtures/replay_h04.json"
+    },
+    {
+      "cmd": "python scripts/dev_server.py 8765 + GET /api/analyze?value_usd=1000000&borrower=auto",
+      "exit_code": 0,
+      "result": "HTTP 200 in 36s, source=live, verdict=REVIEW, point=STAY, quote=simulated, freshness=fresh, liquidation=borrower_position HF 1.05438, historical_check rel. error 4.22e-11"
+    },
+    {
+      "cmd": "GET /api/analyze?value_usd=5 ; GET /api/analyze?borrower=0xbad",
+      "exit_code": 0,
+      "result": "HTTP 400 with explicit validation messages, no secret echoed"
+    },
+    {
+      "cmd": "browser canvas: http://127.0.0.1:8765/?borrower=auto and /xray.html",
+      "exit_code": 0,
+      "result": "dashboard verdict card class 'review', signal line with bands/carry/quote/freshness/borrower HF; X-Ray badge 'REVIEW' (class review) with bands and lean; source badge 'Live on-chain data'"
+    },
+    {
+      "cmd": "npx vercel whoami",
+      "exit_code": 1,
+      "result": "Logged out"
+    }
+  ],
+  "live_cases": [
+    {
+      "chain": "ethereum",
+      "block": 26162571,
+      "block_timestamp": 1791641783,
+      "observed_at": 1791641789.72,
+      "position": "Pendle PT (Morpho market 0x1e9d6146...fc64) $1M unlevered",
+      "verdict": "REVIEW",
+      "lean": "STAY (holds if true risk < x2.95 central)",
+      "point_verdict": "STAY",
+      "point_verdict_execution_only": "EXIT",
+      "loss_usd": {
+        "central": 1657,
+        "low": 171,
+        "high": 27532
+      },
+      "exit_execution_usd": 1216,
+      "quote_status": "simulated",
+      "carry_usd": 3681,
+      "pt_implied_apy": 0.1179,
+      "usdc_supply_apy": 0.0731,
+      "exit_band_incl_carry_usd": [
+        3056,
+        6738
+      ],
+      "freshness": "fresh",
+      "source": "public/data/sample.json (saved live run)"
+    },
+    {
+      "chain": "ethereum",
+      "position": "$5M unlevered",
+      "verdict": "REVIEW",
+      "loss_usd": {
+        "central": 8287,
+        "low": 853,
+        "high": 137659
+      },
+      "exit_execution_usd": 16240,
+      "carry_usd": 18400,
+      "exit_band_incl_carry_usd": [
+        25400,
+        43800
+      ],
+      "latency_s": 36
+    },
+    {
+      "chain": "ethereum",
+      "position": "$1M + borrower=auto",
+      "borrower": "0xAa34d20b...5Dd5",
+      "health_factor": 1.05438,
+      "distance_to_liquidation_pct": 5.16,
+      "p_liquidation": 0.0034,
+      "expected_borrower_loss_usd": 11500,
+      "expected_lender_bad_debt_usd": 12700,
+      "deleverage_cost_usd": 76700,
+      "collateral_usd": 12170000,
+      "verdict": "REVIEW",
+      "reason": "distance to liquidation < 10% (PT volatility not modelled)"
+    }
+  ],
+  "historical_cases": [
+    {
+      "event": "USDC depeg (SVB)",
+      "cutoff": "2023-03-11",
+      "prior_episodes_before_cutoff": 0,
+      "window_years": 2.19,
+      "realised_daily_close_2023_03_12": 0.961,
+      "limit": "intraday low not in dataset",
+      "fixture": "data/fixtures/replay_h04.json",
+      "test": "tests/test_hardening.py::test_r16_usdc_svb_replay_no_lookahead"
+    },
+    {
+      "event": "Morpho Blue liquidation",
+      "tx": "0x906a5315...e0d",
+      "block": 25829913,
+      "hf_at_n_minus_1": 0.9977,
+      "repaid_equals_full_debt": true,
+      "seized_formula_rel_error": 4.2e-11,
+      "test": "tests/test_hardening.py::test_r16_liquidation_replay_predicted_from_previous_block"
+    }
+  ],
+  "regression": {
+    "case": "$1M",
+    "phase0": "EXIT (loss ~1654 > exit execution ~1212)",
+    "phase05": "REVIEW lean STAY",
+    "why": "carry forgone ($3.7k/30d) added to exit side flips point comparison; loss band [171, 27532] overlaps exit band [3056, 6738]",
+    "offline_replay": "DEFIRISK_OFFLINE=1, clock frozen: $1M REVIEW (point STAY, execution-only EXIT); $5M REVIEW (cache lacks SDK quote at 5M -> labelled approximation)"
+  },
+  "errors_found_and_fixed": [
+    "point_verdict computed without carry (now from robust_signal; execution-only kept separately)",
+    "UI mapped every non-EXIT verdict to green STAY (REVIEW now amber)",
+    "snapshot fallback could show 'Data fresh' (now 'saved snapshot, not fresh')",
+    "UI did not forward query string to API (borrower mode unreachable from UI)"
+  ],
+  "gates": {
+    "G01": {
+      "status": "PASS",
+      "condition": "builds/starts, old tests kept",
+      "tests": [
+        "full suite"
+      ],
+      "notes": "57/57 live, 54+3 skipped offline; dev server serves UI and API"
+    },
+    "G02": {
+      "status": "PASS",
+      "condition": "exit quote defensible, no double count",
+      "tests": [
+        "tests/test_hardening.py::test_R02_cost_by_size_monotone_and_decomposition_adds_up",
+        "tests/test_hardening.py::test_R02_live_sdk_quote_reexecuted_onchain",
+        "tests/test_hardening.py::test_R03_quote_status_and_ttl",
+        "tests/test_hardening.py::test_R04_missing_route_falls_back_and_says_so",
+        "tests/test_hardening.py::test_R04_simulation_unavailable_is_indicative_not_simulated"
+      ],
+      "notes": "eth_call re-execution gap 0"
+    },
+    "G03": {
+      "status": "PASS",
+      "condition": "debt-free exposure identified",
+      "tests": [
+        "tests/test_hardening.py::test_r05_debt_free_is_not_applicable_not_zero"
+      ],
+      "notes": "liquidation NOT_APPLICABLE by default"
+    },
+    "G04": {
+      "status": "PASS",
+      "condition": "real borrower, verified debt/LLTV/calcs",
+      "tests": [
+        "tests/test_hardening.py::test_r06_live_borrower_and_historical_liquidation",
+        "tests/test_hardening.py::test_r07_shares_rounding_oracle_scale_and_threshold",
+        "tests/test_hardening.py::test_r07_seized_formula_matches_real_liquidation_numbers",
+        "tests/test_hardening.py::test_r08_stress_threshold_monotone_and_terminal",
+        "tests/test_hardening.py::test_r09_borrower_vs_lender_no_double_counting"
+      ],
+      "notes": "real tx check 4.2e-11"
+    },
+    "G05": {
+      "status": "PASS",
+      "condition": "LGF/T/p justified or bounded",
+      "tests": [
+        "tests/test_hardening.py::test_r10_shared_node_counted_once",
+        "tests/test_hardening.py::test_r11_bands_bracket_central_and_dependence_bounds",
+        "tests/test_hardening.py::test_r12_priors_consistent_and_classified",
+        "tests/test_hardening.py::test_r13_shock_monotone_and_terminals"
+      ],
+      "notes": "parameter inventory in payload; assumptions bounded x0.2-x4"
+    },
+    "G06": {
+      "status": "PASS",
+      "condition": "P&L, scenarios, correlation, no double count",
+      "tests": [
+        "tests/test_hardening.py::test_r13_correlated_scenario_dominates_its_parts",
+        "tests/test_hardening.py::test_r15_carry_signed_and_unknown_degrades",
+        "tests/test_hardening.py::test_r09_borrower_vs_lender_no_double_counting"
+      ],
+      "notes": ""
+    },
+    "G07": {
+      "status": "PASS",
+      "condition": "robust verdict or explicit indeterminacy",
+      "tests": [
+        "tests/test_hardening.py::test_r14_robust_verdict_rules"
+      ],
+      "notes": "REVIEW with lean + break-even multiplier"
+    },
+    "G08": {
+      "status": "PASS",
+      "condition": "real historical replay without look-ahead",
+      "tests": [
+        "tests/test_hardening.py::test_r16_usdc_svb_replay_no_lookahead",
+        "tests/test_hardening.py::test_r16_liquidation_replay_predicted_from_previous_block"
+      ],
+      "notes": ""
+    },
+    "G09": {
+      "status": "PASS",
+      "condition": "freshness/TTL/labels, no false live verdict",
+      "tests": [
+        "tests/test_hardening.py::test_r17_ttl_per_data_type_with_injected_clock",
+        "tests/test_hardening.py::test_r17_stale_quote_forces_review_never_firm",
+        "tests/test_hardening.py::test_r18_api_input_validation_and_no_secret_leak",
+        "tests/test_compliance.py::test_offline_replay_is_reproducible"
+      ],
+      "notes": ""
+    },
+    "G10": {
+      "status": "PASS",
+      "condition": "complete real case end-to-end",
+      "tests": [
+        "local dev server + browser canvas (R19)"
+      ],
+      "notes": "graph -> shock -> borrower liquidation -> loss -> exit -> REVIEW, live block data"
+    },
+    "G11": {
+      "status": "BLOCKED",
+      "condition": "real preview deployment tested",
+      "tests": [],
+      "notes": "Vercel CLI logged out; no preview URL available"
+    },
+    "G12": {
+      "status": "BLOCKED",
+      "condition": "docs/evidence current, tests pass, no open H01-H06 reservation",
+      "tests": [
+        "full suite"
+      ],
+      "notes": "docs and tests done; H06 reservation open because of G11"
+    }
+  },
+  "summary": {
+    "gates_pass": 10,
+    "gates_blocked": 2,
+    "open_p0": 0,
+    "open_p1": 1,
+    "open_p1_items": [
+      "G11 Vercel preview untested"
+    ],
+    "verdict": "BLOCKED"
+  }
+}

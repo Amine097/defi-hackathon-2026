@@ -155,6 +155,8 @@ body.xr { margin:0; background:var(--bg); color:var(--text); font-family:var(--x
 .xr-vbadge { font-size:30px; font-weight:850; letter-spacing:.08em; padding:6px 18px; border-radius:12px; border:2px solid var(--border); color:var(--muted); min-width:118px; text-align:center; }
 .xr-vbadge.stay { color:var(--stay); border-color:rgba(74,222,128,.6); background:rgba(74,222,128,.09); text-shadow:0 0 18px rgba(74,222,128,.6); box-shadow:0 0 24px rgba(74,222,128,.18); }
 .xr-vbadge.exit { color:var(--exit); border-color:rgba(248,113,113,.7); background:rgba(248,113,113,.1); text-shadow:0 0 18px rgba(248,113,113,.7); box-shadow:0 0 28px rgba(248,113,113,.28); }
+.xr-vbadge.review { color:var(--warn); border-color:rgba(251,191,36,.6); background:rgba(251,191,36,.09); }
+.xr-warn { color:var(--warn); }
 .xr-vbadge.pop { animation:xr-pop .55s cubic-bezier(.2,1.6,.4,1); }
 .xr-vsub { flex:1; color:var(--muted); font-size:12px; min-width:0; }
 .xr-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }

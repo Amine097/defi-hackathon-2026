@@ -13,4 +13,6 @@ The [Official PDF](BelemCapital_EPFL-Hackathon_DeFi-Risk-Dependency-Challenge_EN
 
 Additional audit material: the [Belem compliance audit protocol](BELEM_SPEC_COMPLIANCE_AUDIT.md), the [recorded evidence snapshot](BELEM_EVIDENCE.json), and the [Phase 0.5 risk engine hardening plan](BELEM_PHASE_05_RISK_ENGINE_HARDENING.md). The evidence snapshot records a prior assessment; recheck its findings against the current commit before treating them as current results.
 
+Phase 0.5 results: [compliance report](BELEM_COMPLIANCE_REPORT.md), [risk engine validation](BELEM_RISK_ENGINE_VALIDATION.md) (model, liquidation, exit cost, robust STAY / EXIT / REVIEW rule, live cases, limits), [structured evidence](BELEM_PHASE05_EVIDENCE.json) and [progress / blockers](BELEM_PHASE05_PROGRESS.md).
+
 **Expected validation:** Run a traceable real-data case, record sources and freshness, then follow the same data from position to recommendation. The API can return `mock-fallback` and the frontend includes samples; these demo modes do not prove real-data operation.

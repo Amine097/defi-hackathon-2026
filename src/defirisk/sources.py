@@ -13,6 +13,7 @@ RPCS = [u for u in [os.getenv("ETH_RPC_URL"), "https://eth.drpc.org",
                     "https://eth-mainnet.public.blastapi.io"] if u]
 
 CHAIN_IDS = {"ethereum": 1}
+DEAD = "0x000000000000000000000000000000000000dEaD"
 
 
 # ---- Pendle ---------------------------------------------------------------
@@ -36,18 +37,26 @@ def strip_chain(asset_id: str) -> str:
 def pendle_quote(token_in: str, amount_in_raw: int, token_out: str, chain_id: int = 1) -> dict:
     """Executable swap quote from Pendle's hosted SDK (routes through the PT AMM + aggregators).
 
-    Returns {"amount_out_raw", "price_impact", "fee_usd", "gas_used", "aggregator", "method"}.
+    Returns amount out, Pendle-reported price impact / fee (informational), gas, route and the built transaction
+    (`tx`: router + calldata, receiver 0xdEaD) so the quote can be re-executed with eth_call (simulate_swap).
+    `fetched_at` / `from_cache` say how old the quote is: a quote is perishable (see QUOTE_TTL_S in decision.py).
     """
+    from . import http
     r = get_json(f"{PENDLE}/v2/sdk/{chain_id}/convert", params={
-        "receiver": "0x000000000000000000000000000000000000dEaD", "slippage": "0.01", "enableAggregator": "true",
+        "receiver": DEAD, "slippage": "0.01", "enableAggregator": "true",
         "tokensIn": token_in.lower(), "amountsIn": str(int(amount_in_raw)), "tokensOut": token_out.lower()}, timeout=30)
+    meta = dict(http.LAST)
     route = (r.get("routes") or [None])[0]
     if not route or not route.get("outputs"):
         raise RuntimeError("Pendle SDK returned no route")
     data = route.get("data") or {}
+    tx = route.get("tx") or {}
     return {"amount_out_raw": int(route["outputs"][0]["amount"]), "price_impact": data.get("priceImpact"),
+            "price_impact_breakdown": data.get("priceImpactBreakDown"),
             "fee_usd": (data.get("fee") or {}).get("usd"), "gas_used": int(data.get("gasUsed") or 0),
-            "aggregator": data.get("aggregatorType"), "method": (route.get("contractParamInfo") or {}).get("method")}
+            "aggregator": data.get("aggregatorType"), "method": (route.get("contractParamInfo") or {}).get("method"),
+            "tx": {"to": tx.get("to"), "data": tx.get("data")} if tx.get("to") and tx.get("data") else None,
+            "fetched_at": meta.get("fetched_at"), "from_cache": bool(meta.get("cached"))}
 
 
 # ---- Morpho (GraphQL) -----------------------------------------------------
@@ -135,10 +144,71 @@ def _rpc_call(body: dict, revert_ok: bool = False):
     return None
 
 
-def eth_call(to: str, data: str) -> str | None:
-    body = {"jsonrpc": "2.0", "id": 1, "method": "eth_call", "params": [{"to": to, "data": data}, "latest"]}
+def eth_call(to: str, data: str, block: str | int = "latest") -> str | None:
+    tag = hex(block) if isinstance(block, int) else block
+    body = {"jsonrpc": "2.0", "id": 1, "method": "eth_call", "params": [{"to": to, "data": data}, tag]}
     r = _rpc_call(body, revert_ok=True)
     return r["result"] if r and r.get("result") not in (None, "0x") else None
+
+
+def eth_block(number: int | str = "latest") -> dict | None:
+    """{'number', 'timestamp'} of a block (used to pin every on-chain read of one analysis to the same block)."""
+    tag = hex(number) if isinstance(number, int) else number
+    b = _rpc("eth_getBlockByNumber", [tag, False])
+    return {"number": int(b["number"], 16), "timestamp": int(b["timestamp"], 16)} if b else None
+
+
+def _w(x: int | str) -> bytes:
+    return (int(x, 16) if isinstance(x, str) else int(x)).to_bytes(32, "big")
+
+
+def _override_rpc(method: str, params: list) -> dict | None:
+    """Live-only JSON-RPC with a state override (never served from cache: a simulation must be fresh)."""
+    for url in RPCS:
+        try:
+            r = post_json(url, {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}, timeout=60, use_cache=False)
+        except Exception:
+            continue
+        if r.get("result") is not None or "revert" in str(r.get("error", "")).lower():
+            return r
+    return None
+
+
+def erc20_override(token: str, holder: str, amount: int, spender: str, slots: tuple[int, int] | None = None, block: str = "latest") -> dict | None:
+    """State override giving `holder` a balance of `amount` and an allowance to `spender`. Finds the solidity mapping
+    slots (balance, allowance) by probing balanceOf() under the override, so it works for standard ERC20 layouts."""
+    from .keccak import keccak256
+    def bal_slot(s): return "0x" + keccak256(_w(holder) + _w(s)).hex()
+    def alw_slot(s): return "0x" + keccak256(_w(spender) + keccak256(_w(holder) + _w(s))).hex()
+    cands = [slots] if slots else [(b, a) for b in range(0, 10) for a in (b + 1,)]
+    for b, a in cands:
+        ov = {token: {"stateDiff": {bal_slot(b): "0x" + _w(amount).hex(), alw_slot(a): "0x" + _w(2 ** 255).hex()}}}
+        bal = _override_rpc("eth_call", [{"to": token, "data": "0x70a08231" + _w(holder).hex()}, block, ov])
+        alw = _override_rpc("eth_call", [{"to": token, "data": "0xdd62ed3e" + _w(holder).hex() + _w(spender).hex()}, block, ov])
+        if bal is None:
+            return None  # no RPC supports eth_call overrides right now
+        ok = bal.get("result") and int(bal["result"], 16) == amount and alw and alw.get("result") and int(alw["result"], 16) >= 2 ** 254
+        if ok:
+            return {"override": ov, "slots": (b, a)}
+    return None
+
+
+def simulate_swap(tx: dict, token_in: str, amount_in_raw: int, block: int | None = None) -> dict:
+    """Execute the SDK-built swap with eth_call (no transaction is sent) at a pinned block, from 0xdEaD funded with
+    the PT through a state override. Returns the on-chain amount out (first return word of the Pendle router call)
+    and an eth_estimateGas, or {'status': 'unavailable', 'reason'}."""
+    tag = hex(block) if block else "latest"
+    ov = erc20_override(token_in, DEAD, amount_in_raw, tx["to"], block=tag)
+    if not ov:
+        return {"status": "unavailable", "reason": "no RPC accepted eth_call state overrides / ERC20 slots not found"}
+    call = {"from": DEAD, "to": tx["to"], "data": tx["data"]}
+    r = _override_rpc("eth_call", [dict(call, gas=hex(15_000_000)), tag, ov["override"]])
+    if not r or not r.get("result") or r["result"] == "0x":
+        return {"status": "reverted", "reason": str((r or {}).get("error"))[:300]}
+    out = _words(r["result"])[0]
+    g = _override_rpc("eth_estimateGas", [call, tag, ov["override"]])
+    gas = int(g["result"], 16) if g and g.get("result") else None
+    return {"status": "simulated", "amount_out_raw": out, "gas_estimate": gas, "block": block, "storage_slots": ov["slots"]}
 
 
 def _rpc(method: str, params: list):

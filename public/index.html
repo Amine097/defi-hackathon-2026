@@ -32,6 +32,7 @@
   .verdict .big { font-size:4rem; font-weight:800; letter-spacing:.04em; line-height:1; }
   .verdict.stay { border-color:rgba(74,222,128,.45); box-shadow:0 0 40px rgba(74,222,128,.12); } .verdict.stay .big { color:var(--stay); }
   .verdict.exit { border-color:rgba(248,113,113,.45); box-shadow:0 0 40px rgba(248,113,113,.12); } .verdict.exit .big { color:var(--exit); }
+  .verdict.review { border-color:rgba(251,191,36,.45); box-shadow:0 0 40px rgba(251,191,36,.12); } .verdict.review .big { color:var(--warn); }
   .driver { display:flex; align-items:center; gap:var(--space-3); margin-bottom:var(--space-3); }
   .driver .name { flex:0 0 150px; font-size:.9rem; }
   .driver .bar { flex:1; height:8px; background:var(--bg-elev); border-radius:99px; overflow:hidden; }
@@ -68,6 +69,7 @@
         <div class="muted">Recommendation</div>
         <div class="big" id="verdict">—</div>
         <p id="explain" class="muted">&nbsp;</p>
+        <p id="signal" class="muted" style="font-size:.85rem"></p>
       </div>
       <div class="grid">
         <div class="grid g-kpi">
@@ -119,11 +121,12 @@
       <ul>
         <li><b>Data:</b> the position is a real Pendle PT used as Morpho Blue collateral, discovered live from the Pendle API, Morpho GraphQL, DefiLlama and Ethereum RPC. The position size is an input (default $1M). The badge at the top says whether numbers are live, replayed from cache, or MOCK.</li>
         <li><b>Failure priors (30-day horizon):</b> DefiLlama hack history for the protocol cohort (TVL &ge; $10M), adjusted by audits / TVL / age; stablecoins use their own DefiLlama price history. Loss-given-failure and edge transmissions are stated assumptions (see each node's source in the X-Ray).</li>
-        <li><b>Expected loss:</b> each node fails independently with its probability; the expected loss is computed exactly (1 &minus; &prod;(1 &minus; p &times; loss-if-fails &times; path transmission)); a 20,000-draw Monte Carlo gives the VaR95 and cross-checks the mean.</li>
+        <li><b>Expected loss:</b> central value 1 &minus; &prod;(1 &minus; p &times; loss-if-fails &times; path transmission), exact only if failures are independent and travel along their best path; it is bracketed by dependence-free bounds and by a low/high parameter band (each parameter is classed observed / calibrated / assumption). A 20,000-draw Monte Carlo gives the VaR95.</li>
         <li><b>Transmission:</b> a failure propagates along dependency edges (A depends on B) scaled by a per-edge transmission factor.</li>
-        <li><b>Exit cost:</b> executable Pendle SDK quote for selling the full PT size into the loan asset (slippage + fees), plus gas from eth_gasPrice; certain, paid immediately. If no quote is available a constant-product approximation is used and labelled as such.</li>
-        <li><b>Scenarios:</b> losses are conditional on the shock happening (probability 1), not probability-weighted.</li>
-        <li><b>Decision:</b> STAY if expected loss from staying over the horizon is below the certain exit cost, otherwise EXIT.</li>
+        <li><b>Exit cost:</b> executable Pendle SDK quote for selling the full PT size into the loan asset, re-executed on-chain with eth_call at a pinned block (no transaction sent), plus gas; plus the PT excess carry forgone (PT implied APY &minus; USDC supply APY on the same Morpho market). Without a quote a constant-product approximation is used and labelled as such.</li>
+        <li><b>Liquidation:</b> by default the position is unlevered (liquidation not applicable). With <code>?borrower=0x…</code> or <code>auto</code> a real Morpho borrower is read on-chain (debt, health factor, liquidation price) and stressed through Morpho's liquidation formula.</li>
+        <li><b>Scenarios:</b> losses are conditional on the shock happening (probability 1), not probability-weighted; a correlated depeg + oracle + liquidity scenario is included.</li>
+        <li><b>Decision:</b> EXIT if even the low staying loss exceeds the high exit cost; STAY if even the high staying loss is below the low exit cost; otherwise <b>REVIEW</b>, with the point comparison shown as a conditional lean. Stale (quote &gt; 60 s, chain state &gt; 120 s), cached or approximated inputs force REVIEW.</li>
       </ul>
     </details>
   </section>
@@ -157,10 +160,11 @@
   $('src-badge').innerHTML = F.sourceBadge(res.source, d);
   $('pos-label').textContent = d.position.label + ' · ' + d.position.chain + ' · ' + d.position.horizon_days + 'd horizon';
 
-  const stay = dec.verdict !== 'EXIT';
-  $('verdict-card').classList.add(stay ? 'stay' : 'exit');
+  const v = dec.verdict === 'EXIT' ? 'exit' : dec.verdict === 'STAY' ? 'stay' : 'review';
+  $('verdict-card').classList.add(v);
   $('verdict').textContent = dec.verdict;
   $('explain').textContent = dec.explanation;
+  $('signal').innerHTML = F.signalDetails(d);
   $('k-pos').textContent = F.fmtUsd(d.position.value_usd);
   countUp($('k-loss'), dec.expected_loss_usd);
   $('k-exit').title = (d.exit && d.exit.basis) || dec.exit_method || '';

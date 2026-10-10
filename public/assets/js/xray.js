@@ -359,9 +359,14 @@ function baselineVerdict() {
   const top = topRiskNode(m);
   const share = top && S.conc ? top.contrib / S.conc.sumContrib : 0;
   const ratio = stay > 0 ? exit / stay : Infinity;
+  const lb = d.loss_band, eb = d.exit_band;
   const why = `Exiting costs <b>${usd(exit)}</b> for sure; staying loses <b>${usd(stay)}</b> in expectation over ${m.horizon} days (${pct(stay / (m.totalValue || 1))} of value).`
     + (top && top.contrib > 0 ? ` ${dot(top)}${nodeName(top)} drives <b>${pct(share)}</b> of that risk.` : '')
-    + (verdict === 'STAY'
+    + (verdict === 'REVIEW'
+      ? ` <b class="xr-warn">Review</b>: the uncertainty bands overlap or an input is not firm`
+        + (lb && eb ? ` (staying ${usd(lb.low_usd)}–${usd(lb.high_usd)} vs exit incl. carry ${usd(eb.low_usd)}–${usd(eb.high_usd)})` : '')
+        + `. ${esc(d.lean || '')}`
+      : verdict === 'STAY'
       ? ` The certain exit cost is <b>${ratio.toFixed(1)}×</b> the expected loss, so <b class="xr-green">stay</b>, but watch the top driver.`
       : ` Expected loss exceeds the exit cost by <b>${usd(stay - exit)}</b>: <b class="xr-red">exit</b>.`);
   setVerdict({ mode: overridden ? 'baseline · custom exit cost' : 'baseline', title: 'Decision', verdict, stay, exit, why,
@@ -420,7 +425,7 @@ function setVerdict({ mode, title, verdict, stay, exit, why, sub, server, stayLa
   const b = $('vBadge');
   const changed = S.verdict !== verdict;
   b.textContent = verdict || '—';
-  b.className = `xr-vbadge ${verdict === 'EXIT' ? 'exit' : verdict === 'STAY' ? 'stay' : ''}`;
+  b.className = `xr-vbadge ${verdict === 'EXIT' ? 'exit' : verdict === 'STAY' ? 'stay' : verdict === 'REVIEW' ? 'review' : ''}`;
   if (changed && !reducedMotion()) { void b.offsetWidth; b.classList.add('pop'); }
   S.verdict = verdict;
   $('verdictCard').classList.toggle('is-exit', verdict === 'EXIT');

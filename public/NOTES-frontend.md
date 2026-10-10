@@ -3,7 +3,7 @@
 ## Files owned by the shell
 - `index.html` dashboard/landing
 - `assets/css/theme.css` design system (variables: --bg, --bg-elev, --card, --border, --text, --muted, --accent, --stay, --exit, --warn, --layer-chain/yield/oracle/amm/lending/position; classes .btn .btn-primary .btn-ghost .card .kpi .badge .badge-stay .badge-exit .badge-warn .table .container .nav .footer .muted .mono)
-- `assets/js/api.js` -> `window.FaultLine = { loadData(), fmtUsd, fmtPct, esc, verdictBadge, sourceBadge, LAYER_META }`
+- `assets/js/api.js` -> `window.FaultLine = { loadData(), fmtUsd, fmtPct, esc, verdictBadge, sourceBadge, signalDetails, LAYER_META }` (`verdictBadge` handles STAY / EXIT / REVIEW; `signalDetails(d)` renders bands, carry, quote status, freshness and liquidation mode; the page query string, e.g. `?borrower=auto`, is forwarded to `/api/analyze`)
   - `loadData()` resolves `{ data, source }` with source = payload.source (`live|cache|mixed|mock|mock-fallback`) or `'demo'`: tries `/api/analyze`, falls back to `/data/sample.json`.
   - `LAYER_META[layer] = { label, short, color (css var), hex }`.
 - `assets/js/shell.js` fills `<header id="nav">` and `<footer id="footer">` (use on xray.html too, include after api.js).

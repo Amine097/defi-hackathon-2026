@@ -5,7 +5,7 @@
 """
 import sys
 
-from .decision import decide, exit_cost_for
+from .decision import decide_robust, exit_cost_for
 from .discovery import discover
 from .propagation import simulate
 
@@ -16,7 +16,7 @@ def run(ref: str = "mock", use_mock: bool | None = None, value_usd: float = 1_00
     if use_mock:
         g.position.value_usd = value_usd
     sim = simulate(g)
-    return g, sim, decide(g, sim, exit_cost_for(g))
+    return g, sim, decide_robust(g, sim, exit_cost_for(g))
 
 
 def summary(g, sim, d) -> str:
@@ -32,7 +32,9 @@ def summary(g, sim, d) -> str:
                      f"p={n.p_fail:.4%} lgf={n.loss_given_failure:.0%}  <- {n.meta.get('source', '')[:70]}")
     lines += [f"STAY loss (expected) ${d.expected_loss_usd:,.0f} ({d.stay_loss_pct:.2%}); VaR95 ${sim.var95_usd:,.0f}",
               f"EXIT cost ${d.exit_cost_usd:,.0f} ({d.exit_cost_pct:.2%}) via {d.exit_method}",
-              f"VERDICT {d.verdict}", d.explanation]
+              f"LOSS BAND ${d.loss_band['low_usd']:,.0f} - ${d.loss_band['high_usd']:,.0f}; EXIT BAND (incl. carry) "
+              f"${d.exit_band['low_usd']:,.0f} - ${d.exit_band['high_usd']:,.0f}",
+              f"VERDICT {d.verdict} (confidence {d.confidence}; point comparison {d.point_verdict})", d.explanation]
     return "\n".join(lines)
 
 

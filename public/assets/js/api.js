@@ -21,8 +21,8 @@
   // Resolves { data, source }; source = payload.source from the API (live|cache|mixed|mock|mock-fallback),
   // or 'demo' when the API is unreachable and the bundled sample is shown. Never rejects unless sample.json is missing.
   async function loadData() {
-    try { const d = await tryFetch('/api/analyze'); return { data: d, source: d.source || 'unknown' }; }
-    catch (_) { return { data: await tryFetch('/data/sample.json'), source: 'demo' }; }
+    try { const d = await tryFetch('/api/analyze' + location.search); return { data: d, source: d.source || 'unknown' }; }
+    catch (_) { const d = await tryFetch('/data/sample.json'); d._snapshot = true; return { data: d, source: 'demo' }; }
   }
 
   const fmtUsd = (n) => {
@@ -34,7 +34,23 @@
   };
   const fmtPct = (n, d = 1) => ((Number(n) || 0) * 100).toFixed(d) + '%';
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const verdictBadge = (v) => '<span class="badge badge-' + (v === 'EXIT' ? 'exit' : 'stay') + '">' + esc(v) + '</span>';
+  const verdictBadge = (v) => '<span class="badge badge-' + (v === 'EXIT' ? 'exit' : v === 'STAY' ? 'stay' : 'warn') + '">' + esc(v) + '</span>';
+
+  // One line a portfolio manager can act on: bands, carry, quote status, data freshness, liquidation mode.
+  function signalDetails(d) {
+    const dec = d.decision || {}, lb = dec.loss_band, eb = dec.exit_band, c = dec.carry, fr = dec.freshness, liq = d.liquidation;
+    const out = [];
+    if (dec.verdict === 'REVIEW' && dec.lean) out.push(esc(dec.lean));
+    if (lb) out.push('Stay loss ' + fmtUsd(lb.low_usd) + '–' + fmtUsd(lb.high_usd) + ' (central ' + fmtUsd(lb.central_usd) + ')');
+    if (eb) out.push('Exit ' + fmtUsd(eb.low_usd) + '–' + fmtUsd(eb.high_usd) + ' incl. carry · quote ' + esc(eb.quote_status));
+    if (c) out.push(c.status === 'estimated' ? 'Carry forgone ' + fmtUsd(c.usd) + ' (PT ' + fmtPct(c.pt_implied_apy, 2) + ' vs USDC ' + fmtPct(c.reference_apy, 2) + ')' : 'Carry unknown (excluded)');
+    if (d._snapshot) out.push('Data: saved snapshot, not fresh (re-run live before acting)');
+    else if (fr) out.push('Data ' + esc(fr.label) + (fr.blockers && fr.blockers.length ? ': ' + esc(fr.blockers.join('; ')) : ''));
+    if (liq) out.push(liq.mode === 'borrower_position'
+      ? 'Borrower ' + esc(String(liq.borrower).slice(0, 10)) + '… HF ' + Number(liq.health_factor).toFixed(3) + ', ' + fmtPct(liq.distance_to_liquidation_pct) + ' to liquidation'
+      : 'Liquidation: ' + esc(liq.liquidation || liq.mode) + (liq.reason ? ' (no debt given)' : ''));
+    return out.join(' · ');
+  }
 
   const SOURCE_LABEL = {
     live: ['live on-chain data', 'badge-stay', 'Fetched now from Pendle, Morpho, DefiLlama and Ethereum RPC'],
@@ -53,5 +69,5 @@
     return '<span class="badge ' + cls + '" title="' + esc(title) + '">' + esc(label) + '</span>';
   }
 
-  window.FaultLine = { loadData, fmtUsd, fmtPct, esc, verdictBadge, sourceBadge, LAYER_META };
+  window.FaultLine = { loadData, fmtUsd, fmtPct, esc, verdictBadge, sourceBadge, signalDetails, LAYER_META };
 })();
