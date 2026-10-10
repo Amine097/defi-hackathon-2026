@@ -364,14 +364,7 @@ export function createGraph(canvas, model, cb) {
 
   function shape(s, r) {
     ctx.beginPath();
-    if (s.n.isPos) {
-      for (let i = 0; i < 6; i++) {
-        const an = Math.PI / 6 + i * Math.PI / 3;
-        const x = s.x + Math.cos(an) * r, y = s.y + Math.sin(an) * r;
-        i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
-      }
-      ctx.closePath();
-    } else ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
   }
 
   function drawNode(s, now, rm, px, k) {
@@ -404,7 +397,7 @@ export function createGraph(canvas, model, cb) {
     const gr = ctx.createRadialGradient(s.x - r * 0.35, s.y - r * 0.4, r * 0.1, s.x, s.y, r);
     gr.addColorStop(0, hexA(col, isHit ? 0.95 : 0.75)); gr.addColorStop(0.55, hexA(col, 0.28)); gr.addColorStop(1, '#0b0f17');
     shape(s, r); ctx.fillStyle = '#0b0f17'; ctx.fill(); ctx.fillStyle = gr; ctx.fill();
-    ctx.lineWidth = (isSel || isHov ? 2.6 : 1.8) * Math.max(px, 0.6);
+    ctx.lineWidth = (isSel || isHov ? 2.6 : s.n.isPos ? 2.4 : 1.8) * Math.max(px, 0.6);
     ctx.strokeStyle = col; ctx.stroke();
     if (r * k > 9) { shape(s, r - 3); ctx.lineWidth = 0.7 * px; ctx.strokeStyle = hexA('#ffffff', 0.12); ctx.stroke(); }
 
