@@ -70,3 +70,27 @@ The judging weights in the PDF are 30 / 30 / 25 / 15. All four criteria are cove
 **Phase 0.5 internal gates: 12/12 PASS. Verified compliance on mandatory requirements: 100 % (6/6 PDF, 12/12 gates). Verdict: GO.**
 - No blocking finding open. Remaining items are documented limits (D), not compliance gaps.
 - Phase 0.5 is closed; new feature work (vault analysis by address) may start.
+
+
+---
+
+## Appendix — Phase 1: Vault Risk Analyzer
+
+This appendix adds a feature. It does not change the Belem scope or the Phase 0 / 0.5 evidence above.
+
+- **Details:** [BELEM_PHASE1_VALIDATION.md](BELEM_PHASE1_VALIDATION.md), [BELEM_PHASE1_PROGRESS.md](BELEM_PHASE1_PROGRESS.md), `audit/BELEM_PHASE1_EVIDENCE.json`.
+- **What it adds to the PDF criteria:** a manager enters any Ethereum Morpho vault address (V1 or V2) and an amount. FAULTLINE then:
+  1. discovers the vault's real allocations and dependencies on-chain (dependency discovery);
+  2. computes the **depositor's** loss — bad debt after liquidations and oracle drain, never the raw borrower loss (impact estimation);
+  3. compares that loss with the feasible withdrawal (capacity, partial exit, gas, friction, fee) plus carry, giving a robust STAY / EXIT / REVIEW (decision usefulness);
+  4. does all of this on live data with a labelled replay mode (working demo).
+- **Belem vault `0xD6d4…48Ec`:** verified live as Morpho Vault V2 with EURCV as asset; 6 markets, coverage 1.0; `maxRedeem` = 0 by design, ordinary capacity ≈ $405k. At $100k / 30 d: REVIEW, lean STAY ×3.40.
+- **Alternative vaults:** Confidential USDC (V2), USDC Yield (V2), Steakhouse USDC (V1).
+- **Tests:**
+  - Offline: 135 passed, 14 skipped.
+  - Live: 149/149.
+  - Node: 17/17.
+  - Browser E2E: pass on the local dev server.
+  - V01–V26: 25 PASS, 1 BLOCKED (V25).
+- **Gates:** G01–G12 are 11 PASS and **G11 BLOCKED**. Phase 1 is not on the deployed version (production `ffd7df1`, `/vault.html` returns 404), and a production deployment needs owner authorization.
+- **Phase 1 verdict: BLOCKED (NO-GO until G11).** No P0 or P1 issue is open. The Phase 0.5 verdict (GO) is unchanged.

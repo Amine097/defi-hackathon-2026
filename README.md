@@ -8,7 +8,16 @@ The main view is an interactive node graph (nodes = chain, yield source, oracle,
 Click a node to simulate its failure and watch it propagate; the side panel shows STAY vs EXIT.
 - `public/index.html` (dashboard) and `public/xray.html` (node graph): fed by `/api/analyze`; a badge shows whether numbers are live, replayed from cache, or MOCK
 - `api/analyze.py`: Python serverless function returning the model output as JSON
+- `public/vault.html` (Vault analyzer): enter any Ethereum Morpho vault address (V1/V2) and an amount; fed by `/api/vault` (`api/vault.py`)
 - `docs/core/dependency-graph/mockup.html`: untouched copy of the original prototype
+
+## Demo: Belem vault risk (Phase 1)
+1. `python scripts/dev_server.py 8000`, open http://localhost:8000/vault.html
+2. Click **Use the Belem vault example** (fills `0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec`), set the amount (USD, hypothetical) and horizon, click **Analyze vault** (live on-chain, ~10-20 s).
+3. Read the verdict card (STAY / EXIT / REVIEW, lean, margin = expected loss − (execution + carry)), then allocations, the dependency graph, withdrawal capacity (partial exit above ~$405k), scenarios and sensitivity.
+4. Pick a dependency in **Custom shock: dependency**, set a severity and click **Run custom shock** to re-run the analysis under that failure.
+5. Deep link: `/vault.html?address=0x…&value_usd=1000000&horizon_days=90`. API: `/api/vault?address=0x…&value_usd=100000&horizon_days=30[&shock=<node id>&severity=0.6]`.
+6. Offline, deterministic replay of the dated vault fixtures (`data/fixtures/vault_*.json`, payloads labelled `replay`): `$env:PYTHONPATH='src'; python -m pytest tests/test_vault.py`. Live cross-checks: add `$env:DEFIRISK_LIVE_TESTS='1'`; evidence: `python scripts/collect_vault_evidence.py`.
 
 ## Setup
     python -m venv .venv

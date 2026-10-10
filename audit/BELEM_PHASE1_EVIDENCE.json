@@ -1,0 +1,900 @@
+{
+ "schema": "faultline.phase1.evidence/1",
+ "phase": "Phase 1 - Vault Risk Analyzer",
+ "spec": "docs/core/BELEM_PHASE_1_VAULT_RISK_ANALYZER.md",
+ "secrets": "none: public RPC / Morpho API / DefiLlama / Chainlink reads only; no keys, no wallet, no transaction",
+ "git": {
+  "local_head": "ffd7df1d7a379dcbffa7706976899cb1fda6d712",
+  "working_tree": "Phase 1 changes uncommitted on top of local_head (see BELEM_PHASE1_PROGRESS.md)",
+  "deployed_production_sha": "ffd7df1 (GitHub deployments API, environment Production) - does NOT contain Phase 1",
+  "deployed_vault_routes": {
+   "/vault.html": 404,
+   "/api/vault": 404
+  },
+  "url": "https://faultline-sandy-three.vercel.app/"
+ },
+ "scope": {
+  "chain_id": 1,
+  "supported": [
+   "Morpho Vault V1 (MetaMorpho, factory-verified)",
+   "Morpho Vault V2 (factory 0xA1D94F746dEfa1928926b84fB2596c06926C0405) with Morpho Blue market adapters"
+  ],
+  "unsupported": "other chains, non-Morpho ERC-4626, V2 adapters other than Morpho Blue markets / MetaMorpho -> 422 unsupported or unattributed share + REVIEW"
+ },
+ "belem_vault": {
+  "address": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+  "verified_version": "v2",
+  "factory": "0xA1D94F746dEfa1928926b84fB2596c06926C0405",
+  "asset": "EURCV 0x5F7827FDeb7c20b443265Fc2F40845B715385Ff2 (18 decimals, EUR)",
+  "markets": 6,
+  "coverage": 1.0,
+  "max_redeem_contract": 0,
+  "note": "maxRedeem = 0 is a V2 design property; capacity derived from idle + liquidity adapter (mGLOeuro market) and cross-checked with the Morpho API"
+ },
+ "fixtures": {
+  "data/fixtures/vault_0xbeef01735c132ada46aa9aa4c54623caa92a64cb.json": {
+   "sha256": "ebe3cbabf37072fe0ed4fd1fb8b96ef75892c57df99b53a8e05b745c3f313c9f",
+   "as_of_block": 26163092,
+   "role": "offline replay (V24), recorded with scripts/record_vault_fixture.py"
+  },
+  "data/fixtures/vault_0xc207d3f66537d7f66456808379a0e560cf20da36.json": {
+   "sha256": "9db0737129591aa82671b462b852009c8f250c450f860b8c96088975729c8b17",
+   "as_of_block": 26163090,
+   "role": "offline replay (V24), recorded with scripts/record_vault_fixture.py"
+  },
+  "data/fixtures/vault_0xd6d4b804014ef27836dbe9f8f6bf6c71251548ec.json": {
+   "sha256": "2cd6f4b6a40d4944209c7ded469bf1d4a9edeb9c55fe3a92401d358d3e7cf9dd",
+   "as_of_block": 26163088,
+   "role": "offline replay (V24), recorded with scripts/record_vault_fixture.py"
+  },
+  "data/fixtures/vault_0xe0181090c22579b6a217f1522cbf8c9f1f0c1965.json": {
+   "sha256": "3d4672851949621d748b1e40a82541928e5b5ed2af4f83dad0ca7afb1b849d00",
+   "as_of_block": 26163091,
+   "role": "offline replay (V24), recorded with scripts/record_vault_fixture.py"
+  }
+ },
+ "live_runs": {
+  "collected_at": 1791649414.2711577,
+  "collected_at_iso": "2026-10-10T16:23:34Z",
+  "runs": [
+   {
+    "case": "belem",
+    "address": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "chain_id": 1,
+    "elapsed_s": 9.9,
+    "as_of_block": 26163199,
+    "block_timestamp": 1791649355,
+    "mode": "live",
+    "payload_sha256": "40ff87a32c230d3617fe694ea102e053ce02b3de6bc7c1007d49942a5cde2f01",
+    "vault": {
+     "name": "Belem RWA EURCV",
+     "version": "v2",
+     "factory": "0xA1D94F746dEfa1928926b84fB2596c06926C0405",
+     "detection": "Morpho VaultV2Factory (0xA1D94F746dEfa1928926b84fB2596c06926C0405) confirms the contract on-chain; code 21808 bytes",
+     "asset": {
+      "address": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+      "symbol": "EURCV",
+      "decimals": 18,
+      "currency": "EUR",
+      "price_usd": 1.1193061098520063,
+      "price_source": "DefiLlama coins current ethereum:0x5f7827fdeb7c20b443265fc2f40845b715385ff2"
+     }
+    },
+    "allocations": {
+     "markets": 6,
+     "coverage": 1.0,
+     "idle_share": 7.328022437254972e-10,
+     "unattributed_share": 0.0,
+     "displayed": "all markets (no truncation)",
+     "top": [
+      {
+       "collateral": "mGLOeuro",
+       "share": 0.8578,
+       "market": "0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0"
+      },
+      {
+       "collateral": "WBTC",
+       "share": 0.0967,
+       "market": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e"
+      },
+      {
+       "collateral": "cbBTC",
+       "share": 0.0247,
+       "market": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce"
+      },
+      {
+       "collateral": "wstETH",
+       "share": 0.0208,
+       "market": "0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1"
+      }
+     ]
+    },
+    "cross_checks": [
+     {
+      "field": "totalAssets",
+      "rel_diff": 1.0948733600552048e-07,
+      "abs_diff": null,
+      "tolerance": 0.02,
+      "ok": true,
+      "source": "Morpho GraphQL vaultV2ByAddress"
+     },
+     {
+      "field": "asset_price_usd",
+      "rel_diff": 0.0,
+      "abs_diff": null,
+      "tolerance": 0.01,
+      "ok": true,
+      "source": "DefiLlama coins (primary) vs Morpho GraphQL asset.price.usd"
+     },
+     {
+      "field": "net_apy_excl_rewards",
+      "rel_diff": null,
+      "abs_diff": 0.00010866832910157512,
+      "tolerance": null,
+      "ok": true,
+      "source": "Morpho GraphQL vaultV2ByAddress"
+     }
+    ],
+    "graph": {
+     "nodes": 24,
+     "edges": 29,
+     "shared_nodes": 1
+    },
+    "risk": {
+     "expected_loss_usd": 63.16,
+     "band_usd": [
+      11.31,
+      323.31
+     ]
+    },
+    "scenarios": [
+     {
+      "name": "Collateral crash: mGLOeuro (collateral)",
+      "loss_usd": 15744.67
+     },
+     {
+      "name": "Oracle failure: Oracle 0x2b43e079...",
+      "loss_usd": 1695.44
+     },
+     {
+      "name": "Market failure: Morpho market mGLOeuro/EURCV (LLTV 77.0%)",
+      "loss_usd": 60044.33
+     },
+     {
+      "name": "Liquidity crisis",
+      "loss_usd": 0.0
+     },
+     {
+      "name": "Correlated: collateral crash + oracle failure + liquidity crisis",
+      "loss_usd": 16037.82
+     },
+     {
+      "name": "Deposit asset depeg: EURCV -10%",
+      "loss_usd": 10000.0
+     }
+    ],
+    "exit": {
+     "feasibility": "full",
+     "immediately_withdrawable_usd": 100000.0,
+     "blocked_or_deferred_usd": 0.0,
+     "quote_status": "simulated",
+     "simulation_status": "simulated",
+     "gas_usd": 0.06981499913776616,
+     "friction_usd": 0.0,
+     "exit_fee_usd": 0.0,
+     "capacity_ordinary_usd": 404901.48632989783,
+     "capacity_api_cross_check_ok": true,
+     "carry_usd": 214.76283365210494,
+     "net_apy_onchain": 0.026129478094339433,
+     "net_apy_api_excl_rewards": 0.02623814642344101,
+     "usd_conversion_status": "indicative"
+    },
+    "decision": {
+     "verdict": "REVIEW",
+     "colour": "amber",
+     "point_verdict": "STAY",
+     "confidence": "low",
+     "lean": "lean STAY (conditional): STAY holds if the true risk is below x3.40 the central estimate",
+     "reasons": [
+      "uncertainty bands overlap: staying loss $11-$323 vs exit $107-$322"
+     ],
+     "blockers": [],
+     "expected_loss_usd": 63.16411588410675,
+     "execution_cost_usd": 0.06981499913776616,
+     "carry_usd": 214.76283365210494,
+     "exit_side_usd": 214.83264865124272,
+     "margin_usd": -151.66853276713596,
+     "breakeven_risk_multiplier": 3.401181915463152,
+     "withdrawal_feasibility": "full",
+     "freshness": "fresh"
+    },
+    "warnings": []
+   },
+   {
+    "case": "belem_1m_partial",
+    "address": "0xD6d4b804014EF27836dBe9f8f6Bf6c71251548Ec",
+    "chain_id": 1,
+    "elapsed_s": 11.5,
+    "as_of_block": 26163199,
+    "block_timestamp": 1791649355,
+    "mode": "live",
+    "payload_sha256": "54abc4a70604462b7b5107f8c53ff9ca2674d6a612fc89bfb1c8f34ba3f4f3ca",
+    "vault": {
+     "name": "Belem RWA EURCV",
+     "version": "v2",
+     "factory": "0xA1D94F746dEfa1928926b84fB2596c06926C0405",
+     "detection": "Morpho VaultV2Factory (0xA1D94F746dEfa1928926b84fB2596c06926C0405) confirms the contract on-chain; code 21808 bytes",
+     "asset": {
+      "address": "0x5f7827fdeb7c20b443265fc2f40845b715385ff2",
+      "symbol": "EURCV",
+      "decimals": 18,
+      "currency": "EUR",
+      "price_usd": 1.1193061098520063,
+      "price_source": "DefiLlama coins current ethereum:0x5f7827fdeb7c20b443265fc2f40845b715385ff2"
+     }
+    },
+    "allocations": {
+     "markets": 6,
+     "coverage": 1.0,
+     "idle_share": 7.328022437254972e-10,
+     "unattributed_share": 0.0,
+     "displayed": "all markets (no truncation)",
+     "top": [
+      {
+       "collateral": "mGLOeuro",
+       "share": 0.8578,
+       "market": "0x987b2c1979c6cfd6b7833d9b30c09b96ec6de1666579582d8f17730e20dd19b0"
+      },
+      {
+       "collateral": "WBTC",
+       "share": 0.0967,
+       "market": "0xb7a75cabc2e8eadd0bc661340a9e359d9828bed6d5cbbcd64188bca8c01e399e"
+      },
+      {
+       "collateral": "cbBTC",
+       "share": 0.0247,
+       "market": "0x82053fe2fc3a3d6cb856458948e9c3589e76f20f3a2079606739b517587267ce"
+      },
+      {
+       "collateral": "wstETH",
+       "share": 0.0208,
+       "market": "0x0b352b7550acdb1f39fea4b8f9ef8ac2d7953613b92599610b8fbec8a98a51d1"
+      }
+     ]
+    },
+    "cross_checks": [
+     {
+      "field": "totalAssets",
+      "rel_diff": 1.0948733600552048e-07,
+      "abs_diff": null,
+      "tolerance": 0.02,
+      "ok": true,
+      "source": "Morpho GraphQL vaultV2ByAddress"
+     },
+     {
+      "field": "asset_price_usd",
+      "rel_diff": 0.0,
+      "abs_diff": null,
+      "tolerance": 0.01,
+      "ok": true,
+      "source": "DefiLlama coins (primary) vs Morpho GraphQL asset.price.usd"
+     },
+     {
+      "field": "net_apy_excl_rewards",
+      "rel_diff": null,
+      "abs_diff": 0.00010866832910157512,
+      "tolerance": null,
+      "ok": true,
+      "source": "Morpho GraphQL vaultV2ByAddress"
+     }
+    ],
+    "graph": {
+     "nodes": 24,
+     "edges": 29,
+     "shared_nodes": 1
+    },
+    "risk": {
+     "expected_loss_usd": 1893.14,
+     "band_usd": [
+      339.17,
+      9694.55
+     ]
+    },
+    "scenarios": [
+     {
+      "name": "Collateral crash: mGLOeuro (collateral)",
+      "loss_usd": 157446.75
+     },
+     {
+      "name": "Oracle failure: Oracle 0x2b43e079...",
+      "loss_usd": 16954.39
+     },
+     {
+      "name": "Market failure: Morpho market mGLOeuro/EURCV (LLTV 77.0%)",
+      "loss_usd": 600443.34
+     },
+     {
+      "name": "Liquidity crisis",
+      "loss_usd": 0.0
+     },
+     {
+      "name": "Correlated: collateral crash + oracle failure + liquidity crisis",
+      "loss_usd": 160378.22
+     },
+     {
+      "name": "Deposit asset depeg: EURCV -10%",
+      "loss_usd": 100000.0
+     }
+    ],
+    "exit": {
+     "feasibility": "partial",
+     "immediately_withdrawable_usd": 404901.49,
+     "blocked_or_deferred_usd": 595098.51,
+     "quote_status": "simulated_partial",
+     "simulation_status": "reverted",
+     "gas_usd": 0.07842244103960284,
+     "friction_usd": 0.0,
+     "exit_fee_usd": 0.0,
+     "capacity_ordinary_usd": 404901.48632989783,
+     "capacity_api_cross_check_ok": true,
+     "carry_usd": 6442.885009563148,
+     "net_apy_onchain": 0.026129478094339433,
+     "net_apy_api_excl_rewards": 0.02623814642344101,
+     "usd_conversion_status": "indicative"
+    },
+    "decision": {
+     "verdict": "REVIEW",
+     "colour": "amber",
+     "point_verdict": "STAY",
+     "confidence": "low",
+     "lean": "lean STAY (conditional): STAY holds if the true risk is below x3.40 the central estimate",
+     "reasons": [
+      "uncertainty bands overlap: staying loss $339-$9,695 vs exit $3,221-$9,664"
+     ],
+     "blockers": [],
+     "expected_loss_usd": 1893.1435292760534,
+     "execution_cost_usd": 0.07842244103960284,
+     "carry_usd": 6442.885009563148,
+     "exit_side_usd": 6442.963432004188,
+     "margin_usd": -4549.819902728134,
+     "breakeven_risk_multiplier": 3.4033148212845785,
+     "withdrawal_feasibility": "partial",
+     "freshness": "fresh"
+    },
+    "warnings": []
+   },
+   {
+    "case": "confidential_usdc_v2",
+    "address": "0xc207d3f66537D7F66456808379A0E560cF20Da36",
+    "chain_id": 1,
+    "elapsed_s": 9.4,
+    "as_of_block": 26163200,
+    "block_timestamp": 1791649367,
+    "mode": "live",
+    "payload_sha256": "6acc1f15fafe2440be847df3eca7db4c9fff7223d28e4c5a08a0c419862daa66",
+    "vault": {
+     "name": "RockawayX Confidential RWA USDC",
+     "version": "v2",
+     "factory": "0xA1D94F746dEfa1928926b84fB2596c06926C0405",
+     "detection": "Morpho VaultV2Factory (0xA1D94F746dEfa1928926b84fB2596c06926C0405) confirms the contract on-chain; code 21808 bytes",
+     "asset": {
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "symbol": "USDC",
+      "decimals": 6,
+      "currency": "USD",
+      "price_usd": 0.9997104263126115,
+      "price_source": "DefiLlama coins current ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+     }
+    },
+    "allocations": {
+     "markets": 4,
+     "coverage": 1.0,
+     "idle_share": 0.0,
+     "unattributed_share": 0.0,
+     "displayed": "all markets (no truncation)",
+     "top": [
+      {
+       "collateral": "PST",
+       "share": 0.8269,
+       "market": "0x002278ea242ec722813b4fe3c8eeaa07dbc331c731cc0b4248a1bf0771f933ea"
+      },
+      {
+       "collateral": "PT-reUSD-10DEC2026",
+       "share": 0.1504,
+       "market": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64"
+      },
+      {
+       "collateral": "AUTO",
+       "share": 0.0227,
+       "market": "0x2bbdd81580c750491207e798bdcd31596a6254c5e5d1541ad901ab08c75671e4"
+      },
+      {
+       "collateral": "AUTO",
+       "share": 0.0,
+       "market": "0xf8697bec3140fb8e046af586a1cda4f95e980bb7bc7551cad6e81cf701bc176d"
+      }
+     ]
+    },
+    "cross_checks": [
+     {
+      "field": "totalAssets",
+      "rel_diff": 4.0351503031534293e-07,
+      "abs_diff": null,
+      "tolerance": 0.02,
+      "ok": true,
+      "source": "Morpho GraphQL vaultV2ByAddress"
+     },
+     {
+      "field": "asset_price_usd",
+      "rel_diff": 4.808596660537984e-06,
+      "abs_diff": null,
+      "tolerance": 0.01,
+      "ok": true,
+      "source": "DefiLlama coins (primary) vs Morpho GraphQL asset.price.usd"
+     },
+     {
+      "field": "net_apy_excl_rewards",
+      "rel_diff": null,
+      "abs_diff": 0.00048177568399901394,
+      "tolerance": null,
+      "ok": true,
+      "source": "Morpho GraphQL vaultV2ByAddress"
+     }
+    ],
+    "graph": {
+     "nodes": 16,
+     "edges": 20,
+     "shared_nodes": 2
+    },
+    "risk": {
+     "expected_loss_usd": 71.1,
+     "band_usd": [
+      12.8,
+      367.99
+     ]
+    },
+    "scenarios": [
+     {
+      "name": "Collateral crash: PST (collateral)",
+      "loss_usd": 21122.79
+     },
+     {
+      "name": "Oracle failure: Oracle 0xa5657b40...",
+      "loss_usd": 2355.49
+     },
+     {
+      "name": "Market failure: Morpho market PST/USDC (LLTV 86.0%)",
+      "loss_usd": 57885.46
+     },
+     {
+      "name": "Liquidity crisis",
+      "loss_usd": 0.0
+     },
+     {
+      "name": "Correlated: collateral crash + oracle failure + liquidity crisis",
+      "loss_usd": 24430.23
+     },
+     {
+      "name": "Deposit asset depeg: USDC -10%",
+      "loss_usd": 10000.0
+     }
+    ],
+    "exit": {
+     "feasibility": "full",
+     "immediately_withdrawable_usd": 100000.0,
+     "blocked_or_deferred_usd": 0.0,
+     "quote_status": "simulated",
+     "simulation_status": "simulated",
+     "gas_usd": 0.06346642886051886,
+     "friction_usd": 0.0,
+     "exit_fee_usd": 0.0,
+     "capacity_ordinary_usd": 3576246.330297565,
+     "capacity_api_cross_check_ok": true,
+     "carry_usd": 543.9187621669709,
+     "net_apy_onchain": 0.06617678273031478,
+     "net_apy_api_excl_rewards": 0.06569500704631577,
+     "usd_conversion_status": "not_needed"
+    },
+    "decision": {
+     "verdict": "REVIEW",
+     "colour": "amber",
+     "point_verdict": "STAY",
+     "confidence": "low",
+     "lean": "lean STAY (conditional): STAY holds if the true risk is below x7.65 the central estimate",
+     "reasons": [
+      "uncertainty bands overlap: staying loss $13-$368 vs exit $272-$816"
+     ],
+     "blockers": [],
+     "expected_loss_usd": 71.10239205512237,
+     "execution_cost_usd": 0.06346642886051886,
+     "carry_usd": 543.9187621669709,
+     "exit_side_usd": 543.9822285958313,
+     "margin_usd": -472.87983654070894,
+     "breakeven_risk_multiplier": 7.65068815369963,
+     "withdrawal_feasibility": "full",
+     "freshness": "fresh"
+    },
+    "warnings": []
+   },
+   {
+    "case": "usdc_yield_v2",
+    "address": "0xE0181090c22579B6A217f1522cbf8c9f1F0C1965",
+    "chain_id": 1,
+    "elapsed_s": 12.3,
+    "as_of_block": 26163201,
+    "block_timestamp": 1791649379,
+    "mode": "live",
+    "payload_sha256": "13f0586881ad4182e56952bebcaad6570d7525714550b0781abb74d8263a8f37",
+    "vault": {
+     "name": "RockawayX USDC Yield",
+     "version": "v2",
+     "factory": "0xA1D94F746dEfa1928926b84fB2596c06926C0405",
+     "detection": "Morpho VaultV2Factory (0xA1D94F746dEfa1928926b84fB2596c06926C0405) confirms the contract on-chain; code 21808 bytes",
+     "asset": {
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "symbol": "USDC",
+      "decimals": 6,
+      "currency": "USD",
+      "price_usd": 0.9997104263126115,
+      "price_source": "DefiLlama coins current ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+     }
+    },
+    "allocations": {
+     "markets": 6,
+     "coverage": 1.0,
+     "idle_share": 0.0,
+     "unattributed_share": 0.0,
+     "displayed": "all markets (no truncation)",
+     "top": [
+      {
+       "collateral": "PT-reUSD-10DEC2026",
+       "share": 0.5014,
+       "market": "0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64"
+      },
+      {
+       "collateral": "strUSD",
+       "share": 0.2647,
+       "market": "0x975c6e8b71073a82216ae464bc44f67d71988450d2542d635d88bc78fca344b1"
+      },
+      {
+       "collateral": "siUSD",
+       "share": 0.1271,
+       "market": "0xbbf7ce1b40d32d3e3048f5cf27eeaa6de8cb27b80194690aab191a63381d8c99"
+      },
+      {
+       "collateral": "PRIME",
+       "share": 0.0869,
+       "market": "0x755f954513d31d5f24aaf3d0cdc5e913a28383f8ea8ff85be9ffffa7371fb64d"
+      }
+     ]
+    },
+    "cross_checks": [
+     {
+      "field": "totalAssets",
+      "rel_diff": 2.70071831990321e-07,
+      "abs_diff": null,
+      "tolerance": 0.02,
+      "ok": true,
+      "source": "Morpho GraphQL vaultV2ByAddress"
+     },
+     {
+      "field": "asset_price_usd",
+      "rel_diff": 4.808596660537984e-06,
+      "abs_diff": null,
+      "tolerance": 0.01,
+      "ok": true,
+      "source": "DefiLlama coins (primary) vs Morpho GraphQL asset.price.usd"
+     },
+     {
+      "field": "net_apy_excl_rewards",
+      "rel_diff": null,
+      "abs_diff": 0.0004698747345079496,
+      "tolerance": null,
+      "ok": true,
+      "source": "Morpho GraphQL vaultV2ByAddress"
+     }
+    ],
+    "graph": {
+     "nodes": 23,
+     "edges": 28,
+     "shared_nodes": 1
+    },
+    "risk": {
+     "expected_loss_usd": 70.61,
+     "band_usd": [
+      12.71,
+      365.21
+     ]
+    },
+    "scenarios": [
+     {
+      "name": "Collateral crash: PT-reUSD-10DEC2026 (collateral)",
+      "loss_usd": 13506.6
+     },
+     {
+      "name": "Oracle failure: Oracle 0x217d6ddc...",
+      "loss_usd": 2058.2
+     },
+     {
+      "name": "Market failure: Morpho market PT-reUSD-10DEC2026/USDC (LLTV 91.5%)",
+      "loss_usd": 35099.08
+     },
+     {
+      "name": "Liquidity crisis",
+      "loss_usd": 0.0
+     },
+     {
+      "name": "Correlated: collateral crash + oracle failure + liquidity crisis",
+      "loss_usd": 22728.51
+     },
+     {
+      "name": "Deposit asset depeg: USDC -10%",
+      "loss_usd": 10000.0
+     }
+    ],
+    "exit": {
+     "feasibility": "full",
+     "immediately_withdrawable_usd": 100000.0,
+     "blocked_or_deferred_usd": 0.0,
+     "quote_status": "simulated",
+     "simulation_status": "simulated",
+     "gas_usd": 0.07930562529278623,
+     "friction_usd": 0.0,
+     "exit_fee_usd": 0.0,
+     "capacity_ordinary_usd": 349849.66753332707,
+     "capacity_api_cross_check_ok": true,
+     "carry_usd": 523.4354283677446,
+     "net_apy_onchain": 0.06368464378474227,
+     "net_apy_api_excl_rewards": 0.06321476905023432,
+     "usd_conversion_status": "not_needed"
+    },
+    "decision": {
+     "verdict": "REVIEW",
+     "colour": "amber",
+     "point_verdict": "STAY",
+     "confidence": "low",
+     "lean": "lean STAY (conditional): STAY holds if the true risk is below x7.41 the central estimate",
+     "reasons": [
+      "uncertainty bands overlap: staying loss $13-$365 vs exit $262-$785"
+     ],
+     "blockers": [],
+     "expected_loss_usd": 70.60583902186445,
+     "execution_cost_usd": 0.07930562529278623,
+     "carry_usd": 523.4354283677446,
+     "exit_side_usd": 523.5147339930375,
+     "margin_usd": -452.908894971173,
+     "breakeven_risk_multiplier": 7.414609630669796,
+     "withdrawal_feasibility": "full",
+     "freshness": "fresh"
+    },
+    "warnings": []
+   },
+   {
+    "case": "steakhouse_usdc_v1",
+    "address": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "chain_id": 1,
+    "elapsed_s": 12.4,
+    "as_of_block": 26163202,
+    "block_timestamp": 1791649391,
+    "mode": "live",
+    "payload_sha256": "de8c8258a94717c1ca7379bee9f8cc4f94a46f35e0226493709eb7cc441137fd",
+    "vault": {
+     "name": "Steakhouse USDC",
+     "version": "v1",
+     "factory": "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101",
+     "detection": "MetaMorpho Factory v1.0 (0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101) confirms the contract on-chain; code 19340 bytes",
+     "asset": {
+      "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "symbol": "USDC",
+      "decimals": 6,
+      "currency": "USD",
+      "price_usd": 0.9997104263126115,
+      "price_source": "DefiLlama coins current ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+     }
+    },
+    "allocations": {
+     "markets": 12,
+     "coverage": 1.0,
+     "idle_share": 9.237448179659471e-11,
+     "unattributed_share": 0.0,
+     "displayed": "all markets (no truncation)",
+     "top": [
+      {
+       "collateral": "cbBTC",
+       "share": 0.4149,
+       "market": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64"
+      },
+      {
+       "collateral": "steakEURCV",
+       "share": 0.1814,
+       "market": "0xc498f4bfdda99e60ea8eb04c1e145654a70bc59da76ef9c6ed54a1314d78e5b5"
+      },
+      {
+       "collateral": "WBTC",
+       "share": 0.1708,
+       "market": "0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49"
+      },
+      {
+       "collateral": "weETH",
+       "share": 0.1604,
+       "market": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e"
+      }
+     ]
+    },
+    "cross_checks": [
+     {
+      "field": "totalAssets",
+      "rel_diff": 2.536622940628036e-07,
+      "abs_diff": null,
+      "tolerance": 0.02,
+      "ok": true,
+      "source": "Morpho GraphQL vaultByAddress"
+     },
+     {
+      "field": "asset_price_usd",
+      "rel_diff": 4.808596660537984e-06,
+      "abs_diff": null,
+      "tolerance": 0.01,
+      "ok": true,
+      "source": "DefiLlama coins (primary) vs Morpho GraphQL asset.price.usd"
+     },
+     {
+      "field": "net_apy_excl_rewards",
+      "rel_diff": null,
+      "abs_diff": 0.0001564608108133858,
+      "tolerance": null,
+      "ok": true,
+      "source": "Morpho GraphQL vaultByAddress"
+     }
+    ],
+    "graph": {
+     "nodes": 33,
+     "edges": 49,
+     "shared_nodes": 6
+    },
+    "risk": {
+     "expected_loss_usd": 52.88,
+     "band_usd": [
+      9.38,
+      265.44
+     ]
+    },
+    "scenarios": [
+     {
+      "name": "Collateral crash: steakEURCV (collateral)",
+      "loss_usd": 4548.46
+     },
+     {
+      "name": "Oracle failure: Oracle 0xa6d6950c...",
+      "loss_usd": 1236.77
+     },
+     {
+      "name": "Market failure: Morpho market cbBTC/USDC (LLTV 86.0%)",
+      "loss_usd": 29046.44
+     },
+     {
+      "name": "Liquidity crisis",
+      "loss_usd": 0.0
+     },
+     {
+      "name": "Correlated: collateral crash + oracle failure + liquidity crisis",
+      "loss_usd": 9566.24
+     },
+     {
+      "name": "Deposit asset depeg: USDC -10%",
+      "loss_usd": 10000.0
+     }
+    ],
+    "exit": {
+     "feasibility": "full",
+     "immediately_withdrawable_usd": 100000.0,
+     "blocked_or_deferred_usd": 0.0,
+     "quote_status": "simulated",
+     "simulation_status": "simulated",
+     "gas_usd": 0.13498082522444926,
+     "friction_usd": 0.0,
+     "exit_fee_usd": 0.0,
+     "capacity_ordinary_usd": 48209570.47893578,
+     "capacity_api_cross_check_ok": true,
+     "carry_usd": 355.79686601398095,
+     "net_apy_onchain": 0.04328861869836768,
+     "net_apy_api_excl_rewards": 0.04313215788755429,
+     "usd_conversion_status": "not_needed"
+    },
+    "decision": {
+     "verdict": "REVIEW",
+     "colour": "amber",
+     "point_verdict": "STAY",
+     "confidence": "low",
+     "lean": "lean STAY (conditional): STAY holds if the true risk is below x6.73 the central estimate",
+     "reasons": [
+      "uncertainty bands overlap: staying loss $9-$265 vs exit $178-$534"
+     ],
+     "blockers": [],
+     "expected_loss_usd": 52.87891601919448,
+     "execution_cost_usd": 0.13498082522444926,
+     "carry_usd": 355.79686601398095,
+     "exit_side_usd": 355.9318468392054,
+     "margin_usd": -303.0529308200109,
+     "breakeven_risk_multiplier": 6.7310730558471725,
+     "withdrawal_feasibility": "full",
+     "freshness": "fresh"
+    },
+    "warnings": []
+   }
+  ]
+ },
+ "browser_e2e": {
+  "server": "python scripts/dev_server.py 8765 (local, live sources)",
+  "date": "same session",
+  "observations": [
+   {
+    "case": "invalid address 0x123",
+    "result": "client-side error, no request, no figures"
+   },
+   {
+    "case": "EOA 0x000000000000000000000000000000000000dEaD",
+    "result": "HTTP 404 not_found shown as structured error, no graph"
+   },
+   {
+    "case": "Belem via prefill button, $100k / 30 d",
+    "block": 26163170,
+    "elapsed_s": 18.6,
+    "result": "REVIEW amber, lean STAY x3.40, confidence low; EL $63 [$11-$323]; exit $215; margin -$152; consistency badge OK; 6 allocations, 25 nodes, 29 edges, 6 scenarios, 24 shock options, 6 sensitivity rows"
+   },
+   {
+    "case": "Belem deep link $1M / 90 d + custom shock mGLOeuro collateral severity 0.6",
+    "result": "partial withdrawal: $404.9k withdrawable, $595.1k blocked, warning shown; custom shock loss $365.3k; REVIEW lean STAY; consistency OK"
+   },
+   {
+    "case": "Steakhouse USDC V1 0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "result": "12 markets, 34 nodes; Morpho Blue node shared by 12 allocations (one node); EL $53, exit $356, REVIEW"
+   },
+   {
+    "case": "mobile viewport",
+    "result": "horizontal overflow found (shock select) and fixed (min-width:0 / minmax(0,1fr)); re-checked"
+   },
+   {
+    "case": "Phase 0.5 regression",
+    "result": "dashboard live with badges; X-Ray live REVIEW lean STAY margin -$3.3k; nav links present"
+   }
+  ]
+ },
+ "tests": {
+  "offline": {
+   "command": "$env:PYTHONPATH='src'; python -m pytest -q -p no:cacheprovider",
+   "result": "135 passed, 14 skipped (live-gated)"
+  },
+  "live": {
+   "command": "$env:PYTHONPATH='src'; $env:DEFIRISK_LIVE_TESTS='1'; python -m pytest -q -p no:cacheprovider",
+   "result": "149 passed, 0 skipped in 177.6 s"
+  },
+  "node": {
+   "command": "node --test tests\\js\\vault_view.test.mjs tests\\js\\decision_view.test.mjs",
+   "result": "17 pass, 0 fail"
+  },
+  "vault_unit_files": [
+   "tests/test_vault.py",
+   "tests/test_vault_live.py",
+   "tests/js/vault_view.test.mjs"
+  ]
+ },
+ "verdict_coverage_note": "All 5 live cases resolved to REVIEW (lean STAY) at collection time: real positions sit inside the uncertainty band. Firm STAY and firm EXIT are exercised on recorded real snapshots with controlled shocks (test_v19_three_verdicts_coherent, UI fixtures vault_stay/exit/review.json).",
+ "gates": {
+  "G01": "PASS",
+  "G02": "PASS",
+  "G03": "PASS",
+  "G04": "PASS",
+  "G05": "PASS",
+  "G06": "PASS",
+  "G07": "PASS",
+  "G08": "PASS",
+  "G09": "PASS",
+  "G10": "PASS",
+  "G12": "PASS",
+  "G11": "BLOCKED - Phase 1 not deployed; production deploy requires owner authorization"
+ },
+ "errors_and_blockers": [
+  "G11/V25: production deployment of Phase 1 not authorized yet (every Vercel deploy of main is Production; no preview environment exists)"
+ ]
+}

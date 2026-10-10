@@ -1,0 +1,3225 @@
+{
+ "schema": "faultline.vault-fixture/1",
+ "recorded_at": 1791648087.3003256,
+ "recorded_at_iso": "2026-10-10T16:01:27Z",
+ "note": "dated snapshot recorded from public sources (RPC, Morpho API, DefiLlama, Chainlink); replay is labelled offline",
+ "req": {
+  "address": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+  "checksum": "verified",
+  "chain_id": 1,
+  "value_usd": 100000.0,
+  "horizon_days": 30,
+  "shock": null,
+  "severity": null
+ },
+ "snap": {
+  "address": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+  "version": "v1",
+  "asset_address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "name": "Steakhouse USDC",
+  "symbol": "steakUSDC",
+  "decimals": 18,
+  "asset_decimals": 6,
+  "asset_symbol": "USDC",
+  "total_assets_raw": 65071562465057,
+  "total_supply_raw": 56908249598575323428728481,
+  "share_price_raw": 1143446,
+  "idle_raw": 6011,
+  "adapters": [
+   {
+    "address": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "type": "MetaMorpho withdrawQueue",
+    "supported": true,
+    "market_ids": [
+     "0x54efdee08e272e929034a8f26f7ca34b1ebe364b275391169b28c6d7db24dbc8",
+     "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+     "0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49",
+     "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
+     "0xb323495f7e4148be5643a4ea4a8221eef163e4bccfdedc2a6f4696baacbc86cc",
+     "0x7e585a933ffe8443c371b4f8cfeb4430f5f6a14c2f32a898c26662c67a1cb8b8",
+     "0xc498f4bfdda99e60ea8eb04c1e145654a70bc59da76ef9c6ed54a1314d78e5b5",
+     "0x94b823e6bd8ea533b4e33fbc307faea0b307301bc48763acc4d4aa4def7636cd",
+     "0x09dc9e7eb5d8fc54b2bc41d1135fd4e99057a580f680321faeb90c7a21e631c1",
+     "0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd",
+     "0xbc99de6a88904cd0e69042ad6f266e63182801f030c636507c3caf590ffd84fe",
+     "0xfb8d92086861bae6fb778917afd1de5dbbc4ec70edfb636fed48238e225e7e3d"
+    ],
+    "real_assets_raw": 65071562465057,
+    "force_deallocate_penalty": null
+   }
+  ],
+  "markets": [
+   {
+    "id": "0x54efdee08e272e929034a8f26f7ca34b1ebe364b275391169b28c6d7db24dbc8",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": null,
+    "oracle": "0x0000000000000000000000000000000000000000",
+    "irm": "0x0000000000000000000000000000000000000000",
+    "lltv": 0.0,
+    "lltv_raw": 0,
+    "loan_decimals": 6,
+    "collateral_decimals": null,
+    "collateral_symbol": null,
+    "total_supply_raw": 640014749488,
+    "total_supply_shares": 640014749488000000,
+    "total_borrow_raw": 0,
+    "total_borrow_shares": 0,
+    "liquidity_raw": 640014749488,
+    "vault_supply_shares": 0,
+    "vault_supply_raw": 0,
+    "oracle_price_raw": null,
+    "borrow_rate_per_s": 0,
+    "borrow_apy": 0.0,
+    "utilization": 0.0,
+    "fee": 0.0,
+    "supply_apy": 0.0,
+    "interest_accrued_seconds": 3360,
+    "lif": 1.15,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 0,
+    "vault_supply_raw_unscaled": 0,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [],
+     "covered_borrow_raw": 0,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle"
+    }
+   },
+   {
+    "id": "0x64d65c9a2d91c36d56fbc42d69e979335320169b3df63bf92789e2c8883fcc64",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+    "oracle": "0xa6d6950c9f177f1de7f7757fb33539e3ec60182a",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 8,
+    "collateral_symbol": "cbBTC",
+    "total_supply_raw": 337328019190567,
+    "total_supply_shares": 307947895412379757760,
+    "total_borrow_raw": 304071179702002,
+    "total_borrow_shares": 274176696397244905034,
+    "liquidity_raw": 33256839488565,
+    "vault_supply_shares": 24665194475749000173,
+    "vault_supply_raw": 27018405773849,
+    "oracle_price_raw": 829233109348900000000000000000000000000,
+    "borrow_rate_per_s": 1548242351,
+    "borrow_apy": 0.05003696759303722,
+    "utilization": 0.9014109780492999,
+    "fee": 0.0,
+    "supply_apy": 0.045103871896660805,
+    "interest_accrued_seconds": 1032,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 1,
+    "vault_supply_raw_unscaled": 27018405773849,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0xbCd16D361adf5E7e0dc0010756B49666b4f38eE0",
+       "borrow_shares": 156199849864869183800,
+       "debt_raw": 173230888116295,
+       "collateral_raw": 467471991335,
+       "collateral_value_raw": 387643252908244,
+       "ltv": 0.44688224757338707
+      },
+      {
+       "address": "0x56eCBF8844bD7a64dc661EC41D52005D4E224adc",
+       "borrow_shares": 25618129941077134831,
+       "debt_raw": 28411367907272,
+       "collateral_raw": 98900000010,
+       "collateral_value_raw": 82011154522898,
+       "ltv": 0.34643297088738556
+      },
+      {
+       "address": "0x5130985cE6A0e54f369712Cd6f2fDEC084026E54",
+       "borrow_shares": 19482292494675561202,
+       "debt_raw": 21606517767551,
+       "collateral_raw": 68536781803,
+       "collateral_value_raw": 56832968679268,
+       "ltv": 0.3801757724373952
+      },
+      {
+       "address": "0x34A8B0660eF835D9d6CfC5770e15e3FaC75049BC",
+       "borrow_shares": 6122976177467279576,
+       "debt_raw": 6790586559816,
+       "collateral_raw": 12657234891,
+       "collateral_value_raw": 10495798244423,
+       "ltv": 0.6469814302522645
+      },
+      {
+       "address": "0xeB9b0A7844ED7Be427Fd3d7d23765b1901ee7c20",
+       "borrow_shares": 4717072514025587351,
+       "debt_raw": 5231392101981,
+       "collateral_raw": 9274608726,
+       "collateral_value_raw": 7690812631855,
+       "ltv": 0.6802131780343743
+      },
+      {
+       "address": "0x0932b946915C09AE02B6C41Ec8ead57c11168219",
+       "borrow_shares": 4492837734985747755,
+       "debt_raw": 4982708188691,
+       "collateral_raw": 9208719733,
+       "collateral_value_raw": 7636175297318,
+       "ltv": 0.6525135941341003
+      },
+      {
+       "address": "0x4a4C63984e57832728Ad2Fa7cFAc844246Cb3dE2",
+       "borrow_shares": 3707105603727406306,
+       "debt_raw": 4111304822829,
+       "collateral_raw": 10732920961,
+       "collateral_value_raw": 8900093420886,
+       "ltv": 0.46193951326184185
+      },
+      {
+       "address": "0x4158BA71a75c257c90714F1d38aD11793104b756",
+       "borrow_shares": 3030102546263348335,
+       "debt_raw": 3360485657488,
+       "collateral_raw": 7859586311,
+       "collateral_value_raw": 6517429194866,
+       "ltv": 0.5156152152961122
+      },
+      {
+       "address": "0x70fCE97d671E81080CA3ab4cc7A59aAc2E117137",
+       "borrow_shares": 2699791790437531074,
+       "debt_raw": 2994159917511,
+       "collateral_raw": 10864528710,
+       "collateral_value_raw": 9009226923803,
+       "ltv": 0.33234371193384227
+      },
+      {
+       "address": "0xeD1Ee275eEea0Fd4541F44Cc519FAB5Cb24f6632",
+       "borrow_shares": 2665337104352541060,
+       "debt_raw": 2955948511576,
+       "collateral_raw": 9513760927,
+       "collateral_value_raw": 7889125555098,
+       "ltv": 0.37468645807846834
+      },
+      {
+       "address": "0x38534c588C6878D28269e030C8bD785B7BDf65Dd",
+       "borrow_shares": 2585799043634986740,
+       "debt_raw": 2867738126552,
+       "collateral_raw": 6817709176,
+       "collateral_value_raw": 5653470178651,
+       "ltv": 0.5072527201755372
+      },
+      {
+       "address": "0x7376b927836243f21b327164055891Eb4290f213",
+       "borrow_shares": 2468947754148372998,
+       "debt_raw": 2738146115594,
+       "collateral_raw": 4864427058,
+       "collateral_value_raw": 4033743974506,
+       "ltv": 0.6788100912947338
+      },
+      {
+       "address": "0x5D82AE8FC9ad408507a3EBdBC48A97e20AA8F737",
+       "borrow_shares": 2234383662162818217,
+       "debt_raw": 2478006646767,
+       "collateral_raw": 5001051929,
+       "collateral_value_raw": 4147037841099,
+       "ltv": 0.5975365409519166
+      },
+      {
+       "address": "0x54Ac74A05AAD151071b2AA7EAaFd907dBb829Bd9",
+       "borrow_shares": 2138698591929801733,
+       "debt_raw": 2371888685000,
+       "collateral_raw": 6006767307,
+       "collateral_value_raw": 4981010331118,
+       "ltv": 0.47618626088406923
+      },
+      {
+       "address": "0xf37414de43b7D79859d30ec39C6bC0B3c7672135",
+       "borrow_shares": 1890931468410045514,
+       "debt_raw": 2097106610046,
+       "collateral_raw": 3488194335,
+       "collateral_value_raw": 2892526234425,
+       "ltv": 0.7250086741090112
+      },
+      {
+       "address": "0x8A0Aa6935041df43035E33A212A4432F90BF55c8",
+       "borrow_shares": 1672171459032965852,
+       "debt_raw": 1854494400486,
+       "collateral_raw": 4800564330,
+       "collateral_value_raw": 3980786885995,
+       "ltv": 0.4658612615034447
+      },
+      {
+       "address": "0x39F098F94aF752C3320118F4942dce77ed27123B",
+       "borrow_shares": 1373546928834044355,
+       "debt_raw": 1523309750664,
+       "collateral_raw": 4939090446,
+       "collateral_value_raw": 4095657327892,
+       "ltv": 0.3719329105709228
+      },
+      {
+       "address": "0x2F23505Dc53F4Aa022c5D21aeFbfF1E320FF3F01",
+       "borrow_shares": 1098615646164487148,
+       "debt_raw": 1218401709401,
+       "collateral_raw": 4000000000,
+       "collateral_value_raw": 3316932437395,
+       "ltv": 0.36732786464528927
+      },
+      {
+       "address": "0x50fe9966596cc8c21514C4603fCaB562227De5B2",
+       "borrow_shares": 1016571205169145633,
+       "debt_raw": 1127411664335,
+       "collateral_raw": 3073787179,
+       "collateral_value_raw": 2548886099918,
+       "ltv": 0.44231543511154536
+      },
+      {
+       "address": "0x648fD17F897d9cfa4aE32C4e3304096d8C08166a",
+       "borrow_shares": 999254353408824687,
+       "debt_raw": 1108206693188,
+       "collateral_raw": 2780000125,
+       "collateral_value_raw": 2305268147644,
+       "ltv": 0.4807278902979659
+      },
+      {
+       "address": "0xCC0c060c10faA3a47dba3E5926f27d1d982dBe3b",
+       "borrow_shares": 928086726037213377,
+       "debt_raw": 1029279400329,
+       "collateral_raw": 3699990000,
+       "collateral_value_raw": 3068154212259,
+       "ltv": 0.33547185999205986
+      },
+      {
+       "address": "0x2D85694D1a5F7b8bf3aBDD941eCF2b129E7Cc261",
+       "borrow_shares": 903993690053438610,
+       "debt_raw": 1002559412925,
+       "collateral_raw": 1801552471,
+       "collateral_value_raw": 1493906957182,
+       "ltv": 0.671098965102992
+      },
+      {
+       "address": "0xb091585dA6657786eA2aC7f5E970EA8142ebcC06",
+       "borrow_shares": 828792686231315571,
+       "debt_raw": 919158969899,
+       "collateral_raw": 2346582450,
+       "collateral_value_raw": 1945863861357,
+       "ltv": 0.4723655072446846
+      },
+      {
+       "address": "0xd8FA2f704aC2d5ff4acEcBf248dB61523F99833b",
+       "borrow_shares": 683439309575701038,
+       "debt_raw": 757957185451,
+       "collateral_raw": 1991359991,
+       "collateral_value_raw": 1651301637169,
+       "ltv": 0.4590058947379509
+      },
+      {
+       "address": "0xFf79e57c48549Ae4f6e0A6b3A687A6038921DBC9",
+       "borrow_shares": 669422690871974544,
+       "debt_raw": 742412283785,
+       "collateral_raw": 1899117651,
+       "collateral_value_raw": 1574811234758,
+       "ltv": 0.4714293798514118
+      },
+      {
+       "address": "0xda554ab91F2438e9cB3D6c65FfAFcb77f9e1936B",
+       "borrow_shares": 645715209686176620,
+       "debt_raw": 716119889622,
+       "collateral_raw": 1551247813,
+       "collateral_value_raw": 1286346047344,
+       "ltv": 0.5567085863874794
+      },
+      {
+       "address": "0x7784F57464f70400a6eB9815934D183b37dbc6c6",
+       "borrow_shares": 635863620323029914,
+       "debt_raw": 705194145608,
+       "collateral_raw": 1677697515,
+       "collateral_value_raw": 1391202326910,
+       "ltv": 0.5068954615496561
+      },
+      {
+       "address": "0xED3A06B5790927c7952e320e4d1bCb09af0a0A03",
+       "borrow_shares": 613103573891161238,
+       "debt_raw": 679952488459,
+       "collateral_raw": 1941383984,
+       "collateral_value_raw": 1609859877492,
+       "ltv": 0.42236749792056294
+      },
+      {
+       "address": "0x3CfC3DE0e85e8C5444C538e69345853d3ebA1d84",
+       "borrow_shares": 563554808888504260,
+       "debt_raw": 625001241234,
+       "collateral_raw": 1490049854,
+       "collateral_value_raw": 1235598673517,
+       "ltv": 0.5058286761145514
+      },
+      {
+       "address": "0x2F51677962036541705A09B3327F3b52d2eCD87d",
+       "borrow_shares": 556780898155852364,
+       "debt_raw": 617488746354,
+       "collateral_raw": 1226363961,
+       "collateral_value_raw": 1016941600573,
+       "ltv": 0.6072017763911648
+      },
+      {
+       "address": "0xd8fF4BDC2C61B856573A499B67111d9Ad7a28A75",
+       "borrow_shares": 528301821561322520,
+       "debt_raw": 585904492365,
+       "collateral_raw": 1500097106,
+       "collateral_value_raw": 1243930187533,
+       "ltv": 0.47101075143693033
+      },
+      {
+       "address": "0x2C68059Cc66f2E1C0b6275257F2c0fA7d7a17Ed3",
+       "borrow_shares": 526942513695519281,
+       "debt_raw": 584396974214,
+       "collateral_raw": 1510000000,
+       "collateral_value_raw": 1252141995116,
+       "ltv": 0.46671781354946146
+      },
+      {
+       "address": "0x131cD5E746Fa428C80b34A70b136C36722C613ae",
+       "borrow_shares": 519296345812323876,
+       "debt_raw": 575917116812,
+       "collateral_raw": 2160534208,
+       "collateral_value_raw": 1791586499154,
+       "ltv": 0.32145649517003627
+      },
+      {
+       "address": "0xd3de2567269bDFEFDA180321AC44521B1738ae6b",
+       "borrow_shares": 489425983283866263,
+       "debt_raw": 542789879919,
+       "collateral_raw": 1238678901,
+       "collateral_value_raw": 1027153556561,
+       "ltv": 0.5284408319008387
+      },
+      {
+       "address": "0xEd6965EA279b83B449e4D98F270a709Cf46b7405",
+       "borrow_shares": 481219009141528226,
+       "debt_raw": 533688069510,
+       "collateral_raw": 1700578249,
+       "collateral_value_raw": 1410175789109,
+       "ltv": 0.37845499378996106
+      },
+      {
+       "address": "0xd69EE18C7cD0c3Efb98AcbfbEeB835EcFCc08b0E",
+       "borrow_shares": 456916179166941547,
+       "debt_raw": 506735413513,
+       "collateral_raw": 1681021633,
+       "collateral_value_raw": 1393958795615,
+       "ltv": 0.36352251953719594
+      },
+      {
+       "address": "0x0553a26b0E53be5c90ca3dD1745E4575Ef96E183",
+       "borrow_shares": 456456303656731573,
+       "debt_raw": 506225396101,
+       "collateral_raw": 995118992,
+       "collateral_value_raw": 825185615908,
+       "ltv": 0.6134685170729383
+      },
+      {
+       "address": "0x3539FD2B417D9CB95b7Cc920Ad8BE5537dcff1A5",
+       "borrow_shares": 417251057736325396,
+       "debt_raw": 462745459498,
+       "collateral_raw": 1398313089,
+       "collateral_value_raw": 1159527510634,
+       "ltv": 0.399081052630638
+      },
+      {
+       "address": "0x3616eA0DF7ba6109FE39DA863743eb6B042A5DeC",
+       "borrow_shares": 396321631467460548,
+       "debt_raw": 439534021693,
+       "collateral_raw": 1116840091,
+       "collateral_value_raw": 926120781305,
+       "ltv": 0.4745968674557233
+      },
+      {
+       "address": "0x402B6B757e5Fb7906b745351447C63a3d21E1bdB",
+       "borrow_shares": 378485473631657614,
+       "debt_raw": 419753122638,
+       "collateral_raw": 849900000,
+       "collateral_value_raw": 704765219635,
+       "ltv": 0.5955928455938723
+      },
+      {
+       "address": "0x598b0F8d5e17427D0bDFBDb8eBdC2e97955c40BF",
+       "borrow_shares": 364743832323011459,
+       "debt_raw": 404513180153,
+       "collateral_raw": 1000694014,
+       "collateral_value_raw": 829808608736,
+       "ltv": 0.48747768569088695
+      },
+      {
+       "address": "0x3965696545dF556cAc340f8DE960442dc876b288",
+       "borrow_shares": 354285163494122057,
+       "debt_raw": 392914164589,
+       "collateral_raw": 943190883,
+       "collateral_value_raw": 782125108619,
+       "ltv": 0.5023674093301638
+      },
+      {
+       "address": "0x1F9c50b4D59cD2d16bdbDCBcA6F17f39237415b3",
+       "borrow_shares": 339951293228261574,
+       "debt_raw": 377017420268,
+       "collateral_raw": 871045603,
+       "collateral_value_raw": 722299853760,
+       "ltv": 0.5219680141223901
+      },
+      {
+       "address": "0x51b7914b95372D478a3A861A367Fd5C4D7742A61",
+       "borrow_shares": 339244529384127900,
+       "debt_raw": 376233595389,
+       "collateral_raw": 661248521,
+       "collateral_value_raw": 548329167121,
+       "ltv": 0.6861455088453764
+      },
+      {
+       "address": "0xc0d3c06701C267C06629a9a09089A4c7E7c7aD08",
+       "borrow_shares": 336334816491902370,
+       "debt_raw": 373006625908,
+       "collateral_raw": 989184494,
+       "collateral_value_raw": 820264533679,
+       "ltv": 0.45473942928510347
+      },
+      {
+       "address": "0x3BFec97199419b28F13b4f9E35cBD81C423e1C89",
+       "borrow_shares": 335483425092376515,
+       "debt_raw": 372062404205,
+       "collateral_raw": 1174640105,
+       "collateral_value_raw": 974050466635,
+       "ltv": 0.38197446328458123
+      },
+      {
+       "address": "0xAbF1Bd13d5B78F17902d1e4baB54ed546c4B27F6",
+       "borrow_shares": 325363705940310106,
+       "debt_raw": 360839295234,
+       "collateral_raw": 661210616,
+       "collateral_value_raw": 548297735040,
+       "ltv": 0.6581083089968914
+      },
+      {
+       "address": "0x141c32237379178D7fea1C3aa02D5A66DF774aB2",
+       "borrow_shares": 322138520948912073,
+       "debt_raw": 357262456582,
+       "collateral_raw": 1177736522,
+       "collateral_value_raw": 976618118131,
+       "ltv": 0.3658159212381908
+      },
+      {
+       "address": "0xc382334d553B8F2342bdE19a11529cE10a967AfE",
+       "borrow_shares": 307804739388973291,
+       "debt_raw": 341365810639,
+       "collateral_raw": 762563913,
+       "collateral_value_raw": 632343244654,
+       "ltv": 0.5398425831619116
+      },
+      {
+       "address": "0x7d652ab535F368C84bA375Ee61c745Fc05527e35",
+       "borrow_shares": 304268611966507778,
+       "debt_raw": 337444126371,
+       "collateral_raw": 1093973589,
+       "collateral_value_raw": 907159120752,
+       "ltv": 0.3719789821341065
+      }
+     ],
+     "covered_borrow_raw": 289705542742310,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 0.9527556772273824
+    }
+   },
+   {
+    "id": "0x3a85e619751152991742810df6ec69ce473daef99e28a64ab2340d7b7ccfee49",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    "oracle": "0xdddd770badd886df3864029e4b377b5f6a2b6b83",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 8,
+    "collateral_symbol": "WBTC",
+    "total_supply_raw": 128850585089784,
+    "total_supply_shares": 112398413130892592811,
+    "total_borrow_raw": 116105490891119,
+    "total_borrow_shares": 99352101989278918561,
+    "liquidity_raw": 12745094198665,
+    "vault_supply_shares": 9676329571557633548,
+    "vault_supply_raw": 11092689763909,
+    "oracle_price_raw": 827947254591628674375448097311071592387,
+    "borrow_rate_per_s": 1557727178,
+    "borrow_apy": 0.050351094807533026,
+    "utilization": 0.9010862528114705,
+    "fee": 0.0,
+    "supply_apy": 0.04537067934507502,
+    "interest_accrued_seconds": 1164,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 2,
+    "vault_supply_raw_unscaled": 11092689763909,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0xeB9b0A7844ED7Be427Fd3d7d23765b1901ee7c20",
+       "borrow_shares": 7649390936811987580,
+       "debt_raw": 8939280316712,
+       "collateral_raw": 15361105654,
+       "collateral_value_raw": 12718185253721,
+       "ltv": 0.7028738879311894
+      },
+      {
+       "address": "0xbdc3c47122d033ccd1Ad7b986071187Be597fF72",
+       "borrow_shares": 5836678955251715397,
+       "debt_raw": 6820897210072,
+       "collateral_raw": 12142747912,
+       "collateral_value_raw": 10053554796938,
+       "ltv": 0.6784562622714737
+      },
+      {
+       "address": "0xc99882e7eFB11e4258dFEe59954226e53Fef4e68",
+       "borrow_shares": 5413258293918091053,
+       "debt_raw": 6326076640066,
+       "collateral_raw": 13792189459,
+       "collateral_value_raw": 11419205397386,
+       "ltv": 0.5539857126586162
+      },
+      {
+       "address": "0x8343c61692aB867A34BC17359c4f4B7e57744Faf",
+       "borrow_shares": 5355425192104094766,
+       "debt_raw": 6258491349555,
+       "collateral_raw": 13404246071,
+       "collateral_value_raw": 11098008734355,
+       "ltv": 0.5639292146330009
+      },
+      {
+       "address": "0xac79c0203836D0683B5545D44fd0E37489B66683",
+       "borrow_shares": 4929967309340276000,
+       "debt_raw": 5761290028770,
+       "collateral_raw": 19321036418,
+       "collateral_value_raw": 15996799058147,
+       "ltv": 0.36015267853451194
+      },
+      {
+       "address": "0x86D888C3fA8A7F67452eF2Eccc1C5EE9751Ec8d6",
+       "borrow_shares": 4430353492253663966,
+       "debt_raw": 5177428124217,
+       "collateral_raw": 19607034842,
+       "collateral_value_raw": 16233590668116,
+       "ltv": 0.3189330216626603
+      },
+      {
+       "address": "0xd843412740c6767D3596e5838b6ea1388759fC61",
+       "borrow_shares": 3807157426230255368,
+       "debt_raw": 4449144738981,
+       "collateral_raw": 11099305753,
+       "collateral_value_raw": 9189639726069,
+       "ltv": 0.48414789606601755
+      },
+      {
+       "address": "0x70fCE97d671E81080CA3ab4cc7A59aAc2E117137",
+       "borrow_shares": 2559713512344733461,
+       "debt_raw": 2991348828468,
+       "collateral_raw": 10866088591,
+       "collateral_value_raw": 8996548217067,
+       "ltv": 0.3324996161075677
+      },
+      {
+       "address": "0xB5fBAb1a71dB52b77bC44D0859287A40103bB9d6",
+       "borrow_shares": 1916019029519818107,
+       "debt_raw": 2239110451867,
+       "collateral_raw": 4763588189,
+       "collateral_value_raw": 3943999763087,
+       "ltv": 0.5677258079027953
+      },
+      {
+       "address": "0x34A8B0660eF835D9d6CfC5770e15e3FaC75049BC",
+       "borrow_shares": 1897153075263066696,
+       "debt_raw": 2217063199356,
+       "collateral_raw": 4111284350,
+       "collateral_value_raw": 3403926590428,
+       "ltv": 0.651325209418583
+      },
+      {
+       "address": "0x5B07d71f096D69Aef18637FCBBA7a097590e08Be",
+       "borrow_shares": 1860283941010469838,
+       "debt_raw": 2173976955125,
+       "collateral_raw": 6841793307,
+       "collateral_value_raw": 5664643985014,
+       "ltv": 0.3837799799733799
+      },
+      {
+       "address": "0x405dBF6606336AB3d6574f78EDdfA68038e9F9A1",
+       "borrow_shares": 1702359988338972659,
+       "debt_raw": 1989422852280,
+       "collateral_raw": 4240120469,
+       "collateral_value_raw": 3510596101446,
+       "ltv": 0.5666908965860712
+      },
+      {
+       "address": "0x638F189825AAA4D5f85fd2e3fE38620DF2f7f5f0",
+       "borrow_shares": 1476203579617986780,
+       "debt_raw": 1725130498853,
+       "collateral_raw": 3000000000,
+       "collateral_value_raw": 2483841763774,
+       "ltv": 0.6945412240076846
+      },
+      {
+       "address": "0xF6123C482f3c5B1BBfc2272A8CD117939d1a6acB",
+       "borrow_shares": 1397567827764140694,
+       "debt_raw": 1633234681977,
+       "collateral_raw": 4522652865,
+       "collateral_value_raw": 3744518023047,
+       "ltv": 0.4361668636456447
+      },
+      {
+       "address": "0x1D0347f652dDBc49dFf5da27600d4b3Ff1E3900c",
+       "borrow_shares": 1319147879310212185,
+       "debt_raw": 1541591058656,
+       "collateral_raw": 4021228781,
+       "collateral_value_raw": 3329365329313,
+       "ltv": 0.4630285072903371
+      },
+      {
+       "address": "0xAc0168b4Fd7427bFd616e3a47Fc05dD8175D5b64",
+       "borrow_shares": 1228750928149024193,
+       "debt_raw": 1435950793584,
+       "collateral_raw": 3327801963,
+       "collateral_value_raw": 2755244499090,
+       "ltv": 0.521170006530551
+      },
+      {
+       "address": "0x6c3f93a586BB9298B6ef803f3B007bF4f4ef66E7",
+       "borrow_shares": 1206602397313653648,
+       "debt_raw": 1410067435369,
+       "collateral_raw": 5500365011,
+       "collateral_value_raw": 4554012110109,
+       "ltv": 0.30963190287503434
+      },
+      {
+       "address": "0x0560F5a7a1d8b8227F6C206E62d2ba6B7A2C8660",
+       "borrow_shares": 1106473097579824753,
+       "debt_raw": 1293053690663,
+       "collateral_raw": 2723958772,
+       "collateral_value_raw": 2255294186898,
+       "ltv": 0.5733414727776625
+      },
+      {
+       "address": "0x792512632e1262Be2C102508a6B3f29C0Fc509c6",
+       "borrow_shares": 1100032360105664660,
+       "debt_raw": 1285526874711,
+       "collateral_raw": 2386212696,
+       "collateral_value_raw": 1975658250524,
+       "ltv": 0.6506828164081729
+      },
+      {
+       "address": "0x0464c1694a5CCf1Ac877Ee21D85dEe7696b60409",
+       "borrow_shares": 1040177057913036175,
+       "debt_raw": 1215578387418,
+       "collateral_raw": 2694861228,
+       "collateral_value_raw": 2231202955228,
+       "ltv": 0.5448085233885788
+      },
+      {
+       "address": "0x5cdb9D60f989b9a6E4250EeaE9Cb02EcaaD3eAba",
+       "borrow_shares": 1027823114708926307,
+       "debt_raw": 1201141243045,
+       "collateral_raw": 2526515615,
+       "collateral_value_raw": 2091821667122,
+       "ltv": 0.5742082424729692
+      },
+      {
+       "address": "0x8a5fD3cFDceD94DF9c86E77882c24b1a77f3dEF1",
+       "borrow_shares": 969992296301252799,
+       "debt_raw": 1133558620983,
+       "collateral_raw": 2265913757,
+       "collateral_value_raw": 1876057074249,
+       "ltv": 0.6042239527476915
+      },
+      {
+       "address": "0xA0Dd1008E66fbba2c0e5FFBED40A05D19A991d62",
+       "borrow_shares": 955261365703318138,
+       "debt_raw": 1116343666351,
+       "collateral_raw": 4509181007,
+       "collateral_value_raw": 3733364035202,
+       "ltv": 0.2990181658753238
+      },
+      {
+       "address": "0x939237520aC6874b3567de8Ee7FABf45B8F50457",
+       "borrow_shares": 931522831618630986,
+       "debt_raw": 1088602188337,
+       "collateral_raw": 2305089781,
+       "collateral_value_raw": 1908492755766,
+       "ltv": 0.5703989103694944
+      },
+      {
+       "address": "0x64398F9aB13f381cc9365E66751b37C550cEAb76",
+       "borrow_shares": 887886687791403004,
+       "debt_raw": 1037607837959,
+       "collateral_raw": 2175736792,
+       "collateral_value_raw": 1801395303650,
+       "ltv": 0.5760022999152887
+      },
+      {
+       "address": "0x957E995c8d9a167E66C1e70b715b43E4E026a69C",
+       "borrow_shares": 865097861501390037,
+       "debt_raw": 1010976213562,
+       "collateral_raw": 2982417987,
+       "collateral_value_raw": 2469284784381,
+       "ltv": 0.40942066300199204
+      },
+      {
+       "address": "0x8A0Aa6935041df43035E33A212A4432F90BF55c8",
+       "borrow_shares": 839810134941974426,
+       "debt_raw": 981424308298,
+       "collateral_raw": 2717639527,
+       "collateral_value_raw": 2250062185349,
+       "ltv": 0.4361765264482121
+      },
+      {
+       "address": "0xbA7F167b50074188D074a94c4738f1ed433cdbd7",
+       "borrow_shares": 830293539840825164,
+       "debt_raw": 970302963871,
+       "collateral_raw": 2031358299,
+       "collateral_value_raw": 1681857526748,
+       "ltv": 0.5769234007277387
+      },
+      {
+       "address": "0x899b72D86D4e685E622a77e092aC0CA86EC267a6",
+       "borrow_shares": 817693657534813815,
+       "debt_raw": 955578408567,
+       "collateral_raw": 2501602053,
+       "collateral_value_raw": 2071194551862,
+       "ltv": 0.4613658372690952
+      },
+      {
+       "address": "0x3F69bCdf3A61B3C84dC956a5cBdAC34CcB369D39",
+       "borrow_shares": 715347435143854949,
+       "debt_raw": 835973909481,
+       "collateral_raw": 1600000084,
+       "collateral_value_raw": 1324715676894,
+       "ltv": 0.6310591201283807
+      },
+      {
+       "address": "0x2d7dcAcA1b0FFA4e0479B394D08841Ad070fF753",
+       "borrow_shares": 702018987555119531,
+       "debt_raw": 820397933542,
+       "collateral_raw": 2777415952,
+       "collateral_value_raw": 2299553912317,
+       "ltv": 0.3567639484978971
+      },
+      {
+       "address": "0x6cC1252ABb6d3568e23575ea67D50F6517c36A90",
+       "borrow_shares": 700563584400774714,
+       "debt_raw": 818697110969,
+       "collateral_raw": 2150998859,
+       "collateral_value_raw": 1780913599938,
+       "ltv": 0.4597062490833367
+      },
+      {
+       "address": "0xB2a2891Fe370C762836c7Bc53A7daC555C759235",
+       "borrow_shares": 679903726028722843,
+       "debt_raw": 794553454720,
+       "collateral_raw": 1935163028,
+       "collateral_value_raw": 1602212916219,
+       "ltv": 0.4959100296076977
+      },
+      {
+       "address": "0xAD095537228190F1AFd552885E5AdB58b8697224",
+       "borrow_shares": 672151348256413364,
+       "debt_raw": 785493821267,
+       "collateral_raw": 1805484135,
+       "collateral_value_raw": 1494845632781,
+       "ltv": 0.5254681848356964
+      },
+      {
+       "address": "0x90A054e99dF5D8a2670711c6E010628055191207",
+       "borrow_shares": 658421782807331794,
+       "debt_raw": 769449088400,
+       "collateral_raw": 1641163881,
+       "collateral_value_raw": 1358797129608,
+       "ltv": 0.566272235666246
+      },
+      {
+       "address": "0x60ff615B8a9662b4acd4C71A2fAB4D851C678D34",
+       "borrow_shares": 643863189046639714,
+       "debt_raw": 752435531149,
+       "collateral_raw": 1846077752,
+       "collateral_value_raw": 1528455006531,
+       "ltv": 0.4922850381161934
+      },
+      {
+       "address": "0x6F2f4f71FABB423b6D3F8699e2Aa7300463a8e02",
+       "borrow_shares": 614926646910280094,
+       "debt_raw": 718619523614,
+       "collateral_raw": 1916670100,
+       "collateral_value_raw": 1586901747252,
+       "ltv": 0.45284437102575276
+      },
+      {
+       "address": "0x34d76d810150Ad415B76C6A6Ec9B9Eb568f501ca",
+       "borrow_shares": 607511165956101660,
+       "debt_raw": 709953596682,
+       "collateral_raw": 2500505888,
+       "collateral_value_raw": 2070286985059,
+       "ltv": 0.34292520882643107
+      },
+      {
+       "address": "0x3EfD6DAe4295902987075467E62666Bc9fF50aC5",
+       "borrow_shares": 587104943682895904,
+       "debt_raw": 686106346279,
+       "collateral_raw": 2200000000,
+       "collateral_value_raw": 1821483960101,
+       "ltv": 0.3766743827054924
+      },
+      {
+       "address": "0x0BA2e84Ad8EEAa9D94447601C6a7ec7235287A2F",
+       "borrow_shares": 577765128389418150,
+       "debt_raw": 675191591404,
+       "collateral_raw": 1517489249,
+       "collateral_value_raw": 1256401057581,
+       "ltv": 0.5374013236696679
+      },
+      {
+       "address": "0xD9500DFEc6082a377f2e79c7E749761664BE842A",
+       "borrow_shares": 568189920801945835,
+       "debt_raw": 664001750877,
+       "collateral_raw": 1421981332,
+       "collateral_value_raw": 1177325539909,
+       "ltv": 0.5639916304952691
+      },
+      {
+       "address": "0xC5Cd3aBe92d857Ecfb73E86DE0f8a3Ed3239Cc46",
+       "borrow_shares": 539537541445407840,
+       "debt_raw": 630517823473,
+       "collateral_raw": 1344368500,
+       "collateral_value_raw": 1113066208734,
+       "ltv": 0.5664692886420029
+      },
+      {
+       "address": "0x88CD0D18e608b689fBaB5644B83b08F7a267b6E8",
+       "borrow_shares": 536197597339106530,
+       "debt_raw": 626614676562,
+       "collateral_raw": 1200000000,
+       "collateral_value_raw": 993536705509,
+       "ltv": 0.6306910183464015
+      },
+      {
+       "address": "0x11E19Aff865030a78E1e5B516bDDE3a6005F84a7",
+       "borrow_shares": 522162335292604141,
+       "debt_raw": 610212698576,
+       "collateral_raw": 1497571451,
+       "collateral_value_raw": 1239910171410,
+       "ltv": 0.4921426669821402
+      },
+      {
+       "address": "0x1e6c4f1Be2354bb83C35a2Cc0EcF7ba4CBC7643E",
+       "borrow_shares": 493083778046518217,
+       "debt_raw": 576230728433,
+       "collateral_raw": 1019820078,
+       "collateral_value_raw": 844357233757,
+       "ltv": 0.6824489746704001
+      },
+      {
+       "address": "0x3c44B585bcfC89526CC133a15A330C01fB595604",
+       "borrow_shares": 475222230108870495,
+       "debt_raw": 555357251678,
+       "collateral_raw": 1185581997,
+       "collateral_value_raw": 981599359509,
+       "ltv": 0.5657677404718275
+      },
+      {
+       "address": "0xDd0E7Bc87e7654F98E98D27cA02Fa13F31e6151d",
+       "borrow_shares": 471607669103890060,
+       "debt_raw": 551133180205,
+       "collateral_raw": 3040010000,
+       "collateral_value_raw": 2516967933431,
+       "ltv": 0.21896710438170894
+      },
+      {
+       "address": "0x3bD66d15D08174D01c2C9900f1bc7c8Fb2eC2A17",
+       "borrow_shares": 460352498886520636,
+       "debt_raw": 537980090970,
+       "collateral_raw": 1506250002,
+       "collateral_value_raw": 1247095553884,
+       "ltv": 0.4313864236741885
+      },
+      {
+       "address": "0x2425ccb741E67D36553A5A9A84E0b5B009bC5A9d",
+       "borrow_shares": 457076926767281846,
+       "debt_raw": 534152170863,
+       "collateral_raw": 940798213,
+       "collateral_value_raw": 778931297578,
+       "ltv": 0.6857500430704051
+      },
+      {
+       "address": "0x581cd214EE109Caa719559e41341CE8C1d9cC638",
+       "borrow_shares": 456584279922506371,
+       "debt_raw": 533576450746,
+       "collateral_raw": 1455418782,
+       "collateral_value_raw": 1205009984837,
+       "ltv": 0.4427983647107921
+      }
+     ],
+     "covered_borrow_raw": 90565848297563,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 0.7800307083021036
+    }
+   },
+   {
+    "id": "0x85252bb8485c99bba46fe149c7dd2aad83672640f53c630890673cf1848ba16e",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+    "oracle": "0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 18,
+    "collateral_symbol": "weETH",
+    "total_supply_raw": 43810735802010,
+    "total_supply_shares": 42616924335128605437,
+    "total_borrow_raw": 39496216367711,
+    "total_borrow_shares": 38272130873275429288,
+    "liquidity_raw": 4314519434299,
+    "vault_supply_shares": 10152444764306369241,
+    "vault_supply_raw": 10436841284364,
+    "oracle_price_raw": 2771594135586346510661504013,
+    "borrow_rate_per_s": 1583892784,
+    "borrow_apy": 0.051218158678158196,
+    "utilization": 0.901519128694911,
+    "fee": 0.0,
+    "supply_apy": 0.04617414978489087,
+    "interest_accrued_seconds": 3480,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 3,
+    "vault_supply_raw_unscaled": 10436841284364,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0xf0bb20865277aBd641a307eCe5Ee04E79073416C",
+       "borrow_shares": 36776305426855893495,
+       "debt_raw": 37952548844319,
+       "collateral_raw": 19903541924203048935865,
+       "collateral_value_raw": 55164540074518,
+       "ltv": 0.687988131380258
+      },
+      {
+       "address": "0xE3aA1E551C9Ee0Ac8979De669Da5032EF60B22E9",
+       "borrow_shares": 879104315059787662,
+       "debt_raw": 907221349979,
+       "collateral_raw": 490968661218457193181,
+       "collateral_value_raw": 1360765862189,
+       "ltv": 0.6666990811480203
+      },
+      {
+       "address": "0xb554B9856DFdbf52B98E0e4D2b981C34E20e1dAB",
+       "borrow_shares": 284472370735192516,
+       "debt_raw": 293570858190,
+       "collateral_raw": 200000000000000000000,
+       "collateral_value_raw": 554318827117,
+       "ltv": 0.529606507714803
+      },
+      {
+       "address": "0x0d948EC223D11586FFD4940Dc176345233d842C1",
+       "borrow_shares": 278470366324585537,
+       "debt_raw": 287376887291,
+       "collateral_raw": 250000000000000000000,
+       "collateral_value_raw": 692898533896,
+       "ltv": 0.41474598838469123
+      },
+      {
+       "address": "0x38B94C3806c09aC3191b21745e21a560B3Cf38aA",
+       "borrow_shares": 48515082965352966,
+       "debt_raw": 50066776273,
+       "collateral_raw": 27175000847530575921,
+       "collateral_value_raw": 75318072983,
+       "ltv": 0.6647378814949307
+      },
+      {
+       "address": "0x9891525981AF3Ea556B4da5052f6ddc1F2fdd63f",
+       "borrow_shares": 5262401334617112,
+       "debt_raw": 5430712558,
+       "collateral_raw": 2889746691522789511,
+       "collateral_value_raw": 8009204983,
+       "ltv": 0.6780588796924291
+      },
+      {
+       "address": "0xd8dd2706eF4EF9cd0fB7F54a1C5413Aedd93121f",
+       "borrow_shares": 910000000000,
+       "debt_raw": 939106,
+       "collateral_raw": 1582998595088747,
+       "collateral_value_raw": 4387429,
+       "ltv": 0.21404471730482705
+      }
+     ],
+     "covered_borrow_raw": 39496216367716,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 1.0
+    }
+   },
+   {
+    "id": "0xb323495f7e4148be5643a4ea4a8221eef163e4bccfdedc2a6f4696baacbc86cc",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+    "oracle": "0x48f7e36eb6b826b2df4b2e630b62cd25e89e40e2",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 18,
+    "collateral_symbol": "wstETH",
+    "total_supply_raw": 32587526911691,
+    "total_supply_shares": 28414355484224307088,
+    "total_borrow_raw": 29379124917234,
+    "total_borrow_shares": 25122739989980521516,
+    "liquidity_raw": 3208401994457,
+    "vault_supply_shares": 2777723501309100334,
+    "vault_supply_raw": 3185683356513,
+    "oracle_price_raw": 3104131306805819761212689544,
+    "borrow_rate_per_s": 1554708370,
+    "borrow_apy": 0.05025110495701739,
+    "utilization": 0.9015450910665466,
+    "fee": 0.0,
+    "supply_apy": 0.04530363699466883,
+    "interest_accrued_seconds": 1164,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 4,
+    "vault_supply_raw_unscaled": 3185683356513,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0x20F6c325Df578A11209817a30EbB2f0d5454176D",
+       "borrow_shares": 4723657302629427718,
+       "debt_raw": 5523956304747,
+       "collateral_raw": 3862687114087577500150,
+       "collateral_value_raw": 11990287999234,
+       "ltv": 0.46070255402538274
+      },
+      {
+       "address": "0x577557e04cE02cF279b265c7a7b77540ACBA4A81",
+       "borrow_shares": 3408903369421364846,
+       "debt_raw": 3986452033535,
+       "collateral_raw": 2541097907058356596830,
+       "collateral_value_raw": 7887901566958,
+       "ltv": 0.5053881567480553
+      },
+      {
+       "address": "0x3BEB6259798772dda858aCCAe943baC785565999",
+       "borrow_shares": 2320640237321046096,
+       "debt_raw": 2713811449206,
+       "collateral_raw": 1595380964538668047507,
+       "collateral_value_raw": 4952271998306,
+       "ltv": 0.5479932140509044
+      },
+      {
+       "address": "0x96307ABd00708AeCc8f555fDc1eDe96e9d3A2Aa0",
+       "borrow_shares": 1376636375905545827,
+       "debt_raw": 1609871059824,
+       "collateral_raw": 843548676649644578287,
+       "collateral_value_raw": 2618485856002,
+       "ltv": 0.6148099124285552
+      },
+      {
+       "address": "0x930aF7923B8B5F8d3461ad1999CEEB8a62884b19",
+       "borrow_shares": 944229056785385090,
+       "debt_raw": 1104203738161,
+       "collateral_raw": 534406193406470300064,
+       "collateral_value_raw": 1658866995503,
+       "ltv": 0.665637294101559
+      },
+      {
+       "address": "0x18672B11831Aa6b09c630B57Bb765c9912b243e8",
+       "borrow_shares": 647841715049077843,
+       "debt_raw": 757601387453,
+       "collateral_raw": 630000254139507776454,
+       "collateral_value_raw": 1955603512170,
+       "ltv": 0.3874003000804296
+      },
+      {
+       "address": "0x21971c9B17425141A1DaC54f9Abf1AD1489D8b90",
+       "borrow_shares": 524115037224256950,
+       "debt_raw": 612912491064,
+       "collateral_raw": 338097873046126789985,
+       "collateral_value_raw": 1049500192486,
+       "ltv": 0.5840041721308937
+      },
+      {
+       "address": "0x43F9A40200310CE535EdF5EA0eb71afB53779BA4",
+       "borrow_shares": 448502819271935348,
+       "debt_raw": 524489779315,
+       "collateral_raw": 580864213860158598177,
+       "collateral_value_raw": 1803078791246,
+       "ltv": 0.2908856683697979
+      },
+      {
+       "address": "0x3cC616c2d6566A2f7B2595795cD7Df5DCA5B230E",
+       "borrow_shares": 443579105149569871,
+       "debt_raw": 518731871845,
+       "collateral_raw": 431645323222570102988,
+       "collateral_value_raw": 1339883761251,
+       "ltv": 0.3871469203870933
+      },
+      {
+       "address": "0xA2a232974BBc89C272C20a881739048E3de18441",
+       "borrow_shares": 411445478656324505,
+       "debt_raw": 481154050828,
+       "collateral_raw": 351388418788134788605,
+       "collateral_value_raw": 1090755791609,
+       "ltv": 0.4411198680121039
+      },
+      {
+       "address": "0xc99882e7eFB11e4258dFEe59954226e53Fef4e68",
+       "borrow_shares": 401440457638329180,
+       "debt_raw": 469453943181,
+       "collateral_raw": 333288401703394916294,
+       "collateral_value_raw": 1034570961922,
+       "ltv": 0.4537667888037958
+      },
+      {
+       "address": "0x3dC606cE9cCA12196917A3267A8AE7008E018958",
+       "borrow_shares": 393728097411316612,
+       "debt_raw": 460434927158,
+       "collateral_raw": 392711085330649825024,
+       "collateral_value_raw": 1219026774504,
+       "ltv": 0.377706984611017
+      },
+      {
+       "address": "0x7509f31B8634A9984201ef9233f6CA412BBCA4E1",
+       "borrow_shares": 359990853535163444,
+       "debt_raw": 420981798136,
+       "collateral_raw": 276234298305134507012,
+       "collateral_value_raw": 857467533382,
+       "ltv": 0.4909594611420156
+      },
+      {
+       "address": "0x93e22ecd5b8a4dA8C0e97D7158C060612E7115A3",
+       "borrow_shares": 344315427224971117,
+       "debt_raw": 402650584746,
+       "collateral_raw": 202684321541421150276,
+       "collateral_value_raw": 629158747895,
+       "ltv": 0.6399824942324384
+      },
+      {
+       "address": "0x51129076a523B041f85B5A73B1d8522c6230034a",
+       "borrow_shares": 314569838433040573,
+       "debt_raw": 367865391363,
+       "collateral_raw": 204400854089257934252,
+       "collateral_value_raw": 634487090316,
+       "ltv": 0.5797838868239041
+      },
+      {
+       "address": "0x22561c5931143536309C17e832587b625C390b9A",
+       "borrow_shares": 306186568999080779,
+       "debt_raw": 358061798283,
+       "collateral_raw": 250483255438175496676,
+       "collateral_value_raw": 777532915036,
+       "ltv": 0.46051014864936185
+      },
+      {
+       "address": "0x233A3db28436Bcd6D2B42b701579714562D00289",
+       "borrow_shares": 303229768453743873,
+       "debt_raw": 354604045960,
+       "collateral_raw": 443754713981968089448,
+       "collateral_value_raw": 1377472900214,
+       "ltv": 0.25743086916984703
+      },
+      {
+       "address": "0xC6baFa2B7C456B172fBB05710bD3c1D622ef3FCE",
+       "borrow_shares": 298229238459444023,
+       "debt_raw": 348756308196,
+       "collateral_raw": 245414437126330832021,
+       "collateral_value_raw": 761798637425,
+       "ltv": 0.45780642162192825
+      },
+      {
+       "address": "0xe98134dCe5959Eb8D13b7d6543b8E16a20ed973E",
+       "borrow_shares": 295011136691394090,
+       "debt_raw": 344992984058,
+       "collateral_raw": 255000000000000000000,
+       "collateral_value_raw": 791553483235,
+       "ltv": 0.43584292327038743
+      },
+      {
+       "address": "0xF3D913De4B23ddB9CfdFAF955BAC5634CbAE95F4",
+       "borrow_shares": 246990007270795445,
+       "debt_raw": 288835942251,
+       "collateral_raw": 2097742644138796003141,
+       "collateral_value_raw": 6511668615292,
+       "ltv": 0.04435667097258263
+      },
+      {
+       "address": "0xB2987147A93afb3aC2E49727a3F49E663BF95273",
+       "borrow_shares": 233586478850260218,
+       "debt_raw": 273161539859,
+       "collateral_raw": 175431194957399343115,
+       "collateral_value_raw": 544561464457,
+       "ltv": 0.5016174622847731
+      },
+      {
+       "address": "0x3ee882DE77f92EF73F350d883C8466f108373E34",
+       "borrow_shares": 219359409514476321,
+       "debt_raw": 256524069289,
+       "collateral_raw": 564937474454195841243,
+       "collateral_value_raw": 1753640100841,
+       "ltv": 0.1462809097294124
+      },
+      {
+       "address": "0xA4b93d80cEeaF2960927BB719092A1529979Ac93",
+       "borrow_shares": 217762032251553891,
+       "debt_raw": 254656058627,
+       "collateral_raw": 176816668442508283173,
+       "collateral_value_raw": 548862156077,
+       "ltv": 0.4639708819554217
+      },
+      {
+       "address": "0xb6D6Ffc4DE761A17c54b70E29E5b91686dC2e287",
+       "borrow_shares": 195634200463178318,
+       "debt_raw": 228779250026,
+       "collateral_raw": 240478368124455888901,
+       "collateral_value_raw": 746476431104,
+       "ltv": 0.30647886590022316
+      },
+      {
+       "address": "0xE407F8D8cFD2B629aBF9A1E4632ff2F24508f283",
+       "borrow_shares": 188832044209350792,
+       "debt_raw": 220824648005,
+       "collateral_raw": 149164619003128425332,
+       "collateral_value_raw": 463026563715,
+       "ltv": 0.4769157221418531
+      },
+      {
+       "address": "0xb311bF4362DE99c90C87C060824B0f0CEF5Cd9BA",
+       "borrow_shares": 187254560386898652,
+       "debt_raw": 218979901202,
+       "collateral_raw": 406035373762050373834,
+       "collateral_value_raw": 1260387115365,
+       "ltv": 0.1737401934155641
+      },
+      {
+       "address": "0x30C0Ed6047752B0CD93754e84Dbd919662c2D79e",
+       "borrow_shares": 182277420213990263,
+       "debt_raw": 213159516048,
+       "collateral_raw": 237884772677471611881,
+       "collateral_value_raw": 738425570280,
+       "ltv": 0.2886675714211428
+      },
+      {
+       "address": "0x69a87A67665a9D3B10EA3fd200730B594790477e",
+       "borrow_shares": 180022397233147510,
+       "debt_raw": 210522438967,
+       "collateral_raw": 541633960132305435971,
+       "collateral_value_raw": 1681302932475,
+       "ltv": 0.1252138653306788
+      },
+      {
+       "address": "0x357dfdC34F93388059D2eb09996d80F233037cBa",
+       "borrow_shares": 171038665440969210,
+       "debt_raw": 200016651037,
+       "collateral_raw": 100000000000000000000,
+       "collateral_value_raw": 310413130680,
+       "ltv": 0.644356282863543
+      },
+      {
+       "address": "0x65313F85cA6eA41c40f8cb508C7e68341ceC86a0",
+       "borrow_shares": 165793554502580316,
+       "debt_raw": 193882894547,
+       "collateral_raw": 136685282667302162699,
+       "collateral_value_raw": 424289065107,
+       "ltv": 0.4569594422569088
+      },
+      {
+       "address": "0x97Ec4001aD1d2a1FBb581ea34C5C0Bd4a210C25C",
+       "borrow_shares": 152660674033885274,
+       "debt_raw": 178524994256,
+       "collateral_raw": 129558356396117656437,
+       "collateral_value_raw": 402166150147,
+       "ltv": 0.44390855419021574
+      },
+      {
+       "address": "0xD7072DaE05277971B7A6a939eD9aD4967Fab3E05",
+       "borrow_shares": 141918961067678266,
+       "debt_raw": 165963381662,
+       "collateral_raw": 114590000281969676746,
+       "collateral_value_raw": 355702407322,
+       "ltv": 0.46657930406347087
+      },
+      {
+       "address": "0x378d18EcD80430895Df2c034327edAC16b3f1372",
+       "borrow_shares": 138659084541755428,
+       "debt_raw": 162151205135,
+       "collateral_raw": 102774659910251347419,
+       "collateral_value_raw": 319026039373,
+       "ltv": 0.5082694987960387
+      },
+      {
+       "address": "0x8afdd5F64f704C1F33768672ABB4711206d45743",
+       "borrow_shares": 136901662394867814,
+       "debt_raw": 160096034210,
+       "collateral_raw": 112000000000000000000,
+       "collateral_value_raw": 347662706362,
+       "ltv": 0.4604924004799691
+      },
+      {
+       "address": "0x023688771E6b8a4099667DD0159Eb59da9Fe43b3",
+       "borrow_shares": 135521801066105679,
+       "debt_raw": 158482391814,
+       "collateral_raw": 75060196213014777632,
+       "collateral_value_raw": 232996704959,
+       "ltv": 0.6801915582535292
+      },
+      {
+       "address": "0x57Aa14fcFeF7625Fc0409C5E5579d4899ab1933c",
+       "borrow_shares": 128408206492389480,
+       "debt_raw": 150163586474,
+       "collateral_raw": 72181751131410637276,
+       "collateral_value_raw": 224061633467,
+       "ltv": 0.6701887518646348
+      },
+      {
+       "address": "0xad188cBa2b527Ee0B9f66744ECD8aFecbB4B1eC5",
+       "borrow_shares": 119552674166009775,
+       "debt_raw": 139807718025,
+       "collateral_raw": 106959607006910366213,
+       "collateral_value_raw": 332016664673,
+       "ltv": 0.42108644806336837
+      },
+      {
+       "address": "0x5ACdAbEc96C1D2bc16C030b7dD98D2A8d669DC98",
+       "borrow_shares": 115108364786863132,
+       "debt_raw": 134610437773,
+       "collateral_raw": 73556805036259159305,
+       "collateral_value_raw": 228329981341,
+       "ltv": 0.589543418619063
+      },
+      {
+       "address": "0xB2a2891Fe370C762836c7Bc53A7daC555C759235",
+       "borrow_shares": 109167588261742922,
+       "debt_raw": 127663153531,
+       "collateral_raw": 100019715600685938284,
+       "collateral_value_raw": 310474330493,
+       "ltv": 0.41118746702274733
+      },
+      {
+       "address": "0xF94241bAa46171b724eD535314963B45F84c9F16",
+       "borrow_shares": 107301975159766287,
+       "debt_raw": 125481461551,
+       "collateral_raw": 87763632340603567402,
+       "collateral_value_raw": 272429838747,
+       "ltv": 0.460601019800669
+      },
+      {
+       "address": "0xCcF6e34C8896220a80421bD189C781E0a7FcBfB4",
+       "borrow_shares": 99951602173105767,
+       "debt_raw": 116885761947,
+       "collateral_raw": 125736970731094270331,
+       "collateral_value_raw": 390304067269,
+       "ltv": 0.29947359443334115
+      },
+      {
+       "address": "0x10Df1CBF521A01C9DaC20F667e74088a036AE5Fd",
+       "borrow_shares": 97655615634497198,
+       "debt_raw": 114200781115,
+       "collateral_raw": 88589114284205656799,
+       "collateral_value_raw": 274992243091,
+       "ltv": 0.41528728167510115
+      },
+      {
+       "address": "0xD79fA83f30FE637FcAe4905020098D8B5c101219",
+       "borrow_shares": 96333706666448769,
+       "debt_raw": 112654909577,
+       "collateral_raw": 72557770244109360955,
+       "collateral_value_raw": 225228846166,
+       "ltv": 0.5001797571434086
+      },
+      {
+       "address": "0x6cC1252ABb6d3568e23575ea67D50F6517c36A90",
+       "borrow_shares": 92150308803377817,
+       "debt_raw": 107762745409,
+       "collateral_raw": 98302946176332879784,
+       "collateral_value_raw": 305145252777,
+       "ltv": 0.3531522919930626
+      },
+      {
+       "address": "0xdEb175F9190c514D29f2040c3F91629e490332Df",
+       "borrow_shares": 90240332988584008,
+       "debt_raw": 105529174625,
+       "collateral_raw": 117347684917577958624,
+       "collateral_value_raw": 364262622533,
+       "ltv": 0.28970629457168556
+      },
+      {
+       "address": "0xaC0f76A8c30E23bc197D26465e7bE319713c5224",
+       "borrow_shares": 89709186499831267,
+       "debt_raw": 104908039388,
+       "collateral_raw": 77275827908547778724,
+       "collateral_value_raw": 239874316670,
+       "ltv": 0.4373458603003511
+      },
+      {
+       "address": "0x9E111562c29e6C8D045E4184df16F38f2f24Cdf2",
+       "borrow_shares": 83269905891981120,
+       "debt_raw": 97377792710,
+       "collateral_raw": 43717247610419938457,
+       "collateral_value_raw": 135704076954,
+       "ltv": 0.7175745555751315
+      },
+      {
+       "address": "0xe6FD44eEE46F71f653a8912fd3800a74Ec1b4bB7",
+       "borrow_shares": 80753450394797188,
+       "debt_raw": 94434990276,
+       "collateral_raw": 72596571928772769286,
+       "collateral_value_raw": 225349291690,
+       "ltv": 0.4190605152019238
+      },
+      {
+       "address": "0x8B85E47d939Dd97e1C873C65E7A8c7925d8Cf184",
+       "borrow_shares": 78153690645836574,
+       "debt_raw": 91394769884,
+       "collateral_raw": 70705998314709553826,
+       "collateral_value_raw": 219480702947,
+       "ltv": 0.4164136922145266
+      },
+      {
+       "address": "0xEf3F16af93f516799aa578e22c1CB1aa5795C337",
+       "borrow_shares": 76392531695369385,
+       "debt_raw": 89335229053,
+       "collateral_raw": 94764192278946371051,
+       "collateral_value_raw": 294160496017,
+       "ltv": 0.3036955344535358
+      }
+     ],
+     "covered_borrow_raw": 26457757415332,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 0.9005631546163478
+    }
+   },
+   {
+    "id": "0x7e585a933ffe8443c371b4f8cfeb4430f5f6a14c2f32a898c26662c67a1cb8b8",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+    "oracle": "0xe087ad7fe989cf63f8383579d160a20ee7e69f9f",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 18,
+    "collateral_symbol": "wstETH",
+    "total_supply_raw": 12558660476151,
+    "total_supply_shares": 12323464877544042345,
+    "total_borrow_raw": 11324425936077,
+    "total_borrow_shares": 11086775283833517983,
+    "liquidity_raw": 1234234540074,
+    "vault_supply_shares": 1288429223114030831,
+    "vault_supply_raw": 1313019132316,
+    "oracle_price_raw": 3122937929245087837000000000,
+    "borrow_rate_per_s": 1583836309,
+    "borrow_apy": 0.05121628646491016,
+    "utilization": 0.9017224374830562,
+    "fee": 0.0,
+    "supply_apy": 0.04618287466996925,
+    "interest_accrued_seconds": 3480,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 5,
+    "vault_supply_raw_unscaled": 1313019132316,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0x90882e7C28dDf0ac1177033A310aeeD8eFf25E90",
+       "borrow_shares": 5578252108435171473,
+       "debt_raw": 5697824772083,
+       "collateral_raw": 2548886106887509677317,
+       "collateral_value_raw": 7960013100524,
+       "ltv": 0.7158059541017486
+      },
+      {
+       "address": "0x49E96E255bA418d08E66c35b588E2f2F3766E1d0",
+       "borrow_shares": 2037997947967534628,
+       "debt_raw": 2081683467806,
+       "collateral_raw": 1228480461373413419162,
+       "collateral_value_raw": 3836468228159,
+       "ltv": 0.5426041202496636
+      },
+      {
+       "address": "0xaB4238AfB54497DB41Edd5601327eDE78A038ECE",
+       "borrow_shares": 1399490710379698183,
+       "debt_raw": 1429489503683,
+       "collateral_raw": 1729357964938399668933,
+       "collateral_value_raw": 5400677581948,
+       "ltv": 0.2646870660194808
+      },
+      {
+       "address": "0xd69EE18C7cD0c3Efb98AcbfbEeB835EcFCc08b0E",
+       "borrow_shares": 274572371902045845,
+       "debt_raw": 280457969978,
+       "collateral_raw": 300032593155214188277,
+       "collateral_value_raw": 936983165174,
+       "ltv": 0.29932018034274743
+      },
+      {
+       "address": "0x7d3664d1eC9e9Beb5C9ea0aAF3BCf49BecF1b584",
+       "borrow_shares": 224194687745863721,
+       "debt_raw": 229000414606,
+       "collateral_raw": 155000000000000000000,
+       "collateral_value_raw": 484055379032,
+       "ltv": 0.47308722209419185
+      },
+      {
+       "address": "0xA9EcA0da37a611235B9405B52Ce446651CB7850D",
+       "borrow_shares": 172592837490773623,
+       "debt_raw": 176292452515,
+       "collateral_raw": 210175872615767618576,
+       "collateral_value_raw": 656366204403,
+       "ltv": 0.2685885582353335
+      },
+      {
+       "address": "0x4e76902Faccd6feeeF68ff0508a7Caf75bCe81b6",
+       "borrow_shares": 167515150434348810,
+       "debt_raw": 171105922661,
+       "collateral_raw": 150103573229965833290,
+       "collateral_value_raw": 468764142155,
+       "ltv": 0.36501495586755583
+      },
+      {
+       "address": "0x88CD0D18e608b689fBaB5644B83b08F7a267b6E8",
+       "borrow_shares": 157902976383348505,
+       "debt_raw": 161287706783,
+       "collateral_raw": 85646039672160851000,
+       "collateral_value_raw": 267467265781,
+       "ltv": 0.6030184901768916
+      },
+      {
+       "address": "0x4f5Ebba67dCDfa8bFAEc752BDE6400C0147a36C6",
+       "borrow_shares": 154597781844285349,
+       "debt_raw": 157911663722,
+       "collateral_raw": 95000020596297673723,
+       "collateral_value_raw": 296679167599,
+       "ltv": 0.5322640783981095
+      },
+      {
+       "address": "0xEa109b0C2343F74A7224c414C9F3b08F356827B3",
+       "borrow_shares": 149132946509658126,
+       "debt_raw": 152329686870,
+       "collateral_raw": 86815458136809483571,
+       "collateral_value_raw": 271119287060,
+       "ltv": 0.561854851869276
+      },
+      {
+       "address": "0x6c2b837092fAC22C2FC682F1fD075C0a1A8F66C6",
+       "borrow_shares": 112169613036355032,
+       "debt_raw": 114574025593,
+       "collateral_raw": 79036578972666115183,
+       "collateral_value_raw": 246826330271,
+       "ltv": 0.4641888305319972
+      },
+      {
+       "address": "0xd33B22C00B9f30Fe455c7A12d842685c98A817FE",
+       "borrow_shares": 61680454116352530,
+       "debt_raw": 63002605940,
+       "collateral_raw": 33335123137823617843,
+       "collateral_value_raw": 104103520423,
+       "ltv": 0.6051918867297075
+      },
+      {
+       "address": "0xF7401728edd23290d8099eD73f155101dCf8CC0C",
+       "borrow_shares": 59904464434423338,
+       "debt_raw": 61188547018,
+       "collateral_raw": 48628419893793204347,
+       "collateral_value_raw": 151863536925,
+       "ltv": 0.40291796343594216
+      },
+      {
+       "address": "0x750D82b971D82a367840016896ef1F325493a1d1",
+       "borrow_shares": 57828148101549829,
+       "debt_raw": 59067723791,
+       "collateral_raw": 35266353498656048860,
+       "collateral_value_raw": 110134632967,
+       "ltv": 0.5363228822735411
+      },
+      {
+       "address": "0x6651dF73bE858037E7cFa8AfC82A33720b734f1f",
+       "borrow_shares": 55774728150105580,
+       "debt_raw": 56970287742,
+       "collateral_raw": 46708997262327285251,
+       "collateral_value_raw": 145869299187,
+       "ltv": 0.39055708130170574
+      },
+      {
+       "address": "0x947d1C903F9d27d6B21CDde87e699704E2198268",
+       "borrow_shares": 54356918425984399,
+       "debt_raw": 55522086547,
+       "collateral_raw": 31345238590016516778,
+       "collateral_value_raw": 97889234493,
+       "ltv": 0.5671929792337925
+      },
+      {
+       "address": "0xC2c53b1b9c4ECDceD7c545795a9cFA3F7912bAec",
+       "borrow_shares": 44685057107336198,
+       "debt_raw": 45642903975,
+       "collateral_raw": 35453836540417312607,
+       "collateral_value_raw": 110720130869,
+       "ltv": 0.4122367235006524
+      },
+      {
+       "address": "0x5c976811cF5E44294ba0f510AA670177C3750360",
+       "borrow_shares": 44120414616162990,
+       "debt_raw": 45066158085,
+       "collateral_raw": 24212742696843872175,
+       "collateral_value_raw": 75614892539,
+       "ltv": 0.5959957962217054
+      },
+      {
+       "address": "0x66D04Ab3e8c7aFf35a09fb322Ac5112Cfb96BA07",
+       "borrow_shares": 39309361629479968,
+       "debt_raw": 40151977737,
+       "collateral_raw": 21718534716694642097,
+       "collateral_value_raw": 67825635834,
+       "ltv": 0.5919882245596643
+      },
+      {
+       "address": "0x1Eb1fcf6d44A2Fd93A06D72BE1ebEc238AcDA75b",
+       "borrow_shares": 27315386656916368,
+       "debt_raw": 27900905827,
+       "collateral_raw": 22518350073168192107,
+       "collateral_value_raw": 70323409547,
+       "ltv": 0.3967513237302962
+      },
+      {
+       "address": "0x1F55426F04dC1d2EE921def522615CA77834CeB7",
+       "borrow_shares": 26904512138708982,
+       "debt_raw": 27481224005,
+       "collateral_raw": 25000000000000000000,
+       "collateral_value_raw": 78073448231,
+       "ltv": 0.3519919335916849
+      },
+      {
+       "address": "0x3AA449DDAeFf26a20f20440105Ae91FdEE23a7D4",
+       "borrow_shares": 26736684640915562,
+       "debt_raw": 27309799040,
+       "collateral_raw": 23519343076063600892,
+       "collateral_value_raw": 73449448563,
+       "ltv": 0.3718176184342009
+      },
+      {
+       "address": "0x4bAd838970fa794917645055E77bDCD2Ed3E2B1a",
+       "borrow_shares": 25863114728965044,
+       "debt_raw": 26417503713,
+       "collateral_raw": 12239769356240693597,
+       "collateral_value_raw": 38224039967,
+       "ltv": 0.6911227524826536
+      },
+      {
+       "address": "0xf24877Fc5D342AE981880200C895b6E8808B0b86",
+       "borrow_shares": 21395250361202814,
+       "debt_raw": 21853868406,
+       "collateral_raw": 15704167123103605669,
+       "collateral_value_raw": 49043139155,
+       "ltv": 0.44560500780611173
+      },
+      {
+       "address": "0x9F13F16249CF5bA267559309a241187746126E8F",
+       "borrow_shares": 20119234402167426,
+       "debt_raw": 20550500398,
+       "collateral_raw": 8344039065672328086,
+       "collateral_value_raw": 26057916081,
+       "ltv": 0.788647117218414
+      },
+      {
+       "address": "0x36e8f1B6c98e23f13a395f9f8847789F71D53661",
+       "borrow_shares": 17388356967599571,
+       "debt_raw": 17761085220,
+       "collateral_raw": 16173160374068635940,
+       "collateral_value_raw": 50507775967,
+       "ltv": 0.3516505108362813
+      },
+      {
+       "address": "0x9CFE55a8283Fc674692A2feF9b91137966368e6e",
+       "borrow_shares": 12813629914985718,
+       "debt_raw": 13088296573,
+       "collateral_raw": 7630601553091273222,
+       "collateral_value_raw": 23829895013,
+       "ltv": 0.5492385327698632
+      },
+      {
+       "address": "0xb249000B8AB44352e011f561479ef509226D57eB",
+       "borrow_shares": 10977411605365765,
+       "debt_raw": 11212717992,
+       "collateral_raw": 8417702394337278857,
+       "collateral_value_raw": 26287962084,
+       "ltv": 0.4265343184903842
+      },
+      {
+       "address": "0xca26ECF47Ce060855E652a4179d1D461de943822",
+       "borrow_shares": 7471828454226791,
+       "debt_raw": 7631990888,
+       "collateral_raw": 8099115390969677293,
+       "collateral_value_raw": 25293034647,
+       "ltv": 0.3017427918205627
+      },
+      {
+       "address": "0x8eA7195DEC120189ceDf58B20E66a5DF708A42fD",
+       "borrow_shares": 5307955213745335,
+       "debt_raw": 5421733927,
+       "collateral_raw": 45000000004403809433,
+       "collateral_value_raw": 140532206829,
+       "ltv": 0.038580009873446175
+      },
+      {
+       "address": "0xd867d9A0aD3677aBEB43175168bE226F72dB2933",
+       "borrow_shares": 5160683588666176,
+       "debt_raw": 5271305460,
+       "collateral_raw": 3188685256589958571,
+       "collateral_value_raw": 9958066132,
+       "ltv": 0.5293503166303335
+      },
+      {
+       "address": "0x613a06370f1D20a2D58E24257B682EDa04b992A4",
+       "borrow_shares": 4426199096662388,
+       "debt_raw": 4521076920,
+       "collateral_raw": 3780171088393425919,
+       "collateral_value_raw": 11805239670,
+       "ltv": 0.3829720570171194
+      },
+      {
+       "address": "0x485b6b4373f67dFef84b24BFbE9bec21E5c364dE",
+       "borrow_shares": 4144658373851695,
+       "debt_raw": 4233501229,
+       "collateral_raw": 6553476044246974957,
+       "collateral_value_raw": 20466098906,
+       "ltv": 0.20685433254497143
+      },
+      {
+       "address": "0x6511A56D15d76268A9cC79F5D05e22627b2327D7",
+       "borrow_shares": 3943184064528353,
+       "debt_raw": 4027708216,
+       "collateral_raw": 6441613701443303982,
+       "collateral_value_raw": 20116759753,
+       "ltv": 0.2002165490592664
+      },
+      {
+       "address": "0xD6045FD204c40898f5d24ccA4E6C611b3585c455",
+       "borrow_shares": 3921471750297754,
+       "debt_raw": 4005530487,
+       "collateral_raw": 3304024457300911714,
+       "collateral_value_raw": 10318263296,
+       "ltv": 0.38819812715506036
+      },
+      {
+       "address": "0x49AbD300b1d91CDA54d9585d11bD47aB34F4aD70",
+       "borrow_shares": 3075568108678955,
+       "debt_raw": 3141494472,
+       "collateral_raw": 2321241682090045451,
+       "collateral_value_raw": 7249093691,
+       "ltv": 0.43336375634105456
+      },
+      {
+       "address": "0xc77585db30F66C51E025E6618C619600ac912B8d",
+       "borrow_shares": 2621266478649457,
+       "debt_raw": 2677454656,
+       "collateral_raw": 2345911113292745765,
+       "collateral_value_raw": 7326134794,
+       "ltv": 0.3654662016583147
+      },
+      {
+       "address": "0x26D5d60E85a1ec77CE03df078Ec290B09a056516",
+       "borrow_shares": 2416455931699512,
+       "debt_raw": 2468253891,
+       "collateral_raw": 1257351975671473635,
+       "collateral_value_raw": 3926632175,
+       "ltv": 0.6285930998871826
+      },
+      {
+       "address": "0x76eA00f8F0301A2Fb18B5FD3198B5adC1B1138Db",
+       "borrow_shares": 2209174334449977,
+       "debt_raw": 2256529107,
+       "collateral_raw": 1358599668606253580,
+       "collateral_value_raw": 4242822435,
+       "ltv": 0.5318462277340155
+      },
+      {
+       "address": "0x46dD620Ee2522181881c23DbE1CFF26583d7f78b",
+       "borrow_shares": 1892342272969223,
+       "debt_raw": 1932905590,
+       "collateral_raw": 1619613325382430332,
+       "collateral_value_raw": 5057951884,
+       "ltv": 0.3821518342462745
+      },
+      {
+       "address": "0xD09cdF8f7543834AccA310FbF3A3a6B88f921C4B",
+       "borrow_shares": 861368267909030,
+       "debt_raw": 879832134,
+       "collateral_raw": 677283405617695490,
+       "collateral_value_raw": 2115114036,
+       "ltv": 0.41597385248499197
+      },
+      {
+       "address": "0xbb7Ab8306C7380E5CB90EC6b7947f8361fE7383c",
+       "borrow_shares": 815301221766865,
+       "debt_raw": 832777618,
+       "collateral_raw": 495391902491510954,
+       "collateral_value_raw": 1547078162,
+       "ltv": 0.5382905909055162
+      },
+      {
+       "address": "0x45C0a75353eB6C3736328bB512463fcBaF216374",
+       "borrow_shares": 812731158419332,
+       "debt_raw": 830152464,
+       "collateral_raw": 571499202453746692,
+       "collateral_value_raw": 1784756535,
+       "ltv": 0.46513485045174524
+      },
+      {
+       "address": "0x407CC7Da56024bBCdDd241AC57B4B7948484b95c",
+       "borrow_shares": 697888284548447,
+       "debt_raw": 712847874,
+       "collateral_raw": 497208698849636773,
+       "collateral_value_raw": 1552751904,
+       "ltv": 0.45908678145146875
+      },
+      {
+       "address": "0xB61f5DE55DB501c3E3b88b05CDcD7F68C33d3aAc",
+       "borrow_shares": 395508936206963,
+       "debt_raw": 403986871,
+       "collateral_raw": 647339793110983695,
+       "collateral_value_raw": 2021601993,
+       "ltv": 0.19983501816818797
+      },
+      {
+       "address": "0x5F84E7e92B56bD4B2f15C0de6574a91ae14A5145",
+       "borrow_shares": 364015634967961,
+       "debt_raw": 371818495,
+       "collateral_raw": 277876619694722748,
+       "collateral_value_raw": 867791435,
+       "ltv": 0.4284652740321181
+      },
+      {
+       "address": "0x67D12edbC28384E9dd8E3211F4464e421A3935F9",
+       "borrow_shares": 319311917823846,
+       "debt_raw": 326156531,
+       "collateral_raw": 348488030212119692,
+       "collateral_value_raw": 1088306487,
+       "ltv": 0.2996918008814552
+      },
+      {
+       "address": "0x08213A5638109A962693499fb306Ea874EF5ac38",
+       "borrow_shares": 303048280567948,
+       "debt_raw": 309544275,
+       "collateral_raw": 230171821767108420,
+       "collateral_value_raw": 718812312,
+       "ltv": 0.43063296194626116
+      },
+      {
+       "address": "0x187a2F53544271D0B81f4b59449e036E36b80c9D",
+       "borrow_shares": 11302144905739,
+       "debt_raw": 11544413,
+       "collateral_raw": 194444451924303885,
+       "collateral_value_raw": 607237954,
+       "ltv": 0.01901134954420191
+      },
+      {
+       "address": "0x284Cd693585675cD4Fc031DAf50c47Bb6ff19643",
+       "borrow_shares": 9866227104734,
+       "debt_raw": 10077715,
+       "collateral_raw": 21504285838168439,
+       "collateral_value_raw": 67156549,
+       "ltv": 0.15006302661561718
+      }
+     ],
+     "covered_borrow_raw": 11324424001542,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 0.9999998291714731
+    }
+   },
+   {
+    "id": "0xc498f4bfdda99e60ea8eb04c1e145654a70bc59da76ef9c6ed54a1314d78e5b5",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0xbeef0c075da5d01112ae5cf34d257074fb5ddb2f",
+    "oracle": "0xf3efa46246d319381f5e7023ae83f9c23c11b0f6",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.915,
+    "lltv_raw": 915000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 18,
+    "collateral_symbol": "steakEURCV",
+    "total_supply_raw": 11964679394549,
+    "total_supply_shares": 11820082432052938189,
+    "total_borrow_raw": 10786523971470,
+    "total_borrow_shares": 10640672290858635427,
+    "liquidity_raw": 1178155423079,
+    "vault_supply_shares": 11662747405240166712,
+    "vault_supply_raw": 11805419663141,
+    "oracle_price_raw": 1149267559951000000000000,
+    "borrow_rate_per_s": 1584153359,
+    "borrow_apy": 0.051226797091721864,
+    "utilization": 0.9015305480215577,
+    "fee": 0.0,
+    "supply_apy": 0.04618252245548915,
+    "interest_accrued_seconds": 3480,
+    "lif": 1.026167265264238,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 6,
+    "vault_supply_raw_unscaled": 11805419663141,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0x90E82B354C57378590c7078154e72DB57c7D0bFe",
+       "borrow_shares": 4879842260563932834,
+       "debt_raw": 4946730251790,
+       "collateral_raw": 5240315167599010802852628,
+       "collateral_value_raw": 6022524226040,
+       "ltv": 0.8213715821019838
+      },
+      {
+       "address": "0xA3548280Cf7Fd7BE4fA1508F15FF125A862bD805",
+       "borrow_shares": 2889044466735063905,
+       "debt_raw": 2928644595310,
+       "collateral_raw": 3188654499969783806515341,
+       "collateral_value_raw": 3664617176707,
+       "ltv": 0.7991679496360545
+      },
+      {
+       "address": "0x06fB1b79204268CeA08a82CEF4b5f8236F38C410",
+       "borrow_shares": 1736927182900311075,
+       "debt_raw": 1760735241433,
+       "collateral_raw": 1922950311027014517793614,
+       "collateral_value_raw": 2209984411861,
+       "ltv": 0.7967183985475749
+      },
+      {
+       "address": "0xdE76B075e7C5cdb32f4D5FeE8d5d3E0c2aEAB82C",
+       "borrow_shares": 396741111957630633,
+       "debt_raw": 402179241840,
+       "collateral_raw": 450000000000000000000000,
+       "collateral_value_raw": 517170401977,
+       "ltv": 0.7776532460144269
+      },
+      {
+       "address": "0xfBb9775E5e55B262C7180c195632622fB4443072",
+       "borrow_shares": 264723059257722408,
+       "debt_raw": 268351617871,
+       "collateral_raw": 287381287679048902468307,
+       "collateral_value_raw": 330277991266,
+       "ltv": 0.8125022707155634
+      },
+      {
+       "address": "0xe8f37040325D9aBCDBf077945EDa152fAdc3824e",
+       "borrow_shares": 159130179586665012,
+       "debt_raw": 161311376742,
+       "collateral_raw": 175145455509652939167602,
+       "collateral_value_raw": 201288990290,
+       "ltv": 0.8013919514902248
+      },
+      {
+       "address": "0x8c1Ba708C003F90fb21F36b9C069E15ff5b184cE",
+       "borrow_shares": 156255106773223049,
+       "debt_raw": 158396895310,
+       "collateral_raw": 161949808473467729834616,
+       "collateral_value_raw": 186123661218,
+       "ltv": 0.8510304078129829
+      },
+      {
+       "address": "0x9f0f855A7370cc30e24924258214681A782A34aC",
+       "borrow_shares": 155009201651526449,
+       "debt_raw": 157133912568,
+       "collateral_raw": 158167633781414025044261,
+       "collateral_value_raw": 181776930539,
+       "ltv": 0.8644326433616786
+      },
+      {
+       "address": "0x130bb779751e7567B1258d0db3bF54165Fef8E48",
+       "borrow_shares": 2978906793008380,
+       "debt_raw": 3019738665,
+       "collateral_raw": 3349662168949277298413,
+       "collateral_value_raw": 3849658067,
+       "ltv": 0.7844173722559344
+      },
+      {
+       "address": "0xCdc8E50910CE5383212C6de5bad079921E6ccA15",
+       "borrow_shares": 19904639551682,
+       "debt_raw": 20177473,
+       "collateral_raw": 25491505734018127760,
+       "collateral_value_raw": 29296560,
+       "ltv": 0.6887318169778295
+      },
+      {
+       "address": "0xd8dd2706eF4EF9cd0fB7F54a1C5413Aedd93121f",
+       "borrow_shares": 910000000000,
+       "debt_raw": 922474,
+       "collateral_raw": 3453291618876484608,
+       "collateral_value_raw": 3968756,
+       "ltv": 0.23243404230443998
+      }
+     ],
+     "covered_borrow_raw": 10786523971476,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 1.0
+    }
+   },
+   {
+    "id": "0x94b823e6bd8ea533b4e33fbc307faea0b307301bc48763acc4d4aa4def7636cd",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    "oracle": "0x0f948cba8231db7898ef36a4212581ad7b1b4580",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 18,
+    "collateral_symbol": "WETH",
+    "total_supply_raw": 9293711546698,
+    "total_supply_shares": 9004508055856580859,
+    "total_borrow_raw": 8364341666517,
+    "total_borrow_shares": 8069462917234812250,
+    "liquidity_raw": 929369880181,
+    "vault_supply_shares": 7313293121604928,
+    "vault_supply_raw": 7548178790,
+    "oracle_price_raw": 2507158915300000000000000000,
+    "borrow_rate_per_s": 1528113989,
+    "borrow_apy": 0.04937064920313484,
+    "utilization": 0.9000001371345338,
+    "fee": 0.0,
+    "supply_apy": 0.044433591053242315,
+    "interest_accrued_seconds": 912,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 7,
+    "vault_supply_raw_unscaled": 7548178790,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0x7Ac4810aBae4BB876812e40b11dCfdB8abc95b28",
+       "borrow_shares": 2920990258476052578,
+       "debt_raw": 3027730690017,
+       "collateral_raw": 2010000000100000000000,
+       "collateral_value_raw": 5039389420003,
+       "ltv": 0.6008130028608104
+      },
+      {
+       "address": "0x5130985cE6A0e54f369712Cd6f2fDEC084026E54",
+       "borrow_shares": 730188708265088613,
+       "debt_raw": 756871665389,
+       "collateral_raw": 851197359794600000000,
+       "collateral_value_raw": 2134087049288,
+       "ltv": 0.35465829083284894
+      },
+      {
+       "address": "0x5B2baf2D23826c9b27D60567e0dEC940ec3A66Cc",
+       "borrow_shares": 675759123907821991,
+       "debt_raw": 700453085244,
+       "collateral_raw": 432760000000000000000,
+       "collateral_value_raw": 1084998092185,
+       "ltv": 0.6455800155679607
+      },
+      {
+       "address": "0x64b3929a741E4fcCa78d56B805DC817a17dDFf6e",
+       "borrow_shares": 675758622699427128,
+       "debt_raw": 700452565720,
+       "collateral_raw": 432765000000000000000,
+       "collateral_value_raw": 1085010627979,
+       "ltv": 0.6455720779663708
+      },
+      {
+       "address": "0xE3aA1E551C9Ee0Ac8979De669Da5032EF60B22E9",
+       "borrow_shares": 386406272012929000,
+       "debt_raw": 400526542393,
+       "collateral_raw": 312900000000000000000,
+       "collateral_value_raw": 784490024597,
+       "ltv": 0.5105565779485269
+      },
+      {
+       "address": "0xFf79e57c48549Ae4f6e0A6b3A687A6038921DBC9",
+       "borrow_shares": 328575987470627619,
+       "debt_raw": 340582991806,
+       "collateral_raw": 231000000000000000000,
+       "collateral_value_raw": 579153709434,
+       "ltv": 0.5880701206918759
+      },
+      {
+       "address": "0x102f1D5F92B1D30F24C1FCc9F182A278298cfD86",
+       "borrow_shares": 320747455478909418,
+       "debt_raw": 332468385296,
+       "collateral_raw": 350000000000000000000,
+       "collateral_value_raw": 877505620355,
+       "ltv": 0.3788789240591963
+      },
+      {
+       "address": "0x9D5Bf49Ef9090Fe9475bf438Eed2329BD12E992d",
+       "borrow_shares": 309299305373528180,
+       "debt_raw": 320601890597,
+       "collateral_raw": 341000000000000000000,
+       "collateral_value_raw": 854941190117,
+       "ltv": 0.37499876518187775
+      },
+      {
+       "address": "0xA79910A05d26De0E60765386a68385B0D3e0c732",
+       "borrow_shares": 305375729054489362,
+       "debt_raw": 316534936795,
+       "collateral_raw": 343000000000000000000,
+       "collateral_value_raw": 859955507947,
+       "ltv": 0.36808292274407806
+      },
+      {
+       "address": "0x75A3C6323eFFD7206C18B445b0226119fcef77C2",
+       "borrow_shares": 292418207462116156,
+       "debt_raw": 303103914327,
+       "collateral_raw": 239000000000000000000,
+       "collateral_value_raw": 599210980756,
+       "ltv": 0.5058383842442042
+      },
+      {
+       "address": "0x3395C8dab97187328685D1BFc446d9CD5a7ac21d",
+       "borrow_shares": 234899195659228518,
+       "debt_raw": 243483011179,
+       "collateral_raw": 281734964160345956551,
+       "collateral_value_raw": 706354327146,
+       "ltv": 0.3447037865015772
+      },
+      {
+       "address": "0xdc9E2eD87cB7c3dEC349344D24aC774Df9e1371A",
+       "borrow_shares": 120819767550015611,
+       "debt_raw": 125234829905,
+       "collateral_raw": 120360524747530249359,
+       "collateral_value_raw": 301762962670,
+       "ltv": 0.41501060566519393
+      },
+      {
+       "address": "0x9dBE078CB4c73069AA155fBBD28cA197755Be734",
+       "borrow_shares": 114866697101699622,
+       "debt_raw": 119064219084,
+       "collateral_raw": 128000000000000000000,
+       "collateral_value_raw": 320916341158,
+       "ltv": 0.3710132636261732
+      },
+      {
+       "address": "0xeA9cBF465FF3e8A01ef0F9374B6Eb2869bAd08c2",
+       "borrow_shares": 98337991190487990,
+       "debt_raw": 101931512116,
+       "collateral_raw": 100000000000000000000,
+       "collateral_value_raw": 250715891530,
+       "ltv": 0.4065618317768387
+      },
+      {
+       "address": "0x1a554A4B16A7d55b6522e06515Ad74CfAcF84bA6",
+       "borrow_shares": 57948958413916705,
+       "debt_raw": 60066561104,
+       "collateral_raw": 29300000000000000000,
+       "collateral_value_raw": 73459756218,
+       "ltv": 0.8176798317400591
+      },
+      {
+       "address": "0x89aD634673b542F237655406575B93cA499ED036",
+       "borrow_shares": 57904172432471099,
+       "debt_raw": 60020138529,
+       "collateral_raw": 65868659871212323892,
+       "collateral_value_raw": 165143197834,
+       "ltv": 0.3634429956317761
+      },
+      {
+       "address": "0xE62546bDf004A4b7162BBb74775A49555F3a3CA3",
+       "borrow_shares": 55389685020788951,
+       "debt_raw": 57413765336,
+       "collateral_raw": 42600000000000000000,
+       "collateral_value_raw": 106804969791,
+       "ltv": 0.5375570579566609
+      },
+      {
+       "address": "0x2C16BeA212dD60a0938688bfEA4565AEc845C216",
+       "borrow_shares": 37964951036378822,
+       "debt_raw": 39352287145,
+       "collateral_raw": 45000000000000000000,
+       "collateral_value_raw": 112822151188,
+       "ltv": 0.3487992981043743
+      },
+      {
+       "address": "0x4E4b7707f6a7d94061c3E4717ef80Cd60077d5B9",
+       "borrow_shares": 29087918186726587,
+       "debt_raw": 30150864882,
+       "collateral_raw": 33200000000000000000,
+       "collateral_value_raw": 83237675987,
+       "ltv": 0.36222617371860477
+      },
+      {
+       "address": "0xF4A72bAD6F4c3eb9E0418BcB5BcCEfAffbD27181",
+       "borrow_shares": 24208879185290610,
+       "debt_raw": 25093533355,
+       "collateral_raw": 20000000006472169778,
+       "collateral_value_raw": 50143178322,
+       "ltv": 0.5004376306954275
+      },
+      {
+       "address": "0xbd9BaF9175E2cC802c79c969605aD0C681dca310",
+       "borrow_shares": 23427765477027184,
+       "debt_raw": 24283875761,
+       "collateral_raw": 15850000000000000000,
+       "collateral_value_raw": 39738468807,
+       "ltv": 0.6110923870504631
+      },
+      {
+       "address": "0x823D4904A6F8c37964f055Db89aa3c18C043d119",
+       "borrow_shares": 23198312327935016,
+       "debt_raw": 24046037808,
+       "collateral_raw": 12126040876115301237,
+       "collateral_value_raw": 30401911489,
+       "ltv": 0.7909383532249386
+      },
+      {
+       "address": "0x77C8b202c54663Ef85D8C85754752cBa63193800",
+       "borrow_shares": 22128526923739950,
+       "debt_raw": 22937159718,
+       "collateral_raw": 34000000000000000000,
+       "collateral_value_raw": 85243403120,
+       "ltv": 0.2690784140294187
+      },
+      {
+       "address": "0xbdbC2EbC5699DeAfCde585E079BA4aC5B08383A3",
+       "borrow_shares": 20623701257815493,
+       "debt_raw": 21377343885,
+       "collateral_raw": 16090000000000000000,
+       "collateral_value_raw": 40340186947,
+       "ltv": 0.5299267431032513
+      },
+      {
+       "address": "0x2E0055234Ff209359F0B1d9885FA2B52aa5783af",
+       "borrow_shares": 17570432601628071,
+       "debt_raw": 18212501008,
+       "collateral_raw": 9025998876910698229,
+       "collateral_value_raw": 22629613553,
+       "ltv": 0.8048083086061174
+      },
+      {
+       "address": "0x5191cB1cE57Bc64C24Ee7C2e86a4F81f3e6a219d",
+       "borrow_shares": 17279219877285615,
+       "debt_raw": 17910646628,
+       "collateral_raw": 21500000000000000000,
+       "collateral_value_raw": 53903916678,
+       "ltv": 0.3322698559177229
+      },
+      {
+       "address": "0xb652d4f8a865D69D67009e5978Eae802e987Af0f",
+       "borrow_shares": 16514722214509566,
+       "debt_raw": 17118212271,
+       "collateral_raw": 15845000000000000000,
+       "collateral_value_raw": 39725933012,
+       "ltv": 0.4309077464795882
+      },
+      {
+       "address": "0x4a102De3Ad8ed9acFf1165c679dEa747bCd9E0E1",
+       "borrow_shares": 15532197460039258,
+       "debt_raw": 16099783557,
+       "collateral_raw": 8708880590000000000,
+       "collateral_value_raw": 21834547613,
+       "ltv": 0.7373536581730873
+      },
+      {
+       "address": "0x55666De7ce125e0EB2Bb28719709450D1aEbD6Ae",
+       "borrow_shares": 15120052873667272,
+       "debt_raw": 15672578157,
+       "collateral_raw": 9776659638998678647,
+       "collateral_value_raw": 24511639375,
+       "ltv": 0.6393933068787244
+      },
+      {
+       "address": "0xC242d900F8203aD67B078b234CAd971DF6297F12",
+       "borrow_shares": 14807575650248718,
+       "debt_raw": 15348682219,
+       "collateral_raw": 12661455179004678201,
+       "collateral_value_raw": 31744280232,
+       "ltv": 0.48351016645599276
+      },
+      {
+       "address": "0xFC8a174D105CdcE685c8D0312e9c979C66c09a00",
+       "borrow_shares": 12968357528626792,
+       "debt_raw": 13442254378,
+       "collateral_raw": 16012000000000000000,
+       "collateral_value_raw": 40144628551,
+       "ltv": 0.3348456534084721
+      },
+      {
+       "address": "0x60738Da04A63a9b167456BEdE1dd5caCabFCa4E9",
+       "borrow_shares": 11814052265384600,
+       "debt_raw": 12245767857,
+       "collateral_raw": 20000000000000000000,
+       "collateral_value_raw": 50143178306,
+       "ltv": 0.24421602839512677
+      },
+      {
+       "address": "0x0427f8BD5A8d4cB9FCC8f130a917e9953a23825a",
+       "borrow_shares": 10868428838205474,
+       "debt_raw": 11265588939,
+       "collateral_raw": 22000000000000000000,
+       "collateral_value_raw": 55157496136,
+       "ltv": 0.20424402353621732
+      },
+      {
+       "address": "0xF68646937763B865224668304082aBe9F892dc16",
+       "borrow_shares": 10612217833015733,
+       "debt_raw": 11000015331,
+       "collateral_raw": 9355000000000000000,
+       "collateral_value_raw": 23454471652,
+       "ltv": 0.46899437745646305
+      },
+      {
+       "address": "0x1391C4C4e845d0E5aE0f80d7072389B4D1d8B064",
+       "borrow_shares": 8806971293239812,
+       "debt_raw": 9128800479,
+       "collateral_raw": 7500981460236812002,
+       "collateral_value_raw": 18806152541,
+       "ltv": 0.4854156350746363
+      },
+      {
+       "address": "0x4EA96feE7d48911fE8cd17460C1B5FE1Ad69D791",
+       "borrow_shares": 7879946283232621,
+       "debt_raw": 8167899612,
+       "collateral_raw": 7840000000000000000,
+       "collateral_value_raw": 19656125895,
+       "ltv": 0.4155396468068867
+      },
+      {
+       "address": "0x34c036cB2843Ac1E7Ee49ef939f46352a9f4BBDA",
+       "borrow_shares": 5580120710018096,
+       "debt_raw": 5784032549,
+       "collateral_raw": 4700000000000000000,
+       "collateral_value_raw": 11783646901,
+       "ltv": 0.49085250072362124
+      },
+      {
+       "address": "0xF7B397f15005af3B87D38BDaE6a8B31099D26a73",
+       "borrow_shares": 5513013636317394,
+       "debt_raw": 5714473211,
+       "collateral_raw": 3535130442480533332,
+       "collateral_value_raw": 8863133805,
+       "ltv": 0.6447463545880655
+      },
+      {
+       "address": "0x30D4dB05a47D3019466307B60378d0220Fe071dc",
+       "borrow_shares": 5092258817763337,
+       "debt_raw": 5278342939,
+       "collateral_raw": 5000000000000000000,
+       "collateral_value_raw": 12535794576,
+       "ltv": 0.42106169712652125
+      },
+      {
+       "address": "0x913ba442a277a8c9303C75f37237b6f2E94Df894",
+       "borrow_shares": 4873280779153877,
+       "debt_raw": 5051362884,
+       "collateral_raw": 8006392824153511583,
+       "collateral_value_raw": 20073299148,
+       "ltv": 0.2516458727963157
+      },
+      {
+       "address": "0x87dDe6C7Cf9220BAd53A7ba7a6409D452141666E",
+       "borrow_shares": 3514585536667666,
+       "debt_raw": 3643017454,
+       "collateral_raw": 2082740573607412989,
+       "collateral_value_raw": 5221761597,
+       "ltv": 0.697660623972757
+      },
+      {
+       "address": "0xaD1c1F1f0c7099502fCb4FDf36aA770473a5F14b",
+       "borrow_shares": 2910120601039603,
+       "debt_raw": 3016463828,
+       "collateral_raw": 5000000000000000000,
+       "collateral_value_raw": 12535794576,
+       "ltv": 0.24062805191264647
+      },
+      {
+       "address": "0xd22fCD18F86DA1722855d16bFfb520363645A9a8",
+       "borrow_shares": 1893976851855323,
+       "debt_raw": 1963187595,
+       "collateral_raw": 3500000000000000000,
+       "collateral_value_raw": 8775056203,
+       "ltv": 0.22372364912361803
+      },
+      {
+       "address": "0x554Bb0ebABc7024D2182286912739ef68645250a",
+       "borrow_shares": 1460920846283343,
+       "debt_raw": 1514306619,
+       "collateral_raw": 800000000000000000,
+       "collateral_value_raw": 2005727132,
+       "ltv": 0.7549913419628608
+      },
+      {
+       "address": "0x952A138a936C33B51d1B6365fc1e8F6986CeE4a7",
+       "borrow_shares": 1361156728774937,
+       "debt_raw": 1410896867,
+       "collateral_raw": 3500000000000000000,
+       "collateral_value_raw": 8775056203,
+       "ltv": 0.16078493793779294
+      },
+      {
+       "address": "0xf7B299C29cFCa90b772f9bA44495E7D4b666Fe87",
+       "borrow_shares": 1338638217079789,
+       "debt_raw": 1387555471,
+       "collateral_raw": 10617729165948746224,
+       "collateral_value_raw": 26620334338,
+       "ltv": 0.052123893463625365
+      },
+      {
+       "address": "0x66fb227DA4ad15326646F7b0dE4F634a76A5216f",
+       "borrow_shares": 1264161502128109,
+       "debt_raw": 1310357187,
+       "collateral_raw": 850000000000000000,
+       "collateral_value_raw": 2131085078,
+       "ltv": 0.6148779326209519
+      },
+      {
+       "address": "0x065fC1aD13164Bec0929D5031430940467f0e883",
+       "borrow_shares": 986556422040297,
+       "debt_raw": 1022607710,
+       "collateral_raw": 1000000000000000000,
+       "collateral_value_raw": 2507158915,
+       "ltv": 0.40787510671217264
+      },
+      {
+       "address": "0x2b3F5A7B07de25A4FC707df41C9Ff96BA3958B6E",
+       "borrow_shares": 970375226564721,
+       "debt_raw": 1005835212,
+       "collateral_raw": 1295754415726373913,
+       "collateral_value_raw": 3248662235,
+       "ltv": 0.30961520134764026
+      },
+      {
+       "address": "0x4721125A067570B59319264e5e6E7b46432D1B6F",
+       "borrow_shares": 823835837357577,
+       "debt_raw": 853940900,
+       "collateral_raw": 709649414967582431,
+       "collateral_value_raw": 1779203857,
+       "ltv": 0.4799567495541912
+      }
+     ],
+     "covered_borrow_raw": 8358350918253,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 0.9992837752804884
+    }
+   },
+   {
+    "id": "0x09dc9e7eb5d8fc54b2bc41d1135fd4e99057a580f680321faeb90c7a21e631c1",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+    "oracle": "0xf1561bc4b3d1ba49053986fb9ee88d4fe22d0cf4",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 8,
+    "collateral_symbol": "WBTC",
+    "total_supply_raw": 1507530245769,
+    "total_supply_shares": 1480124539495976927,
+    "total_borrow_raw": 1359682025698,
+    "total_borrow_shares": 1332012166795347491,
+    "liquidity_raw": 147848220071,
+    "vault_supply_shares": 162271887750354788,
+    "vault_supply_raw": 165276483359,
+    "oracle_price_raw": 829029722027100000000000000000000000000,
+    "borrow_rate_per_s": 1583499368,
+    "borrow_apy": 0.0512051165403281,
+    "utilization": 0.9019268631684522,
+    "fee": 0.0,
+    "supply_apy": 0.04618327013939315,
+    "interest_accrued_seconds": 3480,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 8,
+    "vault_supply_raw_unscaled": 165276483359,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0x01b3Ba0aa49C3DaA72E25031bCD1b4029cF8eaF7",
+       "borrow_shares": 804811673050311582,
+       "debt_raw": 821530007907,
+       "collateral_raw": 1844229200,
+       "collateral_value_raw": 1528920821030,
+       "ltv": 0.5373267186940089
+      },
+      {
+       "address": "0x8328446602CB4c3b2b4A25BECa6488E947B6f54a",
+       "borrow_shares": 326978568978014636,
+       "debt_raw": 333770887467,
+       "collateral_raw": 800000000,
+       "collateral_value_raw": 663223777621,
+       "ltv": 0.5032553094888189
+      },
+      {
+       "address": "0x5c4bEe9c32812eF0F45Caa8a930419ea01B05b5F",
+       "borrow_shares": 55186115740457726,
+       "debt_raw": 56332495687,
+       "collateral_raw": 138750660,
+       "collateral_value_raw": 115028421090,
+       "ltv": 0.48972675755433165
+      },
+      {
+       "address": "0xDAFf977097A921759C2B9cC0A5f319Ddb4D6C250",
+       "borrow_shares": 51770187832599896,
+       "debt_raw": 52845608785,
+       "collateral_raw": 204227304,
+       "collateral_value_raw": 169310505065,
+       "ltv": 0.3121224448814445
+      },
+      {
+       "address": "0x5320F30f1A0455d2f8E6F37C04144a209E9fF311",
+       "borrow_shares": 24546943235538574,
+       "debt_raw": 25056856338,
+       "collateral_raw": 110303147,
+       "collateral_value_raw": 91444587296,
+       "ltv": 0.27401136665303805
+      },
+      {
+       "address": "0x56b6a3B413D0ecB5a6b0Fd771E0735D7Fd353819",
+       "borrow_shares": 19091931523663742,
+       "debt_raw": 19488527790,
+       "collateral_raw": 53860000,
+       "collateral_value_raw": 44651540828,
+       "ltv": 0.43645812504143583
+      },
+      {
+       "address": "0x94C9C6C52f74c39E9e1273f938DFeE66DA856d2B",
+       "borrow_shares": 9108311353318932,
+       "debt_raw": 9297518102,
+       "collateral_raw": 23400000,
+       "collateral_value_raw": 19399295495,
+       "ltv": 0.4792709149874208
+      },
+      {
+       "address": "0x2Ab8f0925d01ed17887F882aD2AaBFe33bDe0011",
+       "borrow_shares": 7718045155087003,
+       "debt_raw": 7878371935,
+       "collateral_raw": 31351000,
+       "collateral_value_raw": 25990910815,
+       "ltv": 0.30312027120085366
+      },
+      {
+       "address": "0x6B4dBD6C234fB53E880eA93CAA6275dcc925fca0",
+       "borrow_shares": 5767682337319829,
+       "debt_raw": 5887494274,
+       "collateral_raw": 16300000,
+       "collateral_value_raw": 13513184469,
+       "ltv": 0.4356851849026586
+      },
+      {
+       "address": "0xab24656d8cbD500C24a0795Cb122e02aB8Ebe783",
+       "borrow_shares": 5315892073153586,
+       "debt_raw": 5426318981,
+       "collateral_raw": 9558515,
+       "collateral_value_raw": 7924293033,
+       "ltv": 0.6847701061031674
+      },
+      {
+       "address": "0x7D9c4084eeE39b305Bba0888aDcD7C81183efbBb",
+       "borrow_shares": 4917785330277428,
+       "debt_raw": 5019942375,
+       "collateral_raw": 17000000,
+       "collateral_value_raw": 14093505274,
+       "ltv": 0.3561883489880191
+      },
+      {
+       "address": "0x9c695f16975b57f730727F30f399d110cFc71f10",
+       "borrow_shares": 4899305895550390,
+       "debt_raw": 5001079068,
+       "collateral_raw": 83030441,
+       "collateral_value_raw": 68834703422,
+       "ltv": 0.07265345558824074
+      },
+      {
+       "address": "0xF75bb8D220A4ac631901Af5003f044A4A1167538",
+       "borrow_shares": 3772912122716295,
+       "debt_raw": 3851286742,
+       "collateral_raw": 11410388,
+       "collateral_value_raw": 9459550791,
+       "ltv": 0.40713209613126544
+      },
+      {
+       "address": "0xaDb1d20770B0126C0dd523ac8e254E5041422AB6",
+       "borrow_shares": 3273701040912388,
+       "debt_raw": 3341705560,
+       "collateral_raw": 8609677,
+       "collateral_value_raw": 7137678130,
+       "ltv": 0.46817823655491736
+      },
+      {
+       "address": "0x1ffe3187dCDA150F534474DAaB80A0dBe173b0b9",
+       "borrow_shares": 2749015012251676,
+       "debt_raw": 2806120240,
+       "collateral_raw": 12257000,
+       "collateral_value_raw": 10161417302,
+       "ltv": 0.276154413956377
+      },
+      {
+       "address": "0xFeb7dc5eB3f539BE56102dF1B5CfaD2E0A68a93c",
+       "borrow_shares": 1283673747227548,
+       "debt_raw": 1310339474,
+       "collateral_raw": 3237558,
+       "collateral_value_raw": 2684031808,
+       "ltv": 0.4881981912786631
+      },
+      {
+       "address": "0x2EA767290161BE020c6A494c16E7b04a9a3bFA4E",
+       "borrow_shares": 813803163594091,
+       "debt_raw": 830708279,
+       "collateral_raw": 1963729,
+       "collateral_value_raw": 1627989707,
+       "ltv": 0.5102662967880791
+      },
+      {
+       "address": "0xBa7396e2D9D30aE23565689b18536Fbfd4e0c7c0",
+       "borrow_shares": 5708963173589,
+       "debt_raw": 5827556,
+       "collateral_raw": 111622,
+       "collateral_value_raw": 92537955,
+       "ltv": 0.06297476532737296
+      },
+      {
+       "address": "0xd8dd2706eF4EF9cd0fB7F54a1C5413Aedd93121f",
+       "borrow_shares": 910000000000,
+       "debt_raw": 928904,
+       "collateral_raw": 5364,
+       "collateral_value_raw": 4446915,
+       "ltv": 0.2088872847805726
+      },
+      {
+       "address": "0x56891e248C384d7643411480eD372f7423813C35",
+       "borrow_shares": 240178580,
+       "debt_raw": 246,
+       "collateral_raw": 3,
+       "collateral_value_raw": 2487,
+       "ltv": 0.09891435464414958
+      }
+     ],
+     "covered_borrow_raw": 1359682025710,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 1.0
+    }
+   },
+   {
+    "id": "0x34377fc4f617c51818e92c79df31ff270c6a91bc94ad32e367fdf59b9f4ac5dd",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0xcd5fe23c85820f7b72d0926fc9b05b43e359b7ee",
+    "oracle": "0xa3a7a3cefee206f9d7fe00ec3c83324ed4228411",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.77,
+    "lltv_raw": 770000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 18,
+    "collateral_symbol": "weETH",
+    "total_supply_raw": 422527973761,
+    "total_supply_shares": 415044202942903284,
+    "total_borrow_raw": 383946476814,
+    "total_borrow_shares": 376259188737648947,
+    "liquidity_raw": 38581496947,
+    "vault_supply_shares": 40512526396423304,
+    "vault_supply_raw": 41243018379,
+    "oracle_price_raw": 2771594135586346510661504013,
+    "borrow_rate_per_s": 1572437723,
+    "borrow_apy": 0.050838478061682096,
+    "utilization": 0.9086888931788849,
+    "fee": 0.0,
+    "supply_apy": 0.04619636036076893,
+    "interest_accrued_seconds": 3480,
+    "lif": 1.0741138560687433,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 9,
+    "vault_supply_raw_unscaled": 41243018379,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0xCf7e7c56614b6E22B0043895A37E3858971ec904",
+       "borrow_shares": 362970847767648907,
+       "debt_raw": 370386643990,
+       "collateral_raw": 245205013000000000000,
+       "collateral_value_raw": 679608776047,
+       "ltv": 0.5449997955358732
+      },
+      {
+       "address": "0x2D4530fD3ADD9035f94cCF41b72C13B17e50C32b",
+       "borrow_shares": 12759078954925627,
+       "debt_raw": 13019757547,
+       "collateral_raw": 15857581015095943797,
+       "collateral_value_raw": 43950778546,
+       "ltv": 0.2962349696120443
+      },
+      {
+       "address": "0x71c7033aa9f6C67da295975133dE1fc44edb6310",
+       "borrow_shares": 516495643150913,
+       "debt_raw": 527048079,
+       "collateral_raw": 687040000000000000,
+       "collateral_value_raw": 1904196034,
+       "ltv": 0.27678246860585576
+      },
+      {
+       "address": "0xD1A2d9DF5db842DA2Ee81075Fa441602B2352915",
+       "borrow_shares": 9863778329734,
+       "debt_raw": 10065304,
+       "collateral_raw": 19171189383000000,
+       "collateral_value_raw": 53134756,
+       "ltv": 0.18942975855577468
+      },
+      {
+       "address": "0x54fA0fb758A8C8B78C80F92FD28da6c7b4C11374",
+       "borrow_shares": 1992593593766,
+       "debt_raw": 2033304,
+       "collateral_raw": 2348474284945792,
+       "collateral_value_raw": 6509017,
+       "ltv": 0.3123826531717462
+      },
+      {
+       "address": "0xd8dd2706eF4EF9cd0fB7F54a1C5413Aedd93121f",
+       "borrow_shares": 910000000000,
+       "debt_raw": 928593,
+       "collateral_raw": 1567649975113556,
+       "collateral_value_raw": 4344889,
+       "ltv": 0.2137207647882374
+      }
+     ],
+     "covered_borrow_raw": 383946476817,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 1.0
+    }
+   },
+   {
+    "id": "0xbc99de6a88904cd0e69042ad6f266e63182801f030c636507c3caf590ffd84fe",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+    "oracle": "0x9f983115741d0f7f2eae07831415057ad3de34d2",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 8,
+    "collateral_symbol": "cbBTC",
+    "total_supply_raw": 1053543121408,
+    "total_supply_shares": 1034598140916563854,
+    "total_borrow_raw": 954611709828,
+    "total_borrow_shares": 935242821333167666,
+    "liquidity_raw": 98931411580,
+    "vault_supply_shares": 5289830995121483,
+    "vault_supply_raw": 5386695411,
+    "oracle_price_raw": 829029722027100000000000000000000000000,
+    "borrow_rate_per_s": 1541576292,
+    "borrow_apy": 0.04981625114363485,
+    "utilization": 0.906096476195693,
+    "fee": 0.0,
+    "supply_apy": 0.0451383296185272,
+    "interest_accrued_seconds": 3480,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 10,
+    "vault_supply_raw_unscaled": 5386695411,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0x36eb3Ed8c49cd71De01e54Df7D54057C9b9c601A",
+       "borrow_shares": 500015056897962846,
+       "debt_raw": 510370373894,
+       "collateral_raw": 1100272169,
+       "collateral_value_raw": 912158330420,
+       "ltv": 0.5595195010267591
+      },
+      {
+       "address": "0xaE6724408e729C4944BadCa11D303fAFCEdc5Cb2",
+       "borrow_shares": 127038789843834614,
+       "debt_raw": 129669764495,
+       "collateral_raw": 290084068,
+       "collateral_value_raw": 240488314258,
+       "ltv": 0.5391936190125565
+      },
+      {
+       "address": "0xd11A33D9F86b4cd64F65AFE413B8B8D8A5352f7B",
+       "borrow_shares": 112683075514502723,
+       "debt_raw": 115016743173,
+       "collateral_raw": 200211888,
+       "collateral_value_raw": 165981605855,
+       "ltv": 0.6929487311592681
+      },
+      {
+       "address": "0x9042fD33b444234291d8085Bd9F879225e53f8fE",
+       "borrow_shares": 54502182997825682,
+       "debt_raw": 55630923771,
+       "collateral_raw": 90000043,
+       "collateral_value_raw": 74612710630,
+       "ltv": 0.7455958013222499
+      },
+      {
+       "address": "0x88470174477D5fFa56758162781F96a85c62CDb8",
+       "borrow_shares": 49025809447636249,
+       "debt_raw": 50041134468,
+       "collateral_raw": 100228139,
+       "collateral_value_raw": 83092106214,
+       "ltv": 0.6022369241564451
+      },
+      {
+       "address": "0xa5D3Bc5ac4a5850D1673814489B3BCe8C584Bf48",
+       "borrow_shares": 29039784318874447,
+       "debt_raw": 29641198553,
+       "collateral_raw": 63006792,
+       "collateral_value_raw": 52234503257,
+       "ltv": 0.5674639693070643
+      },
+      {
+       "address": "0x53aE625C5A39609ffca98772B62f68bC1E70A153",
+       "borrow_shares": 19256908205895301,
+       "debt_raw": 19655718974,
+       "collateral_raw": 44017737,
+       "collateral_value_raw": 36492012269,
+       "ltv": 0.5386307235980393
+      },
+      {
+       "address": "0xB2aC00Fc63e98b69eA8154fe025661222a68F659",
+       "borrow_shares": 13756427487879345,
+       "debt_raw": 14041323244,
+       "collateral_raw": 29527240,
+       "collateral_value_raw": 24478959569,
+       "ltv": 0.5736078449094644
+      },
+      {
+       "address": "0xf1C649B8Efc6f0389d79e317bb5380eae0463DBB",
+       "borrow_shares": 11760174424034792,
+       "debt_raw": 12003727758,
+       "collateral_raw": 24235587,
+       "collateral_value_raw": 20092021953,
+       "ltv": 0.5974375195328555
+      },
+      {
+       "address": "0x9a3b0c4e50eB73A557056af72912C38f58A30a4A",
+       "borrow_shares": 6893077367077129,
+       "debt_raw": 7035833071,
+       "collateral_raw": 24999862,
+       "collateral_value_raw": 20725628644,
+       "ltv": 0.3394750138513579
+      },
+      {
+       "address": "0xE812641EC0a1B45c78de3Be817EFc2444a6ADC18",
+       "borrow_shares": 4991136628649971,
+       "debt_raw": 5094503120,
+       "collateral_raw": 14800153,
+       "collateral_value_raw": 12269766727,
+       "ltv": 0.4152078220679933
+      },
+      {
+       "address": "0xece2067904013BdDD6a81A391ca9299FB940b738",
+       "borrow_shares": 2418987592874377,
+       "debt_raw": 2469084851,
+       "collateral_raw": 7397978,
+       "collateral_value_raw": 6133143644,
+       "ltv": 0.40258063308454933
+      },
+      {
+       "address": "0x180e3A4F2b8aE180201C5B8eDC6321DDF6e74295",
+       "borrow_shares": 1554910927464730,
+       "debt_raw": 1587113149,
+       "collateral_raw": 3233511,
+       "collateral_value_raw": 2680676725,
+       "ltv": 0.592056898990683
+      },
+      {
+       "address": "0x4c9236d458600c065Dd61cc262cA5f99B05C3599",
+       "borrow_shares": 1020062950103427,
+       "debt_raw": 1041188465,
+       "collateral_raw": 3057347,
+       "collateral_value_raw": 2534631533,
+       "ltv": 0.410784941102522
+      },
+      {
+       "address": "0x614A418BB0A05f85Cb249b5D1B59c9A19A3d0fb7",
+       "borrow_shares": 793541693938839,
+       "debt_raw": 809975951,
+       "collateral_raw": 3043779,
+       "collateral_value_raw": 2523383258,
+       "ltv": 0.3209880815496795
+      },
+      {
+       "address": "0xbDd38606e2716EFEaa7ea35369C1083D886B03D3",
+       "borrow_shares": 491808427499086,
+       "debt_raw": 501993786,
+       "collateral_raw": 1113528,
+       "collateral_value_raw": 923147808,
+       "ltv": 0.543784843174323
+      },
+      {
+       "address": "0xd8dd2706eF4EF9cd0fB7F54a1C5413Aedd93121f",
+       "borrow_shares": 910000000000,
+       "debt_raw": 928847,
+       "collateral_raw": 5397,
+       "collateral_value_raw": 4474273,
+       "ltv": 0.20759730128224183
+      },
+      {
+       "address": "0xbc510fF513f5bca0Cc1057e3212ed5952DCED308",
+       "borrow_shares": 175608631073,
+       "debt_raw": 179246,
+       "collateral_raw": 51575,
+       "collateral_value_raw": 42757207,
+       "ltv": 0.004192182150719059
+      },
+      {
+       "address": "0x1878EA9134D500A3cEF3E89589ECA3656EECf48f",
+       "borrow_shares": 988963141,
+       "debt_raw": 1010,
+       "collateral_raw": 10,
+       "collateral_value_raw": 8290,
+       "ltv": 0.1218335343787696
+      },
+      {
+       "address": "0x52EE91C6Dcf65712685CC7dF9A2BEEB3C4c8eFa7",
+       "borrow_shares": 9519894,
+       "debt_raw": 10,
+       "collateral_raw": 2,
+       "collateral_value_raw": 1658,
+       "ltv": 0.006031363088057901
+      }
+     ],
+     "covered_borrow_raw": 954611709836,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 1.0
+    }
+   },
+   {
+    "id": "0xfb8d92086861bae6fb778917afd1de5dbbc4ec70edfb636fed48238e225e7e3d",
+    "loan_token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "collateral_token": "0x54c1ff361b402f66c13107421e6a431c3375ef24",
+    "oracle": "0xd703c55b871d999ea5435ac3721b19296ac249d1",
+    "irm": "0x870ac11d48b15db9a138cf899d20f13f79ba00bc",
+    "lltv": 0.86,
+    "lltv_raw": 860000000000000000,
+    "loan_decimals": 6,
+    "collateral_decimals": 18,
+    "collateral_symbol": "FLHYon",
+    "total_supply_raw": 56820365,
+    "total_supply_shares": 56091168571095,
+    "total_borrow_raw": 51230519,
+    "total_borrow_shares": 50500501358913,
+    "liquidity_raw": 5589846,
+    "vault_supply_shares": 48484715707631,
+    "vault_supply_raw": 49115026,
+    "oracle_price_raw": 24133795450000000000000000,
+    "borrow_rate_per_s": 1584018886,
+    "borrow_apy": 0.05122233912109187,
+    "utilization": 0.9016224904574267,
+    "fee": 0.0,
+    "supply_apy": 0.04618321296541373,
+    "interest_accrued_seconds": 3480,
+    "lif": 1.0438413361169103,
+    "source": "Morpho Blue 0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb idToMarketParams/market/position + IRM borrowRateView @ block 26163092",
+    "holder": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "withdraw_queue_index": 11,
+    "vault_supply_raw_unscaled": 49115026,
+    "via": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "borrowers": {
+     "items": [
+      {
+       "address": "0xfeed46c11F57B7126a773EeC6ae9cA7aE1C03C9a",
+       "borrow_shares": 50500501358913,
+       "debt_raw": 51230519,
+       "collateral_raw": 3742823844140676257,
+       "collateral_value_raw": 90328545,
+       "ltv": 0.5671575801425784
+      }
+     ],
+     "covered_borrow_raw": 51230519,
+     "status": "ok",
+     "source": "Morpho API marketPositions + on-chain totals/oracle",
+     "coverage": 1.0
+    }
+   }
+  ],
+  "fees": {
+   "performance": 0.05,
+   "management_annual": 0.0,
+   "source": "MetaMorpho fee() (performance fee on interest)"
+  },
+  "gates": {
+   "withdraw_open": true,
+   "note": "MetaMorpho V1 has no withdrawal gates"
+  },
+  "liquidity_adapter": null,
+  "liquidity_market": null,
+  "warnings": [],
+  "factory": "0xA9c3D3a366466Fa809d1Ae982Fb2c46E5fC41101",
+  "factory_name": "MetaMorpho Factory v1.0",
+  "code_bytes": 19340,
+  "as_of_block": 26163092,
+  "block_timestamp": 1791648071,
+  "observed_at": 1791648081.755276,
+  "chain_id": 1,
+  "api": {
+   "status": "ok",
+   "data": {
+    "address": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+    "name": "Steakhouse USDC",
+    "symbol": "steakUSDC",
+    "asset": {
+     "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+     "symbol": "USDC",
+     "decimals": 6,
+     "price": {
+      "usd": 0.999694171434759
+     }
+    },
+    "state": {
+     "totalAssets": 65071540458184,
+     "netApy": 0.043120877227596305,
+     "netApyExcludingRewards": 0.043120877253913,
+     "fee": 0.05
+    },
+    "totalAssets": 65071540458184,
+    "netApy": 0.043120877227596305,
+    "netApyExcludingRewards": 0.043120877253913
+   },
+   "fetched_at": 1791648082.6806488,
+   "cached": false,
+   "source": "Morpho GraphQL vaultByAddress"
+  },
+  "withdrawal_options_api": {
+   "status": "not_applicable"
+  },
+  "asset_price": {
+   "currency": "USD",
+   "price_usd": 0.9996574955016755,
+   "timestamp": 1791647995,
+   "confidence": 0.99,
+   "source": "DefiLlama coins current ethereum:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+   "age_s": 87.28234648704529
+  },
+  "reconciliation": {
+   "adapters": [
+    {
+     "adapter": "0xBEEF01735c132Ada46AA9aA4c54623cAA92A64CB",
+     "type": "MetaMorpho withdrawQueue",
+     "reported_raw": 65071562465057,
+     "markets_raw": 65071562465057,
+     "gap_raw": 0,
+     "gap_pct": 0.0
+    }
+   ],
+   "markets_raw": 65071562465057,
+   "idle_raw": 6011,
+   "total_assets_raw": 65071562465057,
+   "unattributed_raw": 0,
+   "unattributed_pct": 0.0,
+   "gap_pct": 9.237522156053756e-11,
+   "tolerance": 0.005,
+   "within_tolerance": true,
+   "coverage": 1.0,
+   "rule": "coverage = (idle + supply resolved in Morpho markets) / totalAssets; any shortfall is kept as an 'unattributed' exposure with a conservative failure model (never zero risk)"
+  }
+ },
+ "rd": {
+  "priors": {
+   "rates": {
+    "incidents": 266,
+    "incidents_in_cohort": 25,
+    "protocols": 611,
+    "per_year": 8.333333333333334,
+    "annual_per_protocol": 0.01363884342607747,
+    "annual_per_protocol_upper": 0.06916276651066043,
+    "oracle_share": 0.11654135338345864,
+    "source": "DefiLlama hacks: 25 incidents >= $1,000,000 in last 3y on the 611 protocols with TVL >= $10,000,000 (upper bound: 266 incidents / 1282 protocols with TVL >= $1,000,000 = 6.92%/y)"
+   },
+   "proto": {
+    "morpho": {
+     "name": "Morpho Blue",
+     "slug": "morpho-blue",
+     "tvl": 11238305754.163301,
+     "audits": "2",
+     "listedAt": 1705261273,
+     "url": "https://app.morpho.org",
+     "category": "Lending"
+    },
+    "cbBTC": null,
+    "WBTC": {
+     "name": "WBTC",
+     "slug": "wbtc",
+     "tvl": 9663824527.691893,
+     "audits": "2",
+     "listedAt": null,
+     "url": "https://wbtc.network/",
+     "category": "Bridge"
+    },
+    "weETH": null,
+    "wstETH": null,
+    "steakEURCV": null,
+    "WETH": null,
+    "FLHYon": null
+   },
+   "stable": {
+    "USDC": {
+     "episodes": 1,
+     "years": 5.780821917808219,
+     "annual": 0.17298578199052134,
+     "severity": 0.03893500000000005,
+     "min_price": 0.961065,
+     "gecko_id": "usd-coin"
+    }
+   }
+  },
+  "assets_raw": 100034262184,
+  "sim": {
+   "status": "simulated",
+   "shares": 87484902814824661593114,
+   "assets_out_raw": 100034320972,
+   "block": 26163092,
+   "gas_estimate": 628826,
+   "max_redeem_contract": 87484902814551700283366,
+   "share_balance_slot": 0,
+   "fetched_at": 1791648087.019539,
+   "method": "eth_call redeem() with a state override on the share balance of 0xdEaD (read-only, no tx)"
+  },
+  "max_withdraw_v1": {
+   "status": "ok",
+   "max_withdraw_raw": 48223058472788,
+   "block": 26163092,
+   "method": "eth_call maxWithdraw(0xdEaD) with balanceOf(0xdEaD) = totalSupply (state override)"
+  },
+  "gas_usd": 0.14476833885563276,
+  "gas_why": "628,826 gas x 0.092 gwei (eth_gasPrice) x ETH $2,508 (DefiLlama)",
+  "gas_units": 628826,
+  "conversion": {
+   "status": "not_needed",
+   "reason": "the vault asset is USDC (USD conversion = holding it)"
+  }
+ },
+ "prov": {
+  "live": 151,
+  "cached": 0,
+  "oldest_cache_ts": null,
+  "cached_urls": [],
+  "mode": "live"
+ },
+ "live_headline": {
+  "as_of_block": 26163092,
+  "verdict": "REVIEW",
+  "point_verdict": "STAY",
+  "expected_loss_usd": 53.01257140631898,
+  "exit_side_usd": 355.82179666411946,
+  "margin_usd": -302.80922525780045,
+  "withdrawal_feasibility": "full",
+  "coverage": 1.0,
+  "markets": 12
+ }
+}

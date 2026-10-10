@@ -11,4 +11,6 @@ The documentation is organized by responsibility: **core** for the Belem risk en
 
 The [Official Belem PDF](core/BelemCapital_EPFL-Hackathon_DeFi-Risk-Dependency-Challenge_EN_v1.pdf) takes precedence over its [summary](core/belem.md). The [audit procedure](core/spec_compliance.md) shows how to verify the core; it is not a completed audit report. [PLAN.md](../PLAN.md) preserves the historical context, but its progress reports may be dated.
 
+**Phase 1 — Vault Risk Analyzer** (`/vault.html`, `/api/vault`): [spec](core/BELEM_PHASE_1_VAULT_RISK_ANALYZER.md) · [validation](core/BELEM_PHASE1_VALIDATION.md) · [progress](core/BELEM_PHASE1_PROGRESS.md) · [evidence](../audit/BELEM_PHASE1_EVIDENCE.json).
+
 **Statuses:** “implemented” means code exists; it does not establish correctness or real-data operation. “Specified” means the behavior is documented but no implementation has been identified. The P0/P1/P2 ranking comes from the team roadmap (image from October 10, 2026), not the official PDF: Breaking Point is a product P0, not an explicit challenge requirement.

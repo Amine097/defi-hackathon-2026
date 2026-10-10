@@ -25,22 +25,31 @@ def to_nx(g: DepGraph) -> nx.DiGraph:
     return G
 
 
+def path_sum(g: DepGraph) -> bool:
+    """Allocation graphs (vaults): the position reaches a shared dependency through several disjoint allocations, so
+    its exposure is the SUM of the path products (capped at 1), not the best single path. Opt-in per graph."""
+    return g.position.meta.get("path_aggregation") == "sum"
+
+
 def best_paths(g: DepGraph) -> dict:
-    """node id -> (best transmission product from the position, that path as a list of node ids)."""
+    """node id -> (transmission from the position, the best path as a list of node ids).
+    transmission = best path product, or the capped sum over all paths when path_sum(g)."""
     G = to_nx(g)
     root = g.position.id
+    summed = path_sum(g)
     out = {}
     for n in g.nodes:
         if n.id == root or not nx.has_path(G, root, n.id):
             continue
-        best, best_path = 0.0, None
+        best, best_path, total = 0.0, None, 0.0
         for path in nx.all_simple_paths(G, root, n.id):
             t = 1.0
             for a, b in zip(path, path[1:]):
                 t *= G[a][b]["transmission"]
-            if t > best:
+            total += t
+            if t > best or best_path is None:
                 best, best_path = t, path
-        out[n.id] = (best, best_path)
+        out[n.id] = (min(total, 1.0) if summed else best, best_path)
     return out
 
 

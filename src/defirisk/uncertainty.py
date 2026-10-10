@@ -109,8 +109,11 @@ def inventory(g: DepGraph) -> dict:
             continue
         nodes.append({"id": n.id, "label": n.label, "role": n.meta.get("role"), "mechanism": MECHANISM.get(n.meta.get("role"), "other"),
                       "p_fail_horizon": classify_p(n, g), "loss_given_failure": classify_lgf(n)})
-    edges = [{"src": e.src, "dst": e.dst, "transmission": e.transmission, "class": "scenario_assumption",
-              "low": e.transmission * T_RANGE[0], "high": min(1.0, e.transmission * T_RANGE[1]), "why": e.reason}
+    edges = [{"src": e.src, "dst": e.dst, "transmission": e.transmission,
+              "class": "protocol-derived" if e.reason.startswith("measured") else "scenario_assumption",
+              "low": e.transmission if e.reason.startswith("measured") else e.transmission * T_RANGE[0],
+              "high": e.transmission if e.reason.startswith("measured") else min(1.0, e.transmission * T_RANGE[1]),
+              "why": e.reason}
              for e in g.edges]
     return {"nodes": nodes, "edges": edges,
             "classes": "observed = measured on public data for this asset; calibrated = public base rate adjusted by "
@@ -135,14 +138,24 @@ MECHANISM = {
 
 
 def _h_values(g: DepGraph, which: str) -> tuple[list[float], list[float], list[str]]:
+    import networkx as nx
+    from .core.propagation import path_sum, to_nx
     paths = best_paths(g)
+    G = to_nx(g) if path_sum(g) else None
     tmap = {}
     for nid, (t, path) in paths.items():
-        tt = 1.0
-        for a, b in zip(path, path[1:]):
-            w = next(e.transmission for e in g.edges if e.src == a and e.dst == b)
-            tt *= {"low": w * T_RANGE[0], "high": min(1.0, w * T_RANGE[1])}.get(which, w)
-        tmap[nid] = min(tt, 1.0)
+        routes = list(nx.all_simple_paths(G, g.position.id, nid)) if G is not None else [path]
+        total = 0.0
+        for route in routes:
+            tt = 1.0
+            for a, b in zip(route, route[1:]):
+                e = next(e for e in g.edges if e.src == a and e.dst == b)
+                w = e.transmission
+                if not e.reason.startswith("measured"):  # on-chain allocation weights carry no expert band
+                    w = {"low": w * T_RANGE[0], "high": min(1.0, w * T_RANGE[1])}.get(which, w)
+                tt *= w
+            total += tt
+        tmap[nid] = min(total, 1.0)
     ps, hs, ids = [], [], []
     for n in g.nodes:
         if n.id not in tmap:

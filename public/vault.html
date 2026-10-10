@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FaultLine · Vault Risk Analyzer</title>
+<meta name="description" content="Paste a Morpho vault address: FaultLine reads it on-chain, maps every dependency, prices the loss and the exit, and returns STAY / EXIT / REVIEW.">
+<link rel="icon" href="/assets/brand/logo.svg">
+<link rel="stylesheet" href="/assets/css/theme.css">
+<link rel="stylesheet" href="/assets/css/vault.css">
+</head>
+<body>
+<header id="nav"></header>
+
+<main class="container va">
+  <h1>Vault Risk Analyzer</h1>
+  <p class="muted">Paste a Morpho vault (V1 MetaMorpho or V2) on Ethereum. FaultLine reads it on-chain at a pinned block, maps every
+    underlying market, collateral and oracle, prices the expected loss of staying against the real cost of withdrawing, and gives a
+    decision. All figures come from the backend; nothing is precomputed.</p>
+
+  <form id="vaultForm" class="card va-form" novalidate>
+    <label class="va-field va-wide"><span>Vault address or Morpho / Etherscan link</span>
+      <input id="fAddress" name="address" autocomplete="off" spellcheck="false" placeholder="0x…" required></label>
+    <label class="va-field"><span>Exposure (USD, hypothetical)</span>
+      <input id="fValue" name="value_usd" type="number" min="1000" max="100000000" step="1000" value="100000"></label>
+    <label class="va-field"><span>Horizon (days)</span>
+      <input id="fHorizon" name="horizon_days" type="number" min="1" max="365" step="1" value="30"></label>
+    <label class="va-field"><span>Chain</span>
+      <select id="fChain" name="chain_id"><option value="1" selected>Ethereum mainnet</option></select></label>
+    <div class="va-actions">
+      <button class="btn btn-primary" id="fSubmit" type="submit">Analyze vault</button>
+      <button class="btn btn-ghost" id="fBelem" type="button" title="Fills the address only; the analysis still runs live">Use the Belem vault example</button>
+    </div>
+  </form>
+
+  <div id="status" class="va-status" role="status" aria-live="polite" hidden></div>
+  <div id="error" class="va-error" role="alert" hidden></div>
+
+  <section id="result" hidden>
+    <section class="card va-summary" id="summary" aria-labelledby="sumTitle">
+      <div class="va-sum-head">
+        <div>
+          <h2 id="sumTitle">—</h2>
+          <p class="muted mono" id="sumMeta"></p>
+        </div>
+        <div class="va-badges" id="sumBadges"></div>
+      </div>
+      <div class="va-verdict-row">
+        <div class="va-verdict" id="vBadge">—</div>
+        <div>
+          <p class="va-lean" id="vLean"></p>
+          <ul class="va-reasons" id="vReasons"></ul>
+        </div>
+      </div>
+      <div class="va-kpis">
+        <div class="kpi"><span class="label">Expected loss if STAY</span><span class="value" id="kLoss">—</span><small class="muted" id="kLossBand"></small></div>
+        <div class="kpi"><span class="label">Cost if EXIT</span><span class="value" id="kExit">—</span><small class="muted" id="kExitBand"></small></div>
+        <div class="kpi"><span class="label">Margin (loss − exit)</span><span class="value" id="kMargin">—</span><small class="muted" id="kMarginHint"></small></div>
+        <div class="kpi"><span class="label">Break-even risk multiple</span><span class="value" id="kBreakeven">—</span><small class="muted">risk must be × this for EXIT to pay</small></div>
+      </div>
+      <div class="va-breakdown" id="costBreakdown"></div>
+      <p class="va-explain" id="vExplain"></p>
+      <div class="va-consistency" id="consistency"></div>
+      <ul class="va-warnings" id="warnings"></ul>
+    </section>
+
+    <details class="card va-details" id="xray" open>
+      <summary><h2>Details / X-Ray</h2></summary>
+
+      <h3>Allocations</h3>
+      <p class="muted" id="allocNote"></p>
+      <div class="table-wrap"><table class="table" id="allocTable"></table></div>
+
+      <h3>Dependency graph</h3>
+      <p class="muted">Arrow A → B: A depends on B. Columns are hops away from your deposit. Node size ∝ expected-loss contribution. Shared nodes appear once.</p>
+      <div class="va-graph-wrap"><svg id="graph" class="va-graph" viewBox="0 0 900 420" role="img" aria-label="Vault dependency graph"></svg></div>
+      <div id="nodeInfo" class="va-nodeinfo muted">Click a node to see its parameters.</div>
+      <h4>Shared dependencies</h4>
+      <ul id="sharedList" class="va-list"></ul>
+
+      <h3>Risk and uncertainty</h3>
+      <div id="riskBox"></div>
+      <h4>Main drivers</h4>
+      <div class="table-wrap"><table class="table" id="driverTable"></table></div>
+
+      <h3>Scenarios <small class="muted">(conditional on the shock happening, not probability-weighted)</small></h3>
+      <div class="table-wrap"><table class="table" id="scenTable"></table></div>
+      <form id="shockForm" class="va-shock">
+        <label class="va-field va-wide"><span>Custom shock: dependency</span><select id="shockNode"></select></label>
+        <label class="va-field"><span>Severity (0–1)</span><input id="shockSev" type="number" min="0" max="1" step="0.05" value="0.5"></label>
+        <button class="btn" type="submit">Run custom shock</button>
+      </form>
+
+      <h3>Sensitivity</h3>
+      <div class="table-wrap"><table class="table" id="sensTable"></table></div>
+      <div id="crashCurve"></div>
+
+      <h3>Withdrawal</h3>
+      <div id="exitBox"></div>
+
+      <h3>Assumptions</h3>
+      <ul id="assumptions" class="va-list"></ul>
+      <h3>Provenance</h3>
+      <div id="provBox" class="mono va-prov"></div>
+    </details>
+  </section>
+</main>
+<footer id="footer"></footer>
+<script src="/assets/js/shell.js"></script>
+<script type="module" src="/assets/js/vault.js"></script>
+</body>
+</html>
