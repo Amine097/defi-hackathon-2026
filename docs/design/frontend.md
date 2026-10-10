@@ -1,4 +1,16 @@
+Voici le contenu complet, à coller dans `frontend.md`. Le bloc est entouré de quatre backticks parce que le fichier contient lui-même des blocs de code : copie tout ce qui est **entre** la première et la dernière ligne.
+
+````markdown
 # FAULTLINE — Frontend Research, UI/UX Blueprint & Claude Code Playbook
+
+> **Reference document to be given to Claude Code** · Version 1.2 · October 10, 2026
+> **Context:** EPFL / Belem Capital hackathon — analysis of DeFi dependencies and risk.
+> **Scope:** frontend and frontend integration ↔ backend **existing**; no rewriting of calculation engines.
+> **Working name:** FAULTLINE (modifiable if the team changes brands).
+>
+> **New in v1.2:** §20 — audit of the **current** frontend (static dashboard in `public/`) against the Exit Runway specification, the gaps to close, and the **Exit Runway card** to build next to the verdict. Cross-references added in §0, §8.2, §8.4, §15 and §17.
+
+---
 
 ## 0. Design decision in one minute
 
@@ -14,6 +26,8 @@
 **Defensible differentiation:** a **single selection** of asset, protocol or dependency synchronizes **the graph, the exposure, the Breaking Point, the financial impact and the decision**. The product tells a causal chain, not five independent graphs.
 
 **Execution priority:** first the **Risk Overview** page and the **Breaking Point** interaction; then **Dependency Explorer**; finally the intelligence/alerting layer if it really exists.
+
+**Current state (see §20):** a static frontend already exists in `public/` (`index.html`, `xray.html`, `xray.js`, `api.js`) with a STAY/EXIT/REVIEW verdict, KPIs, X-Ray dependency graph, failure propagation, break-even, hidden concentration, token look-through and data-source labelling. **Build on it; do not restart.** The main missing piece for the "What can we do?" question is the **Exit Runway card** (§20.4): exit cost alone vs under stress, stuck share, trend and time left.
 
 ---
 
@@ -129,7 +143,7 @@ To the right of the sidebar, a compact bar, common to the pages:
 /exit -> comparison, if implemented
 ```
 
-**Do not replace a router already in place** simply to adhere to this proposal.
+**Do not replace a router already in place** simply to adhere to this proposal. The current app uses static pages (`index.html`, `xray.html`): keep them (see §20.1).
 
 ---
 
@@ -158,12 +172,12 @@ To the right of the sidebar, a compact bar, common to the pages:
   --accent: #66D5E8;       /* selection / interaction */
   --positive: #45C6A3;     /* action favorable */
   --warning: #F7B955;      /* seuil proche */
---critical: #FF6F6A;     /* proven risk / liquidation */
+  --critical: #FF6F6A;     /* proven risk / liquidation */
   --neutral: #7F91A6;
 }
 ```
 
-These hexes are a starting point. Check the **real contrasts** (text, badges, chart labels, focus states) and adjust them before validation. Do not encode states by color alone: ​​text, shape/icon and value must be sufficient.
+These hexes are a starting point. Check the **real contrasts** (text, badges, chart labels, focus states) and adjust them before validation. Do not encode states by color alone: text, shape/icon and value must be sufficient.
 
 ### 4.3 Typography
 
@@ -176,8 +190,8 @@ These hexes are a starting point. Check the **real contrasts** (text, badges, ch
 
 - Fixed sidebar **220–240 px**; compact header **60–68 px**; content with `max-width` suitable for graphics, not a central tunnel.
 - Gutters **16–24 px**, card radius **10–12 px**; strict alignment of titles, metrics and charts.
-- Reusable components: `MetricCard`, `RiskBadge`, `SourceTag`, `FreshnessIndicator`, `TokenIcon`, `ProtocolIcon`, `SectionHeader`, `EntityInspector`, `ScenarioPreset`, `AssumptionTooltip`, `EmptyState`, `DataWarning`.
-- Icons: `lucide-react`, consistent symbols. No emoji in the final interface.
+- Reusable components: `MetricCard`, `RiskBadge`, `SourceTag`, `FreshnessIndicator`, `TokenIcon`, `ProtocolIcon`, `SectionHeader`, `EntityInspector`, `ScenarioPreset`, `AssumptionTooltip`, `EmptyState`, `DataWarning`, **`ExitRunwayCard`** (§20.4).
+- Icons: `lucide-react` (or the icon set already used by the static app), consistent symbols. No emoji in the final interface.
 - Effects: functional transitions 120–200 ms; respect `prefers-reduced-motion`; do not constantly animate the edges of the graph.
 
 ### 4.5 Financial microcopy — precise terminology
@@ -191,6 +205,9 @@ These hexes are a starting point. Check the **real contrasts** (text, badges, ch
 | `Unsupported` / `Not modeled` | `0 risk` for absent data |
 | `Snapshot · 10 min old` | `LIVE` if the data is a snapshot |
 | `Simulated — no transaction will be executed` | EXIT button suggesting an effective sale |
+| `Exit cost (alone)` / `Exit cost (under stress)` | A single `Exit cost` when the backend provides both |
+| `Stuck (not withdrawable now)` | `Lost` for funds that are only temporarily illiquid |
+| `Time left at current pace` | `Deadline` or `Will fail at` |
 
 ---
 
@@ -225,7 +242,7 @@ In **less than 10 seconds**, a person should see **exposure**, **critical depend
 │                 │ │                                         │                          │ │
 │                 │ │  First liquidation: ETH -18.4%*        │ Scenario: ETH -20%       │ │
 │                 │ │  [health factor vs price shock]         │ Model loss: $...         │ │
-│                 │ │             │ threshold                │ Exit cost: $...          │ │
+│                 │ │             │ threshold                │ Exit runway (§20.4)      │ │
 │                 │ │  [Open Stress Lab →]                    │ Stay/Exit: ...           │ │
 │                 │ └─────────────────────────────────────────┴──────────────────────────┘ │
 └─────────────────┴────────────────────────────────────────────────────────────────────────┘
@@ -361,7 +378,7 @@ If the API only provides **the threshold** and **not a series of simulations**, 
 
 1. The user chooses a risk factor and a preset `ETH -20%`.
 2. Sliders do not trigger 50 backend calls per second: local state + appropriate debounce; `Run scenario` button if expensive calculation.
-3. The result area displays `Calculating…` **without keeping outdated values ​​presented as current**.
+3. The result area displays `Calculating…` **without keeping outdated values presented as current**.
 4. Metrics update **atomically** from the same `scenario_id` / same timestamp.
 5. The position table is sorted by **increasing liquidation distance**.
 6. Clicking on a line opens its detail and highlights its path in the graph, if available.
@@ -380,7 +397,7 @@ If the API only provides **the threshold** and **not a series of simulations**, 
 
 ### 7.7 Integration requirements with the Breaking Point engine
 
-The frontend **never invents** the liquidation results. On the TypeScript side, build an adapter to the current backend response. Example of an **indicative target** model (to be **adapted**, this is not a documented existing API):
+The frontend **never invents** the liquidation results. On the client side, build an adapter to the current backend response. Example of an **indicative target** model (to be **adapted**, this is not a documented existing API):
 
 ```ts
 // Desirable interface types, to map to actual contracts.
@@ -435,42 +452,46 @@ On the selected scenario: two columns **same assumptions and timestamp**:
 
 ```text
 STAY                                EXIT
-Modeled downside: $...              Exit costs: $...
-Positions at risk: ...              Liquidity / slippage: ...
-Scenario assumptions: ...           Executability: ...
+Modeled downside: $...              Exit cost alone: $... / ...%
+Positions at risk: ...              Exit cost under stress: $... / ...%
+Scenario assumptions: ...           Stuck share: ...%
+                                    Time left at current pace: ...
+                                    Executability: ...
 
 [Recommendation from backend] [Why?] [Evidence]
 ```
 
 **Caution:** `STAY` / `EXIT` should appear as **template output**, not guaranteed advice. If the exit analysis is not calculated, `Exit analysis unavailable`; do not invent fees, gas or slippage. `EXIT` is **not** a trade execution button unless a real trade has been implemented with user consent.
 
+**Exit side = Exit Runway card (§20.4).** The current UI only reads a single `decision.exit_cost_usd`. When the Exit Runway backend is available, the EXIT column must show **exit cost alone vs under stress**, **stuck share**, **trend** and **time left**, each with method, assumptions and `as_of`.
+
 ### 8.3 P1 Threat Intelligence
 
 - **Leverage Hunter:** `Liquidation proximity × Debt/exposure` table; positions closest to the threshold at the head; aggregated views if available and legitimate public addresses.
-- **Whale Impact:** verified onchain flows → timestamped events → assets/protocols concerned; **do not automatically infer the future price** of a transaction.
+- **Whale Impact:** verified onchain flows → timestamped events → assets/protocols concerned; **do not automatically infer the future price** of a transaction. In the Exit Runway design, this is presented as the **exit-cost / liquidity-under-stress layer** (exit queue position, forced sellers under shock), not as a "whale tracker" (§20.4).
 - **Chain of Blame:** causal graph of a selected incident with `observed` / `modeled` / `inferred` distinction; path `source → impacted dependency → affected positions → loss`.
 
 These elements must not block P0. If the backend is missing, do not add false screens filled with static data presented as live.
 
 ### 8.4 P2 Action Layer
 
-- **Exit Feasibility:** market depth, liquidity, fees, slippage and restrictions, if retrieved/calculated.
+- **Exit Feasibility:** market depth, liquidity, fees, slippage and restrictions, if retrieved/calculated. Source: Exit Runway backend (`GET /exit-cost/{position_id}` and related endpoints, §20.3).
 - **Telegram Alerts:** only if **true** service + permissions + connection status; simulation message explicitly marked as test.
-- **Reaction Window:** display an **estimate depending on a speed scenario** (e.g. `% per minute`) only if the model provides assumptions and estimated time. A price threshold alone does **not** provide a reliable lead time.
+- **Reaction Window:** display an **estimate depending on a speed scenario** (e.g. `% per minute`) only if the model provides assumptions and estimated time. A price threshold alone does **not** provide a reliable lead time. The Exit Runway **time-left countdown** (§20.4) is the intended source: show it only with its range, binding runway and method (`trend_extrapolation`), and `No deadline` when nothing moves adversely.
 
 ---
 
 ## 9. The jury demo: a 90-second walkthrough
 
-**Demonstration dataset:** **synthetic** snapshot, consistent between graph, positions, metrics and simulation. Label `Demo data`. For the figures below, it is necessary to **construct a mathematically coherent dataset** or replace them with existing results; The values ​​below should not be displayed as authentic.
+**Demonstration dataset:** **synthetic** snapshot, consistent between graph, positions, metrics and simulation. Label `Demo data`. For the figures below, it is necessary to **construct a mathematically coherent dataset** or replace them with existing results; The values below should not be displayed as authentic.
 
 1. **0–15 s: Overview.** `This portfolio looks diversified, but 62%* depends on the same oracle.` Point out a common dependency behind several positions.
 2. **15–35 s: Graph.** Click on the node, highlight the positions and the causal path. _“The risk is not obvious by looking at protocol names alone.”_
 3. **35–65 s: Stress Lab.** Apply `ETH −20%`; display a breakpoint at `−18.4%*`, the position(s) concerned, the curve and the updated table.
 4. **65–80 s: Impact.** Show **estimated** losses and what constitutes exposure, liquidation and loss.
-5. **80–90 s: Decision.** Compare STAY/EXIT or show a possible action **only if calculation available**; otherwise end with the diagnosis and its proofs.
+5. **80–90 s: Decision.** Compare STAY/EXIT with the **Exit Runway card**: *“Exiting alone costs 0.4%*, under stress 3.8%*, and at the current pace we have about 3h30* left.”* Only if calculation available; otherwise end with the diagnosis and its proofs.
 
-`*` Narrative values ​​**fictional** to illustrate the scenario. Replace with a single fixture calibrated with the data actually returned by the engine; the maps and curves must correspond to the same parameters.
+`*` Narrative values **fictional** to illustrate the scenario. Replace with a single fixture calibrated with the data actually returned by the engine; the maps and curves must correspond to the same parameters.
 
 **Presentation mode:** be able to switch to `Demo snapshot` without wallet / keys / RPC. No infinite spinner in the event of a network outage. The interface should always indicate that demo mode is active. **Never display a demo snapshot as a live stream.**
 
@@ -478,24 +499,26 @@ These elements must not block P0. If the backend is missing, do not add false sc
 
 ## 10. Recommended frontend stack (adapt to existing repository)
 
+> **Important (v1.2):** the current frontend is a **static HTML/CSS/JS app in `public/`** served by `scripts/dev_server.py` locally and Vercel in deployment (§20.1). The table below is a **target for greenfield work only**. During the hackathon, **keep the existing static stack** and add components in the same style; do not migrate to React/Vite unless the team explicitly decides to.
+
 | Need | Recommended choice | Why / limit |
 |---|---|---|
-| Application | **React + TypeScript + Vite** if existing client app or greenfield; **Next.js** if already used | Do not migrate frameworks during the hackathon without reason. |
-| Styles | **Tailwind CSS + CSS variables** | Speed ​​+ controllable tokens. |
-| Accessible components | **shadcn/ui + Radix primitives** | Dialogs, selects, drawers, tooltips, tabs, skeleton table. Highly customize. |
-| Iconography | **lucide-react** | Consistency. |
-| Dependency graph | **@xyflow/react (React Flow)** | Custom nodes/edges, zoom, pan, selection, minimap; predict automatic layout and performance. |
+| Application | **Keep existing static app**; React + TypeScript + Vite only for greenfield; **Next.js** if already used | Do not migrate frameworks during the hackathon without reason. |
+| Styles | **Existing CSS + CSS variables** (Tailwind only if already present) | Speed + controllable tokens. |
+| Accessible components | **shadcn/ui + Radix primitives** if React; otherwise accessible native HTML (`<button>`, `<dialog>`, `<details>`) | Dialogs, selects, drawers, tooltips, tabs, skeleton table. |
+| Iconography | **lucide** (or icon set already used) | Consistency. |
+| Dependency graph | **Existing X-Ray graph (`xray/graph.js`)**; @xyflow/react only for a React rewrite | Custom nodes/edges, zoom, pan, selection; predict automatic layout and performance. |
 | Graph layout | **dagre** or **elkjs** depending on complexity | DAG → dagre is often enough; dense graphs/cycles → adapt carefully. |
-| Stress series | **Recharts** if already present, otherwise stable library of the repo | Reference lines, markers, tooltips; check cost of custom overlays. |
-| Positions | **TanStack Table** if advanced filter/sorting needs | _headless_ table, without imposing a style. Be careful of APIs that evolve between versions. |
-| API / cache | **TanStack Query** or tool already present | Network states, cache, invalidation, refetch and freshness. |
-| Data validation | **Zod**, so useful for the network boundary | Runtime contracts must be validated, not simply cast in TS. |
+| Stress series | **Existing `xray/chart.js`**, or a stable library already in the repo | Reference lines, markers, tooltips; check cost of custom overlays. |
+| Positions | Existing table; **TanStack Table** only if React and advanced needs | Be careful of APIs that evolve between versions. |
+| API / cache | **Existing `api.js`** (fetch + provenance labels) | Network states, cache, invalidation, refetch and freshness. |
+| Data validation | Runtime checks in the API adapter (Zod if TS/React) | Runtime contracts must be validated, not simply assumed. |
 | UI testing | **Playwright** | Browser navigation and screenshots. |
-| Unitary | **Vitest + Testing Library** if Vite project | Mapping functions, formatting, filters, states and interactions. |
+| Unitary | **Vitest + Testing Library** if Vite project; otherwise lightweight JS tests on adapters/formatters | Mapping functions, formatting, filters, states and interactions. |
 
-**Anti-patterns:** add a blockchain engine in React components, recode Breaking Point on the client side, 5 graphics libraries, unverified dependencies, heavy animations, hardcoded simulation in `page.tsx`, monolithic files of 1500 lines.
+**Anti-patterns:** add a blockchain engine in UI components, recode Breaking Point or exit cost on the client side, 5 graphics libraries, unverified dependencies, heavy animations, hardcoded simulation in a page file, monolithic files of 1500 lines.
 
-### 10.1 Illustrative frontend architecture
+### 10.1 Illustrative frontend architecture (React greenfield; for the static app see §20.5)
 
 ```text
 src/
@@ -519,18 +542,20 @@ src/
       ScenarioBuilder.tsx
       StressCurve.tsx
       ImpactedPositionsTable.tsx
+    exit-runway/
+      ExitRunwayCard.tsx
     positions/
   components/
-ui/ # shadcn primitives, if used
+    ui/                    # shadcn primitives, if used
     risk/
       RiskBadge.tsx
       FreshnessIndicator.tsx
       DataSourceLink.tsx
       MetricCard.tsx
   lib/
-api/ # HTTP client, adapters and schemas
+    api/                   # HTTP client, adapters and schemas
     format/                # USD, %, dates, locale
-data/ # clearly labeled demo fixtures
+    data/                  # clearly labeled demo fixtures
     types/
   styles/
     tokens.css
@@ -596,15 +621,15 @@ The Chrome DevTools plugin also offers a **plugin + skills** installation:
 
 ```text
 repo/
-CLAUDE.md # stable and short rules
+  CLAUDE.md                 # stable and short rules
   docs/
     FAULTLINE_FRONTEND_RESEARCH_AND_CLAUDE_SPEC.md
   .claude/
     skills/
       faultline-frontend/
-SKILL.md #project UI workflow
+        SKILL.md            # project UI workflow
       ui-qa/
-SKILL.md # visual and functional audit
+        SKILL.md            # visual and functional audit
 ```
 
 Claude Code skills are folders containing a `SKILL.md` with YAML metadata; they can be triggered automatically by their description or via a `/skill-name` command. See the [official documentation](https://code.claude.com/docs/en/skills) for versioning and loading intricacies.
@@ -621,15 +646,16 @@ Claude Code skills are folders containing a `SKILL.md` with YAML metadata; they 
 You are building the FAULTLINE DeFi dependency risk frontend for a hackathon.
 
 ## Source of truth
-- Read `docs/design/frontend.md` before changing frontend UI.
+- Read `docs/design/frontend.md` before changing frontend UI (especially §20: current frontend audit and Exit Runway card).
 - First inspect the repository, package scripts, existing components, actual backend types and API routes.
-- The backend's existing financial/risk engines are authoritative. Do NOT rewrite Breaking Point, exposure, impact or Stay/Exit calculations in the frontend.
-- Do NOT fabricate risk scores, price series, liquidation data, APYs, wallet balances or API responses and present them as live.
+- The current frontend is a static app in `public/` (index.html, xray.html, assets/js/*). Keep this stack; do not migrate frameworks.
+- The backend's existing financial/risk engines are authoritative. Do NOT rewrite Breaking Point, exposure, impact, exit-cost or Stay/Exit calculations in the frontend.
+- Do NOT fabricate risk scores, price series, liquidation data, APYs, wallet balances, exit costs, countdowns or API responses and present them as live.
 - Demo fixtures are allowed only if labeled "Demo data" and coherent across views.
 
 ## UX principle
 - Build an institutional DeFi risk command center, not a DEX/trading clone.
-- Primary sequence: Dependency -> Exposure -> Breaking Point -> Modeled loss -> Decision.
+- Primary sequence: Dependency -> Exposure -> Breaking Point -> Modeled loss -> Decision (Stay vs Exit Runway).
 - Breaking Point is the visual and interaction centerpiece.
 - Every meaningful selection must have a real effect on visible data or navigation.
 - All numerical outputs must show units, scenario/scope and freshness as appropriate.
@@ -645,16 +671,17 @@ You are building the FAULTLINE DeFi dependency risk frontend for a hackathon.
 
 ## Engineering constraints
 - Preserve the current framework, router, package manager, conventions and existing APIs when reasonable.
-- TypeScript strict typing, reusable components, view-model adapters, validation of untrusted network data.
+- Typed (or runtime-validated) view-model adapters for untrusted network data; reusable components.
 - No silent fallback from failed API to plausible-looking demo results.
 - Never hardcode secret keys or expose them in client bundles.
 - Avoid additional dependencies unless there is a clear benefit.
 - Keep scenario selection, dependency selection and snapshot coherent across pages.
+- Test locally through the HTTP dev server (`python scripts/dev_server.py 8000`), not file://.
 
 ## Work protocol
 1. Audit the existing app before implementation and state what is already available.
 2. Identify backend contracts and list unsupported states before building visualizations.
-3. Implement the smallest complete vertical slice (Overview + Breaking Point).
+3. Implement the smallest complete vertical slice (Overview + Breaking Point + Exit Runway card when the backend exists).
 4. Run lint/typecheck/tests/build using real project scripts.
 5. Open the page in a browser and inspect at least 1440x900 and 390x844.
 6. Fix visual glitches, console errors, dead controls, overflow and data inconsistencies.
@@ -670,7 +697,7 @@ You are building the FAULTLINE DeFi dependency risk frontend for a hackathon.
 ```md
 ---
 name: faultline-frontend
-description: Build, refine or review FAULTLINE's DeFi risk frontend. Use whenever creating or changing a dashboard page, dependency graph, Breaking Point simulator, portfolio risk visualization, risk data integration or risk-related UI component.
+description: Build, refine or review FAULTLINE's DeFi risk frontend. Use whenever creating or changing a dashboard page, dependency graph, Breaking Point simulator, Exit Runway card, portfolio risk visualization, risk data integration or risk-related UI component.
 ---
 
 # FAULTLINE Frontend Implementation Skill
@@ -679,7 +706,7 @@ description: Build, refine or review FAULTLINE's DeFi risk frontend. Use wheneve
 Build a polished, financially honest, interactive institutional risk terminal using the design and product spec in `docs/design/frontend.md`.
 
 ## Required first steps
-1. Read the spec and current repo architecture.
+1. Read the spec (including §20) and current repo architecture.
 2. Inventory actual backend endpoints and response shapes; do not invent API contracts.
 3. Identify any existing UI framework, routing, charts and component library; reuse first.
 4. Produce a short implementation plan with concrete files and acceptance criteria.
@@ -688,12 +715,13 @@ Build a polished, financially honest, interactive institutional risk terminal us
 Dark-first and precise. Emphasize the causal connection between a selected dependency, exposure, liquidation breakpoint, modeled impact and decision. Make Breaking Point the hero visualization. Use consistent tokens, refined typographic hierarchy, sparse signals of critical risk, and strong whitespace discipline.
 
 ## Component rules
-- Use typed view models and shared formatters.
+- Use typed or validated view models and shared formatters.
 - Use loading, empty, unavailable, not-modeled, error, stale and demo states.
 - Preserve units, scope, timestamp and methodology in financial data.
 - Use keyboard-accessible controls; avoid color-only risk encoding.
 - A graph edge represents a documented dependency, not an arbitrary correlation.
 - Never render a fictitious stress curve if only a scalar threshold is available.
+- Exit Runway numbers (alone vs stressed cost, stuck share, trend, time left) come only from the backend; show "Not available" otherwise.
 
 ## Verification loop
 1. Run typecheck, lint, tests and build where scripts are available.
@@ -726,6 +754,7 @@ Test the running application, not only the source code.
 - Check hover/focus states and keyboard navigation.
 - Check graph pan/zoom/select/clear/filter/inspect; provide fallback list if necessary.
 - Check stress scenario selection, loading, results, reset, errors and stale data.
+- Check the Exit Runway card: alone vs stressed cost, stuck share, trend, time left, method, as-of; "Not available" states.
 - Check unit formatting and that current portfolio/snapshot/scenario are consistent.
 - Verify demo/synthetic data is clearly labeled and unavailable data is not shown as zero.
 - Review screenshots critically; fix 3 most severe visual issues and retest.
@@ -745,6 +774,7 @@ Read, fully understand, and implement:
   docs/design/frontend.md
   CLAUDE.md
   Section 19 of the frontend spec (visual-director workflow, optional creative tools)
+  Section 20 of the frontend spec (current frontend audit and Exit Runway card)
 
 Objective:
 Ship a memorable, production-quality frontend for the EPFL / Belem Capital
@@ -754,9 +784,9 @@ is assumed to be implemented already. Do not replace existing risk algorithms.
 Follow this process strictly:
 
 PHASE 1 — Repository and API audit
-- Inspect package.json, routes, styles, components, test setup and available backend APIs.
+- Inspect package.json/scripts, public/ pages, styles, components, test setup and available backend APIs.
 - Determine what is real, partially implemented or missing; list any spec/API mismatches.
-- Reuse the existing framework and only install truly necessary dependencies.
+- Reuse the existing static frontend and only install truly necessary dependencies.
 - Keep a minimal plan with files and realistic checkpoints.
 
 PHASE 2 — Design foundation
@@ -770,6 +800,8 @@ PHASE 3 — Functional P0 vertical slice
 - Dependency Explorer with selectable graph nodes and relevant inspector.
 - Breaking Point Stress Lab with meaningful scenario controls and actual backend
   results. If only a threshold is available, render a threshold gauge, not an invented curve.
+- Exit Runway card next to the verdict (§20.4), wired to GET /exit-cost/{position_id}
+  when available; explicit "Not available" states otherwise.
 - Link scope and selections so the same scenario drives related visualizations.
 - Implement honest loading, empty, unsupported, stale and error states.
 
@@ -811,6 +843,7 @@ before inspecting the repository.
 - [ ] Reliable and **identified** offline demo mode, without confusion with live.
 - [ ] Build + typecheck + available tests pass; console without blocking errors.
 - [ ] Desktop + mobile browser captures inspected and major defects corrected.
+- [ ] **Exit Runway card (§20.4)** next to the verdict: exit cost alone vs under stress, stuck share, trend, time left, with method / assumptions / as-of — wired to `GET /exit-cost/{position_id}` when the backend exists, explicit `Not available` otherwise.
 
 ### P1 — differentiation
 
@@ -818,13 +851,14 @@ before inspecting the repository.
 - [ ] Interpretable dependency paths, visualization of the impact radius.
 - [ ] History/simulation presets if this provides real value.
 - [ ] Leverage Hunter / Whale Impact / Chain of Blame only with reliable data.
+- [ ] Exit Runway details: exit-queue position, forced sellers under shock, market snapshot (liquidity, oracle class, liquidation ladder, exit curve) — §20.4.
 
 ### P2 — bonus
 
 - [ ] Really connected alerts, with verifiable delivery status.
 - [ ] Exit simulation which distinguishes cost estimates and executable orders.
 - [ ] Sharing/exporting reproducible scenarios.
-- [ ] Reaction Window with explicit assumptions and no artificial precision.
+- [ ] Reaction Window with explicit assumptions and no artificial precision (= Exit Runway time-left countdown).
 
 ---
 
@@ -840,21 +874,23 @@ before inspecting the repository.
 8. **The absence of a source:** each critical figure must be linked to a method, a period or an endpoint.
 9. **Slicing by features only:** quality is in the synchronization between features.
 10. **The race for plugins:** `frontend-design` + Impeccable (polish) + MCP browser + in-house skills > twenty unknown skills. Higgsfield and 21st.dev are **optional** and documented in §19.
+11. **The single exit-cost number:** one calm-market exit cost hides the real decision; show alone vs under stress when available (§20.4).
+12. **The invented countdown:** never show "time left" without a measured adverse trend, a range and a method.
 
 ---
 
 ## 17. Recommended development order for the hackathon
 
-| Ordre | Livrable | Estimation relative | Pourquoi |
+| Order | Deliverable | Relative estimate | Why |
 |---|---|---|---|
 | **1** | Repo audit + API contract + safe demo dataset | Short | Immediately reduces integration errors. |
 | **2** | Shell + tokens + header + Overview | Medium | Defines the level of visual quality visible at first glance. |
 | **3** | Stress Lab / Breaking Point **real** | High | **Main analytical “wow moment”**; priority investment. |
 | **4** | Interactive Dependency Graph + inspector | Medium/high | Makes the notion of dependence tangible. |
 | **5** | Cross navigation Graph ↔ Stress ↔ Positions | Medium | Product differentiator; avoids the “widget collage” effect. |
-| **6** | Impact + STAY/EXIT neatly exposed | Medium | Closes the “so what?” loop. |
+| **6** | Impact + STAY/EXIT neatly exposed, **with the Exit Runway card (§20.4)** | Medium | Closes the “so what?” loop; shows that exiting gets more expensive under stress. |
 | **7** | Visual QA + reliable off-grid demo | Medium | More important to the judges than a flimsy P2 feature. |
-| **8** | P1/P2 if real time remaining | Varies | Bonus only once solid P0. |
+| **8** | P1/P2 if real time remaining (exit queue, forced sellers, market snapshot, alerts) | Varies | Bonus only once solid P0. |
 
 **Recommended arbitration:** in the event of a lack of time, sacrifice P1/P2 screens before sacrificing **the readability of the Breaking Point**, the consistency of the figures or the demo route.
 
@@ -883,7 +919,7 @@ before inspecting the repository.
 
 ---
 
-**Final decision:** build **an elegant Overview + an impeccable Stress Lab Breaking Point + an understandable Dependency Graph**, all linked to the same scenario and the same data. It's a stronger demonstration than a twenty-tab interface.
+**Final decision:** build **an elegant Overview + an impeccable Stress Lab Breaking Point + an understandable Dependency Graph + an honest Exit Runway card**, all linked to the same scenario and the same data. It's a stronger demonstration than a twenty-tab interface.
 
 ---
 
@@ -906,7 +942,7 @@ before inspecting the repository.
 | [Vercel — web-design-guidelines](https://github.com/vercel-labs/agent-skills) | Ergonomics/accessibility/performance audit following web rules. | Objective final validation, including focus, states, keyboard, contrasts. | Complete the tests; does not automatically inspect real UX without a browser. | **Priority 2** for audit. |
 | [Context7](https://github.com/upstash/context7/blob/master/docs/clients/claude-code.mdx) | Versioned library documentation in Claude Code. | Avoid APIs invented for React Flow, shadcn, Recharts, TanStack, etc. | Not a “beautiful design generator”. | Optional if doc errors or recent libs. |
 | [Official Figma MCP](https://help.figma.com/hc/en-us/articles/39888612464151-Claude-Code-and-Figma-Set-up-the-MCP-server) | Structured access to models and tokens **if the team uses Figma**. | Enforcing the approved design rather than interpreting an image. | No point if the team has neither a Figma file nor any intention of using it. | Conditional. |
-| **Playwright MCP / Playwright Test** | Real browser inspection and repeatable testing. | Check that the UI is truly premium AND usable, not just clean JSX. | Requires app launched and browsers configured. | **Non-negotiable for UI acceptance** (or documented manual audit if unavailable). |
+| **Playwright MCP / Playwright Test** | Real browser inspection and repeatable testing. | Check that the UI is truly premium AND usable, not just clean markup. | Requires app launched and browsers configured. | **Non-negotiable for UI acceptance** (or documented manual audit if unavailable). |
 
 **Reading from Reddit (qualitative signal, not scientific benchmark):**
 
@@ -970,8 +1006,8 @@ npx skills add https://github.com/vercel-labs/agent-skills --skill web-design-gu
 npx ctx7 setup --claude
 ```
 
-- Before copying a 21st.dev component: **examine its source and license**, its size, its dependencies, the keyboard focus and its compatibility with Tailwind/shadcn from FAULTLINE.
-- If an existing shadcn/ui component is sufficient, **prefer the existing component**. Never mix four design systems unnecessarily.
+- Before copying a 21st.dev component: **examine its source and license**, its size, its dependencies, the keyboard focus and its compatibility with the FAULTLINE stack (static HTML/CSS today).
+- If an existing component is sufficient, **prefer the existing component**. Never mix four design systems unnecessarily.
 - Do not follow 2025 tutorials using exclusively the old **Magic MCP**: it is now grouped in **21st MCP**; old Magic keys have been reset ([official migration](https://github.com/21st-dev/magic-mcp/blob/main/llms-install.md)).
 - Alternatives to choose, not to stack: `npx ui-ux-pro-max-cli init --ai claude` to enrich aesthetic references **instead of Impeccable** if this style of workflow is preferable. The two can coexist technically but there needs to be **a single design authority** for FAULTLINE.
 
@@ -1007,7 +1043,7 @@ For **Claude web/desktop**, the officially documented route is **Connectors → 
 
 - Read this specification and that of the challenge, `CLAUDE.md`, the components, the routes, the API contracts and the code already implemented.
 - Capture **the existing** at `1440 × 900`, `1280 × 800` and `390 × 844` if an application is already running, with date and commit.
-- Note in `docs/UI_BASELINE.md` what works, what is broken, mocked data, components already available. **Do not touch DeFi calculations**.
+- Note in `docs/UI_BASELINE.md` what works, what is broken, mocked data, components already available (start from the audit in §20). **Do not touch DeFi calculations**.
 - Prepare a plan of 4 milestones maximum, each milestone being deliverable and testable.
 
 **Step 1 — Brief and visual directions (20–40 min)**
@@ -1015,32 +1051,32 @@ For **Claude web/desktop**, the officially documented route is **Connectors → 
 - Summarize user, value proposition, three main actions and 90 s demo.
 - Compare **3 very short directions** (without building 3 apps): (A) *Institutional Risk Terminal* — **preferred**, (B) *Editorial Fintech*, (C) *Dense Analytics Console*. Give benefits/risks for UX.
 - Choose **A by default** unless the team provides conflicting direction. **Lock** the palette and fonts from §4 instead of iterating endlessly.
-- Document: spacing scale, borders, radius, text sizes, even fonts, iconography, density, hierarchy, state colors, motion tokens; create `docs/DESIGN_DECISSIONS.md`.
+- Document: spacing scale, borders, radius, text sizes, even fonts, iconography, density, hierarchy, state colors, motion tokens; create `docs/DESIGN_DECISIONS.md`.
 - Identify 3 functional references (DeFi Saver, Morpho, Gauntlet) and 2 finishing quality references (shadcn design system / 21st.dev examples if available). **Reinterpret**, do not clone.
 
 **Step 2 — Low-fidelity UX before cosmetic (15–30 min)**
 
-- Make a simple `Overview` layout with: **main risk**, **exposed capital**, **breaking point**, **impact**, **decision** and a large analytical component.
+- Make a simple `Overview` layout with: **main risk**, **exposed capital**, **breaking point**, **impact**, **decision** (including the Exit Runway card) and a large analytical component.
 - Only one relevant **primary CTA** per screen; simulation actions must be obvious.
 - The jury must be able to answer without help in 10 seconds: **“What does this portfolio depend on? What breaks first? What are we losing? »**
-- Each term (`health factor`, `dependency exposure`, `STAY / EXIT`, `slippage`) has a one-sentence **tooltip** or context-sensitive help.
+- Each term (`health factor`, `dependency exposure`, `STAY / EXIT`, `slippage`, `stuck share`, `time left`) has a one-sentence **tooltip** or context-sensitive help.
 - The “see why” button should allow you to trace the **path of causality** from impact to dependence; visible link between views.
 - Do not hide P0 functions behind a hover-only, special gesture, onboarding or deep menu.
 
 **Step 3 — Implement a flawless vertical slice (60–120 min)**
 
 - Build **a single complete screen** before generalizing: shell, Overview and selection of a dependency synchronized with the `Breaking Point` panel.
-- Use **controlled components and typed view-models**: the same selection and the same scenario power the views. Explicitly define `loading`, `error`, `empty`, `stale`, `unsupported`, `demo`, `success`.
-- Put **real interactive SVG/canvas graphics** for the curves and **React Flow** (or existing stack) for the dependency links, not “magnificent” images that lie about the data.
+- Use **controlled components and validated view-models**: the same selection and the same scenario power the views. Explicitly define `loading`, `error`, `empty`, `stale`, `unsupported`, `demo`, `success`.
+- Put **real interactive SVG/canvas graphics** for the curves and the existing X-Ray graph for the dependency links, not “magnificent” images that lie about the data.
 - Set the first experience without connecting a wallet if a clearly labeled example dataset facilitates the demo; then allow a change of portfolio.
 - Maintain a **controlled information density**; rich desktop, simplified and scrollable mobile, not an overwritten copy of the desktop.
 
 **Step 4 — Check in browser and correct in batches (2 rounds maximum per milestone)**
 
-- Start the frontend, open **the real local URL** with Playwright.
+- Start the frontend through the dev server, open **the real local URL** with Playwright.
 - Capture `1440 × 900`, `1280 × 800`, `390 × 844`; if necessary `768 × 1024`.
 - Read **console errors**, failed requests and loading states; check keyboard focus, click targets, scrolling, overlays, contrasts, `prefers-reduced-motion`.
-- Perform a complete flow: select a dependency → open its detail → modify the shock → observe the breaking point / impact → consult STAY/EXIT → return to the initial scenario.
+- Perform a complete flow: select a dependency → open its detail → modify the shock → observe the breaking point / impact → consult STAY/EXIT and the Exit Runway card → return to the initial scenario.
 - Classify the defects **blocking / important / cosmetic** and correct them **together**. Take a second capture after correction; **do not continue in a loop without limit**.
 - Ask Impeccable to `crit` then `polish` **only** when the user flow works. Use suggestions compatible with the design tokens; reject those that reduce accessibility or introduce an unrelated visual style.
 
@@ -1071,7 +1107,7 @@ no generic purple gradients, no 3D spinning coins, no neon cyberpunk,
 no mock numerical data, no simulated protocol logos, no fake UI components.
 
 This is DESIGN INSPIRATION, not executable product UI.
-The existing React dashboard, live dependency graph and real financial charts
+The existing dashboard, live dependency graph and real financial charts
 will be implemented separately by Claude Code. Prefer static assets; motion
 is disposable and must not be part of the critical user path.
 ```
@@ -1079,13 +1115,13 @@ is disposable and must not be part of the critical user path.
 ### 19.5 Prompt “artistic director + engineer” ready to give to Claude Code
 
 ```text
-You are FAULTLINE's lead fintech product designer, senior React engineer and
+You are FAULTLINE's lead fintech product designer, senior frontend engineer and
 visual QA lead. Build a PROFESSIONAL, UNDERSTANDABLE, CREDIBLE risk-analysis app,
 not an animated startup marketing page.
 
 FIRST read:
 - docs/design/frontend.md (especially sections 0,
-  4, 11, 14, 15 and 19)
+  4, 11, 14, 15, 19 and 20)
 - CLAUDE.md and the official hackathon requirement verification document, if present
 - actual repository/frontend/api data contracts
 
@@ -1099,10 +1135,11 @@ Working rules:
    images and do not replace the repo with a one-shot website builder.
 4. Keep the UI immediately understandable: 3 navigation groups, clear scenario,
    plain-language tooltips, one primary action per screen, details on demand.
-5. Strongly prioritize Breaking Point; graph, exposure, impact and STAY/EXIT
-   must be logically connected through the same typed shared state.
+5. Strongly prioritize Breaking Point; graph, exposure, impact, STAY/EXIT and the
+   Exit Runway card must be logically connected through the same shared state.
 6. No fake risk engine values, fake "LIVE" labels, arbitrary probabilities,
-   decorative dead buttons, invisible important actions or invented API fields.
+   invented exit costs or countdowns, decorative dead buttons, invisible important
+   actions or invented API fields.
 7. Before implementing: show a brief repository audit, design-system choices,
    implementation order, and exactly which 3–5 browser states you'll verify.
 8. Implement the first complete Overview vertical slice before expanding.
@@ -1135,6 +1172,7 @@ A **note should be based on captures and interactions**, not on Claude's impress
 | Navigation | Find `Overview`, `Dependencies`, `Breaking Point` in one click; Clear feedback and selection status. | **Blocking** |
 | Semantic coherence | Same asset/dependency selected in graph, metrics and stress; same scenario/date. | **Blocking** |
 | Data Truth | Accessible provenance, snapshot and hypotheses; no fictitious numbers displayed as real. | **Blocking** |
+| Exit Runway honesty | Alone vs stressed cost, stuck share, trend and time left come from the backend with method and as-of; `Not available` otherwise. | **Blocking** |
 | Graph readability | Labels/units, direction of shock, legend, accessible tooltip; no cut graphs. | **Blocking** |
 | Design systems | No unexplained discrepancies in fonts, spacing, radius, colors, states and icons. | Important |
 | Hierarchy | A major metric, parsimonious risk emphasis, easy to spot “decision” zone. | Important |
@@ -1168,3 +1206,98 @@ The context is a **risk hackathon**, not a landing page competition:
 6. Community discussions: [design skills](https://www.reddit.com/r/ClaudeDesign/comments/1wvfgec/best_claude_frontenddesignuxui_skill_set/), [avoiding generic output](https://www.reddit.com/r/ClaudeCode/comments/1p9srut/finally_figured_out_why_claudes_ui_generations/), [stacking skills and its limits](https://www.reddit.com/r/ClaudeCode/comments/1u8c5qi/design_skills/), [Higgsfield for websites](https://www.reddit.com/r/claude/comments/1wf6rpy/how_do_you_create_nice_modern_websites_with_claude/).
 
 ---
+
+## 20. Current frontend audit & Exit Runway integration (10/10/2026)
+
+> Source: automated review of the repository frontend (`public/`) against the shared **Exit Runway specification** (`exit-runway-spec.md`). Findings below describe the code as reviewed; re-check before acting, since the repository changes quickly.
+
+### 20.1 What exists today
+
+- **Stack:** static dashboard in `public/` — `index.html` (dashboard), `xray.html` (X-Ray view), `assets/js/api.js`, `assets/js/shell.js`, `assets/js/xray.js`, `assets/js/xray/{data,model,graph,chart}.js`, `assets/css/xray.css`. Backend entry `api/analyze.py`; deployment via `vercel.json`. Design notes in `public/NOTES-frontend.md` and `docs/design/frontend.md`.
+- **Data loaded by the frontend:** only `/api/analyze`, `/data/sample.json` and `/data/sample-large.json`.
+- **Local testing:** opening `index.html` via `file://` fails (root-relative paths `/assets/...`, `/api/analyze`). Always use `python scripts/dev_server.py 8000` or Vercel. Not a production bug, but a frequent source of confusion.
+
+### 20.2 What already works well (keep it)
+
+- Dashboard with **STAY / EXIT / REVIEW** verdict; position, expected-loss and exit-cost KPIs.
+- Dependency-layer overview, stress scenarios, portfolio/pocket table.
+- **X-Ray** dependency graph: selection, click-to-fail, multi-failure (Shift-click), scenario buttons, failure-propagation animation, **break-even** sliders, keyboard shortcuts, mobile bottom sheet.
+- **Hidden concentration** and **token look-through** ("What you really hold").
+- **Data-provenance labelling** in `api.js` / `xray.js`: `live`, `cache`, `mixed`, `mock`, `mock-fallback`, `demo`. This matches the spec's honesty rules; keep it, and make sure real recorded data is never labelled `mock`.
+
+### 20.3 Gaps versus the Exit Runway specification
+
+**High priority**
+- **Exit cost alone vs exit cost under stress** are not shown separately: the UI only displays `decision.exit_cost_usd`. Required fields: `exit_cost_alone_pct` / `_usd` and `exit_cost_stressed_pct` / `_usd`.
+- **Stuck share** of the position is not displayed (`stuck_share`).
+- **Exit-cost trend** over 1h / 6h / 24h is missing (`exit_cost_trend`).
+- **Time-left countdown** ("Time left to exit: ~3h30 (2–5h)") is missing.
+
+**Medium priority**
+- **Exit-queue position** ("liquidity covers the 6 largest holders; we are behind them") is missing.
+- **Forced sellers under a shock** (how many leveraged positions would sell before us) are missing; X-Ray simulates dependency failures but not this.
+- **Market snapshot**: available liquidity, oracle price and class, liquidation ladder, exit-cost curve — not exposed.
+- **Method, assumptions, `as_of` and data source** for exit-cost numbers are not shown next to the decision (methodology exists only in an expandable section).
+
+**Architecture**
+- The frontend is **not wired** to `GET /exit-cost/{position_id}` (nor its sub-endpoints: `/queue`, `/shocks`, `/time-left`, `/time-to-exit`, `/plan`, `/validation`). The verdict consumes `decision.exit_cost_usd` only, so the UI cannot distinguish exiting alone vs under stress, stuck amounts, or confidence/freshness.
+- These endpoints belong to the Exit Runway backend module; **the frontend must not compute them**. Until they exist, show the card in a `Not available — exit-cost layer not connected` state rather than inventing values.
+
+### 20.4 The Exit Runway card (highest-value addition)
+
+Place it **next to the existing verdict** on the dashboard (and in the X-Ray decision panel).
+
+```text
+EXIT RUNWAY                                   Source · as of block 26,162,571*
+
+Exit alone        0.4%  · $4,000*
+Under stress      3.8%  · $38,000*           (2.4–5.1%)*
+Stuck             18%*  not withdrawable now
+Trend             +1.2 pts over 6h*  ▲
+Time left         ~3h30 (2–5h)*  · limited by liquidity
+Queue position    Behind 6 larger holders*         (scenario)
+Forced sellers    3 positions · $12M before us*    (if USDe −5%)
+
+Method: executable quote + stressed liquidation scenario  [Assumptions ▾]
+```
+`*` Illustrative values only. Every number must come from the backend response; replace with real values or `Not available`.
+
+**Field mapping (to adapt to the real payload — agree it with the Exit Runway owner):**
+
+| Card row | Backend field(s) | Rules |
+|---|---|---|
+| Exit alone | `exit_cost_alone_pct`, `exit_cost_alone_usd` | Always show % and $. |
+| Under stress | `exit_cost_stressed_pct`, `exit_cost_stressed_usd`, `low/central/high` | Show the range when provided; name the scenario on hover. |
+| Stuck | `stuck_share` | Lending/vault positions only; `N/A` for pure AMM exits, never `0%` by default. |
+| Trend | `exit_cost_trend` (1h/6h/24h) | Arrow + points change; `Insufficient history` if not enough snapshots. |
+| Time left | `/time-left`: `status`, `time_left_hours.{low,central,high}`, `binding_runway` | `No deadline` when `status = no_deadline`; never show a countdown without an adverse trend. Wording: "at the current pace". |
+| Queue position | `/queue`: `holders_covered_by_liquidity`, `our_break_even_rank`, `method` | Label as **scenario** (`scenario_largest_first`), not a prediction. |
+| Forced sellers | `/shocks`: `forced_sellers`, `forced_selling_usd`, `our_exit_cost_after_shock_pct` | For fixed-rate oracles show the **oracle–market gap (hidden loss)** instead. |
+| Footer | `method`, `assumptions`, `as_of`, `data_sources`, `freshness_seconds`, `approximations` | Always visible; `Stale` badge above the staleness threshold. |
+
+**States:** `loading`, `available`, `partial` (some rows missing), `stale`, `not_connected` (backend absent), `error`, `demo` (labelled). A missing row shows `Not available`, never a guessed number.
+
+**Interactions:**
+- Clicking **Under stress** opens the scenario details (which holders/liquidations were assumed first).
+- Clicking **Time left** shows the three runways (liquidity, exit cost, liquidation) and which one binds.
+- Clicking **Forced sellers** highlights the affected market in the X-Ray graph if the node exists.
+- The card follows the same `positionId` / `scenarioId` / `snapshotAt` as the verdict.
+
+**Alerts (if the Telegram layer exists):** the card reflects the same events (`TIME_LEFT_SHORT`, `EXIT_QUEUE_SHRINKING`, `FORCED_SELLERS_RISK`, `CROWDED_EXIT_COST`) — display only, no alert logic in the frontend.
+
+### 20.5 Implementation notes for the static app
+
+- Add an `exitRunway` loader in `api.js` that calls `GET /exit-cost/{position_id}` (and optional sub-endpoints), validates the shape at runtime, and maps it to a view model; reuse the existing provenance labels.
+- Add a renderer (e.g. `assets/js/exit-runway.js`) and styles in the existing CSS, using the §4 tokens.
+- If the endpoint is not reachable: render `not_connected`; **do not** fall back to `sample.json` numbers presented as live. A clearly labelled `demo` fixture is acceptable for rehearsal only.
+- Keep `decision.exit_cost_usd` working as before until the new endpoint is available, but label it `Exit cost (single estimate)`.
+
+### 20.6 Acceptance for §20
+
+- [ ] Exit Runway card visible next to the verdict at 1440×900 and readable at 390×844.
+- [ ] Alone vs stressed cost, stuck share, trend and time left rendered from the backend, with method / assumptions / as-of.
+- [ ] `not_connected`, `partial`, `stale`, `error` and `demo` states implemented and tested.
+- [ ] No exit-cost or countdown value computed or invented on the client.
+- [ ] Existing STAY/EXIT/REVIEW verdict, X-Ray interactions and provenance labels still work.
+- [ ] Local test instructions (dev server, not `file://`) in the README.
+````
