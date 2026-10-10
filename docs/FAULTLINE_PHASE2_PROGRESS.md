@@ -118,9 +118,16 @@ This log is updated after every work package so the work can resume after an int
    per run in a temp folder (random password via cast's environment) and deletes it. `eth_account` was not used: not in
    the venv, ~20 extra packages. Same key, same deterministic signatures: the regenerated run reproduced S1, S2 and S4
    hashes byte for byte. pytest offline 209 passed / 16 skipped; e2e 17 (new signer test); Foundry 29 passed.
+18. Read-only dry run on real mainnet borrowers (`/api/countermove?action=dry-run&market=..&borrower=..|auto`, CLI
+   `python -m defirisk.countermove dry-run`): LIVE position + feeds, DRY-RUN watcher state and decision under a
+   hypothetical policy; never signs, no tx field.
+19. Belem brief review steps (docs/FAULTLINE_BELEM_BRIEF_REVIEW.md §12): X-Ray role-aware losses, hold to maturity,
+   calibrated loss-given-failure, real book, incident path, all oracle feeds, no silent mock, borrower → suggested
+   Countermove policy; vault analyzer reconciliation / unindexed debt / oracle direction. Gate after merge: pytest
+   252 passed / 17 skipped, Node 33/33, forge 29 passed, fork demo S1–S5 all expected outcomes.
 
 ## Remaining limits (see the security report §7)
 
 Not audited; local fork only (no mempool / MEV / gas spikes); one keeper process; oracle trust bounded by caps; keeper
 signs from an encrypted keystore (hot key; public test key only); DELEVERAGE + SELL / refinance / hedge not built by design.
-Phase 2 changes are in the working tree (not committed).
+Phase 2 is committed (9532977, then 41ac31f / 0f4bcd6 for the page UX and the policy-draft route).

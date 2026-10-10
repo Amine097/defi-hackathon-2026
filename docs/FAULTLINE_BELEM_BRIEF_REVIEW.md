@@ -276,3 +276,30 @@ What the backend already provides and the page should surface:
   (`/api/countermove?action=policy-draft`).
 - Earlier full suites (Phase 2 close): pytest offline 207 passed / 16 skipped; live 133 passed; forge 29 + fork test;
   15/15 GO criteria.
+
+## 12. Status after implementation (11 Oct 2026)
+
+Branch `fix/xray-belem-review` (this session + three child sessions, merged). Not pushed.
+
+| Step | Status | What changed | Live result (block ~26,165,300) |
+|---|---|---|---|
+| 1 Role-aware losses | Done | Edges carry a channel: `principal` / `debt` / `exit`. Without debt, oracle, feed provider and Morpho market reach the position with weight 0; Pendle split into PT/SY contracts (principal) and AMM pool (exit only); Morpho Blue custody edge. Stress rows and scenarios say why a dependency adds 0. Borrower mode (`borrower=`) switches the debt channel on. | Oracle / market / feed / AMM rows: +$0 ("no effect without debt"); oracle-failure and liquidity-crisis scenarios → STAY. |
+| 2 Hold to maturity | Done | `payload.maturity`: EXIT now vs HOLD_TO_MATURITY over the same window (expected loss to maturity + redemption gas vs execution + carry forgone), STAY 30 d shown apart. | 60 days to maturity: hold ≈ $1.5k vs exit ≈ $8.4k → HOLD_TO_MATURITY (low confidence). |
+| 3 Calibrated LGF | Done | `scripts/calibrate_lgf.py` → `data/calibration/hack_severity.json`: share of TVL lost in the same 23 DefiLlama exploits as the failure rate; mean 19.2%, bootstrap 95% CI 9.4–31.5% (median 11.3%, p90 48.6%). Applied to issuer, underlying, Pendle, Morpho, oracle; sensitivity has LGF and transmission rows. | Headline expected loss $1,657 → $761; every sensitivity row STAY. |
+| 4 Real book | Done | 10 largest Morpho PT markets as pockets, shared dependency keys, `exit_cost_pct` (brief's 11%), `weights`, `book_usd`, `book_shock`/`book_severity`; shared-dependency table; parallel quotes. | reUSD −30% hits both reUSD pockets (USDC, USDT). With 11% exit cost: exit the 2 hit pockets, book loss 2.5%. Ethereum and Morpho Blue shared by 10/10 pockets. |
+| 5 Incident path | Done | `shock=<node>&severity=` also hits every pocket sharing it; `payload.incident` (headline, position, book, hold-to-maturity note). | Issuer −50%: stay $360k vs exit $4.7k → EXIT; 2 pockets hit, both exit. |
+| 6 Wider discovery | Partly | Every oracle feed read (feeds, providers, vaults, stalest age); `pendle:<chain>:<addr>` for chains other than 1 → explicit 400. Other chains and wallet input deferred (wallet → positions is the portfolio-dependency feature, excluded). | — |
+| 7 No silent mock | Done | Discovery failure → 502 `discovery_failed` with the cause; mock only with `ref=mock`. | — |
+| 8 Vault analyzer | Done (child session) | V1/V2 reconciliation fixed (V1 vs `totalAssets()`, idle only for V2, per-adapter tolerance); unindexed debt as a band; oracle failure in both directions with liquidation incentive. Verdicts unchanged on the 5 fixtures; expected loss +0.4–6%. | Live evidence regenerated: Belem $1M expected loss $66 (REVIEW, lean STAY). |
+| 9 Tests + evidence | Done | `tests/test_belem_review.py` (8), vault tests (+8), dry-run tests (+27), signer e2e. `audit/BELEM_PHASE1_EVIDENCE.json` live runs and `audit/FAULTLINE_PHASE2_EVIDENCE.json` (16/16 GO) regenerated. | pytest 252 passed / 17 skipped; Node 33/33; forge 29 passed; fork demo S1–S5 all expected. |
+| C1 S5 (Belem example) | Done (child) | PT-reUSD/USDC market, −5% shock on the Ojo PT feed, REPAY 1,447.44 USDC chosen over TOP_UP, CONFIRMED 15/15. | Gate: S1–S5 all expected. |
+| C2 Signal → action | Done | Borrower mode returns `countermove_suggestion` (trigger LLTV−4 pp, floor, reserve per first hit; FULL_REPAY if EXIT), valid for `setPolicy`. | Largest PT-reUSD borrower (LTV 87.4%): suggestion valid, no warnings. |
+| C3 Mainnet dry run | Done (child) | `/api/countermove?action=dry-run`, CLI; LIVE + DRY-RUN labels, no tx field. | cbBTC/USDC largest borrower: WATCHING / HOLD. |
+| C4 Signer | Done (child) | Encrypted keystore + password file; plaintext key refused; chain ≠ 31337 refused. | — |
+| C5 Alerts | Not done | Excluded with the docs/features items (telegram-ping). | — |
+| C6 Shared decoder | Partly | X-Ray reads all feeds with its own reader rather than importing `countermove/dependencies.py` (no coupling, Countermove payload untouched). | — |
+| C7 Docs | Done | PROGRESS updated (log 16–19). | — |
+
+Open points: the Ethereum chain loss (30%) and look-through what-if severities are still assumptions and now top the
+stress table; S5's post-crisis pass re-alerts by 0.00012 USDC (documented, nothing sent); a fork-demo rerun on another
+machine/time can change tx hashes (outcomes unchanged), the committed recorded run stays the evidence.
