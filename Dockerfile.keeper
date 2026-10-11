@@ -32,6 +32,6 @@ COPY src/ src/
 COPY data/countermove/demo/ data/countermove/demo/
 COPY scripts/railway_keeper.py scripts/
 
-VOLUME ["/data"]
+RUN mkdir -p /data
 EXPOSE 8080
 CMD ["python", "scripts/railway_keeper.py"]
