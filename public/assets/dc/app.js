@@ -355,7 +355,8 @@ class Component extends DCLogic {
         else if (ord[n.id] != null) { stroke = EMBER; }
         else { lc = MUTE; }
       } else if (sel) { stroke = CYAN; halo = 20; haloC = 'rgba(43,184,255,.16)'; }
-      return { lx: (n.x / 1010 * 100).toFixed(2) + '%', ly: ((n.y + (isPos ? 20 : 15)) / 520 * 100).toFixed(2) + '%', x: n.x, y: n.y, r: isPos ? 12 : n.hidden ? 7 : 9, fill, stroke, halo, haloC, op: v ? 1 : 0, short: n.short, sub, lc, subC: n.hidden && !sim ? EMBER : MUTE, ty: n.y + (isPos ? 34 : 28), sy: n.y + (isPos ? 49 : 43),
+      const r = isPos ? 12 : n.hidden ? 7 : 9;
+      return { bg: n.icon ? "url('" + n.icon + "')" : 'none', is: n.icon ? (n.hidden ? '17px' : '21px') : '0px', iy: (n.y / 520 * 100).toFixed(2) + '%', iop: !v || !n.icon ? 0 : sim && hit(n.id) ? 0.3 : 1, lx: (n.x / 1010 * 100).toFixed(2) + '%', ly: ((n.y + (isPos ? 20 : 15)) / 520 * 100).toFixed(2) + '%', x: n.x, y: n.y, r, fill, stroke, halo, haloC, op: v ? 1 : 0, short: n.short, sub, lc, subC: n.hidden && !sim ? EMBER : MUTE, ty: n.y + (isPos ? 34 : 28), sy: n.y + (isPos ? 49 : 43),
         click: () => { if (isPos) return; if (sim) { if (st.simKind === 'node' && (st.simStep < 0 || st.simDone)) this.setState({ simNode: n.id, simStep: -1, simDone: false }); } else this.setState({ selNode: st.selNode === n.id ? null : n.id, revealed: true }); } };
     });
     const LAYER = ['Position', 'Settlement chain', 'Yield source / issuer', 'Oracle', 'PT market / AMM', 'Lending'];
@@ -443,7 +444,7 @@ class Component extends DCLogic {
     const RP = rd.steps, rs = Math.min(st.rpStep, RP.length - 1), cur = RP[rs];
     const RN = {}; rd.rnodes.forEach(n => RN[n.id] = n);
     const SC = { threat: [EMBER, EMBER, 'rgba(255,106,61,.18)'], defense: [CYAN, CYAN, 'rgba(43,184,255,.16)'], hypo: ['#0a0e14', AMBER, 'transparent'], calm: ['#0a0e14', 'rgba(233,237,242,.5)', 'transparent'] };
-    const rpNodes = rd.rnodes.map(n => { const s = cur.nodes[n.id] || 'calm', c = SC[s]; return { lx: (n.x / 860 * 100).toFixed(2) + '%', ly: ((n.y + 16) / 400 * 100).toFixed(2) + '%', x: n.x, y: n.y, label: n.label, sub: n.sub, fill: c[0], stroke: c[1], haloC: c[2], halo: s === 'threat' || s === 'defense' ? 24 : 0, ty: n.y + 32, sy: n.y + 47, lc: s === 'calm' ? '#b4bcc8' : INK }; });
+    const rpNodes = rd.rnodes.map(n => { const s = cur.nodes[n.id] || 'calm', c = SC[s]; return { bg: n.icon ? "url('" + n.icon + "')" : 'none', is: n.icon ? '20px' : '0px', iy: (n.y / 400 * 100).toFixed(2) + '%', iop: !n.icon ? 0 : s === 'threat' || s === 'defense' ? 0.35 : 1, lx: (n.x / 860 * 100).toFixed(2) + '%', ly: ((n.y + 16) / 400 * 100).toFixed(2) + '%', x: n.x, y: n.y, label: n.label, sub: n.sub, fill: c[0], stroke: c[1], haloC: c[2], halo: s === 'threat' || s === 'defense' ? 24 : 0, ty: n.y + 32, sy: n.y + 47, lc: s === 'calm' ? '#b4bcc8' : INK }; });
     const ES = { threat: [EMBER, 2.6, 'none'], defense: [CYAN, 2.6, 'none'], hypo: [AMBER, 1.6, '5 5'] };
     const rpEdges = rd.redges.map(e => { const a = RN[e[0]], b = RN[e[1]], s = cur.edges[e[0] + '-' + e[1]], c = ES[s] || ['rgba(233,237,242,.2)', 1.2, 'none']; return { d: edgeD(a, b), stroke: c[0], w: c[1], dash: c[2] }; });
     const rp = {

@@ -479,6 +479,7 @@ input[type=range]{accent-color:#2bb8ff;}
                         <sc-for list="{{ xr.tLabels }}" as="l" hint-placeholder-count="0">
                           <span style="position:absolute; left:{{ l.lx }}; top:{{ l.ly }}; transform:translate(-50%,-100%); white-space:nowrap; pointer-events:none; font-family:'IBM Plex Mono', monospace; font-size:11px; color:{{ l.c }}; background:rgba(7,10,15,.8); padding:0 3px;">{{ l.t }}</span>
                         </sc-for>
+<sc-for list="{{ xr.nodes }}" as="n" hint-placeholder-count="0"><span style="position:absolute; left:{{ n.lx }}; top:{{ n.iy }}; width:{{ n.is }}; height:{{ n.is }}; transform:translate(-50%,-50%); border-radius:50%; background-color:#0a0e14; background-image:{{ n.bg }}; background-position:center; background-size:84%; background-repeat:no-repeat; box-shadow:0 0 0 1.5px {{ n.stroke }}; opacity:{{ n.iop }}; transition:opacity .4s, box-shadow .4s; pointer-events:none;"></span></sc-for>
                         <sc-for list="{{ xr.nodes }}" as="n" hint-placeholder-count="11">
                           <span style="position:absolute; left:{{ n.lx }}; top:{{ n.ly }}; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:2px; white-space:nowrap; pointer-events:none; opacity:{{ n.op }}; transition:opacity .6s;">
                             <span style="font-size:12.5px; font-weight:600; color:{{ n.lc }};">{{ n.short }}</span>
@@ -692,6 +693,7 @@ input[type=range]{accent-color:#2bb8ff;}
                               </g>
                             </sc-for>
                           </svg>
+<sc-for list="{{ xr.rpNodes }}" as="n" hint-placeholder-count="0"><span style="position:absolute; left:{{ n.lx }}; top:{{ n.iy }}; width:{{ n.is }}; height:{{ n.is }}; transform:translate(-50%,-50%); border-radius:50%; background-color:#0a0e14; background-image:{{ n.bg }}; background-position:center; background-size:84%; background-repeat:no-repeat; box-shadow:0 0 0 1.5px {{ n.stroke }}; opacity:{{ n.iop }}; transition:opacity .4s, box-shadow .4s; pointer-events:none;"></span></sc-for>
                           <sc-for list="{{ xr.rpNodes }}" as="n" hint-placeholder-count="7">
                             <span style="position:absolute; left:{{ n.lx }}; top:{{ n.ly }}; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:2px; white-space:nowrap; pointer-events:none;">
                               <span style="font-size:12.5px; font-weight:600; color:{{ n.lc }}; transition:color .4s;">{{ n.label }}</span>

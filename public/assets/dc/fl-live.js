@@ -100,6 +100,18 @@
     if (note) out.push(note.charAt(0).toUpperCase() + note.slice(1) + '.');
     return out.join(' ');
   }
+  // Logos for the X-Ray nodes (public/assets/logos, see SOURCES.md). Unknown issuers and feeds keep the plain node.
+  const L = '/assets/logos/';
+  const ICON_BY_ROLE = { lending: 'morpho.webp', morpho_blue: 'morpho.webp', pendle_core: 'pendle.svg', amm: 'pendle.svg', oracle: 'morpho.webp', chain: 'eth.svg' };
+  const ICON_BY_SYMBOL = { USDC: 'usdc.svg', USDT: 'usdt.svg', DAI: 'dai.svg', USDS: 'usds.svg', FRAX: 'frax.svg', ETH: 'eth.svg', WETH: 'eth.svg', WEETH: 'etherfi.webp', STETH: 'steth.svg', WSTETH: 'steth.svg', WBTC: 'wbtc.svg', CBBTC: 'btc.svg', BTC: 'btc.svg', LINK: 'link.svg', PENDLE: 'pendle.svg', MORPHO: 'morpho.webp' };
+  function iconFor(role, label) {
+    if (ICON_BY_ROLE[role]) return L + ICON_BY_ROLE[role];
+    const sym = String(label || '').replace(/\s*\(.*$/, '').trim().toUpperCase();
+    if (ICON_BY_SYMBOL[sym]) return L + ICON_BY_SYMBOL[sym];
+    if (/chainlink/i.test(label || '')) return L + 'link.svg';
+    if (/redstone/i.test(label || '')) return L + 'redstone.webp';
+    return null;
+  }
   function graphFromAnalyze(P) {
     const S = {}; (P.stress_table || []).forEach(r => { S[r.id] = r; });
     const contrib = P.node_contrib_usd || {};
@@ -111,7 +123,7 @@
         sev: st.severity != null ? st.severity : n.loss_given_failure, T: st.transmission != null ? st.transmission : 0,
         path: st.path || (isPos ? ['pos'] : ['pos', n.id]), cond: st.conditional_loss_usd, verdictIf: st.verdict_if_shocked,
         blocked: !!(st.channel && st.channel.blocked_by), note: st.channel && st.channel.note, role: isPos ? 'The analysed position' : (ROLE_TEXT[m.role] || m.role || ''),
-        why: isPos ? '' : nodeWhy(n, st, P), exitTotal: st.exit_total_usd
+        why: isPos ? '' : nodeWhy(n, st, P), exitTotal: st.exit_total_usd, icon: isPos ? null : iconFor(m.role, n.label)
       };
     });
     // Same coordinates as the approved design for the node ids it defines; new ids fill the remaining slots of their column.
@@ -517,7 +529,10 @@
       ethusd: [foShock.label && !/SIMULATED/.test(foShock.label) ? foShock.label + ' feed' : 'Further feed drop', 'follow-on −' + Math.round((foShock.drop || 0) * 100) + '% (hypothesis)'],
       oracle: ['Morpho oracle', `${coll} / ${loan}`], market: ['Morpho market', 'LLTV ' + pct0(lltv)], pos: ['Position · user ' + user, `${qty(b.collateral_amount)} ${coll} · ${loan} debt`],
       keeper: ['Keeper (off-chain)', 'test account #1'], vault: ['RescueVault', 'owner-funded reserve'] };
-    return { scenario: p.scenario, steps, rnodes: RN_POS.map(r => ({ id: r[0], x: r[1], y: r[2], label: subs[r[0]][0], sub: subs[r[0]][1] })), redges: REDGES, label: p.label };
+    const feedIcon = /weETH/i.test(sh.original_description || '') ? L + 'etherfi.webp' : /ETH/.test(sh.original_description || '') ? L + 'eth.svg' : /BTC/i.test(sh.original_description || '') ? L + 'btc.svg' : null;
+    const foIcon = /ETH/.test(foShock.label || '') ? L + 'eth.svg' : /BTC/.test(foShock.label || '') ? L + 'btc.svg' : feedIcon;
+    const icons = { feed: feedIcon, ethusd: foIcon, oracle: L + 'morpho.webp', market: L + 'morpho.webp', pos: iconFor('', coll) || (/^PT-/.test(coll) ? L + 'pendle.svg' : null), keeper: null, vault: null };
+    return { scenario: p.scenario, steps, rnodes: RN_POS.map(r => ({ id: r[0], x: r[1], y: r[2], label: subs[r[0]][0], sub: subs[r[0]][1], icon: icons[r[0]] })), redges: REDGES, label: p.label };
   }
   function forkActivity(cm) {
     return ((cm && cm.positions) || []).map(p => {

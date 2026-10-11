@@ -67,6 +67,7 @@ Automated: `node --test "tests/js/*.test.mjs"` (54 tests, including `design_app.
 | D18 | Console | "attribute x1: Expected length, "{{ c.x }}"" and similar during page parse | The browser parses the raw `<x-dc>` template before the runtime replaces it; the export logs the same messages | Harmless, documented |
 | D19 | Captures | Sticky sidebar and header appear more than once in full-page screenshots | Capture artifact of fixed or sticky elements; the export shows the same | — |
 | D20 | Countermove › Reserves | Notes under the reserve fields read "Policy floor kept after an action: 100" instead of "Minimum 100" | The 100 USDC / 0.01 weETH values are the policy's reserve floors (`min_loan_reserve`, `min_collateral_reserve`), not a minimum deposit | Truthfulness |
+| D22 | X-Ray graph and replay | Round logo badges on the nodes that have a known logo (Morpho, Pendle, Ethereum, USDC, ether.fi…), from `public/assets/logos` | Requested by the owner on top of the export; drawn over the designed circles, faded while a node is hit | Owner request |
 | D21 | Countermove › Policy preview | A "Priority order" check is added to the checks list | The backend does not take a custom order (the engine ranks by least reserve committed); the designed ↑ / ↓ control stays | Needs approval (or backend support) |
 
 ## Issues found in the approved design (reported, not changed)

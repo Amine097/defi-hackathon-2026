@@ -154,6 +154,18 @@ return Component;
     T(`<span style="font-size:18px;">${find}</span>`, `<span style="font-size:18px;">{{ arm.fk.${key} }}</span>`);
   }
   T('Prototype checks run in the browser. In the product, the policy preview and dry run come from /api/countermove. No signature was requested and no transaction was sent.', '{{ arm.dry.note }}');
+  // Logos on X-Ray nodes (requested by the owner on top of the export): round badges over the designed circles,
+  // positioned like the export's own node labels, faded while the node is hit so the threat / defense fill stays readable.
+  // HTML backgrounds (not SVG <image>) so the raw template, hidden before hydration, never fetches a {{ }} URL.
+  const BADGE = (top) => `<sc-for list="{{ LIST }}" as="n" hint-placeholder-count="0"><span style="position:absolute; left:{{ n.lx }}; top:{{ n.${top} }}; width:{{ n.is }}; height:{{ n.is }}; transform:translate(-50%,-50%); border-radius:50%; background-color:#0a0e14; background-image:{{ n.bg }}; background-position:center; background-size:84%; background-repeat:no-repeat; box-shadow:0 0 0 1.5px {{ n.stroke }}; opacity:{{ n.iop }}; transition:opacity .4s, box-shadow .4s; pointer-events:none;"></span></sc-for>\n`;
+  T(`                        <sc-for list="{{ xr.nodes }}" as="n" hint-placeholder-count="11">
+                          <span style="position:absolute; left:{{ n.lx }}; top:{{ n.ly }}; transform:translateX(-50%); display:flex;`,
+    BADGE('iy').replace('LIST', 'xr.nodes') + `                        <sc-for list="{{ xr.nodes }}" as="n" hint-placeholder-count="11">
+                          <span style="position:absolute; left:{{ n.lx }}; top:{{ n.ly }}; transform:translateX(-50%); display:flex;`);
+  T(`                          <sc-for list="{{ xr.rpNodes }}" as="n" hint-placeholder-count="7">
+                            <span style="position:absolute; left:{{ n.lx }}; top:{{ n.ly }}; transform:translateX(-50%); display:flex;`,
+    BADGE('iy').replace('LIST', 'xr.rpNodes') + `                          <sc-for list="{{ xr.rpNodes }}" as="n" hint-placeholder-count="7">
+                            <span style="position:absolute; left:{{ n.lx }}; top:{{ n.ly }}; transform:translateX(-50%); display:flex;`);
 
   writeFileSync(join(PUB, 'app.html'), page({
     title: 'FAULTLINE · Application',
