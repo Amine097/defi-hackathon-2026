@@ -50,7 +50,9 @@ function page({ title, description, scripts, template, props }) {
 <title>${title}</title>
 <meta name="description" content="${description}">
 <meta name="theme-color" content="#05070b">
-<link rel="icon" href="/assets/brand/logo.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/favicon-64.png" sizes="64x64" type="image/png">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 ${scripts.map(s => `<script src="${s}"></script>`).join('\n')}
 </head>
 <body>
