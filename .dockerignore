@@ -1,0 +1,14 @@
+.git
+.venv
+**/__pycache__
+.pytest_cache
+node_modules
+public
+docs
+tests
+data/cache
+data/countermove/journal
+contracts/out
+contracts/cache
+contracts/lib
+contracts/out-deploy
