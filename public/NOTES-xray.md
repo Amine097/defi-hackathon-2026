@@ -1,4 +1,9 @@
-# FaultLine X-Ray page: notes
+# FaultLine X-Ray page: notes (historical)
+
+> **Superseded (production redesign, Oct 2026).** `/xray.html` now redirects to `/analyze.html`. The files listed
+> below were removed, including the client-side loss model (it ignored role-aware channels). The analysis page draws only
+> backend numbers; see `public/NOTES-frontend.md` and `docs/frontend/IMPLEMENTATION_PROGRESS.md`. Kept for the payload
+> requests referenced from `PLAN.md`.
 
 Page: `/xray.html`. Vanilla HTML/CSS/ES modules, no build, no CDN.
 

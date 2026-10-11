@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FAULTLINE — Analysis</title>
+<meta name="description" content="Live dependency analysis of a DeFi position: what it depends on, what a failure would cost, and whether to stay, exit or hold to maturity.">
+<meta name="theme-color" content="#0c0d0e">
+<link rel="icon" href="/assets/brand/logo.svg" type="image/svg+xml">
+<link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/system.css">
+<link rel="stylesheet" href="/assets/css/analyze.css">
+</head>
+<body>
+<header data-shell="header"></header>
+<main id="main" class="wrap an">
+
+  <section class="an-pos" aria-labelledby="posTitle">
+    <div class="an-pos__id">
+      <h1 id="posTitle" class="an-pos__title"><span class="skel" style="display:inline-block;width:min(420px,70vw);height:1.1em"></span></h1>
+      <p class="an-pos__sub muted" id="posSub">Connecting to the live analysis</p>
+    </div>
+    <div class="an-pos__ctl">
+      <div class="seg" role="group" aria-label="Exposure analysed" id="roleSeg">
+        <button type="button" data-role="collateral" aria-pressed="true">Collateral, no debt</button>
+        <button type="button" data-role="borrower" aria-pressed="false">Largest real borrower</button>
+      </div>
+      <button class="btn btn--sm" type="button" id="rerun" disabled>Re-run live</button>
+    </div>
+  </section>
+
+  <div id="loadState" class="an-load" hidden></div>
+
+  <section class="an-top" id="top" aria-label="Decision and dependencies">
+    <article class="an-decision panel" id="decision" aria-labelledby="dTitle">
+      <h2 class="vh" id="dTitle">Decision</h2>
+      <div class="an-verdict" id="verdict">
+        <span class="skel" style="display:block;width:60%;height:64px"></span>
+        <span class="skel" style="display:block;width:90%;height:18px;margin-top:18px"></span>
+        <span class="skel" style="display:block;width:80%;height:18px;margin-top:8px"></span>
+      </div>
+      <figure class="an-bands" id="bands" aria-label="Loss if you stay versus cost to exit, with uncertainty ranges"></figure>
+      <dl class="an-facts" id="facts"></dl>
+      <div class="an-why" id="why"></div>
+    </article>
+
+    <article class="an-xray panel" id="xray" aria-labelledby="xTitle">
+      <div class="an-xray__head">
+        <h2 id="xTitle" class="panel__title">What this position depends on</h2>
+        <p class="note" id="xHint">Select a dependency to see what its failure would do. Losses come from the backend's stress run.</p>
+        <div class="seg an-xray__view" role="group" aria-label="Graph or list">
+          <button type="button" data-view="graph" aria-pressed="true">Graph</button>
+          <button type="button" data-view="list" aria-pressed="false">List</button>
+        </div>
+      </div>
+      <div class="an-graph" id="graphBox">
+        <svg id="graph" role="group" aria-label="Dependency graph by Belem layer"></svg>
+      </div>
+      <div class="an-list" id="listBox" hidden></div>
+      <div class="an-legend" id="legend" aria-hidden="true"></div>
+      <aside class="an-node" id="nodePanel" aria-live="polite" hidden></aside>
+    </article>
+  </section>
+
+  <section class="an-lab" aria-label="Analysis tools">
+    <div class="an-tabs" role="tablist" aria-label="Analysis tools" id="tabs">
+      <button role="tab" id="t-incident" aria-controls="p-incident" aria-selected="true">Incident lab</button>
+      <button role="tab" id="t-options" aria-controls="p-options" aria-selected="false" tabindex="-1">Exit or hold</button>
+      <button role="tab" id="t-book" aria-controls="p-book" aria-selected="false" tabindex="-1">Book of ten</button>
+      <button role="tab" id="t-stress" aria-controls="p-stress" aria-selected="false" tabindex="-1">Stress and sensitivity</button>
+      <button role="tab" id="t-borrower" aria-controls="p-borrower" aria-selected="false" tabindex="-1">Borrower and liquidation</button>
+      <button role="tab" id="t-evidence" aria-controls="p-evidence" aria-selected="false" tabindex="-1">Evidence</button>
+    </div>
+    <div class="an-panel" role="tabpanel" id="p-incident" aria-labelledby="t-incident"></div>
+    <div class="an-panel" role="tabpanel" id="p-options" aria-labelledby="t-options" hidden></div>
+    <div class="an-panel" role="tabpanel" id="p-book" aria-labelledby="t-book" hidden></div>
+    <div class="an-panel" role="tabpanel" id="p-stress" aria-labelledby="t-stress" hidden></div>
+    <div class="an-panel" role="tabpanel" id="p-borrower" aria-labelledby="t-borrower" hidden></div>
+    <div class="an-panel" role="tabpanel" id="p-evidence" aria-labelledby="t-evidence" hidden></div>
+  </section>
+</main>
+<footer data-shell="footer"></footer>
+<script type="module" src="/assets/js/analyze/main.js"></script>
+</body>
+</html>

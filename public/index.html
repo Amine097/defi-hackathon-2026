@@ -3,199 +3,111 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FaultLine — Know where it breaks before it does</title>
-<meta name="description" content="FaultLine maps the hidden dependency graph behind a DeFi position, simulates failures and tells you whether to STAY or EXIT.">
-<meta property="og:title" content="FaultLine">
-<meta property="og:description" content="Know where it breaks before it does. Dependency discovery, failure simulation and a STAY/EXIT decision for DeFi positions.">
+<title>FAULTLINE — When DeFi breaks, FAULTLINE moves first</title>
+<meta name="description" content="FAULTLINE maps every hidden dependency behind a DeFi position, prices what a failure would cost, and says whether to stay, exit or hold to maturity.">
+<meta property="og:title" content="FAULTLINE — When DeFi breaks, FAULTLINE moves first">
+<meta property="og:description" content="Dependency discovery, impact estimation and a stay / exit / hold decision on live data, with a pre-authorised countermove demonstrated on a mainnet fork.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#0a0d13">
+<meta name="theme-color" content="#0c0d0e">
 <link rel="icon" href="/assets/brand/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="/assets/css/theme.css">
-<style>
-  body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-    background:radial-gradient(600px 400px at 80% -5%, rgba(59,130,246,.18), transparent 70%),
-               radial-gradient(500px 400px at 5% 20%, rgba(176,92,240,.12), transparent 70%),
-               linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px) 0 0/40px 40px,
-               linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px) 0 0/40px 40px; }
-  .hero { padding:var(--space-8) 0 var(--space-6); }
-  .hero h1 { font-size:clamp(2.4rem,6vw,4rem); letter-spacing:-.02em; }
-  .hero h1 span { background:linear-gradient(90deg,var(--accent),var(--layer-lending)); -webkit-background-clip:text; background-clip:text; color:transparent; }
-  .hero .tag { font-size:1.25rem; color:var(--text); }
-  .hero .pitch { max-width:640px; color:var(--muted); }
-  .hero .cta { display:flex; gap:var(--space-3); flex-wrap:wrap; margin-top:var(--space-5); align-items:center; }
-  section { margin-top:var(--space-7); }
-  h2 { font-size:1.4rem; }
-  .grid { display:grid; gap:var(--space-4); }
-  .g-main { grid-template-columns:1.1fr 1fr; }
-  .g-kpi { grid-template-columns:repeat(3,1fr); }
-  .verdict { min-height:260px; display:flex; flex-direction:column; justify-content:center; gap:var(--space-3); }
-  .verdict .big { font-size:4rem; font-weight:800; letter-spacing:.04em; line-height:1; }
-  .verdict.stay { border-color:rgba(74,222,128,.45); box-shadow:0 0 40px rgba(74,222,128,.12); } .verdict.stay .big { color:var(--stay); }
-  .verdict.exit { border-color:rgba(248,113,113,.45); box-shadow:0 0 40px rgba(248,113,113,.12); } .verdict.exit .big { color:var(--exit); }
-  .verdict.review { border-color:rgba(251,191,36,.45); box-shadow:0 0 40px rgba(251,191,36,.12); } .verdict.review .big { color:var(--warn); }
-  .driver { display:flex; align-items:center; gap:var(--space-3); margin-bottom:var(--space-3); }
-  .driver .name { flex:0 0 150px; font-size:.9rem; }
-  .driver .bar { flex:1; height:8px; background:var(--bg-elev); border-radius:99px; overflow:hidden; }
-  .driver .bar i { display:block; height:100%; border-radius:99px; }
-  .driver .amt { flex:0 0 70px; text-align:right; font-variant-numeric:tabular-nums; font-size:.9rem; }
-  .layers { display:grid; grid-template-columns:repeat(5,1fr); gap:var(--space-3); }
-  .layer { padding:var(--space-4); border-top:3px solid var(--c); }
-  .layer img { width:28px; height:28px; display:block; margin-bottom:8px; }
-  .layer b { color:var(--c); font-size:.8rem; letter-spacing:.1em; }
-  .layer h3 { font-size:1rem; margin:4px 0 6px; } .layer p { font-size:.85rem; color:var(--muted); margin:0; }
-  details.card summary { cursor:pointer; font-weight:700; }
-  details.card ul { color:var(--muted); padding-left:20px; margin:var(--space-3) 0 0; }
-  details.card li { margin-bottom:6px; }
-  .tot { display:flex; gap:var(--space-5); flex-wrap:wrap; margin-bottom:var(--space-4); }
-  .err { color:var(--exit); }
-  @media (max-width:860px) { .g-main { grid-template-columns:1fr; } .layers { grid-template-columns:1fr 1fr; } }
-  @media (max-width:560px) { .g-kpi { grid-template-columns:1fr; } .layers { grid-template-columns:1fr; } .driver .name { flex-basis:100px; } .verdict .big { font-size:3rem; } }
-</style>
+<link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/system.css">
+<link rel="stylesheet" href="/assets/css/landing.css">
 </head>
-<body>
-<header id="nav"></header>
-<main class="container">
-  <div class="hero">
-    <h1><span>FaultLine</span></h1>
-    <p class="tag">Know where it breaks before it does.</p>
-    <p class="pitch">FaultLine uncovers the hidden dependency graph behind an on-chain position, simulates what happens when a layer fails, and tells you whether to <b>STAY</b> or <b>EXIT</b> — and why.</p>
-    <div class="cta"><a class="btn btn-primary" href="/xray.html">Open X-Ray &rarr;</a><a class="btn btn-ghost" href="#how">How it works</a><span id="src-badge"></span></div>
-  </div>
-
-  <section id="summary" aria-live="polite">
-    <h2>Position under analysis: <span id="pos-label" class="muted">loading…</span></h2>
-    <div class="grid g-main">
-      <div id="verdict-card" class="card verdict">
-        <div class="muted">Recommendation</div>
-        <div class="big" id="verdict">—</div>
-        <p id="explain" class="muted">&nbsp;</p>
-        <p id="signal" class="muted" style="font-size:.85rem"></p>
+<body class="landing">
+<header data-shell="header"></header>
+<main id="main">
+  <section class="hero" id="hero" aria-labelledby="heroTitle">
+    <div class="hero__stage" aria-hidden="true">
+      <picture class="hero__poster">
+        <source media="(max-width: 760px), (max-aspect-ratio: 1/1)" srcset="/assets/img/hero-poster-mobile.webp">
+        <img src="/assets/img/hero-poster.webp" alt="" width="1920" height="1080" fetchpriority="high" decoding="async">
+      </picture>
+      <canvas id="heroCanvas"></canvas>
+    </div>
+    <div class="wrap hero__in">
+      <h1 class="hl" id="heroTitle">
+        <span>When DeFi breaks,</span>
+        <span class="hl-word"><span class="vh">FAULTLINE</span><span class="hl-fault" aria-hidden="true">FAULT</span><svg class="hl-seam" viewBox="0 0 12 64" preserveAspectRatio="none" aria-hidden="true"><path d="M8 0 L1 17 L8 23 L3 35 L6 52 L4 64"/></svg><span class="hl-line" aria-hidden="true">LINE</span></span>
+        <span>moves first.</span>
+      </h1>
+      <p class="hero__lede">FAULTLINE maps everything a DeFi position silently depends on, prices what each failure would cost you, and
+        says whether to stay, exit or hold to maturity. When a loan heads for liquidation, a countermove you authorised in advance acts first.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary hero__btn" href="/analyze.html">Analyze the Belem example</a>
+        <a class="btn hero__btn" href="/countermove.html">See autonomous protection</a>
       </div>
-      <div class="grid">
-        <div class="grid g-kpi">
-          <div class="card kpi"><span class="label">Position</span><span class="value" id="k-pos">—</span></div>
-          <div class="card kpi"><span class="label">Expected loss (stay)</span><span class="value" id="k-loss">—</span></div>
-          <div class="card kpi"><span class="label">Exit cost (incl. carry)</span><span class="value" id="k-exit">—</span></div>
+      <div class="hero__rail">
+        <ol class="rail" aria-label="The story">
+          <li data-chapter="stable">Stable</li>
+          <li data-chapter="signal">Signal</li>
+          <li data-chapter="propagation">Propagation</li>
+          <li data-chapter="countermove">Countermove</li>
+          <li data-chapter="proof">Proof</li>
+        </ol>
+        <div class="hero__ctl">
+          <button class="btn btn--quiet btn--sm" type="button" id="heroPause" aria-pressed="false"><span>Pause</span></button>
+          <button class="btn btn--quiet btn--sm" type="button" id="heroReplay">Replay</button>
         </div>
-        <div class="card">
-          <h3>Top risk drivers</h3>
-          <div id="drivers"><span class="muted">—</span></div>
-        </div>
+        <p class="vh" id="heroLive" aria-live="polite"></p>
       </div>
     </div>
   </section>
 
-  <section id="how">
-    <h2>How it works: five layers of dependency</h2>
-    <div class="layers">
-      <div class="card layer" style="--c:var(--layer-chain)"><img src="/assets/layers/chain.svg" alt=""><b>L1</b><h3>Settlement chain</h3><p>The chain the position settles on: halts, reorgs, congestion.</p></div>
-      <div class="card layer" style="--c:var(--layer-yield)"><img src="/assets/layers/yield.svg" alt=""><b>L2</b><h3>Yield source &amp; issuer</h3><p>The underlying asset (e.g. sUSDe) and who issues it (Ethena): depeg, funding risk.</p></div>
-      <div class="card layer" style="--c:var(--layer-oracle)"><img src="/assets/layers/oracle.svg" alt=""><b>L3</b><h3>Oracle</h3><p>The price feed that values the asset: manipulation or stale prices.</p></div>
-      <div class="card layer" style="--c:var(--layer-amm)"><img src="/assets/layers/amm.svg" alt=""><b>L4</b><h3>PT market &amp; AMM curve</h3><p>Where the PT trades and exits: liquidity depth and slippage.</p></div>
-      <div class="card layer" style="--c:var(--layer-lending)"><img src="/assets/layers/lending.svg" alt=""><b>L5</b><h3>Lending market</h3><p>Morpho/Aave using it as collateral: liquidation cascades.</p></div>
+  <section class="proofline wrap" aria-label="What the animation shows">
+    <p><span class="status status--simulated"><i class="status__mark" aria-hidden="true"></i>Simulated fork</span>
+      The countermove above replays a recorded run on a local fork of Ethereum mainnet: the oracle feed pricing a Pendle PT
+      fell 5%, the keeper repaid 1,447.44 USDC about two seconds after detection, 15 of 15 on-fork checks passed, and the
+      borrower signed nothing. It is not a mainnet transaction.</p>
+  </section>
+
+  <section class="story wrap" aria-labelledby="s1">
+    <div class="story__row">
+      <div class="story__text">
+        <h2 id="s1">One position, a dozen silent dependencies.</h2>
+        <p>A Pendle principal token posted on Morpho looks like one line in a portfolio. Underneath it sit five layers, plus the
+          things nobody lists: the issuer, the stablecoin it is accounted in, the provider behind the oracle feed. FAULTLINE reads
+          them live from Pendle, Morpho, DefiLlama and Ethereum itself.</p>
+        <a class="btn" href="/analyze.html">Open the live analysis</a>
+      </div>
+      <ol class="strata" aria-label="The five layers from the Belem brief">
+        <li><b>Lending market</b><span>holds the token as collateral</span></li>
+        <li><b>PT market and AMM</b><span>the exit route before maturity</span></li>
+        <li class="is-hit"><b>Oracle</b><span>prices the collateral, the brief's incident</span></li>
+        <li><b>Yield source and issuer</b><span>what the token redeems into</span></li>
+        <li><b>Settlement chain</b><span>where everything settles</span></li>
+      </ol>
     </div>
-  </section>
 
-  <section>
-    <h2>Stress scenarios</h2>
-    <div class="card table-wrap"><table class="table">
-      <thead><tr><th>Scenario</th><th>Description</th><th class="num">Loss if it happens</th><th>Verdict</th></tr></thead>
-      <tbody id="scen"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
-    </table></div>
-  </section>
-
-  <section>
-    <h2>Portfolio view: 10 pockets, one hit</h2>
-    <div class="card">
-      <div class="tot" id="book-tot"></div>
-      <div class="table-wrap"><table class="table">
-        <thead><tr><th>Pocket</th><th class="num">Value</th><th>Affected</th><th class="num">Loss if stay</th><th class="num">Exit cost (incl. carry)</th><th>Best action</th></tr></thead>
-        <tbody id="book"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
-      </table></div>
+    <div class="story__row">
+      <div class="story__text">
+        <h2>Stay, exit, or hold to maturity.</h2>
+        <p>Exiting is certain: slippage, fees and the yield you give up. Staying is cheap and uncertain. FAULTLINE puts both on one
+          scale with honest ranges, says how wrong the estimate would have to be to change the answer, and says Review when it
+          cannot make a firm call.</p>
+        <a class="btn" href="/analyze.html#options">Compare the options</a>
+      </div>
+      <p class="words" aria-hidden="true"><span class="v-stay">Stay</span><span class="v-exit">Exit</span><span class="v-hold">Hold</span><span class="v-review">Review</span></p>
     </div>
-  </section>
 
-  <section>
-    <details class="card">
-      <summary>Methodology &amp; assumptions</summary>
-      <ul>
-        <li><b>Data:</b> the position is a real Pendle PT used as Morpho Blue collateral, discovered live from the Pendle API, Morpho GraphQL, DefiLlama and Ethereum RPC. The position size is an input (default $1M). The badge at the top says whether numbers are live, replayed from cache, or MOCK.</li>
-        <li><b>Failure priors (30-day horizon):</b> DefiLlama hack history for the protocol cohort (TVL &ge; $10M), adjusted by audits / TVL / age; stablecoins use their own DefiLlama price history. Loss-given-failure and edge transmissions are stated assumptions (see each node's source in the X-Ray).</li>
-        <li><b>Expected loss:</b> central value 1 &minus; &prod;(1 &minus; p &times; loss-if-fails &times; path transmission), exact only if failures are independent and travel along their best path; it is bracketed by dependence-free bounds and by a low/high parameter band (each parameter is classed observed / calibrated / assumption). A 20,000-draw Monte Carlo gives the VaR95.</li>
-        <li><b>Transmission:</b> a failure propagates along dependency edges (A depends on B) scaled by a per-edge transmission factor.</li>
-        <li><b>Exit cost:</b> executable Pendle SDK quote for selling the full PT size into the loan asset, re-executed on-chain with eth_call at a pinned block (no transaction sent), plus gas; plus the PT excess carry forgone (PT implied APY &minus; USDC supply APY on the same Morpho market). Without a quote a constant-product approximation is used and labelled as such.</li>
-        <li><b>Liquidation:</b> by default the position is unlevered (liquidation not applicable). With <code>?borrower=0x…</code> or <code>auto</code> a real Morpho borrower is read on-chain (debt, health factor, liquidation price) and stressed through Morpho's liquidation formula.</li>
-        <li><b>Scenarios:</b> losses are conditional on the shock happening (probability 1), not probability-weighted; a correlated depeg + oracle + liquidity scenario is included.</li>
-        <li><b>Decision:</b> EXIT if even the low staying loss exceeds the high exit cost; STAY if even the high staying loss is below the low exit cost; otherwise <b>REVIEW</b>, with the point comparison shown as a conditional lean. Stale (quote &gt; 60 s, chain state &gt; 120 s), cached or approximated inputs force REVIEW.</li>
-      </ul>
-    </details>
+    <div class="story__row">
+      <div class="story__text">
+        <h2>Arm. Defend. Prove.</h2>
+        <p>A borrower authorises a narrow policy in advance: when to act, how much, and what is never allowed. A keeper watches the
+          oracle, picks the cheapest action that is safe, executes it without a new signature, and verifies the result on-chain.</p>
+        <a class="btn" href="/countermove.html">Open the protection lab</a>
+      </div>
+      <dl class="truth">
+        <div><dt><span class="status status--live"><i class="status__mark" aria-hidden="true"></i>Live</span></dt><dd>Dependency analysis, vault analysis and the dry run read Ethereum mainnet now, read-only.</dd></div>
+        <div><dt><span class="status status--simulated"><i class="status__mark" aria-hidden="true"></i>Simulated fork</span></dt><dd>Autonomous execution is demonstrated on a local Anvil fork with test funds.</dd></div>
+        <div><dt><span class="status status--unavailable"><i class="status__mark" aria-hidden="true"></i>Not deployed</span></dt><dd>No protection contract exists on mainnet. Nothing on this site signs or sends a transaction.</dd></div>
+      </dl>
+    </div>
   </section>
 </main>
-<footer id="footer"></footer>
-
-<script src="/assets/js/api.js"></script>
-<script src="/assets/js/shell.js"></script>
-<script>
-(async function () {
-  const F = window.FaultLine, $ = (id) => document.getElementById(id);
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function countUp(el, to) {
-    if (reduce) { el.textContent = F.fmtUsd(to); return; }
-    const t0 = performance.now(), dur = 700;
-    (function tick(t) {
-      const k = Math.min(1, (t - t0) / dur);
-      el.textContent = F.fmtUsd(to * (1 - Math.pow(1 - k, 3)));
-      if (k < 1) requestAnimationFrame(tick);
-    })(t0);
-  }
-
-  let res;
-  try { res = await F.loadData(); }
-  catch (e) {
-    $('pos-label').innerHTML = '<span class="err">Could not load data (' + F.esc(e.message) + ')</span>';
-    return;
-  }
-  const d = res.data, dec = d.decision;
-  $('src-badge').innerHTML = F.sourceBadge(res.source, d);
-  $('pos-label').textContent = d.position.label + ' · ' + d.position.chain + ' · ' + d.position.horizon_days + 'd horizon';
-
-  const v = dec.verdict === 'EXIT' ? 'exit' : dec.verdict === 'STAY' ? 'stay' : 'review';
-  $('verdict-card').classList.add(v);
-  $('verdict').textContent = dec.verdict;
-  $('explain').textContent = dec.explanation;
-  $('signal').innerHTML = F.signalDetails(d);
-  $('k-pos').textContent = F.fmtUsd(d.position.value_usd);
-  countUp($('k-loss'), dec.expected_loss_usd);
-  const exitTotal = dec.exit_total_usd != null ? dec.exit_total_usd : dec.exit_cost_usd;
-  $('k-exit').title = 'execution ' + F.fmtUsd(dec.exit_cost_usd) + ' (' + ((d.exit && d.exit.basis) || dec.exit_method || '') + ')' +
-    (dec.carry_usd != null ? ' + carry forgone ' + F.fmtUsd(dec.carry_usd) : ' · carry not counted');
-  countUp($('k-exit'), exitTotal);
-
-  const nodes = Object.fromEntries(d.nodes.map((n) => [n.id, n]));
-  const top = Object.entries(d.node_contrib_usd || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 3);
-  const max = top.length ? top[0][1] : 1;
-  $('drivers').innerHTML = top.map(([id, v]) => {
-    const n = nodes[id] || { label: id, layer: 'protocol' };
-    const c = (F.LAYER_META[n.layer] || F.LAYER_META.protocol).color;
-    return '<div class="driver"><span class="name">' + F.esc(n.label) + '</span><span class="bar"><i style="width:' + (v / max * 100).toFixed(0) + '%;background:' + c + '"></i></span><span class="amt">' + F.fmtUsd(v) + '</span></div>';
-  }).join('') || '<span class="muted">No risk drivers</span>';
-
-  $('scen').innerHTML = (d.scenarios || []).map((s) =>
-    '<tr><td><b>' + F.esc(s.name) + '</b></td><td class="muted">' + F.esc(s.description) + '</td><td class="num">' + F.fmtUsd(s.conditional_loss_usd != null ? s.conditional_loss_usd : s.expected_loss_usd) + '</td><td>' + F.verdictBadge(s.verdict) + '</td></tr>').join('');
-
-  const b = d.book;
-  if (b) {
-    $('book-tot').innerHTML =
-      '<div class="kpi"><span class="label">Total loss if staying everywhere</span><span class="value">' + F.fmtUsd(b.total_stay_loss_usd) + '</span></div>' +
-      '<div class="kpi"><span class="label">Total with best action per pocket</span><span class="value" style="color:var(--stay)">' + F.fmtUsd(b.total_optimal_usd) + '</span></div>' +
-      '<div class="kpi"><span class="label">% of book</span><span class="value">' + F.fmtPct(b.pct_of_book, 2) + '</span></div>';
-    $('book').innerHTML = b.pockets.map((p) =>
-      '<tr' + (p.affected ? ' class="hl"' : '') + '><td><b>' + F.esc(p.label) + '</b></td><td class="num">' + F.fmtUsd(p.value_usd) + '</td><td>' +
-      (p.affected ? '<span class="badge badge-exit">HIT</span>' : '<span class="muted">—</span>') + '</td><td class="num">' + F.fmtUsd(p.stay_loss_usd) +
-      '</td><td class="num">' + F.fmtUsd(p.exit_total_usd || p.exit_cost_usd) + '</td><td>' + F.verdictBadge(p.verdict) + '</td></tr>').join('');
-  }
-})();
-</script>
+<footer data-shell="footer"></footer>
+<script type="module" src="/assets/js/landing/shell-init.js"></script>
+<script type="module" src="/assets/js/landing/landing.bundle.js"></script>
 </body>
 </html>

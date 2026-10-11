@@ -1,0 +1,59 @@
+/* FAULTLINE design tokens. One system for the landing and the instrument.
+   The fault red is the only red. States are always written, never colour-only. */
+@font-face {
+  font-family: 'Archivo';
+  src: url('/assets/fonts/archivo-var-latin.woff2') format('woff2-variations');
+  font-weight: 100 900; font-stretch: 62% 125%; font-style: normal; font-display: swap;
+}
+@font-face { font-family: 'Plex Mono'; src: url('/assets/fonts/ibm-plex-mono-latin-400.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Plex Mono'; src: url('/assets/fonts/ibm-plex-mono-latin-500.woff2') format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Plex Mono'; src: url('/assets/fonts/ibm-plex-mono-latin-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+
+:root {
+  /* surfaces: warm carbon, never pure black */
+  --carbon: #0c0d0e;
+  --carbon-2: #111315;
+  --graphite: #17191c;
+  --graphite-2: #1e2124;
+  --graphite-3: #272a2e;
+  --rule: #2c2f33;
+  --rule-strong: #3b3f44;
+
+  /* ink: the logo's bone white */
+  --bone: #ece9e2;
+  --bone-2: #c9c4b9;   /* secondary text, 11:1 on carbon */
+  --bone-3: #98938a;   /* tertiary text, 6.3:1 on carbon */
+  --bone-4: #6e6a63;   /* rules and disabled only, not text */
+
+  /* signal */
+  --fault: #ff5b3a;      /* failure, EXIT, the fracture */
+  --fault-ink: #ff8a6f;  /* fault-coloured text on carbon (5.9:1) */
+  --fault-wash: rgba(255, 91, 58, .12);
+  --contained: #5fd0c4;  /* protected, STAY, verified */
+  --contained-wash: rgba(95, 208, 196, .11);
+  --review: #f2b441;     /* REVIEW, uncertain */
+  --review-wash: rgba(242, 180, 65, .12);
+  --hold: #b9a7f0;       /* HOLD TO MATURITY */
+  --hold-wash: rgba(185, 167, 240, .12);
+  --sim: #a99cf0;        /* SIMULATED fork, hatched */
+  --dry: #8fc4ff;        /* DRY-RUN, dashed */
+
+  /* type */
+  --font: 'Archivo', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
+  --t-xs: .75rem; --t-sm: .8125rem; --t-base: .9375rem; --t-md: 1.0625rem; --t-lg: 1.375rem;
+  --t-xl: clamp(1.75rem, 1.1rem + 1.6vw, 2.375rem);
+  --t-2xl: clamp(2.25rem, 1.2rem + 3vw, 3.5rem);
+
+  /* space (4 px base) and shape: radius grows with hierarchy */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px;
+  --r-chip: 3px; --r-ctl: 6px; --r-panel: 10px;
+  --wrap: 1440px;
+  --gutter: clamp(16px, 3vw, 40px);
+
+  /* motion */
+  --ease: cubic-bezier(.2, .7, .1, 1);
+  --ease-in: cubic-bezier(.5, 0, .9, .4);
+  --dur-1: 120ms; --dur-2: 220ms; --dur-3: 420ms;
+  --focus: 0 0 0 2px var(--carbon), 0 0 0 4px var(--bone);
+}
