@@ -3,110 +3,94 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FaultLine · Vault Risk Analyzer</title>
-<meta name="description" content="Paste a Morpho vault address: FaultLine reads it on-chain, maps every dependency, prices the loss and the exit, and returns STAY / EXIT / REVIEW.">
+<title>Vault intelligence — FAULTLINE</title>
+<meta name="description" content="Paste a Morpho vault on Ethereum. FAULTLINE reads it on-chain at one pinned block, prices what staying could lose against what leaving costs, and says STAY, EXIT or REVIEW.">
+<meta name="theme-color" content="#0c0d0e">
 <link rel="icon" href="/assets/brand/logo.svg">
-<link rel="stylesheet" href="/assets/css/theme.css">
+<link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/system.css">
 <link rel="stylesheet" href="/assets/css/vault.css">
 </head>
 <body>
-<header id="nav"></header>
+<header data-shell="header"></header>
 
-<main class="container va">
-  <h1>Vault Risk Analyzer</h1>
-  <p class="muted">Paste a Morpho vault (V1 MetaMorpho or V2) on Ethereum. FaultLine reads it on-chain at a pinned block, maps every
-    underlying market, collateral and oracle, prices the expected loss of staying against the real cost of withdrawing, and gives a
-    decision. All figures come from the backend; nothing is precomputed.</p>
-
-  <form id="vaultForm" class="card va-form" novalidate>
-    <label class="va-field va-wide"><span>Vault address or Morpho / Etherscan link</span>
-      <input id="fAddress" name="address" autocomplete="off" spellcheck="false" placeholder="0x…" required></label>
-    <label class="va-field"><span>Exposure (USD, hypothetical)</span>
-      <input id="fValue" name="value_usd" type="number" min="1000" max="100000000" step="1000" value="100000"></label>
-    <label class="va-field"><span>Horizon (days)</span>
-      <input id="fHorizon" name="horizon_days" type="number" min="1" max="365" step="1" value="30"></label>
-    <label class="va-field"><span>Chain</span>
-      <select id="fChain" name="chain_id"><option value="1" selected>Ethereum mainnet</option></select></label>
-    <div class="va-actions">
-      <button class="btn btn-primary" id="fSubmit" type="submit">Analyze vault</button>
-      <button class="btn btn-ghost" id="fBelem" type="button" title="Fills the address only; the analysis still runs live">Use the Belem vault example</button>
+<main id="main" class="wrap vi" tabindex="-1">
+  <section class="vi-intro" id="intro" aria-labelledby="pageTitle">
+    <div class="vi-hero">
+      <h1 id="pageTitle">Vault intelligence</h1>
+      <p class="lead">Paste a Morpho vault. FAULTLINE reads it on-chain at one pinned block, prices what staying could lose against what leaving costs, and tells you to stay, exit or review.</p>
     </div>
-  </form>
 
-  <div id="status" class="va-status" role="status" aria-live="polite" hidden></div>
-  <div id="error" class="va-error" role="alert" hidden></div>
+    <form id="vaultForm" class="panel vi-form" novalidate>
+      <div class="vi-form__row">
+        <label class="field vi-f-addr" for="fAddress"><span>Vault address or link</span>
+          <input class="input mono" id="fAddress" name="address" autocomplete="off" autocapitalize="off" spellcheck="false"
+            placeholder="0x… or a Morpho, Etherscan or Dune link" aria-describedby="fAddressErr fHelp" required></label>
+        <label class="field vi-f-num" for="fValue"><span>Exposure (USD)</span>
+          <input class="input num" id="fValue" name="value_usd" type="number" inputmode="numeric" min="1000" max="100000000" step="1000" value="100000"></label>
+        <label class="field vi-f-num" for="fHorizon"><span>Horizon (days)</span>
+          <input class="input num" id="fHorizon" name="horizon_days" type="number" inputmode="numeric" min="1" max="365" step="1" value="30"></label>
+        <button class="btn btn--primary vi-submit" id="fSubmit" type="submit">Analyse vault</button>
+      </div>
+      <p class="vi-ferr" id="fAddressErr" role="alert" hidden></p>
+      <p class="note" id="fHelp">Ethereum mainnet only. Supports Morpho V1 (MetaMorpho) and V2 vaults. The exposure is hypothetical: no wallet is connected and nothing is signed.</p>
+    </form>
 
-  <section id="result" hidden>
-    <section class="card va-summary" id="summary" aria-labelledby="sumTitle">
-      <div class="va-sum-head">
-        <div>
-          <h2 id="sumTitle">—</h2>
-          <p class="muted mono" id="sumMeta"></p>
-        </div>
-        <div class="va-badges" id="sumBadges"></div>
-      </div>
-      <div class="va-verdict-row">
-        <div class="va-verdict" id="vBadge">—</div>
-        <div>
-          <p class="va-lean" id="vLean"></p>
-          <ul class="va-reasons" id="vReasons"></ul>
-        </div>
-      </div>
-      <div class="va-kpis">
-        <div class="kpi"><span class="label">Expected loss if STAY</span><span class="value" id="kLoss">—</span><small class="muted" id="kLossBand"></small></div>
-        <div class="kpi"><span class="label">Cost if EXIT</span><span class="value" id="kExit">—</span><small class="muted" id="kExitBand"></small></div>
-        <div class="kpi"><span class="label">Margin (loss − exit)</span><span class="value" id="kMargin">—</span><small class="muted" id="kMarginHint"></small></div>
-        <div class="kpi"><span class="label">Break-even risk multiple</span><span class="value" id="kBreakeven">—</span><small class="muted">risk must be × this for EXIT to pay</small></div>
-      </div>
-      <div class="va-breakdown" id="costBreakdown"></div>
-      <p class="va-explain" id="vExplain"></p>
-      <div class="va-consistency" id="consistency"></div>
-      <ul class="va-warnings" id="warnings"></ul>
+    <section class="vi-examples" aria-labelledby="exTitle">
+      <h2 class="vi-h3" id="exTitle">Or start from a known vault</h2>
+      <p class="note">Each example runs a fresh live analysis with the exposure and horizon above.</p>
+      <ul class="vi-examples__list" id="examples"></ul>
     </section>
+  </section>
 
-    <details class="card va-details" id="xray" open>
-      <summary><h2>Details / X-Ray</h2></summary>
+  <div id="work" class="vi-work" hidden></div>
+  <div id="notice" class="vi-notice" hidden></div>
 
-      <h3>Allocations</h3>
-      <p class="muted" id="allocNote"></p>
-      <div class="table-wrap"><table class="table" id="allocTable"></table></div>
+  <section id="result" class="vi-result" hidden aria-labelledby="vName">
+    <div class="vi-bar" id="bar"></div>
 
-      <h3>Dependency graph</h3>
-      <p class="muted">Arrow A → B: A depends on B. Columns are hops away from your deposit. Node size ∝ expected-loss contribution. Shared nodes appear once.</p>
-      <div class="va-graph-wrap"><svg id="graph" class="va-graph" viewBox="0 0 900 420" role="img" aria-label="Vault dependency graph"></svg></div>
-      <div id="nodeInfo" class="va-nodeinfo muted">Click a node to see its parameters.</div>
-      <h4>Shared dependencies</h4>
-      <ul id="sharedList" class="va-list"></ul>
+    <section class="panel vi-decision" id="decision" aria-labelledby="decTitle"></section>
 
-      <h3>Risk and uncertainty</h3>
-      <div id="riskBox"></div>
-      <h4>Main drivers</h4>
-      <div class="table-wrap"><table class="table" id="driverTable"></table></div>
+    <section class="panel vi-exit" id="exit" aria-labelledby="exitTitle"></section>
 
-      <h3>Scenarios <small class="muted">(conditional on the shock happening, not probability-weighted)</small></h3>
-      <div class="table-wrap"><table class="table" id="scenTable"></table></div>
-      <form id="shockForm" class="va-shock">
-        <label class="va-field va-wide"><span>Custom shock: dependency</span><select id="shockNode"></select></label>
-        <label class="va-field"><span>Severity (0–1)</span><input id="shockSev" type="number" min="0" max="1" step="0.05" value="0.5"></label>
-        <button class="btn" type="submit">Run custom shock</button>
-      </form>
+    <section class="panel vi-fx" id="fx" aria-labelledby="fxTitle" hidden></section>
 
-      <h3>Sensitivity</h3>
-      <div class="table-wrap"><table class="table" id="sensTable"></table></div>
-      <div id="crashCurve"></div>
+    <section class="vi-more" aria-labelledby="moreTitle">
+      <h2 class="vh" id="moreTitle">Details</h2>
+      <div class="vi-tabs" role="tablist" aria-label="Details" id="tabs">
+        <button class="vi-tab" role="tab" type="button" id="tab-alloc" aria-controls="tp-alloc" aria-selected="true">Allocations</button>
+        <button class="vi-tab" role="tab" type="button" id="tab-deps" aria-controls="tp-deps" aria-selected="false" tabindex="-1">Dependencies</button>
+        <button class="vi-tab" role="tab" type="button" id="tab-stress" aria-controls="tp-stress" aria-selected="false" tabindex="-1">Stress</button>
+        <button class="vi-tab" role="tab" type="button" id="tab-sens" aria-controls="tp-sens" aria-selected="false" tabindex="-1">Sensitivity</button>
+        <button class="vi-tab" role="tab" type="button" id="tab-assum" aria-controls="tp-assum" aria-selected="false" tabindex="-1">Assumptions</button>
+      </div>
 
-      <h3>Withdrawal</h3>
-      <div id="exitBox"></div>
-
-      <h3>Assumptions</h3>
-      <ul id="assumptions" class="va-list"></ul>
-      <h3>Provenance</h3>
-      <div id="provBox" class="mono va-prov"></div>
-    </details>
+      <div class="panel vi-tp" role="tabpanel" id="tp-alloc" aria-labelledby="tab-alloc" tabindex="0"></div>
+      <div class="panel vi-tp" role="tabpanel" id="tp-deps" aria-labelledby="tab-deps" tabindex="0" hidden></div>
+      <div class="panel vi-tp" role="tabpanel" id="tp-stress" aria-labelledby="tab-stress" tabindex="0" hidden>
+        <div id="stressBody"></div>
+        <form id="shockForm" class="vi-shock" novalidate>
+          <h3 class="vi-h3">Run your own hypothetical shock</h3>
+          <p class="note">Pick one dependency and how hard it fails. FAULTLINE re-runs the full analysis live with that shock (15–25 s). The result is a hypothesis, not a forecast.</p>
+          <div class="vi-shock__row">
+            <label class="field vi-shock__node" for="shockNode"><span>Dependency</span><select class="select" id="shockNode"></select></label>
+            <label class="field vi-shock__sev" for="shockSev"><span>Severity <output id="shockSevOut" for="shockSev" class="num">50%</output></span>
+              <input id="shockSev" type="range" min="0" max="1" step="0.05" value="0.5" aria-describedby="shockSevHelp"></label>
+            <button class="btn" id="shockSubmit" type="submit">Run hypothetical shock</button>
+          </div>
+          <p class="note" id="shockSevHelp">Severity is how hard it fails, from 0% to 100%: for collateral the price drop, for an oracle the pricing error, for a market the share lost.</p>
+          <div id="shockWork" hidden></div>
+          <div id="shockOut" aria-live="polite"></div>
+        </form>
+      </div>
+      <div class="panel vi-tp" role="tabpanel" id="tp-sens" aria-labelledby="tab-sens" tabindex="0" hidden></div>
+      <div class="panel vi-tp" role="tabpanel" id="tp-assum" aria-labelledby="tab-assum" tabindex="0" hidden></div>
+    </section>
   </section>
 </main>
-<footer id="footer"></footer>
-<script src="/assets/js/shell.js"></script>
+
+<footer data-shell="footer"></footer>
 <script type="module" src="/assets/js/vault.js"></script>
 </body>
 </html>

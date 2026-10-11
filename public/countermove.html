@@ -3,147 +3,94 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FaultLine · Autonomous Countermove</title>
-<meta name="description" content="Configure your emergency defenses once. When a verified crisis threatens a Morpho Blue position, FaultLine chooses and executes an authorized response - and proves what happened.">
+<title>Autonomous protection lab — FAULTLINE Countermove</title>
+<meta name="description" content="Countermove repays debt or adds collateral to a Morpho loan near liquidation, within limits set in advance. Replay a recorded run on a local fork of mainnet, plus a live read-only dry run.">
+<meta name="theme-color" content="#0c0d0e">
 <link rel="icon" href="/assets/brand/logo.svg">
-<link rel="stylesheet" href="/assets/css/theme.css">
-<link rel="stylesheet" href="/assets/css/vault.css">
+<link rel="preload" href="/assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/system.css">
 <link rel="stylesheet" href="/assets/css/countermove.css">
 </head>
 <body>
-<header id="nav"></header>
+<header data-shell="header"></header>
 
-<main class="container cm">
-  <h1>Autonomous Countermove</h1>
-  <p class="cm-lead">Set your emergency defenses once. When a crisis pushes your Morpho Blue loan toward liquidation, FaultLine picks
-    the best action you pre-authorized, executes it from your RescueVault with <b>no new signature from you</b>, and proves the result
-    on-chain. If no authorized action is safe, it does nothing and tells you why.</p>
+<main id="main" class="cm">
+  <section class="wrap cm-intro" aria-labelledby="cm-title">
+    <div class="cm-intro__text">
+      <h1 id="cm-title">Autonomous protection lab</h1>
+      <p class="lead">Countermove repays debt or adds collateral to a Morpho loan near liquidation, within limits the owner set in advance — this page replays a recorded run on a local fork of mainnet, plus a live read-only dry run.</p>
+    </div>
+    <div class="cm-env" id="cm-env">
+      <div id="cm-env-chip"><span class="status status--loading"><i class="status__mark" aria-hidden="true"></i><span>Loading</span><span class="status__meta">recorded run</span></span></div>
+      <details class="more cm-env__notes" id="cm-env-notes" hidden>
+        <summary>About the fork</summary>
+        <ul class="cm-bullets" id="cm-env-list"></ul>
+      </details>
+    </div>
+  </section>
 
-  <div class="cm-env" id="env" hidden>
-    <span class="badge badge-sim" title="Local Anvil fork of Ethereum mainnet at a pinned block">SIMULATED</span>
-    <p><span id="envText"></span> <span class="muted" id="envNotes"></span></p>
+  <div class="wrap" id="cm-boot" aria-live="polite">
+    <div class="cm-skel" aria-hidden="true">
+      <div class="skel cm-skel__row"></div>
+      <div class="skel cm-skel__head"></div>
+      <div class="skel cm-skel__steps"></div>
+      <div class="skel cm-skel__panel"></div>
+    </div>
+    <p class="vh">Loading the recorded keeper run.</p>
   </div>
-  <div id="status" class="va-status" role="status" aria-live="polite">Loading the recorded keeper run…</div>
-  <div id="error" class="va-error" role="alert" hidden></div>
 
-  <section id="result" hidden>
-    <div class="cm-tabs" id="tabs" role="tablist" aria-label="Demonstration scenarios"></div>
+  <section class="wrap cm-lab" id="cm-lab" aria-label="Recorded run on the local fork" hidden>
+    <div class="cm-scen" id="cm-scen" role="group" aria-label="Scenario"></div>
+    <div class="cm-head" id="cm-head" aria-live="polite"></div>
 
-    <article class="card cm-hero" id="hero" aria-live="polite">
-      <div class="cm-hero-head">
+    <div class="cm-acts">
+      <div class="cm-steps" id="cm-steps" role="tablist" aria-label="Three acts of the recorded run"></div>
+      <section class="cm-panel" id="panel-arm" role="tabpanel" aria-labelledby="tab-arm" tabindex="0"></section>
+      <section class="cm-panel" id="panel-defend" role="tabpanel" aria-labelledby="tab-defend" tabindex="0" hidden></section>
+      <section class="cm-panel" id="panel-prove" role="tabpanel" aria-labelledby="tab-prove" tabindex="0" hidden></section>
+    </div>
+  </section>
+
+  <section class="wrap cm-dry" aria-labelledby="dry-title">
+    <div class="panel cm-dry__panel">
+      <div class="cm-dry__head">
         <div>
-          <p class="cm-eyebrow" id="hEyebrow"></p>
-          <h2 class="cm-hero-title"><span id="hBadge"></span> <span id="hTitle"></span></h2>
+          <h2 id="dry-title">What would FAULTLINE do right now?</h2>
+          <p class="note">The keeper's engine on a real mainnet borrower, read now, with a hypothetical policy. Nothing is sent.</p>
         </div>
-        <div class="va-badges" id="hFacts"></div>
+        <span id="dry-chip"></span>
       </div>
-      <ol class="cm-story">
-        <li><span class="cm-story-k">1 · Crisis detected</span><span class="cm-story-v" id="hCrisis"></span></li>
-        <li><span class="cm-story-k">2 · Decision</span><span class="cm-story-v" id="hDecision"></span></li>
-        <li><span class="cm-story-k">3 · Result</span><span class="cm-story-v" id="hResult"></span></li>
-      </ol>
-      <figure class="cm-gauge" id="gauge" aria-label="Loan-to-value before, during and after the crisis"></figure>
-      <ul class="va-warnings" id="pIssues"></ul>
-      <details class="cm-more">
-        <summary>Addresses and keeper states</summary>
-        <p class="cm-mono muted" id="pMeta"></p>
-        <ul class="cm-steps" id="steps" aria-label="Keeper state machine"></ul>
-      </details>
-    </article>
-
-    <section class="card cm-sec" aria-labelledby="hBefore">
-      <h2 id="hBefore">1 · Before the crisis <small class="muted">what you set up</small></h2>
-      <div class="cm-grid2">
-        <div>
-          <h3>Your position</h3>
-          <dl class="cm-kv" id="before"></dl>
-          <h3>What prices your collateral</h3>
-          <ul class="cm-deps" id="deps"></ul>
-          <ul class="cm-assume" id="assume"></ul>
-        </div>
-        <div>
-          <h3>Your policy <small class="muted">signed before going offline</small></h3>
-          <dl class="cm-kv" id="policy"></dl>
-        </div>
-      </div>
-      <h3>Reserve needed for a given first hit</h3>
-      <p class="muted cm-note">Smallest amount that keeps the follow-on scenario inside your margin (same engine as the keeper).</p>
-      <div class="table-wrap"><table class="table" id="reserves"></table></div>
-      <p class="muted cm-note" id="reservesNote"></p>
-    </section>
-
-    <section class="card cm-sec" aria-labelledby="hDuring">
-      <h2 id="hDuring">2 · During the crisis <small class="muted">what the keeper saw and decided</small></h2>
-      <div class="cm-grid2">
-        <dl class="cm-kv" id="crisis"></dl>
-        <div>
-          <h3 class="cm-h3-tight">Dependency that moved</h3>
-          <ul class="cm-deps" id="movers"></ul>
-        </div>
-      </div>
-      <h3>Actions compared</h3>
-      <p class="cm-why" id="pWhy"></p>
-      <div class="table-wrap"><table class="table cm-cands" id="cands"></table></div>
-      <details class="cm-more">
-        <summary id="validationSum">Pre-send checks</summary>
-        <ul class="cm-checks" id="validation"></ul>
-        <p class="muted cm-note" id="rule"></p>
-      </details>
-    </section>
-
-    <section class="card cm-sec" aria-labelledby="hAfter">
-      <h2 id="hAfter">3 · After the intervention <small class="muted">proved on-chain</small></h2>
-      <div id="after"></div>
-      <details class="cm-more">
-        <summary id="checksSum">On-chain verification</summary>
-        <ul class="cm-checks" id="checks"></ul>
-      </details>
-      <div class="cm-grid2">
-        <div><h3>Protections still active</h3><dl class="cm-kv" id="protections"></dl></div>
-        <div><h3>Limits remaining</h3><dl class="cm-kv" id="limits"></dl></div>
-      </div>
-    </section>
-
-    <details class="card va-details cm-sec">
-      <summary><h2>Keeper process <small class="muted">runs without any browser</small></h2></summary>
-      <div class="table-wrap"><table class="table cm-runs" id="runs"></table></div>
-    </details>
-
-    <details class="card va-details cm-sec" id="liveBox">
-      <summary><h2>LIVE dependencies on Ethereum mainnet</h2></summary>
-      <p class="muted">Read-only reads of the same markets' oracles and feeds, now. Nothing is signed.</p>
-      <button class="btn" id="liveBtn" type="button">Read live dependencies</button>
-      <div id="live" class="cm-out"></div>
-    </details>
-
-    <details class="card va-details cm-sec" id="draftBox">
-      <summary><h2>Configure a policy <small class="muted">you sign it, not FaultLine</small></h2></summary>
-      <p class="muted">FaultLine checks the policy with the same rules as the contract and prepares the transaction for your own wallet.
-        The keeper never holds your key and cannot change this policy. Units follow the selected scenario's market (<span id="draftMarket"></span>).</p>
-      <form class="cm-draft" id="draft">
-        <label>Strategies<select name="strategies"><option value="REPAY,TOP_UP" selected>Repay + top-up</option>
-          <option value="REPAY,TOP_UP,FULL_REPAY">Repay + top-up + full repay</option><option value="REPAY">Repay only</option>
-          <option value="TOP_UP">Top-up only</option><option value="FULL_REPAY">Full repay only</option></select></label>
-        <label>Act when LTV reaches<span class="cm-unit"><input name="trigger_ltv" type="number" step="0.5" min="1" max="99" value="82"><i>%</i></span></label>
-        <label>Never push LTV below<span class="cm-unit"><input name="min_ltv_after" type="number" step="1" min="0" max="99" value="40"><i>%</i></span></label>
-        <label>Liquidation LTV (market)<span class="cm-unit"><input name="lltv" type="number" value="86" readonly title="Read from the market"><i>%</i></span></label>
-        <label>Max repay per action<span class="cm-unit"><input name="max_repay_per_action" type="number" min="0" value="5000"><i data-unit="loan"></i></span></label>
-        <label>Repay budget (total)<span class="cm-unit"><input name="max_repay_total" type="number" min="0" value="20000"><i data-unit="loan"></i></span></label>
-        <label>Max full repay (0 = off)<span class="cm-unit"><input name="max_full_repay" type="number" min="0" value="0"><i data-unit="loan"></i></span></label>
-        <label>Keep in reserve at least<span class="cm-unit"><input name="min_loan_reserve" type="number" min="0" value="100"><i data-unit="loan"></i></span></label>
-        <label>Max top-up per action<span class="cm-unit"><input name="max_top_up_per_action" type="number" min="0" step="any" value="1"><i data-unit="coll"></i></span></label>
-        <label>Top-up budget (total)<span class="cm-unit"><input name="max_top_up_total" type="number" min="0" step="any" value="1"><i data-unit="coll"></i></span></label>
-        <label>Keep in reserve at least<span class="cm-unit"><input name="min_collateral_reserve" type="number" min="0" step="any" value="0.01"><i data-unit="coll"></i></span></label>
-        <label>Valid for<span class="cm-unit"><input name="valid_days" type="number" min="1" value="30"><i>days</i></span></label>
-        <input type="hidden" name="loan_decimals" value="6"><input type="hidden" name="collateral_decimals" value="18">
-        <div class="va-actions"><button class="btn btn-primary" type="submit">Validate &amp; prepare transaction</button></div>
+      <form class="cm-dry__form" id="dry-form" novalidate>
+        <label class="field"><span>Market</span>
+          <select class="select" name="market" id="dry-market">
+            <option value="cbBTC/USDC">cbBTC/USDC</option>
+            <option value="weETH/USDC">weETH/USDC</option>
+          </select>
+        </label>
+        <label class="field"><span>Borrower</span>
+          <select class="select" name="rank" id="dry-rank"></select>
+        </label>
+        <button class="btn btn--primary" type="submit" id="dry-run">Run the dry run</button>
       </form>
-      <div id="draftOut" class="cm-out"></div>
+      <div id="dry-work" hidden></div>
+      <div id="dry-out" class="cm-dry__out" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="wrap cm-live" aria-label="Live oracle dependencies">
+    <details class="panel cm-live__box" id="live-box">
+      <summary class="cm-live__summary"><span class="cm-live__title">Read live oracle dependencies</span>
+        <span class="note">Oracles and feeds of the protected markets on Ethereum mainnet, read now</span></summary>
+      <div class="cm-live__body">
+        <div id="live-work" hidden></div>
+        <div id="live-out" aria-live="polite"></div>
+      </div>
     </details>
   </section>
 </main>
-<footer id="footer"></footer>
-<script src="/assets/js/shell.js"></script>
+
+<footer data-shell="footer"></footer>
 <script type="module" src="/assets/js/countermove.js"></script>
 </body>
 </html>
