@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import time
 import uuid
 from pathlib import Path
@@ -27,17 +28,28 @@ def _jsonable(o):
 
 
 class Journal:
-    def __init__(self, directory: str | Path):
+    def __init__(self, directory: str | Path, sink=None):
         self.dir = Path(directory)
         self.dir.mkdir(parents=True, exist_ok=True)
         self.path = self.dir / "journal.jsonl"
         self.state_path = self.dir / "state.json"
         self.run_id = uuid.uuid4().hex[:12]
+        self.sink = sink  # optional mirror (evidence.EvidenceStore.sink): the JSONL line is written first
+        self.sink_errors = 0
 
     def append(self, position_id: str, state: str, **data) -> dict:
         rec = {"ts": time.time(), "run_id": self.run_id, "position": position_id, "state": state, **data}
+        safe = _jsonable(rec)
         with self.path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(_jsonable(rec), allow_nan=False) + "\n")
+            f.write(json.dumps(safe, allow_nan=False) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+        if self.sink is not None:
+            try:
+                self.sink(safe)
+            except Exception as e:  # noqa: BLE001 - the JSONL record exists; a mirror failure must not stop the keeper
+                self.sink_errors += 1
+                print(f"[journal] evidence sink failed ({type(e).__name__}: {e})", file=sys.stderr)
         return rec
 
     def entries(self, position_id: str | None = None) -> list[dict]:
@@ -51,7 +63,10 @@ class Journal:
 
     def _save(self, st: dict) -> None:
         tmp = self.state_path.with_suffix(".tmp")
-        tmp.write_text(json.dumps(_jsonable(st), indent=1, allow_nan=False), encoding="utf-8")
+        with tmp.open("w", encoding="utf-8") as f:
+            f.write(json.dumps(_jsonable(st), indent=1, allow_nan=False))
+            f.flush()
+            os.fsync(f.fileno())
         os.replace(tmp, self.state_path)
 
     def update(self, position_id: str, **fields) -> dict:

@@ -9,6 +9,15 @@ GET /api/countermove?action=policy-draft&...  (alias: /api/countermove/policy-dr
 GET /api/countermove?action=dry-run&market=<id|alias>&borrower=<0x..|auto>[&rank=1][&<policy / reserve fields>]
                                          -> faultline.countermove.dryrun/1: a REAL mainnet borrower read now (LIVE) and
                                             what the keeper would do under a hypothetical policy (DRY-RUN, no tx)
+GET /api/countermove?action=evidence[&position=<id>][&since=<seq>][&limit=1..500][&source=all|recorded|store][&kinds=a,b]
+                                         -> faultline.countermove.evidence/1: the recorded fork journal (labelled `fork`,
+                                            sha256 integrity) + the keeper's SQLite evidence store when configured
+GET /api/countermove?action=keeper-status -> faultline.keeper.status/1: the keeper heartbeat (OK / STALE / DEGRADED /
+                                            UNAVAILABLE / STOPPED); UNAVAILABLE on Vercel (no keeper process there)
+GET /api/countermove?action=policy-status&vault=<0x..>[&<policy draft fields>][&required_loan_raw=..&required_collateral_raw=..]
+                                         -> faultline.countermove.lifecycle/1: ARM state DERIVED from the vault read on
+                                            the server-configured chain (FAULTLINE_ARM_RPC_URL) + keeper heartbeat +
+                                            journal; UNAVAILABLE (with the reason) when that evidence is missing
 Errors are JSON {"error": {"code", "status", "message", ...}} (400 invalid input, 404 unknown market / borrower,
 503 mainnet RPC or Morpho API unavailable), never HTML.
 This endpoint never signs or sends a transaction: the keeper is a separate local process (python -m defirisk.countermove).
@@ -23,8 +32,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from defirisk.countermove import api as cm  # noqa: E402
 from defirisk.countermove import dryrun  # noqa: E402
+from defirisk.countermove import status as cms  # noqa: E402
 
-ACTIONS = ("policy-draft", "dry-run")
+ACTIONS = ("policy-draft", "dry-run", "evidence", "keeper-status", "policy-status")
+_STATUS = {"evidence": cms.evidence, "keeper-status": cms.keeper_status, "policy-status": cms.policy_status}
 
 
 def respond(path: str) -> tuple[int, dict]:
@@ -35,6 +46,8 @@ def respond(path: str) -> tuple[int, dict]:
             return 200, cm.policy_draft(q)
         if u.path.rstrip("/").endswith("/dry-run") or q.get("action") == "dry-run":
             return 200, dryrun.run(q)
+        if q.get("action") in _STATUS:
+            return 200, _STATUS[q["action"]](q)
         if "action" in q:
             return 400, {"error": {"code": "invalid_input", "status": 400, "field": "action",
                                    "message": f"unknown action (accepted: {', '.join(ACTIONS)})"}}

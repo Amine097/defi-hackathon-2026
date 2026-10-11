@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 
 from .. import abi
-from . import contracts, dependencies, engine
+from . import contracts, dependencies, engine, policy
 from .chain import RPC
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -236,44 +236,19 @@ def payload(demo: Path = DEMO, live: bool = False) -> dict:
 
 # ---- policy draft: the USER signs it, FAULTLINE only validates and encodes ------------------------------------------
 def policy_draft(q: dict) -> dict:
-    """Validate a policy against the same rules as RescueVault.setPolicy and return the calldata for the USER's wallet."""
-    ld, cd = int(q.get("loan_decimals", 6)), int(q.get("collateral_decimals", 18))
-    lltv = float(q.get("lltv", 0.86))
-    strategies = [s for s in str(q.get("strategies", "REPAY,TOP_UP")).split(",") if s]
-    pol = {"allowed_strategies": sum(engine.BITS[s] for s in strategies if s in engine.BITS),
-           "valid_until": int(time.time()) + int(float(q.get("valid_days", 30)) * 86_400),
-           "cooldown": int(q.get("cooldown_s", 3_600)),
-           "trigger_ltv": int(float(q.get("trigger_ltv", 0.82)) * 1e18),
-           "min_ltv_after": int(float(q.get("min_ltv_after", 0.4)) * 1e18),
-           "max_repay_per_action": int(float(q.get("max_repay_per_action", 0)) * 10 ** ld),
-           "max_top_up_per_action": int(float(q.get("max_top_up_per_action", 0)) * 10 ** cd),
-           "max_full_repay": int(float(q.get("max_full_repay", 0)) * 10 ** ld),
-           "max_repay_total": int(float(q.get("max_repay_total", 0)) * 10 ** ld),
-           "max_top_up_total": int(float(q.get("max_top_up_total", 0)) * 10 ** cd),
-           "min_loan_reserve": int(float(q.get("min_loan_reserve", 0)) * 10 ** ld),
-           "min_collateral_reserve": int(float(q.get("min_collateral_reserve", 0)) * 10 ** cd)}
-    errors = []
-    if pol["allowed_strategies"] == 0:
-        errors.append("choose at least one strategy")
-    if not 0 < pol["trigger_ltv"] < int(lltv * 1e18):
-        errors.append("trigger LTV must be above 0 and below the market LLTV")
-    if pol["min_ltv_after"] >= pol["trigger_ltv"]:
-        errors.append("the LTV floor must be below the trigger")
-    if pol["max_repay_per_action"] > pol["max_repay_total"] or pol["max_full_repay"] > pol["max_repay_total"]:
-        errors.append("per-action / full-repay caps cannot exceed the cumulative repay budget")
-    if pol["max_top_up_per_action"] > pol["max_top_up_total"]:
-        errors.append("per-action top-up cap cannot exceed the cumulative top-up budget")
-    # Accepted by the contract, but such a strategy can never execute: say so instead of silently signing a dead policy.
-    warnings = []
-    for s, caps in (("REPAY", ("max_repay_per_action", "max_repay_total")), ("TOP_UP", ("max_top_up_per_action", "max_top_up_total")),
-                    ("FULL_REPAY", ("max_full_repay", "max_repay_total"))):
-        if s in strategies and any(pol[c] == 0 for c in caps):
-            warnings.append(f"{s} is allowed but its cap is 0: the keeper can never use it")
-    if strategies and len(warnings) == len([s for s in set(strategies) if s in engine.BITS]):
-        warnings.append("no allowed strategy can act: this policy would never protect the position")
+    """Validate a policy (contract rules of RescueVault.setPolicy + strict input rules, see policy.py) and return the
+    calldata for the USER's wallet. `errors` stays a list of messages (compatibility); `error_details` adds field + code."""
+    v = policy.validate(q)
+    errors = [e["message"] for e in v["errors"]]
+    pol = v["policy"]
     data = abi.encode_call("setPolicy((uint8,uint64,uint32,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))",
                            [[pol[k] for k in contracts.POLICY_FIELDS]]) if not errors else None
-    return _js({"valid": not errors, "errors": errors, "warnings": warnings, "policy": pol, "calldata": data,
+    return _js({"schema": "faultline.countermove.policy-draft/2", "valid": not errors, "errors": errors,
+                "error_details": v["errors"], "warnings": v["warnings"], "policy": pol, "calldata": data,
+                "preference_order": v["preference_order"], "risk_mapping": v["risk_mapping"], "chain": v["chain"],
+                "lifecycle_state": "VALIDATED" if not errors else "DRAFT",
+                "note": "validation only: nothing is armed until the owner signs setPolicy, funds the reserve and a keeper "
+                        "heartbeat is observed (see ?action=policy-status)",
                 "signer": "the position owner, with their own wallet, BEFORE any crisis (FAULTLINE never holds this key)",
                 "pause_calldata": abi.encode_call("setPaused(bool)", [True]), "resume_calldata": abi.encode_call("setPaused(bool)", [False]),
                 "revoke_calldata": abi.encode_call("revoke()", [])})

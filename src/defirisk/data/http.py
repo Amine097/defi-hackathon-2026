@@ -48,6 +48,18 @@ def _key(method: str, url: str, params, body) -> Path:
     return CACHE_DIR / (hashlib.sha256(raw.encode()).hexdigest()[:24] + ".json")
 
 
+def _atomic_write(path: Path, text: str) -> None:
+    """Write to a temp file in the same directory, then rename over the target: a crash or a concurrent reader never
+    sees a truncated cache entry (which would otherwise break the offline fallback with a JSON decode error)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.{os.getpid()}.{time.monotonic_ns()}.tmp")
+    try:
+        tmp.write_text(text, encoding="utf-8")
+        os.replace(tmp, path)
+    finally:
+        tmp.unlink(missing_ok=True)
+
+
 def _cached(method: str, url: str, params=None, body=None, timeout: float = 8.0, use_cache: bool = True):
     import requests
 
@@ -60,8 +72,7 @@ def _cached(method: str, url: str, params=None, body=None, timeout: float = 8.0,
             rpc_error = isinstance(data, dict) and "jsonrpc" in data and data.get("error")
             try:
                 if not rpc_error:  # never cache JSON-RPC errors (rate limits...)
-                    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-                    path.write_text(json.dumps({"url": url, "fetched_at": int(now()), "data": data}), encoding="utf-8")
+                    _atomic_write(path, json.dumps({"url": url, "fetched_at": int(now()), "data": data}))
             except OSError:  # read-only filesystem (e.g. Vercel): skip caching, committed cache still read
                 pass
             _PROV["live"] += 1

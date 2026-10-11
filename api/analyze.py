@@ -3,8 +3,9 @@ ref: auto | pendle:1:<Pendle market address> | morpho:1:<Morpho Blue market id>
 GET /api/analyze?lookup=1&ref=morpho:1:<market id> -> cheap identification (no analysis); 404 if not in the supported set.
 payload["source"] is the single source of truth for the UI badge:
   live | cache | mixed  -> real data (cache = replayed from data/cache, see payload["data_as_of"])
-  mock                  -> demo graph requested explicitly (ref=mock)
-  mock-fallback         -> live discovery FAILED; demo graph shown, error in payload["discovery_error"]
+  mock                  -> demo graph requested explicitly (ref=mock); there is no silent demo fallback:
+                           a failed live discovery returns 502 {"error", "code": "discovery_failed", "hint"}
+Errors: 400 invalid_input | 404 unsupported_market | 502 discovery_failed, shape {"error": str, "code": str}
 """
 import json
 import math

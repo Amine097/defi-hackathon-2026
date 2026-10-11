@@ -257,6 +257,18 @@ def load_config(path: str | Path) -> dict:
     return cfg
 
 
+def signer_from_env(rpc: RPC):
+    """Keystore signer from the environment, or None (watch-only). Never unlocks a key for a non-local chain."""
+    if os.environ.get("FAULTLINE_KEEPER_KEY"):
+        raise SystemExit("FAULTLINE_KEEPER_KEY (plaintext key) is no longer accepted: use an encrypted keystore via "
+                         "FAULTLINE_KEEPER_KEYSTORE + FAULTLINE_KEEPER_PASSWORD_FILE (see docs/FAULTLINE_PHASE2_DEMO_GUIDE.md)")
+    from .signer import KEYSTORE_ENV, PASSWORD_FILE_ENV, KeystoreSigner
+    if os.environ.get(KEYSTORE_ENV) or os.environ.get(PASSWORD_FILE_ENV):
+        rpc.assert_local()  # never even unlock the keystore for a non-local chain
+        return KeystoreSigner.from_env()
+    return None
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="FAULTLINE Autonomous Countermove keeper (local test chain only)")
     ap.add_argument("--config", required=True)
@@ -268,14 +280,7 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     cfg = load_config(a.config)
     rpc = RPC(cfg["rpc_url"])
-    if os.environ.get("FAULTLINE_KEEPER_KEY"):
-        raise SystemExit("FAULTLINE_KEEPER_KEY (plaintext key) is no longer accepted: use an encrypted keystore via "
-                         "FAULTLINE_KEEPER_KEYSTORE + FAULTLINE_KEEPER_PASSWORD_FILE (see docs/FAULTLINE_PHASE2_DEMO_GUIDE.md)")
-    from .signer import KEYSTORE_ENV, PASSWORD_FILE_ENV, KeystoreSigner
-    signer = None
-    if os.environ.get(KEYSTORE_ENV) or os.environ.get(PASSWORD_FILE_ENV):
-        rpc.assert_local()  # never even unlock the keystore for a non-local chain
-        signer = KeystoreSigner.from_env()
+    signer = signer_from_env(rpc)
     journal = Journal(a.journal_dir or cfg.get("journal_dir", "data/countermove/journal"))
     w = Watcher(cfg, rpc, journal, signer)
     print(f"FAULTLINE keeper {'(watch-only)' if signer is None else signer.address} on chain {rpc.chain_id()} -> {journal.dir}",
