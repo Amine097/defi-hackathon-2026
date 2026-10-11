@@ -6,7 +6,7 @@ Start with the [documentation index](docs/README.md) for the core, feature speci
 ## UI: Claude Design v2 (hosted on Vercel)
 The frontend renders the approved Claude Design v2 export (`docs/design/claude-design-v2/`) on its own runtime, wired to the real backend. See [docs/frontend/README.md](docs/frontend/README.md).
 - `/` (`public/index.html`): landing. Its recorded figures come from `public/data/recorded/analyze-pt.json` and the recorded fork run, checked at build time.
-- `/app.html`: select a position (demonstration positions = recorded live runs, labelled RECORDED LIVE RUN; or paste a Morpho market id / vault address for a LIVE run), then Dashboard, Positions & Vaults, Dependency X-Ray (inspect, simulate attack, replay S1/S5), Countermove (policy preview validated by `/api/countermove`, live dry run for real borrowers, fork demonstration) and Activity & Evidence.
+- `/app.html`: select a position (demonstration positions = recorded live runs, labelled RECORDED LIVE RUN; or paste a Morpho market id / vault address for a LIVE run), then Dashboard, Positions & Vaults, Dependency X-Ray (inspect, simulate attack, replay S1/S5), Countermove (policy preview validated by `/api/countermove`, live dry run for real borrowers, fork demonstration) and Activity & Evidence. Countermove tab 3 "Autonomous protection" (`/app.html#autonomous`) shows the hosted Railway keeper live, labelled LOCAL TEST (see below).
 - APIs: `api/analyze.py` (`ref=auto|pendle:1:<market>|morpho:1:<market id>`, `lookup=1`), `api/vault.py` (`address=`, `lookup=1`), `api/countermove.py`.
 - Build: `node tools/frontend/dc-build.mjs`; recordings: `python scripts/record_demo_payloads.py`; QA: `node tools/frontend/dc-qa.mjs`.
 - Earlier pages (`/analyze.html`, `/vault.html`, `/countermove.html`) remain reachable by URL but are no longer linked; the design gaps they cover are listed in `docs/frontend/DESIGN_COVERAGE_GAPS.md`.
@@ -56,6 +56,16 @@ no real funds, no personal key; the contract is **not audited**.
 ## Hosted keeper on Railway
 `railway.json` builds `Dockerfile.keeper` and runs `scripts/railway_keeper.py`: one container with a local Anvil test chain, a simulated ETH/USD feed, the `RescueVault`, one armed test position, the keeper and a read-only status API (`/healthz`). It never touches Ethereum mainnet and signs with a public Anvil test account. Setup (volume at `/data`, variables, domain): [docs/backend/RAILWAY_KEEPER_DEPLOYMENT.md](docs/backend/RAILWAY_KEEPER_DEPLOYMENT.md).
 
+Live: https://defi-hackathon-2026-production.up.railway.app (`/healthz`). Vercel reads it server-side through `/api/countermove` when `FAULTLINE_KEEPER_URL` is set (it is in production), and the app's Autonomous protection tab shows these items, refreshed every 5 s:
+- the lifecycle state and gates
+- the keeper heartbeat
+- the reserve and remaining limits
+- the hash-chained evidence log
+
+Demo: run `curl -X POST -H "Authorization: Bearer <FAULTLINE_ADMIN_TOKEN>" https://defi-hackathon-2026-production.up.railway.app/admin/shock?usd=1880`. It moves the simulated ETH price, and within about 20 s the tab goes MONITORING → EXECUTING → VERIFIED: the reserve goes from 3,000 to about 2,075 USDC, and the actions count goes from 0 to 1.
+
+The shock works once, because the policy has a 1-hour cooldown. To reset, wipe the Railway volume.
+
 ## What is real and what is demonstration
 | Surface | Data | Notes |
 |---|---|---|
@@ -63,7 +73,7 @@ no real funds, no personal key; the contract is **not audited**.
 | Demonstration positions (RECORDED LIVE RUN) | Saved live API responses in `public/data/recorded/` | Real data at the recorded block, replayed |
 | Failure probabilities, LGF, transmission | Mix of calibrated (DefiLlama exploit cohort, depeg history) and structural assumptions | See [docs/backend/FIGURE_TRACEABILITY.md](docs/backend/FIGURE_TRACEABILITY.md) |
 | Countermove S1–S5 | Local Anvil fork run, recorded in `data/countermove/demo/latest/` | Simulated shocks, no mainnet transaction, contract not audited |
-| Railway keeper | Local Anvil test chain inside the container | Shows 24/7 operation; does not protect a real position |
+| Railway keeper / Autonomous protection tab | Local Anvil test chain inside the container, test tokens, simulated ETH/USD feed | Real keeper and real transactions on a test chain, shown live in the app as LOCAL TEST; does not protect a real position (no mainnet RescueVault) |
 | `python -m defirisk.cli mock` | `data/mock_graph.json` | Offline mock, not real data |
 
 Known limitations: [docs/backend/BACKEND_GAPS.md](docs/backend/BACKEND_GAPS.md).

@@ -73,6 +73,19 @@ Demo (about 15 s): `curl -X POST -H "Authorization: Bearer $TOKEN" https://<doma
 - `docker restart`: graceful SIGTERM shutdown, the chain reloads from `/data`, the state stays VERIFIED, the evidence
   chain stays valid.
 
+## Production (11 Oct 2026)
+
+- **Railway:** service at `https://defi-hackathon-2026-production.up.railway.app`, with a volume at `/data` and
+  `FAULTLINE_ADMIN_TOKEN` set.
+- **Vercel:** `FAULTLINE_KEEPER_URL` is set to that domain.
+- **End-to-end check:** in the app, the shock went MONITORING → EXECUTING → VERIFIED in about 20 s. The keeper repaid
+  924.56 USDC, the reserve went from 3,000 to 2,075.44 USDC, and the evidence hash chain stayed valid.
+- **Reset before a demo:** in Railway, open the `/data` volume → Settings → **Wipe Volume** (redeploy if the service
+  does not restart). The keeper boots a fresh test chain in about 20 s, back in MONITORING with 0 actions. The vault
+  address is deterministic, so nothing changes on Vercel. A plain restart does **not** reset, because the state
+  persists on the volume.
+- **One shock per reset:** after an action, the policy cooldown (3,600 s of chain time) blocks the next one.
+
 ## Showing it in the app (Vercel)
 
 The browser cannot call the Railway domain (CSP `connect-src 'self'`). Instead, `/api/countermove` on Vercel reads it
