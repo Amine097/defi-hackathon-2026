@@ -1,4 +1,6 @@
 """Vercel Python serverless function: GET /api/analyze?ref=auto&value_usd=1000000&shock=<node id>&severity=0.3&borrower=0x..|auto
+ref: auto | pendle:1:<Pendle market address> | morpho:1:<Morpho Blue market id>
+GET /api/analyze?lookup=1&ref=morpho:1:<market id> -> cheap identification (no analysis); 404 if not in the supported set.
 payload["source"] is the single source of truth for the UI badge:
   live | cache | mixed  -> real data (cache = replayed from data/cache, see payload["data_as_of"])
   mock                  -> demo graph requested explicitly (ref=mock)
@@ -15,6 +17,7 @@ from urllib.parse import parse_qs, urlparse
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from defirisk.api_payload import build_payload  # noqa: E402
+from defirisk.data.discovery import UnsupportedMarket, lookup  # noqa: E402
 from defirisk.leverage import parse_borrower  # noqa: E402
 
 
@@ -70,9 +73,18 @@ def _params(path: str) -> dict:
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
-            body, status = json.dumps(_payload(**_params(self.path))).encode(), 200
+            q = parse_qs(urlparse(self.path).query)
+            if (q.get("lookup") or [None])[0] == "1":  # cheap identification for the app's select screen, no analysis
+                ref = (q.get("ref") or [""])[0]
+                if not re.fullmatch(r"morpho:1:0x[0-9a-fA-F]{64}", ref):
+                    raise ValueError("lookup needs ref=morpho:1:<Morpho Blue market id>")
+                body, status = json.dumps(lookup(ref.lower())).encode(), 200
+            else:
+                body, status = json.dumps(_payload(**_params(self.path))).encode(), 200
         except ValueError as e:
             body, status = json.dumps({"error": str(e), "code": "invalid_input"}).encode(), 400
+        except UnsupportedMarket as e:
+            body, status = json.dumps({"error": str(e), "code": "unsupported_market"}).encode(), 404
         except Exception as e:  # live discovery failed: say why, never substitute the demo graph silently
             body, status = json.dumps({"error": f"{type(e).__name__}: {e}"[:500], "code": "discovery_failed",
                                        "hint": "retry, or ask explicitly for the demo graph with ref=mock"}).encode(), 502

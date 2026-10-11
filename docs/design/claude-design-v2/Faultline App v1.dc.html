@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<script src="faultline-data.js"></script>
+<style>
+html,body{margin:0;padding:0;background:#05070b;color:#e9edf2;-webkit-font-smoothing:antialiased;}
+*{box-sizing:border-box;}
+a{color:#e9edf2;text-decoration:none;}
+a:hover{color:#2bb8ff;}
+button{font:inherit;}
+::selection{background:#2bb8ff;color:#05070b;}
+input[type=range]{accent-color:#2bb8ff;}
+@keyframes flPulse{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+</helmet>
+<div style="min-height:100vh; background:#05070b; color:#e9edf2; font-family:'Archivo', sans-serif;">
+
+  <sc-if value="{{ isSelect }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height:100vh; display:flex; flex-direction:column; background:radial-gradient(80% 60% at 85% 0%, rgba(43,184,255,.07) 0%, rgba(5,7,11,0) 60%), #05070b;">
+      <header style="display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; padding:22px clamp(20px,4vw,56px);">
+        <a href="Faultline Landing v2.dc.html" style="display:flex; align-items:center; gap:12px;">
+          <img src="assets/logo-mark.png" alt="" style="width:32px; height:32px; display:block;">
+          <img src="assets/wordmark-light.png" alt="FAULTLINE" style="height:13px; width:auto; display:block;">
+        </a>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.14em;">
+          <span style="padding:6px 9px; border:1px solid rgba(233,237,242,.2); color:#b4bcc8; white-space:nowrap;">ETHEREUM MAINNET · READ-ONLY</span>
+          <span style="padding:6px 9px; border:1px solid rgba(233,237,242,.2); color:#8a94a3; white-space:nowrap;">NO WALLET CONNECTED</span>
+        </div>
+      </header>
+      <main style="flex:1; display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr)); gap:40px clamp(32px,5vw,80px); padding:clamp(24px,5vh,64px) clamp(20px,4vw,56px) 48px; align-items:start;">
+        <div style="display:flex; flex-direction:column; gap:28px; min-width:0;">
+          <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.2em; color:#8a94a3;">STEP 1 OF 2 · SELECT A POSITION</div>
+          <h1 style="margin:0; font-weight:800; font-stretch:118%; font-size:clamp(38px,4.6vw,72px); line-height:.94; letter-spacing:-.025em; text-wrap:balance;">Which position should FAULTLINE look through?</h1>
+          <p style="margin:0; max-width:540px; font-size:16px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">Paste a supported market, vault or borrower. FAULTLINE reads it on-chain at a pinned block, maps what it depends on, and keeps it as the context for every screen.</p>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <label for="fl-q" style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">ADDRESS OR MARKET ID</label>
+            <div style="display:flex; border:1px solid {{ lk.border }}; background:rgba(10,14,20,.8); transition:border-color .2s;">
+              <input id="fl-q" value="{{ query }}" onInput="{{ onQuery }}" onKeyDown="{{ onQueryKey }}" placeholder="0x…" spellcheck="false" autocomplete="off" style="flex:1; min-width:0; background:transparent; border:none; outline:none; color:#e9edf2; font-family:'IBM Plex Mono', monospace; font-size:15px; padding:18px 18px;">
+              <button onClick="{{ runLookup }}" style="flex:none; border:none; border-left:1px solid rgba(233,237,242,.14); background:#e9edf2; color:#05070b; font-weight:600; font-size:15px; padding:0 24px; cursor:pointer; white-space:nowrap;" style-hover="background:#2bb8ff;" style-focus="outline:2px solid #2bb8ff; outline-offset:2px;">Look up</button>
+            </div>
+            <div style="min-height:46px; display:flex; gap:10px; align-items:flex-start; font-size:13.5px; line-height:1.55; color:{{ lk.color }};">
+              <sc-if value="{{ lk.spinning }}" hint-placeholder-val="{{ false }}"><span style="flex:none; width:7px; height:7px; margin-top:7px; background:#2bb8ff; animation:flPulse 1s ease-in-out infinite;"></span></sc-if>
+              <span>{{ lk.msg }}</span>
+            </div>
+            <sc-if value="{{ lk.retry }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:10px;">
+                <button onClick="{{ runLookup }}" style="background:none; border:1px solid rgba(233,237,242,.3); color:#e9edf2; padding:10px 16px; cursor:pointer; font-size:14px;" style-hover="border-color:#e9edf2;">Retry</button>
+                <button onClick="{{ cancelLookup }}" style="background:none; border:none; color:#8a94a3; padding:10px 6px; cursor:pointer; font-size:14px;" style-hover="color:#e9edf2;">Cancel</button>
+              </div>
+            </sc-if>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0 28px; font-family:'IBM Plex Mono', monospace; font-size:12px; line-height:1.55;">
+            <div style="display:flex; flex-direction:column; gap:8px; padding:16px 0; border-top:1px solid rgba(233,237,242,.1);">
+              <span style="font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">SUPPORTED IDENTIFIERS</span>
+              <span>Morpho Blue market id <span style="color:#8a94a3;">· 0x + 64 hex</span></span>
+              <span>Morpho Vault V1 / V2 address <span style="color:#8a94a3;">· 0x + 40 hex</span></span>
+              <span>Borrower on a supported market <span style="color:#8a94a3;">· with its market id</span></span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px; padding:16px 0; border-top:1px solid rgba(233,237,242,.1);">
+              <span style="font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">NETWORK</span>
+              <span>Ethereum mainnet <span style="color:#8a94a3;">· chain 1 only</span></span>
+              <span style="color:#b4bcc8; font-family:'Archivo', sans-serif; font-size:13px; line-height:1.55;">FAULTLINE does not scan a wallet for every position it holds. Paste the market or vault you want analysed.</span>
+            </div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3;">
+            <span>PROTOTYPE STATES</span>
+            <sc-for list="{{ demoInputs }}" as="d" hint-placeholder-count="4">
+              <button onClick="{{ d.go }}" style="background:none; border:1px solid rgba(233,237,242,.16); color:#b4bcc8; padding:6px 9px; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.1em; white-space:nowrap;" style-hover="border-color:#e9edf2; color:#e9edf2;">{{ d.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:16px; min-width:0;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; gap:12px;">
+            <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.2em; color:#8a94a3;">BELEM DEMONSTRATION POSITIONS</span>
+            <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#8a94a3;">recorded data</span>
+          </div>
+          <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.12);">
+            <sc-for list="{{ cands }}" as="c" hint-placeholder-count="4">
+              <button onClick="{{ c.pick }}" style="display:grid; grid-template-columns:4px minmax(0,1fr) auto; gap:16px; align-items:center; text-align:left; padding:18px 14px 18px 0; background:{{ c.bg }}; border:none; border-bottom:1px solid rgba(233,237,242,.12); color:#e9edf2; cursor:pointer;" style-hover="background:rgba(233,237,242,.04);" style-focus="outline:2px solid #2bb8ff; outline-offset:-2px;">
+                <span style="align-self:stretch; background:{{ c.bar }};"></span>
+                <span style="display:flex; flex-direction:column; gap:5px; min-width:0;">
+                  <span style="font-size:18px; font-weight:600;">{{ c.name }}</span>
+                  <span style="font-size:13px; color:#8a94a3;">{{ c.sub }}</span>
+                </span>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; padding:4px 7px; border:1px solid {{ c.chip.bd }}; color:{{ c.chip.fg }}; background:{{ c.chip.bg }}; white-space:nowrap;">{{ c.chip.label }}</span>
+              </button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ cand }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:18px; padding:24px; border:1px solid rgba(233,237,242,.14); background:rgba(10,14,20,.7);">
+              <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+                <div style="display:flex; flex-direction:column; gap:6px; min-width:0;">
+                  <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#2bb8ff;">REVIEW BEFORE ANALYSIS</span>
+                  <span style="font-size:24px; font-weight:700; font-stretch:110%;">{{ cand.name }}</span>
+                </div>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; padding:4px 7px; border:1px solid {{ cand.chip.bd }}; color:{{ cand.chip.fg }}; white-space:nowrap;">{{ cand.chip.label }}</span>
+              </div>
+              <div style="display:grid; grid-template-columns:120px minmax(0,1fr); gap:9px 16px; font-size:13.5px; line-height:1.5;">
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3; padding-top:2px;">PROTOCOL</span><span>{{ cand.protocol }}</span>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3; padding-top:2px;">NETWORK</span><span>{{ cand.network }}</span>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3; padding-top:2px;">IDENTIFIER</span><span style="font-family:'IBM Plex Mono', monospace; font-size:12.5px; word-break:break-all;">{{ cand.ident }}</span>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3; padding-top:2px;">ASSETS</span><span>{{ cand.assets }}</span>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3; padding-top:2px;">SIZE</span><span>{{ cand.size }}</span>
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3; padding-top:2px;">DATA</span><span>{{ cand.sourceNote }}</span>
+              </div>
+              <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                <sc-for list="{{ cand.canRows }}" as="r" hint-placeholder-count="3">
+                  <div style="display:flex; justify-content:space-between; gap:16px; padding:9px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:13px;"><span style="color:#b4bcc8;">{{ r.k }}</span><span style="text-align:right;">{{ r.v }}</span></div>
+                </sc-for>
+              </div>
+              <button onClick="{{ startAnalysis }}" style="align-self:flex-start; background:#2bb8ff; color:#05070b; border:1px solid #2bb8ff; padding:16px 26px; font-weight:600; font-size:15px; cursor:pointer;" style-hover="background:#e9edf2; border-color:#e9edf2;" style-focus="outline:2px solid #e9edf2; outline-offset:2px;">Start analysis</button>
+            </div>
+          </sc-if>
+        </div>
+      </main>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:40px 24px;">
+      <div style="width:min(560px,100%); display:flex; flex-direction:column; gap:28px;">
+        <img src="assets/logo-mark.png" alt="" style="width:44px; height:44px;">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.2em; color:#2bb8ff;">STEP 2 OF 2 · ANALYSING</span>
+          <span style="font-size:30px; font-weight:700; font-stretch:112%; letter-spacing:-.01em;">{{ pos.name }}</span>
+        </div>
+        <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+          <sc-for list="{{ loadSteps }}" as="s" hint-placeholder-count="6">
+            <div style="display:grid; grid-template-columns:18px minmax(0,1fr) auto; gap:14px; align-items:center; padding:12px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px; color:{{ s.color }}; transition:color .3s;">
+              <span style="width:7px; height:7px; background:{{ s.dot }}; justify-self:center;"></span>
+              <span>{{ s.label }}</span>
+              <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3;">{{ s.state }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p style="margin:0; font-family:'IBM Plex Mono', monospace; font-size:11.5px; line-height:1.7; color:#8a94a3;">A live analysis takes about 35 seconds (34 to 36 s measured). This demo loads the recorded run, so it is quick. Every result keeps the block it was read at.</p>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex; min-height:100vh;">
+      <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+        <aside style="width:232px; flex:none; position:sticky; top:0; height:100vh; display:flex; flex-direction:column; gap:28px; padding:22px 18px; border-right:1px solid rgba(233,237,242,.08); background:#05070b;">
+          <a href="Faultline Landing v2.dc.html" style="display:flex; align-items:center; gap:10px; padding:0 6px;">
+            <img src="assets/logo-mark.png" alt="" style="width:28px; height:28px;">
+            <img src="assets/wordmark-light.png" alt="FAULTLINE" style="height:11px; width:auto;">
+          </a>
+          <nav style="display:flex; flex-direction:column; gap:2px;">
+            <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+              <button onClick="{{ n.go }}" style="display:grid; grid-template-columns:26px minmax(0,1fr); gap:8px; align-items:center; text-align:left; padding:11px 8px; background:{{ n.bg }}; border:none; border-left:2px solid {{ n.bar }}; color:{{ n.color }}; cursor:pointer; font-size:14px;" style-hover="color:#e9edf2;" style-focus="outline:1px solid #2bb8ff;">
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#8a94a3;">{{ n.num }}</span><span>{{ n.label }}</span>
+              </button>
+            </sc-for>
+          </nav>
+          <div style="margin-top:auto; display:flex; flex-direction:column; gap:12px; padding:14px; border:1px solid rgba(233,237,242,.1); font-size:12.5px; line-height:1.5; color:#b4bcc8;">
+            <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.16em; color:#ffb547;">DEMO · RECORDED DATA</span>
+            <span>Nothing here can sign, spend or arm. Figures come from saved backend runs.</span>
+          </div>
+        </aside>
+      </sc-if>
+
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; padding-bottom:{{ bottomPad }};">
+        <div style="position:sticky; top:0; z-index:20; display:flex; flex-wrap:wrap; align-items:center; gap:14px 24px; padding:14px clamp(16px,3vw,36px); background:rgba(5,7,11,.9); backdrop-filter:blur(12px); border-bottom:1px solid rgba(233,237,242,.08);">
+          <button onClick="{{ goSelect }}" style="display:flex; flex-direction:column; gap:3px; text-align:left; background:none; border:none; color:#e9edf2; cursor:pointer; padding:0; min-width:0;" style-hover="color:#2bb8ff;">
+            <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.16em; color:#8a94a3;">POSITION · CHANGE</span>
+            <span style="font-size:17px; font-weight:600;">{{ pos.name }}</span>
+          </button>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em;">
+            <span style="padding:4px 7px; border:1px solid rgba(233,237,242,.18); color:#b4bcc8; white-space:nowrap;">{{ pos.protocol }}</span>
+            <span style="padding:4px 7px; border:1px solid rgba(233,237,242,.18); color:#b4bcc8; white-space:nowrap;">{{ pos.network }}</span>
+            <span style="padding:4px 7px; border:1px solid {{ pos.chip.bd }}; color:{{ pos.chip.fg }}; white-space:nowrap;">{{ pos.chip.label }} · {{ pos.sourceNote }}</span>
+          </div>
+          <div style="margin-left:auto; display:flex; gap:8px;">
+            <button onClick="{{ goArm }}" style="background:transparent; border:1px solid #2bb8ff; color:#2bb8ff; padding:11px 16px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.14em; cursor:pointer; white-space:nowrap;" style-hover="background:#2bb8ff; color:#05070b;">ARM PROTECTION</button>
+            <button onClick="{{ goSim }}" style="background:transparent; border:1px solid #ff6a3d; color:#ff6a3d; padding:11px 16px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.14em; cursor:pointer; white-space:nowrap;" style-hover="background:#ff6a3d; color:#05070b;">SIMULATE ATTACK</button>
+          </div>
+        </div>
+
+        <div style="flex:1; padding:clamp(20px,3vw,36px); display:flex; flex-direction:column; gap:28px; min-width:0;">
+
+          <sc-if value="{{ sec.dashboard }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:28px;">
+              <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr)); gap:20px;">
+                <div style="display:flex; flex-direction:column; gap:18px; padding:28px; border:1px solid rgba(233,237,242,.1); background:linear-gradient(160deg, rgba(255,181,71,.05) 0%, rgba(10,14,20,.6) 45%);">
+                  <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">{{ dash.kicker }}</span>
+                  <div style="display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 20px;">
+                    <span style="font-weight:800; font-stretch:125%; font-size:clamp(56px,7vw,104px); line-height:.82; letter-spacing:-.03em; color:{{ dash.vColor }};">{{ dash.verdict }}</span>
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.08em; color:#e9edf2;">{{ dash.lean }}</span>
+                  </div>
+                  <p style="margin:0; max-width:620px; font-size:16px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">{{ dash.text }}</p>
+                </div>
+                <div style="display:grid; grid-template-rows:1fr 1fr; gap:12px;">
+                  <button onClick="{{ goArm }}" style="display:flex; flex-direction:column; justify-content:space-between; gap:18px; text-align:left; padding:22px 24px; background:rgba(43,184,255,.05); border:1px solid rgba(43,184,255,.45); color:#e9edf2; cursor:pointer;" style-hover="background:rgba(43,184,255,.12); border-color:#2bb8ff;">
+                    <span style="display:flex; justify-content:space-between; gap:12px; align-items:center; width:100%;">
+                      <span style="font-weight:800; font-stretch:125%; font-size:26px; letter-spacing:-.01em; color:#2bb8ff;">ARM PROTECTION</span>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; padding:4px 7px; border:1px solid {{ dash.prot.chip.bd }}; color:{{ dash.prot.chip.fg }}; white-space:nowrap;">{{ dash.prot.chip.label }}</span>
+                    </span>
+                    <span style="font-size:14px; line-height:1.5; color:#b4bcc8;">{{ dash.prot.short }}</span>
+                  </button>
+                  <button onClick="{{ goSim }}" style="display:flex; flex-direction:column; justify-content:space-between; gap:18px; text-align:left; padding:22px 24px; background:rgba(255,106,61,.05); border:1px solid rgba(255,106,61,.45); color:#e9edf2; cursor:pointer;" style-hover="background:rgba(255,106,61,.12); border-color:#ff6a3d;">
+                    <span style="display:flex; justify-content:space-between; gap:12px; align-items:center; width:100%;">
+                      <span style="font-weight:800; font-stretch:125%; font-size:26px; letter-spacing:-.01em; color:#ff6a3d;">SIMULATE ATTACK</span>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; padding:4px 7px; border:1px solid rgba(255,181,71,.5); color:#ffb547; white-space:nowrap;">SIMULATED</span>
+                    </span>
+                    <span style="font-size:14px; line-height:1.5; color:#b4bcc8;">{{ dash.simShort }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); border-top:1px solid rgba(233,237,242,.1); border-left:1px solid rgba(233,237,242,.1);">
+                <sc-for list="{{ dash.metrics }}" as="m" hint-placeholder-count="6">
+                  <div style="display:flex; flex-direction:column; gap:8px; padding:18px 20px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">{{ m.k }}</span>
+                    <span style="font-size:26px; font-weight:600; font-stretch:105%; letter-spacing:-.01em; color:{{ m.c }};">{{ m.v }}</span>
+                    <span style="font-size:12.5px; line-height:1.45; color:#8a94a3;">{{ m.s }}</span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr)); gap:20px;">
+                <div style="display:flex; flex-direction:column; gap:14px; padding:24px; border:1px solid rgba(233,237,242,.1);">
+                  <div style="display:flex; justify-content:space-between; gap:12px; align-items:baseline;">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">{{ dash.driversTitle }}</span>
+                    <button onClick="{{ goXray }}" style="background:none; border:none; color:#2bb8ff; cursor:pointer; font-size:13px; padding:0;" style-hover="color:#e9edf2;">Open X-Ray →</button>
+                  </div>
+                  <sc-for list="{{ dash.drivers }}" as="d" hint-placeholder-count="5">
+                    <div style="display:flex; flex-direction:column; gap:7px;">
+                      <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px;"><span>{{ d.label }}</span><span style="font-family:'IBM Plex Mono', monospace; font-size:12.5px;">{{ d.v }}</span></div>
+                      <div style="height:3px; background:rgba(233,237,242,.08);"><div style="height:3px; width:{{ d.w }}; background:{{ d.c }};"></div></div>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#8a94a3;">{{ d.sub }}</span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ dash.noDrivers }}" hint-placeholder-val="{{ false }}"><p style="margin:0; font-size:13.5px; line-height:1.6; color:#8a94a3;">{{ dash.noDrivers }}</p></sc-if>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <div style="display:flex; flex-direction:column; gap:12px; padding:24px; border:1px solid rgba(233,237,242,.1);">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">NEEDS ATTENTION</span>
+                    <sc-for list="{{ dash.flags }}" as="f" hint-placeholder-count="3">
+                      <div style="display:grid; grid-template-columns:10px minmax(0,1fr); gap:12px; font-size:14px; line-height:1.55; color:#e9edf2;"><span style="width:6px; height:6px; margin-top:8px; background:{{ f.c }};"></span><span>{{ f.t }}</span></div>
+                    </sc-for>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:12px; padding:24px; border:1px solid rgba(233,237,242,.1);">
+                    <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">PROTECTION STATUS</span>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; padding:4px 7px; border:1px solid {{ dash.prot.chip.bd }}; color:{{ dash.prot.chip.fg }}; white-space:nowrap;">{{ dash.prot.chip.label }}</span>
+                    </div>
+                    <p style="margin:0; font-size:14px; line-height:1.6; color:#b4bcc8;">{{ dash.prot.text }}</p>
+                    <button onClick="{{ dash.prot.go }}" style="align-self:flex-start; background:none; border:none; padding:0; color:#2bb8ff; cursor:pointer; font-size:13.5px;" style-hover="color:#e9edf2;">{{ dash.prot.cta }} →</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sec.positions }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-wrap:wrap; gap:24px; align-items:flex-start;">
+              <div style="display:flex; flex-direction:column; flex:1 1 280px; gap:14px; min-width:0;">
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">POSITIONS AND VAULTS</span>
+                <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                  <sc-for list="{{ posRows }}" as="p" hint-placeholder-count="4">
+                    <button onClick="{{ p.view }}" style="display:flex; flex-direction:column; gap:6px; text-align:left; padding:16px 14px; background:{{ p.bg }}; border:none; border-bottom:1px solid rgba(233,237,242,.1); border-left:2px solid {{ p.bar }}; color:#e9edf2; cursor:pointer;" style-hover="background:rgba(233,237,242,.04);">
+                      <span style="display:flex; justify-content:space-between; gap:10px; width:100%;"><span style="font-size:15px; font-weight:600;">{{ p.name }}</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:{{ p.vc }};">{{ p.verdict }}</span></span>
+                      <span style="font-size:12.5px; color:#8a94a3;">{{ p.sub }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+                <button onClick="{{ goSelect }}" style="align-self:flex-start; background:none; border:1px solid rgba(233,237,242,.25); color:#e9edf2; padding:10px 14px; cursor:pointer; font-size:13.5px; white-space:nowrap;" style-hover="border-color:#e9edf2;">Add by address</button>
+              </div>
+              <div style="flex:2 1 560px; display:flex; flex-direction:column; gap:22px; min-width:0;">
+                <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:14px; align-items:flex-end;">
+                  <div style="display:flex; flex-direction:column; gap:6px;">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">{{ pv.kicker }}</span>
+                    <span style="font-size:30px; font-weight:700; font-stretch:112%; letter-spacing:-.01em;">{{ pv.name }}</span>
+                    <span style="font-size:14px; color:#b4bcc8;">{{ pv.sub }}</span>
+                  </div>
+                  <sc-if value="{{ pv.notCurrent }}" hint-placeholder-val="{{ false }}">
+                    <button onClick="{{ pv.use }}" style="background:#e9edf2; color:#05070b; border:none; padding:12px 18px; font-weight:600; cursor:pointer;" style-hover="background:#2bb8ff;">Use as context</button>
+                  </sc-if>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); border-top:1px solid rgba(233,237,242,.1); border-left:1px solid rgba(233,237,242,.1);">
+                  <sc-for list="{{ pv.facts }}" as="f" hint-placeholder-count="8">
+                    <div style="display:flex; flex-direction:column; gap:6px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);">
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">{{ f.k }}</span>
+                      <span style="font-size:16px; font-weight:500; word-break:break-word;">{{ f.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <sc-if value="{{ pv.markets }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; flex-direction:column; gap:12px;">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">ALLOCATED MARKETS · ONE ADAPTER</span>
+                    <div style="display:grid; grid-template-columns:minmax(110px,1.3fr) 70px minmax(90px,1fr) minmax(120px,1.2fr); gap:0 16px; font-family:'IBM Plex Mono', monospace; font-size:12px;">
+                      <span style="font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:8px 0; border-bottom:1px solid rgba(233,237,242,.14);">COLLATERAL</span>
+                      <span style="font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:8px 0; border-bottom:1px solid rgba(233,237,242,.14);">LLTV</span>
+                      <span style="font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:8px 0; border-bottom:1px solid rgba(233,237,242,.14);">MARKET SUPPLY</span>
+                      <span style="font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:8px 0; border-bottom:1px solid rgba(233,237,242,.14);">UTILIZATION</span>
+                      <sc-for list="{{ pv.markets }}" as="m" hint-placeholder-count="6">
+                        <span style="padding:10px 0; border-bottom:1px solid rgba(233,237,242,.08);">{{ m.c }}</span>
+                        <span style="padding:10px 0; border-bottom:1px solid rgba(233,237,242,.08);">{{ m.l }}</span>
+                        <span style="padding:10px 0; border-bottom:1px solid rgba(233,237,242,.08);">{{ m.s }}</span>
+                        <span style="padding:10px 0; border-bottom:1px solid rgba(233,237,242,.08); display:flex; gap:10px; align-items:center;"><span style="flex:1; height:3px; background:rgba(233,237,242,.08);"><span style="display:block; height:3px; width:{{ m.u }}; background:{{ m.uc }};"></span></span><span>{{ m.u }}</span></span>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                  <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">{{ pv.routesTitle }}</span>
+                  <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                    <sc-for list="{{ pv.routes }}" as="r" hint-placeholder-count="3">
+                      <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 16px; padding:14px 0; border-bottom:1px solid rgba(233,237,242,.1);">
+                        <span style="font-size:15px; font-weight:500;">{{ r.name }}</span>
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; padding:3px 6px; border:1px solid {{ r.chip.bd }}; color:{{ r.chip.fg }}; justify-self:end; white-space:nowrap;">{{ r.chip.label }}</span>
+                        <span style="font-size:13px; line-height:1.5; color:#8a94a3;">{{ r.note }}</span>
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:13px; justify-self:end;">{{ r.val }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sec.xray }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:20px; min-width:0;">
+              <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:16px; align-items:flex-end;">
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                  <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">DEPENDENCY X-RAY · FIVE BELEM LAYERS</span>
+                  <span style="font-size:30px; font-weight:700; font-stretch:112%; letter-spacing:-.01em;">What this position stands on</span>
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <sc-for list="{{ xr.tabs }}" as="t" hint-placeholder-count="3">
+                    <button onClick="{{ t.go }}" style="padding:10px 14px; background:{{ t.bg }}; color:{{ t.c }}; border:1px solid {{ t.bd }}; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; white-space:nowrap;" style-focus="outline:1px solid #2bb8ff;">{{ t.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+
+              <sc-if value="{{ xr.simBanner }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; padding:11px 14px; border:1px solid rgba(255,181,71,.4); background:rgba(255,181,71,.06); font-size:13px; line-height:1.5;">
+                  <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#ffb547;">SIMULATION MODE</span>
+                  <span style="color:#e9edf2;">Nothing is armed, signed or spent. Financial values come from recorded backend runs, not from the animation.</span>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ xr.noGraph }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-direction:column; gap:14px; padding:28px; border:1px solid rgba(233,237,242,.1); max-width:720px;">
+                  <span style="font-size:20px; font-weight:600;">The interactive graph covers the PT market in this prototype.</span>
+                  <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8;">The vault endpoint returns its own dependency graph, and the fork position's chain is shown in the incident replay. Switch context to see the five-layer X-Ray.</p>
+                  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button onClick="{{ xr.toPt }}" style="background:#e9edf2; color:#05070b; border:none; padding:12px 18px; font-weight:600; cursor:pointer;" style-hover="background:#2bb8ff;">Open the PT market X-Ray</button>
+                    <button onClick="{{ xr.toReplay }}" style="background:none; color:#e9edf2; border:1px solid rgba(233,237,242,.3); padding:12px 18px; cursor:pointer;" style-hover="border-color:#e9edf2;">Replay incident</button>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ xr.graphOk }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start;">
+                  <div style="flex:2 1 560px; display:flex; flex-direction:column; gap:12px; min-width:0;">
+                    <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center;">
+                      <div style="display:flex; gap:16px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.12em;">
+                        <button onClick="{{ xr.viewGraph }}" style="background:none; border:none; padding:0; color:{{ xr.gC }}; cursor:pointer; font:inherit; letter-spacing:inherit;">GRAPH</button>
+                        <button onClick="{{ xr.viewList }}" style="background:none; border:none; padding:0; color:{{ xr.lC }}; cursor:pointer; font:inherit; letter-spacing:inherit;">LIST</button>
+                      </div>
+                      <sc-if value="{{ xr.inspect }}" hint-placeholder-val="{{ true }}">
+                        <sc-if value="{{ xr.notRevealed }}" hint-placeholder-val="{{ true }}">
+                          <button onClick="{{ xr.reveal }}" style="background:none; border:1px solid rgba(255,106,61,.6); color:#ff6a3d; padding:9px 14px; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase;" style-hover="background:rgba(255,106,61,.1);">{{ xr.revealLabel }}</button>
+                        </sc-if>
+                        <sc-if value="{{ xr.revealed }}" hint-placeholder-val="{{ false }}">
+                          <button onClick="{{ xr.hide }}" style="background:none; border:1px solid rgba(233,237,242,.2); color:#b4bcc8; padding:9px 14px; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.12em; white-space:nowrap;" style-hover="color:#e9edf2;">SHOW DIRECT ONLY</button>
+                        </sc-if>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ xr.isGraph }}" hint-placeholder-val="{{ true }}">
+                      <div style="border:1px solid rgba(233,237,242,.1); background:radial-gradient(60% 70% at 15% 50%, rgba(233,237,242,.04) 0%, rgba(5,7,11,0) 70%), #070a0f; padding:12px 8px 4px; overflow-x:auto; overflow-y:hidden;">
+                        <div style="position:relative; min-width:640px;">
+                        <svg data-vb="0 0 1010 520" viewBox="0 0 1010 520" role="img" aria-label="Dependency graph of the selected position" style="width:100%; height:auto; display:block;">
+                          <sc-for list="{{ xr.cols }}" as="c" hint-placeholder-count="6">
+                            <g>
+                              <line x1="{{ c.x }}" y1="26" x2="{{ c.x }}" y2="505" style="stroke:rgba(233,237,242,.05); stroke-width:1;"></line>
+                            </g>
+                          </sc-for>
+                          <sc-for list="{{ xr.edges }}" as="e" hint-placeholder-count="15">
+                            <path d="{{ e.d }}" style="fill:none; stroke:{{ e.stroke }}; stroke-width:{{ e.w }}; stroke-dasharray:{{ e.dash }}; opacity:{{ e.op }}; transition:stroke .45s, opacity .5s, stroke-width .45s;"></path>
+                          </sc-for>
+                          <sc-for list="{{ xr.nodes }}" as="n" hint-placeholder-count="11">
+                            <g onClick="{{ n.click }}" style="cursor:pointer; opacity:{{ n.op }}; transition:opacity .6s;">
+                              <circle cx="{{ n.x }}" cy="{{ n.y }}" r="{{ n.halo }}" style="fill:{{ n.haloC }}; transition:fill .4s;"></circle>
+                              <circle cx="{{ n.x }}" cy="{{ n.y }}" r="{{ n.r }}" style="fill:{{ n.fill }}; stroke:{{ n.stroke }}; stroke-width:1.6; transition:fill .4s, stroke .4s;"></circle>
+                            </g>
+                          </sc-for>
+                        </svg>
+                        <sc-for list="{{ xr.cols }}" as="c" hint-placeholder-count="6">
+                          <span style="position:absolute; left:{{ c.lx }}; top:0; transform:translateX(-50%); white-space:nowrap; pointer-events:none; font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.12em; color:#8a94a3;">{{ c.label }}</span>
+                        </sc-for>
+                        <sc-for list="{{ xr.tLabels }}" as="l" hint-placeholder-count="0">
+                          <span style="position:absolute; left:{{ l.lx }}; top:{{ l.ly }}; transform:translate(-50%,-100%); white-space:nowrap; pointer-events:none; font-family:'IBM Plex Mono', monospace; font-size:11px; color:{{ l.c }}; background:rgba(7,10,15,.8); padding:0 3px;">{{ l.t }}</span>
+                        </sc-for>
+                        <sc-for list="{{ xr.nodes }}" as="n" hint-placeholder-count="11">
+                          <span style="position:absolute; left:{{ n.lx }}; top:{{ n.ly }}; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:2px; white-space:nowrap; pointer-events:none; opacity:{{ n.op }}; transition:opacity .6s;">
+                            <span style="font-size:12.5px; font-weight:600; color:{{ n.lc }};">{{ n.short }}</span>
+                            <span style="font-family:'IBM Plex Mono', monospace; font-size:9px; letter-spacing:.08em; color:{{ n.subC }};">{{ n.sub }}</span>
+                          </span>
+                        </sc-for>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ xr.isList }}" hint-placeholder-val="{{ false }}">
+                      <div style="overflow-x:auto; border-top:1px solid rgba(233,237,242,.12);">
+                        <div style="display:grid; grid-template-columns:minmax(150px,1fr) minmax(200px,1.6fr) 70px 80px 70px 80px 90px; min-width:780px; font-size:13px;">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:10px 8px 10px 0;">LAYER</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:10px 8px;">DEPENDENCY</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:10px 8px;">SEEN</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:10px 8px;">P · 30 D</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:10px 8px;">PATH</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:10px 8px;">SHARE</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3; padding:10px 8px;">IF IT FAILS</span>
+                          <sc-for list="{{ xr.list }}" as="r" hint-placeholder-count="10">
+                            <span style="padding:11px 8px 11px 0; border-top:1px solid rgba(233,237,242,.08); color:#8a94a3;">{{ r.layer }}</span>
+                            <button onClick="{{ r.go }}" style="padding:11px 8px; border:none; border-top:1px solid rgba(233,237,242,.08); background:none; color:#e9edf2; text-align:left; cursor:pointer; font-size:13px;" style-hover="color:#2bb8ff;">{{ r.label }}</button>
+                            <span style="padding:11px 8px; border-top:1px solid rgba(233,237,242,.08); color:{{ r.vc }};">{{ r.vis }}</span>
+                            <span style="padding:11px 8px; border-top:1px solid rgba(233,237,242,.08); font-family:'IBM Plex Mono', monospace; font-size:12px;">{{ r.p }}</span>
+                            <span style="padding:11px 8px; border-top:1px solid rgba(233,237,242,.08); font-family:'IBM Plex Mono', monospace; font-size:12px;">{{ r.t }}</span>
+                            <span style="padding:11px 8px; border-top:1px solid rgba(233,237,242,.08); font-family:'IBM Plex Mono', monospace; font-size:12px;">{{ r.c }}</span>
+                            <span style="padding:11px 8px; border-top:1px solid rgba(233,237,242,.08); font-family:'IBM Plex Mono', monospace; font-size:12px;">{{ r.cond }}</span>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <div style="display:flex; flex-wrap:wrap; gap:8px 20px; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.08em; color:#8a94a3;">
+                      <span style="display:flex; gap:8px; align-items:center;"><span style="width:9px; height:9px; border:1.5px solid #e9edf2; border-radius:50%;"></span>DIRECT</span>
+                      <span style="display:flex; gap:8px; align-items:center;"><span style="width:8px; height:8px; border:1.5px solid #8a94a3; border-radius:50%;"></span>HIDDEN</span>
+                      <span style="display:flex; gap:8px; align-items:center;"><span style="width:18px; height:2px; background:#ff6a3d;"></span>THREAT PATH</span>
+                      <span style="display:flex; gap:8px; align-items:center;"><span style="width:18px; border-top:2px dotted #8a94a3;"></span>WEAKER PATH, NOT COUNTED</span>
+                      <span style="display:flex; gap:8px; align-items:center;"><span style="width:18px; height:2px; background:#2bb8ff;"></span>SELECTED PATH</span>
+                    </div>
+                  </div>
+
+                  <div style="display:flex; flex-direction:column; flex:1 1 300px; gap:14px; min-width:0;">
+                    <sc-if value="{{ xr.inspect }}" hint-placeholder-val="{{ true }}">
+                      <sc-if value="{{ xr.noNode }}" hint-placeholder-val="{{ true }}">
+                        <div style="display:flex; flex-direction:column; gap:14px; padding:22px; border:1px solid rgba(233,237,242,.1);">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">HOW TO READ IT</span>
+                          <p style="margin:0; font-size:14.5px; line-height:1.6; color:#e9edf2;">Your wallet shows two dependencies: the Morpho market and the Pendle pool. FAULTLINE traced {{ xr.hiddenCount }} more behind them.</p>
+                          <p style="margin:0; font-size:14px; line-height:1.6; color:#b4bcc8;">Each line carries a transmission weight: the share of a failure that would travel along it. The model keeps the strongest path to each dependency and multiplies the weights along it.</p>
+                          <p style="margin:0; font-size:14px; line-height:1.6; color:#b4bcc8;">Select a node to see its role, its failure odds and what it would cost you if it broke.</p>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ xr.node }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex; flex-direction:column; gap:14px; padding:22px; border:1px solid rgba(43,184,255,.35); background:rgba(43,184,255,.03);">
+                          <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                            <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">{{ xr.node.layer }}</span>
+                            <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:{{ xr.node.hc }};">{{ xr.node.hiddenChip }}</span>
+                          </div>
+                          <span style="font-size:21px; font-weight:700; line-height:1.2;">{{ xr.node.label }}</span>
+                          <span style="font-size:14px; color:#e9edf2;">{{ xr.node.role }}</span>
+                          <p style="margin:0; font-size:13.5px; line-height:1.6; color:#b4bcc8;">{{ xr.node.why }}</p>
+                          <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                            <sc-for list="{{ xr.node.rows }}" as="r" hint-placeholder-count="5">
+                              <div style="display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:13px;"><span style="color:#8a94a3;">{{ r.k }}</span><span style="font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-align:right;">{{ r.v }}</span></div>
+                            </sc-for>
+                          </div>
+                          <div style="display:flex; flex-direction:column; gap:4px;"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">BEST PATH</span><span style="font-size:13.5px;">{{ xr.node.path }}</span></div>
+                          <div style="display:flex; flex-direction:column; gap:8px;">
+                            <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">WHY THE LINKS EXIST</span>
+                            <sc-for list="{{ xr.node.reasons }}" as="r" hint-placeholder-count="2">
+                              <div style="display:flex; flex-direction:column; gap:2px; font-size:13px; line-height:1.5;"><span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px;">{{ r.t }}</span><span style="color:#8a94a3;">{{ r.r }}</span></div>
+                            </sc-for>
+                          </div>
+                          <button onClick="{{ xr.node.shock }}" style="align-self:flex-start; background:none; border:1px solid #ff6a3d; color:#ff6a3d; padding:10px 14px; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.12em;" style-hover="background:#ff6a3d; color:#05070b;">SHOCK THIS DEPENDENCY</button>
+                        </div>
+                      </sc-if>
+                    </sc-if>
+
+                    <sc-if value="{{ xr.simulate }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; flex-direction:column; gap:14px; padding:20px; border:1px solid rgba(255,106,61,.3);">
+                        <div style="display:flex; gap:18px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.12em;">
+                          <button onClick="{{ xr.setKindNode }}" style="background:none; border:none; padding:0; color:{{ xr.kN }}; cursor:pointer; font:inherit; letter-spacing:inherit;">ONE DEPENDENCY</button>
+                          <button onClick="{{ xr.setKindScen }}" style="background:none; border:none; padding:0; color:{{ xr.kS }}; cursor:pointer; font:inherit; letter-spacing:inherit;">INCIDENT TYPE</button>
+                        </div>
+                        <div style="display:flex; flex-direction:column; max-height:260px; overflow-y:auto; border-top:1px solid rgba(233,237,242,.1);">
+                          <sc-if value="{{ xr.kindNode }}" hint-placeholder-val="{{ true }}">
+                            <sc-for list="{{ xr.simList }}" as="s" hint-placeholder-count="6">
+                              <button onClick="{{ s.pick }}" style="display:flex; flex-direction:column; gap:3px; text-align:left; padding:10px 10px; background:{{ s.bg }}; border:none; border-left:2px solid {{ s.bar }}; border-bottom:1px solid rgba(233,237,242,.08); color:#e9edf2; cursor:pointer;"><span style="font-size:13.5px;">{{ s.label }}</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#8a94a3;">{{ s.sub }}</span></button>
+                            </sc-for>
+                          </sc-if>
+                          <sc-if value="{{ xr.kindScen }}" hint-placeholder-val="{{ false }}">
+                            <sc-for list="{{ xr.scenList }}" as="s" hint-placeholder-count="4">
+                              <button onClick="{{ s.pick }}" style="display:flex; flex-direction:column; gap:3px; text-align:left; padding:10px 10px; background:{{ s.bg }}; border:none; border-left:2px solid {{ s.bar }}; border-bottom:1px solid rgba(233,237,242,.08); color:#e9edf2; cursor:pointer;"><span style="font-size:13.5px;">{{ s.label }}</span><span style="font-size:12px; color:#8a94a3;">{{ s.sub }}</span></button>
+                            </sc-for>
+                          </sc-if>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:4px; font-size:12.5px; line-height:1.5; color:#8a94a3;">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em;">SEVERITY · {{ xr.sev }}</span>
+                          <span>The backend accepts a custom severity (?shock=, ?severity=). This prototype shows recorded results at the default severity only.</span>
+                        </div>
+                        <button onClick="{{ xr.launch }}" style="background:{{ xr.launchBg }}; color:#05070b; border:none; padding:14px 18px; font-weight:600; font-size:15px; cursor:pointer;" style-focus="outline:2px solid #e9edf2; outline-offset:2px;">{{ xr.launchLabel }}</button>
+                        <sc-if value="{{ xr.hasLog }}" hint-placeholder-val="{{ false }}">
+                          <div style="display:flex; flex-direction:column; gap:8px; padding-top:4px;">
+                            <sc-for list="{{ xr.log }}" as="l" hint-placeholder-count="3">
+                              <div style="display:grid; grid-template-columns:40px minmax(0,1fr); gap:10px; font-size:13px; line-height:1.45;"><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#8a94a3; padding-top:2px;">{{ l.k }}</span><span style="color:{{ l.c }};">{{ l.t }}</span></div>
+                            </sc-for>
+                          </div>
+                        </sc-if>
+                      </div>
+                      <sc-if value="{{ xr.idle }}" hint-placeholder-val="{{ true }}">
+                        <p style="margin:0; font-size:13.5px; line-height:1.6; color:#8a94a3;">Pick a dependency on the graph or in the list, then launch. Financial results appear once the failure reaches the position.</p>
+                      </sc-if>
+                    </sc-if>
+                  </div>
+                </div>
+
+                <sc-if value="{{ xr.done }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex; flex-direction:column; gap:22px; padding:28px; border:1px solid rgba(255,106,61,.35); background:linear-gradient(120deg, rgba(255,106,61,.07) 0%, rgba(10,14,20,.6) 50%);">
+                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; align-items:baseline;">
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">RESULT · {{ xr.result.name }} · CONDITIONAL ON THE SHOCK (p = 1) · 30 DAYS</span>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#ffb547; border:1px solid rgba(255,181,71,.5); padding:4px 7px; white-space:nowrap;">SIMULATED · RECORDED BACKEND VALUES</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0; border-top:1px solid rgba(233,237,242,.1); border-left:1px solid rgba(233,237,242,.1);">
+                      <div style="display:flex; flex-direction:column; gap:8px; padding:18px 20px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);">
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">DECISION</span>
+                        <span style="font-weight:800; font-stretch:125%; font-size:48px; line-height:.9; color:#ff6a3d;">{{ xr.result.verdict }}</span>
+                        <span style="font-size:12.5px; color:#8a94a3;">Staying costs {{ xr.result.mult }} the exit side</span>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:8px; padding:18px 20px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);">
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">STAY · LOSS</span>
+                        <span style="font-size:30px; font-weight:600; color:#ff6a3d;">{{ xr.result.stay }}</span>
+                        <span style="font-size:12.5px; color:#8a94a3;">{{ xr.result.stayPct }}</span>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:8px; padding:18px 20px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);">
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">EXIT · COST</span>
+                        <span style="font-size:30px; font-weight:600;">{{ xr.result.exit }}</span>
+                        <span style="font-size:12.5px; color:#8a94a3;">{{ xr.result.exitSub }}</span>
+                      </div>
+                      <div style="display:flex; flex-direction:column; gap:8px; padding:18px 20px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);">
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">HOLD TO MATURITY</span>
+                        <span style="font-size:30px; font-weight:600; color:#8a94a3;">n/a</span>
+                        <span style="font-size:12.5px; color:#8a94a3;">Not computed by the backend yet (PT matures 10 Dec 2026)</span>
+                      </div>
+                    </div>
+                    <p style="margin:0; max-width:820px; font-size:16px; line-height:1.6; color:#e9edf2; text-wrap:pretty;">{{ xr.result.reason }}</p>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:18px 32px; font-size:13.5px; line-height:1.6; color:#b4bcc8;">
+                      <div style="display:flex; flex-direction:column; gap:6px;">
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">UNCERTAINTY</span>
+                        <span>This is a point value conditional on the shock, not a forecast. Uncertainty bands are computed for the baseline only ($171 to $27,532). Transmission weights are expert estimates.</span>
+                        <sc-if value="{{ xr.result.zeroNote }}" hint-placeholder-val="{{ false }}"><span style="color:#e9edf2;">{{ xr.result.zeroNote }}</span></sc-if>
+                        <sc-if value="{{ xr.result.borrowNote }}" hint-placeholder-val="{{ false }}"><span style="color:#ffb547;">{{ xr.result.borrowNote }}</span></sc-if>
+                      </div>
+                      <sc-if value="{{ xr.result.hasAlt }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">WEAKER PATHS TO THE SAME DEPENDENCY</span>
+                          <sc-for list="{{ xr.result.alt }}" as="a" hint-placeholder-count="2">
+                            <div style="display:flex; justify-content:space-between; gap:12px; font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#8a94a3;"><span>{{ a.t }}</span><span>{{ a.v }}</span></div>
+                          </sc-for>
+                          <span>{{ xr.result.altNote }}</span>
+                        </div>
+                      </sc-if>
+                    </div>
+                  </div>
+                </sc-if>
+              </sc-if>
+
+              <sc-if value="{{ xr.replay }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start;">
+                  <div style="display:flex; flex-direction:column; flex:1 1 260px; gap:12px; min-width:0;">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">INCIDENT</span>
+                    <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                      <sc-for list="{{ xr.rpScens }}" as="s" hint-placeholder-count="3">
+                        <button onClick="{{ s.pick }}" style="display:flex; flex-direction:column; gap:6px; text-align:left; padding:14px 12px; background:{{ s.bg }}; border:none; border-left:2px solid {{ s.bar }}; border-bottom:1px solid rgba(233,237,242,.1); color:#e9edf2; cursor:pointer;">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.14em; padding:3px 6px; white-space:nowrap; border:1px solid {{ s.chip.bd }}; color:{{ s.chip.fg }}; align-self:flex-start;">{{ s.chip.label }}</span>
+                          <span style="font-size:14.5px; font-weight:600;">{{ s.name }}</span>
+                          <span style="font-size:12.5px; line-height:1.5; color:#8a94a3;">{{ s.sub }}</span>
+                        </button>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:8px; padding:14px; border:1px solid rgba(233,237,242,.08); font-size:12px; line-height:1.5; color:#8a94a3;">
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em;">WHAT KIND OF FACT</span>
+                      <span><span style="color:#e9edf2;">FORK STATE</span> real mainnet state copied into the fork</span>
+                      <span><span style="color:#ff6a3d;">SIMULATED SHOCK</span> injected on the fork, never happened</span>
+                      <span><span style="color:#ffb547;">MODELLED</span> a hypothetical the engine computed</span>
+                      <span><span style="color:#2bb8ff;">MODEL DECISION · FORK CONFIRMED</span> engine output, mined on the fork</span>
+                      <span><span style="color:#e9edf2;">MAINNET CONFIRMED</span> none in this replay</span>
+                    </div>
+                  </div>
+
+                  <div style="flex:2 1 560px; display:flex; flex-direction:column; gap:16px; min-width:0;">
+                    <sc-if value="{{ xr.rp.isS1 }}" hint-placeholder-val="{{ true }}">
+                      <div style="display:flex; flex-direction:column; gap:16px;">
+                        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; align-items:center;">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.14em; color:#8a94a3;">MODELLED REPLAY FROM RECORDED FORK BLOCKS · BLOCK ORDER, NOT WALL-CLOCK TIME</span>
+                          <div style="display:flex; gap:6px;">
+                            <button onClick="{{ xr.rp.prev }}" aria-label="Previous step" style="background:none; border:1px solid rgba(233,237,242,.2); color:#e9edf2; width:40px; height:40px; cursor:pointer;">‹</button>
+                            <button onClick="{{ xr.rp.play }}" style="background:#ffb547; color:#05070b; border:none; padding:0 18px; height:40px; font-weight:600; cursor:pointer;" style-hover="background:#e9edf2;">{{ xr.rp.playLabel }}</button>
+                            <button onClick="{{ xr.rp.next }}" aria-label="Next step" style="background:none; border:1px solid rgba(233,237,242,.2); color:#e9edf2; width:40px; height:40px; cursor:pointer;">›</button>
+                          </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:6px;">
+                          <sc-for list="{{ xr.rp.steps }}" as="s" hint-placeholder-count="7">
+                            <button onClick="{{ s.go }}" style="display:flex; flex-direction:column; gap:8px; text-align:left; padding:0; background:none; border:none; color:{{ s.c }}; cursor:pointer; min-width:0;">
+                              <span style="height:2px; width:100%; background:{{ s.bar }}; transition:background .4s;"></span>
+                              <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.1em;">{{ s.t }}</span>
+                            </button>
+                          </sc-for>
+                        </div>
+                        <div style="border:1px solid rgba(233,237,242,.1); background:#070a0f; padding:10px 6px 0; overflow-x:auto; overflow-y:hidden;">
+                          <div style="position:relative; min-width:560px;">
+                          <svg data-vb="0 0 860 400" viewBox="0 0 860 400" role="img" aria-label="Incident replay graph" style="width:100%; height:auto; display:block;">
+                            <sc-for list="{{ xr.rpEdges }}" as="e" hint-placeholder-count="7">
+                              <path d="{{ e.d }}" style="fill:none; stroke:{{ e.stroke }}; stroke-width:{{ e.w }}; stroke-dasharray:{{ e.dash }}; transition:stroke .5s, stroke-width .5s;"></path>
+                            </sc-for>
+                            <sc-for list="{{ xr.rpNodes }}" as="n" hint-placeholder-count="7">
+                              <g>
+                                <circle cx="{{ n.x }}" cy="{{ n.y }}" r="{{ n.halo }}" style="fill:{{ n.haloC }}; transition:fill .5s;"></circle>
+                                <circle cx="{{ n.x }}" cy="{{ n.y }}" r="9" style="fill:{{ n.fill }}; stroke:{{ n.stroke }}; stroke-width:1.6; transition:fill .5s, stroke .5s;"></circle>
+                              </g>
+                            </sc-for>
+                          </svg>
+                          <sc-for list="{{ xr.rpNodes }}" as="n" hint-placeholder-count="7">
+                            <span style="position:absolute; left:{{ n.lx }}; top:{{ n.ly }}; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:2px; white-space:nowrap; pointer-events:none;">
+                              <span style="font-size:12.5px; font-weight:600; color:{{ n.lc }}; transition:color .4s;">{{ n.label }}</span>
+                              <span style="font-family:'IBM Plex Mono', monospace; font-size:9px; color:#8a94a3;">{{ n.sub }}</span>
+                            </span>
+                          </sc-for>
+                          </div>
+                        </div>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:20px;">
+                          <div style="display:flex; flex-direction:column; gap:10px; min-width:0;">
+                            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                              <span style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:#e9edf2; white-space:nowrap;">{{ xr.rp.t }}</span>
+                              <span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.14em; padding:3px 6px; white-space:nowrap; border:1px solid {{ xr.rp.chip.bd }}; color:{{ xr.rp.chip.fg }}; background:{{ xr.rp.chip.bg }};">{{ xr.rp.chip.label }}</span>
+                              <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#8a94a3; white-space:nowrap;">fork block {{ xr.rp.block }}</span>
+                            </div>
+                            <span style="font-size:24px; font-weight:700; font-stretch:110%; letter-spacing:-.01em;">{{ xr.rp.title }}</span>
+                            <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">{{ xr.rp.body }}</p>
+                          </div>
+                          <div style="display:grid; grid-template-columns:1fr 1fr; border-top:1px solid rgba(233,237,242,.1); border-left:1px solid rgba(233,237,242,.1); align-self:start;">
+                            <div style="display:flex; flex-direction:column; gap:6px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">LTV</span><span style="font-size:24px; font-weight:600; color:{{ xr.rp.ltvC }}; transition:color .4s;">{{ xr.rp.ltv }}</span></div>
+                            <div style="display:flex; flex-direction:column; gap:6px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">DEBT · USDC</span><span style="font-size:24px; font-weight:600;">{{ xr.rp.debt }}</span></div>
+                            <div style="display:flex; flex-direction:column; gap:6px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">RESERVE · USDC</span><span style="font-size:24px; font-weight:600;">{{ xr.rp.reserve }}</span></div>
+                            <div style="display:flex; flex-direction:column; gap:6px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">KEEPER STATE</span><span style="font-family:'IBM Plex Mono', monospace; font-size:13px; line-height:1.4;">{{ xr.rp.state }}</span></div>
+                          </div>
+                        </div>
+                        <p style="margin:0; font-size:12.5px; line-height:1.6; color:#8a94a3;">FAULTLINE did not protect real funds here. This ran on a local fork with test balances; the only transactions are on chain 31337.</p>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ xr.rp.isS5 }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; flex-direction:column; gap:14px; padding:28px; border:1px solid rgba(233,237,242,.1);">
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">UNAVAILABLE · NEEDS A RECORDING</span>
+                        <span style="font-size:22px; font-weight:600;">S5 · Pendle PT collateral on Morpho</span>
+                        <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8;">The recorded Countermove run in the repository covers S1 to S4 (weETH and cbBTC markets). There is no S5 journal yet, so this replay cannot be shown without inventing data. Recording it with scripts/countermove_fork_demo.py on the PT-reUSD market would enable this slot.</p>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ xr.rp.isSVB }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; flex-direction:column; gap:14px; padding:28px; border:1px solid rgba(233,237,242,.1);">
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">HISTORICAL DATA · MODEL CHECK</span>
+                        <span style="font-size:22px; font-weight:600;">USDC depeg after SVB · cutoff 11 March 2023</span>
+                        <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8;">This event really happened. FAULTLINE uses it to check that its risk priors are built only from data available before the cutoff. USDC closed at $0.961 on 12 March 2023; the intraday low is not in the dataset. FAULTLINE did not exist at the time and protected nothing.</p>
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#8a94a3;">data/fixtures/replay_h04.json · tests/test_hardening.py</span>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sec.countermove }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:22px; min-width:0;">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#2bb8ff;">COUNTERMOVE · ARM PROTECTION</span>
+                <span style="font-size:30px; font-weight:700; font-stretch:112%; letter-spacing:-.01em;">Decide the defense before the crisis</span>
+                <span style="font-size:14.5px; line-height:1.6; color:#b4bcc8; max-width:760px;">A policy says when FAULTLINE may act, which moves it may make, and how much it may spend. A RescueVault you own holds the reserve and refuses anything outside the policy. Connecting a wallet never grants that permission.</span>
+              </div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px;">
+                <sc-for list="{{ arm.tabs }}" as="t" hint-placeholder-count="3">
+                  <button onClick="{{ t.go }}" style="display:flex; flex-direction:column; gap:10px; text-align:left; padding:16px 18px; background:{{ t.bg }}; border:1px solid {{ t.bd }}; color:#e9edf2; cursor:pointer;" style-focus="outline:1px solid #2bb8ff;">
+                    <span style="display:flex; justify-content:space-between; gap:10px; width:100%;"><span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a94a3;">{{ t.num }}</span><span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.14em; padding:3px 6px; white-space:nowrap; border:1px solid {{ t.chip.bd }}; color:{{ t.chip.fg }};">{{ t.chip.label }}</span></span>
+                    <span style="font-size:16px; font-weight:600;">{{ t.label }}</span>
+                  </button>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ arm.isPreview }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; flex-direction:column; gap:20px;">
+                  <sc-if value="{{ arm.notEligible }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; flex-direction:column; gap:14px; padding:26px; border:1px solid rgba(233,237,242,.12); max-width:780px;">
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">NOT APPLICABLE TO {{ arm.posName }}</span>
+                      <span style="font-size:21px; font-weight:600; line-height:1.3;">Protection defends a loan. This position has no debt, so there is nothing to repay and no liquidation to avoid.</span>
+                      <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8;">For deposits and unlevered positions, FAULTLINE's answer is STAY, EXIT or REVIEW. To configure a policy, use a borrow position.</p>
+                      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button onClick="{{ arm.useFork }}" style="background:#2bb8ff; color:#05070b; border:none; padding:12px 18px; font-weight:600; cursor:pointer;" style-hover="background:#e9edf2;">Use fork position S1</button>
+                        <button onClick="{{ arm.useBorrow }}" style="background:none; color:#e9edf2; border:1px solid rgba(233,237,242,.3); padding:12px 18px; cursor:pointer;" style-hover="border-color:#e9edf2;">Use borrower 0xAa34…5Dd5</button>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ arm.eligible }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start;">
+                      <div style="flex:2 1 560px; display:flex; flex-direction:column; gap:20px; min-width:0;">
+                        <div style="display:flex; flex-direction:column; gap:16px; padding:22px; border:1px solid rgba(233,237,242,.1);">
+                          <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                            <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">01 · PROTECTED POSITION AND TRIGGER</span>
+                            <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#b4bcc8;">{{ arm.ctxLine }}</span>
+                          </div>
+                          <div style="position:relative; height:46px; margin:4px 0 0;">
+                            <div style="position:absolute; left:0; right:0; top:20px; height:4px; background:linear-gradient(90deg, rgba(233,237,242,.1) 0%, rgba(255,181,71,.35) 70%, rgba(255,106,61,.6) 100%);"></div>
+                            <div style="position:absolute; top:10px; left:{{ arm.ltvL }}; width:2px; height:24px; background:#e9edf2; transition:left .2s;"></div>
+                            <div style="position:absolute; top:6px; left:{{ arm.trigL }}; width:2px; height:32px; background:#2bb8ff; transition:left .2s;"></div>
+                            <div style="position:absolute; top:10px; left:{{ arm.lltvL }}; width:2px; height:24px; background:#ff6a3d;"></div>
+                            <span style="position:absolute; top:-6px; left:{{ arm.ltvL }}; transform:translateX(-50%); font-family:'IBM Plex Mono', monospace; font-size:10px; color:#e9edf2; white-space:nowrap;">NOW {{ arm.ltvTxt }}</span>
+                            <span style="position:absolute; top:38px; left:{{ arm.lltvL }}; transform:translateX(-50%); font-family:'IBM Plex Mono', monospace; font-size:10px; color:#ff6a3d; white-space:nowrap;">LLTV {{ arm.lltvTxt }}</span>
+                          </div>
+                          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px 28px; padding-top:8px;">
+                            <label style="display:flex; flex-direction:column; gap:8px; font-size:13.5px;"><span style="display:flex; justify-content:space-between;"><span style="color:#b4bcc8;">Act when LTV rises above</span><span style="font-family:'IBM Plex Mono', monospace; color:#2bb8ff;">{{ arm.pol.trigger }}%</span></span><input type="range" min="50" max="{{ arm.trigMax }}" step="0.5" value="{{ arm.pol.trigger }}" onInput="{{ arm.onTrigger }}"></label>
+                            <label style="display:flex; flex-direction:column; gap:8px; font-size:13.5px;"><span style="display:flex; justify-content:space-between;"><span style="color:#b4bcc8;">Plan against a further drop of</span><span style="font-family:'IBM Plex Mono', monospace;">{{ arm.pol.followOn }}%</span></span><input type="range" min="2" max="20" step="1" value="{{ arm.pol.followOn }}" onInput="{{ arm.onFollow }}"></label>
+                            <label style="display:flex; flex-direction:column; gap:8px; font-size:13.5px;"><span style="display:flex; justify-content:space-between;"><span style="color:#b4bcc8;">Keep a liquidation buffer of</span><span style="font-family:'IBM Plex Mono', monospace;">{{ arm.pol.buffer }} USDC</span></span><input type="range" min="0" max="1000" step="50" value="{{ arm.pol.buffer }}" onInput="{{ arm.onBuffer }}"></label>
+                            <label style="display:flex; flex-direction:column; gap:8px; font-size:13.5px;"><span style="display:flex; justify-content:space-between;"><span style="color:#b4bcc8;">Never repay below LTV</span><span style="font-family:'IBM Plex Mono', monospace;">{{ arm.pol.minAfter }}%</span></span><input type="range" min="10" max="{{ arm.minMax }}" step="1" value="{{ arm.pol.minAfter }}" onInput="{{ arm.onMin }}"></label>
+                          </div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:12px; padding:22px; border:1px solid rgba(233,237,242,.1);">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">02 · ALLOWED ACTIONS · IN PRIORITY ORDER</span>
+                          <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                            <sc-for list="{{ arm.actions }}" as="a" hint-placeholder-count="3">
+                              <div style="display:grid; grid-template-columns:28px minmax(0,1fr) auto auto; gap:14px; align-items:center; padding:12px 0; border-bottom:1px solid rgba(233,237,242,.1);">
+                                <span style="font-family:'IBM Plex Mono', monospace; font-size:12px; color:#8a94a3;">{{ a.rank }}</span>
+                                <span style="display:flex; flex-direction:column; gap:3px; min-width:0;"><span style="font-size:15px; font-weight:600;">{{ a.label }} <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; font-weight:400; color:#8a94a3;">{{ a.key }}</span></span><span style="font-size:12.5px; color:#8a94a3;">{{ a.sub }}</span></span>
+                                <span style="display:flex; gap:4px;">
+                                  <button onClick="{{ a.up }}" aria-label="Move up" style="width:32px; height:32px; background:none; border:1px solid rgba(233,237,242,.16); color:#b4bcc8; cursor:pointer;">↑</button>
+                                  <button onClick="{{ a.down }}" aria-label="Move down" style="width:32px; height:32px; background:none; border:1px solid rgba(233,237,242,.16); color:#b4bcc8; cursor:pointer;">↓</button>
+                                </span>
+                                <button onClick="{{ a.toggle }}" aria-pressed="{{ a.on }}" style="min-width:86px; height:32px; background:none; border:1px solid {{ a.onBd }}; color:{{ a.onC }}; cursor:pointer; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em;">{{ a.onLabel }}</button>
+                              </div>
+                            </sc-for>
+                            <div style="display:grid; grid-template-columns:28px minmax(0,1fr) auto; gap:14px; align-items:center; padding:12px 0; border-bottom:1px solid rgba(233,237,242,.1); color:#b4bcc8;">
+                              <span style="font-family:'IBM Plex Mono', monospace; font-size:12px; color:#8a94a3;">·</span>
+                              <span style="display:flex; flex-direction:column; gap:3px;"><span style="font-size:15px; font-weight:600; color:#e9edf2;">Hold and alert</span><span style="font-size:12.5px; color:#8a94a3;">Fallback when no allowed action is fundable</span></span>
+                              <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#8a94a3;">ALWAYS</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style="display:flex; flex-direction:column; gap:12px; padding:22px; border:1px solid rgba(233,237,242,.1);">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">03 · RESERVES AND LIMITS</span>
+                          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px 20px;">
+                            <sc-for list="{{ arm.fields }}" as="f" hint-placeholder-count="6">
+                              <label style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:#b4bcc8;">
+                                <span>{{ f.label }}</span>
+                                <span style="display:flex; border:1px solid rgba(233,237,242,.16); background:rgba(10,14,20,.8);"><input type="number" min="0" step="{{ f.step }}" value="{{ f.value }}" onInput="{{ f.onInput }}" style="flex:1; min-width:0; background:transparent; border:none; outline:none; color:#e9edf2; font-family:'IBM Plex Mono', monospace; font-size:14px; padding:11px 12px;"><span style="padding:11px 12px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a94a3; border-left:1px solid rgba(233,237,242,.1);">{{ f.unit }}</span></span>
+                                <span style="font-size:11.5px; color:#8a94a3;">{{ f.note }}</span>
+                              </label>
+                            </sc-for>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style="display:flex; flex-direction:column; flex:1 1 300px; gap:16px; min-width:0;">
+                        <div style="display:flex; flex-direction:column; gap:12px; padding:22px; border:1px solid rgba(233,237,242,.1);">
+                          <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+                            <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">MONITORING</span>
+                            <span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.14em; padding:3px 6px; white-space:nowrap; border:1px solid rgba(138,148,163,.4); color:#8a94a3;">NOT MONITORING</span>
+                          </div>
+                          <p style="margin:0; font-size:13.5px; line-height:1.6; color:#b4bcc8;">No keeper is watching this position and no reserve is funded. Validating a preview does not change that.</p>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:10px; padding:22px; border:1px solid rgba(233,237,242,.1); font-size:13px; line-height:1.55;">
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">PERMISSION REVIEW · WHEN DEPLOYED</span>
+                          <span style="color:#e9edf2;">You would sign, as owner:</span>
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#b4bcc8;">deploy RescueVault for this market<br>setPolicy(trigger, actions, caps, expiry, cooldown)<br>setKeeper(FAULTLINE keeper)<br>deposit(USDC, {{ arm.loanRes }}) · deposit({{ arm.coll }}, {{ arm.collRes }})</span>
+                          <span style="color:#e9edf2;">The keeper could then call only:</span>
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#b4bcc8;">executeRepay · executeTopUp · executeFullRepay<br>each checked against your policy on-chain</span>
+                          <span style="color:#e9edf2;">You keep, at any time:</span>
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#b4bcc8;">setPaused · revoke · withdrawReserve</span>
+                          <div style="display:flex; gap:8px; padding-top:6px;">
+                            <button disabled="" style="flex:1; background:none; border:1px solid rgba(233,237,242,.14); color:#5b6470; padding:10px; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; cursor:not-allowed;">PAUSE</button>
+                            <button disabled="" style="flex:1; background:none; border:1px solid rgba(233,237,242,.14); color:#5b6470; padding:10px; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; cursor:not-allowed;">REVOKE</button>
+                          </div>
+                          <span style="font-size:12px; color:#8a94a3;">Pause and revoke exist on the contract. They are disabled here because nothing is deployed.</span>
+                        </div>
+                        <button onClick="{{ arm.runDry }}" style="background:#ffb547; color:#05070b; border:none; padding:15px 18px; font-weight:600; font-size:15px; cursor:pointer;" style-hover="background:#e9edf2;" style-focus="outline:2px solid #e9edf2; outline-offset:2px;">Validate policy preview</button>
+                        <button disabled="" style="background:none; color:#5b6470; border:1px solid rgba(233,237,242,.14); padding:15px 18px; font-weight:600; font-size:15px; cursor:not-allowed; text-align:left; display:flex; flex-direction:column; gap:4px;"><span>Arm protection</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; font-weight:400; letter-spacing:.06em;">Unavailable: no RescueVault deployed on mainnet</span></button>
+                        <button onClick="{{ arm.reset }}" style="align-self:flex-start; background:none; border:none; padding:0; color:#8a94a3; cursor:pointer; font-size:13px;" style-hover="color:#e9edf2;">Reset to defaults</button>
+                      </div>
+                    </div>
+
+                    <sc-if value="{{ arm.hasDry }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; flex-direction:column; gap:14px; padding:24px; border:1px solid rgba(255,181,71,.4); background:rgba(255,181,71,.04);">
+                        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; align-items:center;">
+                          <span style="display:flex; gap:12px; align-items:center;"><span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.14em; padding:3px 6px; white-space:nowrap; border:1px solid rgba(255,181,71,.5); color:#ffb547;">DRY RUN</span><span style="font-size:18px; font-weight:600;">Policy preview</span></span>
+                          <span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#b4bcc8;">{{ arm.dry.summary }}</span>
+                        </div>
+                        <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                          <sc-for list="{{ arm.dry.checks }}" as="c" hint-placeholder-count="6">
+                            <div style="display:grid; grid-template-columns:76px minmax(140px,220px) minmax(0,1fr); gap:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.08); font-size:13px; line-height:1.5;">
+                              <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:{{ c.c }};">{{ c.s }}</span>
+                              <span style="color:#e9edf2;">{{ c.t }}</span>
+                              <span style="color:#b4bcc8;">{{ c.d }}</span>
+                            </div>
+                          </sc-for>
+                        </div>
+                        <span style="font-size:12px; color:#8a94a3;">Prototype checks run in the browser. In the product, the policy preview and dry run come from /api/countermove. No signature was requested and no transaction was sent.</span>
+                      </div>
+                    </sc-if>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ arm.isFork }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr)); gap:20px; align-items:start;">
+                  <div style="display:flex; flex-direction:column; gap:14px; padding:24px; border:1px solid rgba(43,184,255,.3);">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#2bb8ff;">RECORDED FORK RUN · S1 · TEST FUNDS</span>
+                    <span style="font-size:22px; font-weight:600;">Armed on a local fork, then attacked</span>
+                    <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8;">User A armed a RescueVault on an Anvil fork of Ethereum (block 26,164,248, chain 31337). A controlled −9% feed shock pushed the position over its trigger. The keeper repaid 1,086.50 USDC from the reserve and verified the result. The user signed nothing during the crisis.</p>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.1em;">
+                      <span style="padding:4px 6px; border:1px solid rgba(233,237,242,.2); color:#b4bcc8;">WATCHING</span><span style="padding:4px 6px; border:1px solid rgba(255,106,61,.5); color:#ff6a3d;">DETECTED</span><span style="padding:4px 6px; border:1px solid rgba(233,237,242,.2); color:#b4bcc8;">PLANNING</span><span style="padding:4px 6px; border:1px solid rgba(233,237,242,.2); color:#b4bcc8;">VALIDATING</span><span style="padding:4px 6px; border:1px solid rgba(43,184,255,.5); color:#2bb8ff;">EXECUTING</span><span style="padding:4px 6px; border:1px solid rgba(43,184,255,.5); color:#2bb8ff;">CONFIRMED</span><span style="padding:4px 6px; border:1px solid rgba(233,237,242,.2); color:#b4bcc8;">WATCHING</span>
+                    </div>
+                    <button onClick="{{ arm.toReplay }}" style="align-self:flex-start; background:#ffb547; color:#05070b; border:none; padding:12px 18px; font-weight:600; cursor:pointer;" style-hover="background:#e9edf2;">Replay this incident</button>
+                  </div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; border-top:1px solid rgba(233,237,242,.1); border-left:1px solid rgba(233,237,242,.1);">
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">TRIGGER</span><span style="font-size:18px;">LTV 82%</span></div>
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">FLOOR</span><span style="font-size:18px;">LTV 40%</span></div>
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">ACTIONS</span><span style="font-size:18px;">Repay · top-up · full repay</span></div>
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">BUFFER</span><span style="font-size:18px;">250 USDC</span></div>
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">CAPS / ACTION</span><span style="font-size:18px;">5,000 USDC · 1 weETH</span></div>
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">TOTAL CAPS</span><span style="font-size:18px;">30,000 USDC · 1 weETH</span></div>
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">RESERVE AFTER</span><span style="font-size:18px;">3,913.50 USDC</span></div>
+                    <div style="display:flex; flex-direction:column; gap:5px; padding:14px 16px; border-right:1px solid rgba(233,237,242,.1); border-bottom:1px solid rgba(233,237,242,.1);"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">EXPIRY · COOLDOWN</span><span style="font-size:18px;">30 days · 1 h</span></div>
+                  </div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ arm.isDeployed }}" hint-placeholder-val="{{ false }}">
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr)); gap:20px; align-items:start;">
+                  <div style="display:flex; flex-direction:column; gap:14px; padding:24px; border:1px dashed rgba(233,237,242,.25);">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">DESIGN TARGET · NOT AVAILABLE YET</span>
+                    <span style="font-size:22px; font-weight:600; line-height:1.3;">Authorize once, then let FAULTLINE watch in the background</span>
+                    <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8;">In the deployed product, this view shows the live policy, the reserve, the last block checked and every action taken. The status reads as protected only when all four requirements below are verified on-chain. Today none of them are met.</p>
+                    <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                      <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span>RescueVault deployed and source-verified on mainnet</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#ff6a3d;">NO</span></div>
+                      <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span>Reserves funded by the owner</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#ff6a3d;">NO</span></div>
+                      <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span>Keeper monitoring running and reporting</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#ff6a3d;">NO</span></div>
+                      <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span>Owner policy and keeper confirmed on-chain</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#ff6a3d;">NO</span></div>
+                    </div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:12px; padding:24px; border:1px solid rgba(233,237,242,.08); opacity:.55;">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">WIREFRAME OF THE FUTURE STATUS PANEL</span>
+                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Status</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">UNAVAILABLE</span></div>
+                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Last block checked</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">—</span></div>
+                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Reserve</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">—</span></div>
+                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Remaining limits</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">—</span></div>
+                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Policy expires</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">—</span></div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sec.activity }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; flex-direction:column; gap:20px; min-width:0;">
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">ACTIVITY AND EVIDENCE</span>
+                <span style="font-size:30px; font-weight:700; font-stretch:112%; letter-spacing:-.01em;">What was run, where, and how you can check it</span>
+                <span style="font-size:14.5px; line-height:1.6; color:#b4bcc8; max-width:760px;">Only recorded artifacts and this session's own actions appear here. There is no account storage yet, so session entries disappear when you leave.</span>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                <sc-for list="{{ act.filters }}" as="f" hint-placeholder-count="7">
+                  <button onClick="{{ f.go }}" style="padding:8px 12px; background:{{ f.bg }}; color:{{ f.c }}; border:1px solid {{ f.bd }}; cursor:pointer; font-size:13px; white-space:nowrap;">{{ f.label }}</button>
+                </sc-for>
+              </div>
+              <div style="display:flex; flex-wrap:wrap; gap:20px; align-items:flex-start;">
+                <div style="flex:2 1 560px; display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1); min-width:0;">
+                  <sc-for list="{{ act.rows }}" as="r" hint-placeholder-count="8">
+                    <button onClick="{{ r.go }}" style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 16px; text-align:left; padding:14px 14px; background:{{ r.bg }}; border:none; border-left:2px solid {{ r.bar }}; border-bottom:1px solid rgba(233,237,242,.1); color:#e9edf2; cursor:pointer;" style-hover="background:rgba(233,237,242,.03);">
+                      <span style="font-size:15px; font-weight:500;">{{ r.title }}</span>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.14em; padding:3px 6px; white-space:nowrap; border:1px solid {{ r.chip.bd }}; color:{{ r.chip.fg }}; background:{{ r.chip.bg }}; justify-self:end; white-space:nowrap;">{{ r.chip.label }}</span>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a94a3;">{{ r.meta }}</span>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:#b4bcc8; justify-self:end;">{{ r.result }}</span>
+                    </button>
+                  </sc-for>
+                  <sc-if value="{{ act.empty }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:36px 4px; font-size:14.5px; line-height:1.6; color:#8a94a3; max-width:620px;">{{ act.empty }}</div>
+                  </sc-if>
+                </div>
+                <div style="display:flex; flex-direction:column; flex:1 1 300px; gap:16px; min-width:0;">
+                  <sc-if value="{{ act.hasSel }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex; flex-direction:column; gap:12px; padding:22px; border:1px solid rgba(233,237,242,.12);">
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.14em; padding:3px 6px; white-space:nowrap; border:1px solid {{ act.sel.chip.bd }}; color:{{ act.sel.chip.fg }}; background:{{ act.sel.chip.bg }}; align-self:flex-start;">{{ act.sel.chip.label }}</span>
+                      <span style="font-size:19px; font-weight:600; line-height:1.3;">{{ act.sel.title }}</span>
+                      <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a94a3;">{{ act.sel.meta }} · {{ act.sel.result }}</span>
+                      <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
+                        <sc-for list="{{ act.sel.fields }}" as="f" hint-placeholder-count="4">
+                          <div style="display:flex; flex-direction:column; gap:3px; padding:9px 0; border-bottom:1px solid rgba(233,237,242,.08); font-size:13px; line-height:1.5;"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">{{ f.k }}</span><span>{{ f.v }}</span></div>
+                        </sc-for>
+                      </div>
+                      <sc-if value="{{ act.sel.tx }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex; flex-direction:column; gap:4px;"><span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; color:#8a94a3;">TRANSACTION</span><span style="font-family:'IBM Plex Mono', monospace; font-size:11px; line-height:1.5; word-break:break-all;">{{ act.sel.tx }}</span></div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                  <div style="display:flex; flex-direction:column; gap:10px; padding:18px; border:1px solid rgba(233,237,242,.08);">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3;">STATUS LABELS</span>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                      <sc-for list="{{ act.legend }}" as="l" hint-placeholder-count="8">
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.12em; padding:3px 6px; white-space:nowrap; border:1px solid {{ l.bd }}; color:{{ l.fg }}; background:{{ l.bg }};">{{ l.label }}</span>
+                      </sc-for>
+                    </div>
+                    <span style="font-size:12px; line-height:1.55; color:#8a94a3;">Fork transactions exist only on the local chain 31337. The one mainnet transaction listed is a third-party liquidation used to validate the model.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+      <nav style="position:fixed; left:0; right:0; bottom:0; z-index:30; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); background:rgba(5,7,11,.96); border-top:1px solid rgba(233,237,242,.12); backdrop-filter:blur(12px);">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+          <button onClick="{{ n.go }}" style="display:flex; flex-direction:column; align-items:center; gap:4px; min-height:56px; justify-content:center; padding:8px 2px; background:none; border:none; border-top:2px solid {{ n.bar }}; color:{{ n.color }}; cursor:pointer; font-size:11px;">
+            <span style="font-family:'IBM Plex Mono', monospace; font-size:10px; color:#8a94a3;">{{ n.num }}</span><span>{{ n.short }}</span>
+          </button>
+        </sc-for>
+      </nav>
+    </sc-if>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startAt&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;select&quot;,&quot;demo&quot;,&quot;positions&quot;,&quot;xray&quot;,&quot;simulate&quot;,&quot;replay&quot;,&quot;arm&quot;,&quot;activity&quot;],&quot;default&quot;:&quot;select&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Prototype&quot;},&quot;reduceMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;}}">
+const CH = {
+  ink: ['#e9edf2', 'rgba(233,237,242,.35)', 'transparent'],
+  amber: ['#ffb547', 'rgba(255,181,71,.5)', 'rgba(255,181,71,.07)'],
+  cyan: ['#2bb8ff', 'rgba(43,184,255,.5)', 'rgba(43,184,255,.07)'],
+  ember: ['#ff6a3d', 'rgba(255,106,61,.5)', 'rgba(255,106,61,.07)'],
+  mute: ['#8a94a3', 'rgba(138,148,163,.4)', 'transparent'],
+  solid: ['#05070b', '#e9edf2', '#e9edf2']
+};
+const CHMAP = { 'RECORDED LIVE RUN': 'ink', 'FORK STATE': 'ink', 'HISTORICAL DATA': 'ink', 'LOCAL FORK': 'amber', 'SIMULATED': 'amber', 'SIMULATED SHOCK': 'ember', 'MODELLED': 'amber', 'DRY RUN': 'amber', 'PREVIEW ONLY': 'amber', 'POLICY PREVIEW': 'amber', 'THIS SESSION': 'amber', 'INDICATIVE': 'amber', 'FORK CONFIRMED': 'cyan', 'VERIFIED ON FORK': 'cyan', 'FORK OBSERVATION': 'cyan', 'MODEL DECISION': 'cyan', 'AVAILABLE': 'cyan', 'FORK DEMONSTRATION': 'cyan', 'MAINNET CONFIRMED': 'solid', 'UNAVAILABLE': 'mute', 'NOT APPLICABLE': 'mute', 'PENDING': 'mute', 'DESIGN TARGET': 'mute', 'NOT MONITORING': 'mute', 'LIVE': 'cyan', 'RECOGNIZED': 'cyan' };
+const chip = l => { const c = CH[CHMAP[l] || 'mute']; return { label: l, fg: c[0], bd: c[1], bg: c[2] }; };
+const usd = v => (v < 0 ? '−$' : '$') + Math.round(Math.abs(v)).toLocaleString('en-US');
+const AMBER = '#ffb547', CYAN = '#2bb8ff', EMBER = '#ff6a3d', INK = '#e9edf2', MUTE = '#8a94a3';
+const PT_MARKET = '0x1e9d614631a7df0ec07fb05b2c8cb2491575fd1a63a33bf187a6afb295a4fc64';
+const VAULT_ADDR = '0xd6d4b804014ef27836dbe9f8f6bf6c71251548ec';
+
+class Component extends DCLogic {
+  state = {
+    ready: !!window.FL, screen: 'select', query: '', lk: { status: 'idle' }, candId: null, posId: 'pt', pvId: null,
+    section: 'dashboard', loadStep: 0, width: typeof innerWidth === 'number' ? innerWidth : 1280,
+    xrMode: 'inspect', xrView: 'graph', revealed: false, selNode: null,
+    simKind: 'node', simNode: 'underlying', simScen: 0, simStep: -1, simDone: false,
+    rpStep: 0, rpPlaying: false, rpScen: 'S1',
+    armTab: 'preview', armPos: null, policy: null, dry: null,
+    session: [], actFilter: 'all', actSel: 'f1'
+  };
+
+  componentDidMount() {
+    this.onResize = () => this.setState({ width: innerWidth });
+    addEventListener('resize', this.onResize);
+    const boot = () => {
+      if (!window.FL) { this.bootT = setTimeout(boot, 60); return; }
+      this.setState({ ready: true });
+      const h = (location.hash || '').replace('#', '');
+      const start = h || this.props.startAt || 'select';
+      if (start !== 'select') this.jump(start);
+    };
+    boot();
+  }
+  componentDidUpdate() { this.fixSvg(); }
+  fixSvg() { try { document.querySelectorAll('svg[data-vb]').forEach(s => { if (s.getAttribute('viewBox') !== s.dataset.vb) s.setAttribute('viewBox', s.dataset.vb); }); } catch (e) {} }
+  componentWillUnmount() {
+    removeEventListener('resize', this.onResize);
+    clearTimeout(this.bootT); clearInterval(this.loadT); clearTimeout(this.lkT); clearInterval(this.simT); clearInterval(this.rpT);
+  }
+  reduced() { return !!this.props.reduceMotion || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  jump(where) {
+    const map = { demo: ['pt', 'dashboard'], dashboard: ['pt', 'dashboard'], positions: ['vault', 'positions'], xray: ['pt', 'xray'], simulate: ['pt', 'xray', 'simulate'], replay: ['fork', 'xray', 'replay'], arm: ['fork', 'countermove'], activity: ['pt', 'activity'] };
+    const m = map[where] || map.demo;
+    if (where === 'demo') { this.setState({ posId: 'pt', candId: 'pt' }, () => this.startAnalysis()); return; }
+    this.setState({ screen: 'app', posId: m[0], section: m[1], xrMode: m[2] || 'inspect', revealed: !!m[2] });
+  }
+  scrollTop() { try { scrollTo({ top: 0 }); } catch (e) {} }
+  go(section, extra) { this.stopSim(); this.setState(Object.assign({ section }, extra || {})); this.scrollTop(); }
+
+  // ---------- select / lookup ----------
+  lookup(q, mode) {
+    clearTimeout(this.lkT);
+    q = (q || '').trim().toLowerCase();
+    if (mode === 'error') { this.setState({ lk: { status: 'checking' } }); this.lkT = setTimeout(() => this.setState({ lk: { status: 'error' } }), 900); return; }
+    if (mode === 'slow') { this.setState({ lk: { status: 'slow', t0: Date.now() } }); this.lkT = setTimeout(() => this.setState({ lk: { status: 'slow2' } }), 3500); return; }
+    if (!q) { this.setState({ lk: { status: 'idle' } }); return; }
+    if (!/^0x[0-9a-f]*$/.test(q)) { this.setState({ lk: { status: 'invalid', msg: 'That is not a 0x address or market id.' } }); return; }
+    if (q.length !== 42 && q.length !== 66) { this.setState({ lk: { status: 'invalid', msg: 'Length does not match an address (42 characters) or a Morpho market id (66 characters).' } }); return; }
+    if (/^0x0+$/.test(q)) { this.setState({ lk: { status: 'invalid', msg: 'The null address cannot hold a position.' } }); return; }
+    this.setState({ lk: { status: 'checking' } });
+    this.lkT = setTimeout(() => {
+      if (q === PT_MARKET) this.setState({ lk: { status: 'found', id: 'pt' }, candId: 'pt' });
+      else if (q === VAULT_ADDR) this.setState({ lk: { status: 'found', id: 'vault' }, candId: 'vault' });
+      else if (q.length === 66) this.setState({ lk: { status: 'unsupported', msg: 'Valid market id, but it is not in the supported set. FAULTLINE currently covers Morpho Blue markets that take a Pendle PT as collateral.' } });
+      else this.setState({ lk: { status: 'unsupported', msg: 'Not a Morpho vault: the V1 and V2 factory checks both returned false (422 unsupported_contract). If this is a wallet, FAULTLINE cannot list its positions automatically. Paste the market id it borrows on instead.' } });
+    }, 900);
+  }
+  startAnalysis() {
+    const id = this.state.candId || 'pt';
+    clearInterval(this.loadT);
+    if (this.reduced()) { this.setState({ posId: id, screen: 'app', section: 'dashboard', loadStep: 9 }); return; }
+    this.setState({ posId: id, screen: 'loading', loadStep: 0 });
+    this.loadT = setInterval(() => {
+      const n = this.state.loadStep + 1;
+      if (n > 6) { clearInterval(this.loadT); this.setState({ screen: 'app', section: 'dashboard', xrMode: 'inspect', selNode: null }); this.scrollTop(); return; }
+      this.setState({ loadStep: n });
+    }, 420);
+  }
+
+  // ---------- simulation ----------
+  stopSim() { clearInterval(this.simT); clearInterval(this.rpT); if (this.state.rpPlaying) this.setState({ rpPlaying: false }); }
+  simTargets() { const F = window.FL; return this.state.simKind === 'node' ? [this.state.simNode] : F.SCEN[this.state.simScen].targets; }
+  simOrder() {
+    const F = window.FL, ord = {};
+    this.simTargets().forEach(id => { const n = F.NODES.find(x => x.id === id); const P = n.path; P.forEach((pid, i) => { const o = P.length - 1 - i; ord[pid] = ord[pid] == null ? o : Math.min(ord[pid], o); }); });
+    return ord;
+  }
+  launchSim() {
+    clearInterval(this.simT);
+    const ord = this.simOrder(); const max = Math.max.apply(null, Object.values(ord));
+    if (this.reduced()) { this.setState({ simStep: max, simDone: true, revealed: true }); this.logSim(); return; }
+    this.setState({ simStep: 0, simDone: false, revealed: true });
+    this.simT = setInterval(() => {
+      const s = this.state.simStep + 1;
+      if (s > max) { clearInterval(this.simT); this.setState({ simDone: true }); this.logSim(); return; }
+      this.setState({ simStep: s });
+    }, 800);
+  }
+  logSim() {
+    const r = this.simResult();
+    this.setState(s => ({ session: [{ id: 's' + Date.now(), kind: 'sim', title: 'Simulation · ' + r.name, meta: 'This session · recorded backend values', status: 'SIMULATED', result: r.verdict + ' · ' + usd(r.loss), fields: [['Shock', r.desc], ['Conditional loss if you stay', usd(r.loss)], ['Exit side', usd(r.exit)], ['Armed, signed or spent', 'Nothing']] }].concat(s.session) }));
+  }
+  simResult() {
+    const F = window.FL;
+    if (this.state.simKind === 'node') {
+      const n = F.NODES.find(x => x.id === this.state.simNode);
+      return { name: n.short + ' fails', desc: n.label + ' at severity ' + n.sev.toFixed(n.sev < 0.1 ? 4 : 2) + ' (node default)', loss: n.cond, exec: 1316, carry: 3680, exit: 4996, mult: n.cond / 4996, verdict: 'EXIT', sev: n.sev.toFixed(n.sev < 0.1 ? 4 : 2), T: n.T };
+    }
+    const s = F.SCEN[this.state.simScen];
+    return { name: s.name, desc: s.desc, loss: s.loss, exec: s.exec, carry: s.carry, exit: s.exit, mult: s.mult, verdict: 'EXIT', sev: s.sev };
+  }
+  allPaths(target) {
+    const F = window.FL, out = [];
+    const walk = (cur, path) => { if (cur === target) { out.push(path); return; } F.EDGES.forEach(e => { if (e[0] === cur && path.indexOf(e[1]) < 0) walk(e[1], path.concat(e[1])); }); };
+    walk('pos', ['pos']);
+    return out.map(p => { let t = 1; for (let i = 0; i < p.length - 1; i++) t *= F.EDGES.find(e => e[0] === p[i] && e[1] === p[i + 1])[2]; return { p, t }; }).sort((a, b) => b.t - a.t);
+  }
+
+  // ---------- replay ----------
+  playReplay() {
+    clearInterval(this.rpT);
+    const last = window.FL.REPLAY.length - 1;
+    if (this.reduced()) { this.setState({ rpStep: last, rpPlaying: false }); return; }
+    this.setState({ rpStep: 0, rpPlaying: true });
+    this.rpT = setInterval(() => {
+      const s = this.state.rpStep + 1;
+      if (s > last) { clearInterval(this.rpT); this.setState({ rpPlaying: false }); return; }
+      this.setState({ rpStep: s });
+    }, 2600);
+  }
+
+  // ---------- policy ----------
+  defaultPolicy(pid) {
+    const fork = pid === 'fork';
+    return { trigger: 82, followOn: 8, buffer: 250, minAfter: 40, loanRes: fork ? 5000 : 0, collRes: fork ? 0.05 : 0, repayCap: 5000, topupCap: 1, fullCap: 25000, repayTotal: 30000, topupTotal: 1, expiry: 30, cooldown: 1, order: ['REPAY', 'TOP_UP', 'FULL_REPAY'], on: { REPAY: true, TOP_UP: true, FULL_REPAY: true } };
+  }
+
+  // ---------- render ----------
+  renderVals() {
+    const F = window.FL;
+    const st = this.state;
+    const wide = st.width >= 900;
+    const base = {
+      isSelect: !F || st.screen === 'select', isLoading: !!F && st.screen === 'loading', isApp: !!F && st.screen === 'app',
+      wide, narrow: !wide, bottomPad: wide ? '0px' : '64px', query: st.query
+    };
+    if (!F) return Object.assign(base, { lk: { border: 'rgba(233,237,242,.2)', color: MUTE, msg: 'Loading…' }, cands: [], demoInputs: [], cand: null, nav: [], sec: {}, pos: {}, dash: {} });
+
+    // lookup message
+    const L = st.lk;
+    const lkMap = {
+      idle: [MUTE, 'rgba(233,237,242,.2)', 'Paste an identifier, or pick a demonstration position.'],
+      checking: [INK, CYAN, 'Reading contract code and factory registries at the latest block…'],
+      found: [CYAN, CYAN, 'Recognized: ' + (L.id ? F.POS[L.id].name : '') + '. Review it on the right, then start the analysis.'],
+      invalid: [EMBER, EMBER, L.msg || ''],
+      unsupported: [AMBER, AMBER, L.msg || ''],
+      error: [EMBER, EMBER, 'Network error: the Ethereum RPC did not answer within 20 s. Nothing was analysed. You can retry, or use a demonstration position.'],
+      slow: [INK, CYAN, 'Reading on-chain state. Live reads usually take 30 to 40 s…'],
+      slow2: [INK, CYAN, 'Still working (block pinned, 4 of 113 reads done). You can keep this tab open or cancel.']
+    };
+    const lm = lkMap[L.status] || lkMap.idle;
+    const lk = { color: lm[0], border: lm[1], msg: lm[2], spinning: L.status === 'checking' || L.status === 'slow' || L.status === 'slow2', retry: L.status === 'error' || L.status === 'slow2' };
+
+    const candChip = p => chip(p.kind === 'fork' ? 'LOCAL FORK' : 'RECORDED LIVE RUN');
+    const cands = ['pt', 'vault', 'borrow', 'fork'].map(id => { const p = F.POS[id]; const on = st.candId === id; return { name: p.name, sub: p.sub, chip: candChip(p), bg: on ? 'rgba(43,184,255,.06)' : 'transparent', bar: on ? CYAN : 'transparent', pick: () => this.setState({ candId: id }) }; });
+    const cp = st.candId ? F.POS[st.candId] : null;
+    const cand = cp ? Object.assign({}, cp, { chip: candChip(cp), canRows: cp.can.map(r => ({ k: r[0], v: r[1] })) }) : null;
+    const demoInputs = [
+      { label: 'PT MARKET ID', go: () => { this.setState({ query: PT_MARKET }); this.lookup(PT_MARKET); } },
+      { label: 'UNSUPPORTED WALLET', go: () => { const q = '0x8f3cf7ad23cd3cadbd9735aff958023239c6a063'; this.setState({ query: q }); this.lookup(q); } },
+      { label: 'INVALID INPUT', go: () => { this.setState({ query: '0x12ab' }); this.lookup('0x12ab'); } },
+      { label: 'NETWORK ERROR', go: () => this.lookup('', 'error') },
+      { label: 'SLOW REQUEST', go: () => this.lookup('', 'slow') }
+    ];
+
+    const pos0 = F.POS[st.posId];
+    const pos = Object.assign({}, pos0, { chip: candChip(pos0) });
+
+    // loading steps
+    const LS = ['Pin a block and read contract code', 'Read market, oracle and IRM state', 'Discover dependencies and token lineage', 'Price failure priors (DefiLlama history)', 'Simulate the exit (eth_call, no transaction)', 'Compare stay, exit and uncertainty bands'];
+    const loadSteps = LS.map((l, i) => ({ label: l, state: i < st.loadStep ? 'DONE' : i === st.loadStep ? 'RUNNING' : '', color: i <= st.loadStep ? INK : MUTE, dot: i < st.loadStep ? CYAN : i === st.loadStep ? INK : 'rgba(233,237,242,.15)' }));
+
+    // nav
+    const NAV = [['dashboard', '01', 'Dashboard', 'Home'], ['positions', '02', 'Positions & Vaults', 'Positions'], ['xray', '03', 'Dependency X-Ray', 'X-Ray'], ['countermove', '04', 'Countermove', 'Protect'], ['activity', '05', 'Activity & Evidence', 'Evidence']];
+    const nav = NAV.map(n => { const on = st.section === n[0]; return { num: n[1], label: n[2], short: n[3], color: on ? INK : '#b4bcc8', bg: on ? 'rgba(233,237,242,.05)' : 'transparent', bar: on ? CYAN : 'transparent', go: () => this.go(n[0], n[0] === 'xray' ? { xrMode: 'inspect' } : null) }; });
+    const sec = {}; NAV.forEach(n => sec[n[0]] = st.section === n[0]);
+
+    const out = Object.assign(base, {
+      lk, cands, cand, demoInputs, pos, loadSteps, nav, sec,
+      onQuery: e => { const v = e.target.value; this.setState({ query: v }); if (st.lk.status !== 'idle' && st.lk.status !== 'checking') this.setState({ lk: { status: 'idle' } }); },
+      onQueryKey: e => { if (e.key === 'Enter') this.lookup(this.state.query); },
+      runLookup: () => this.lookup(this.state.query),
+      cancelLookup: () => { clearTimeout(this.lkT); this.setState({ lk: { status: 'idle' } }); },
+      startAnalysis: () => this.startAnalysis(),
+      goSelect: () => { this.stopSim(); this.setState({ screen: 'select', candId: st.posId }); this.scrollTop(); },
+      goArm: () => this.go('countermove'),
+      goSim: () => this.go('xray', { xrMode: pos0.graph ? 'simulate' : 'replay', revealed: true, simStep: -1, simDone: false }),
+      goXray: () => this.go('xray', { xrMode: 'inspect' })
+    });
+    Object.assign(out, this.dashVals(F, pos0), this.posVals(F), this.xrayVals(F, pos0), this.armVals(F, pos0), this.actVals(F));
+    return out;
+  }
+
+  dashVals(F, p) {
+    const fmtD = id => { const n = F.NODES.find(x => x.id === id); return n; };
+    const drivers = F.NODES.filter(n => n.contrib > 0).sort((a, b) => b.contrib - a.contrib).slice(0, 5).map(n => ({ label: n.label, v: usd(n.contrib), w: (n.contrib / 433.84 * 100).toFixed(1) + '%', c: n.hidden ? EMBER : INK, sub: (n.hidden ? 'HIDDEN · ' : 'DIRECT · ') + 'layer ' + n.layer + ' · transmission ' + n.T.toFixed(2) }));
+    const toFork = () => this.setState({ posId: 'fork', section: 'countermove', armTab: 'fork' });
+    const D = {
+      pt: {
+        kicker: 'DECISION · 30-DAY HORIZON · $1,000,000', verdict: 'REVIEW', vColor: AMBER, lean: 'Lean STAY · low confidence',
+        text: 'Staying is expected to cost about $1,657 over 30 days, but the plausible range runs from $171 to $27,532. Exiting now would cost $4,996: $1,316 to sell, plus $3,680 of yield given up. The two ranges overlap, so FAULTLINE does not make the call outright.',
+        metrics: [['EXPECTED LOSS · 30 D', '$1,657', '$171 to $27,532 band', INK], ['EXIT SIDE', '$4,996', '$1,316 execution + $3,680 carry forgone', INK], ['MARGIN', '−$3,339', 'STAY holds below ×3.01 the central risk', AMBER], ['DEBT AND HEALTH', 'No debt', 'Unlevered, so no liquidation threshold', INK], ['EXIT COST', '0.13%', 'Pendle SDK quote, simulated eth_call', INK], ['CARRY', '11.79%', 'PT implied APY vs 7.31% USDC supply', INK]],
+        driversTitle: 'MAIN RISK CONTRIBUTORS · OF $1,657', drivers,
+        flags: [{ t: '0% of PT-reUSD is traced to base assets. reUSD does not publish its reserve split.', c: EMBER }, { t: 'The oracle uses a single Ojo feed, computed on read, with no staleness guard.', c: EMBER }, { t: 'Ojo and reUSD each sit behind about 59% of Morpho PT market supply, so a failure there is shared.', c: AMBER }],
+        prot: { chip: chip('NOT APPLICABLE'), short: 'No debt, so there is no liquidation to defend. See how protection works on the fork demo.', text: 'This position has no debt, so there is nothing to liquidate and nothing to repay. Protection policies apply to borrow positions.', cta: 'See protection on the fork demo', go: toFork },
+        simShort: 'Shock any of 10 dependencies and watch the failure travel. Nothing is armed, signed or spent.'
+      },
+      vault: {
+        kicker: 'DECISION · 30-DAY HORIZON · $1,000,000 DEPOSIT', verdict: 'REVIEW', vColor: AMBER, lean: 'Point comparison: STAY',
+        text: 'Expected loss over 30 days is $632, against an exit side of $2,150. A full withdrawal is possible today through force-deallocate with no penalty. Inputs or bands are not firm enough for a confident call.',
+        metrics: [['EXPECTED LOSS · 30 D', '$632', 'Probability-weighted', INK], ['EXIT SIDE', '$2,150', 'Execution plus carry', INK], ['MARGIN', '−$1,518', 'Point comparison favours STAY', AMBER], ['WITHDRAWAL', 'Full', 'Via force-deallocate, penalty 0', CYAN], ['COVERAGE', '100%', 'Assets reconciled across 6 markets', INK], ['TO USDC', '$13,849', 'Indicative KyberSwap route, not simulated', AMBER]],
+        driversTitle: 'MAIN RISK CONTRIBUTORS', drivers: [], noDrivers: 'The vault payload carries a per-dependency breakdown. This prototype does not wire it yet; see Positions & Vaults for allocations.',
+        flags: [{ t: 'Four of six allocated markets run at or above 89% utilization.', c: AMBER }, { t: 'The vault asset is EURCV; USD values use the Chainlink EUR/USD feed.', c: INK }, { t: 'Converting EURCV to USDC on exit is the largest cost, and that quote is indicative.', c: AMBER }],
+        prot: { chip: chip('NOT APPLICABLE'), short: 'A deposit has no debt to defend. Simulate an attack to test STAY or EXIT.', text: 'A vault deposit has no debt, so automated repayment does not apply. FAULTLINE can still stress the vault and recommend STAY or EXIT.', cta: 'See protection on the fork demo', go: toFork },
+        simShort: 'Vault scenarios exist in the backend; this prototype shows them for the PT market.'
+      },
+      borrow: {
+        kicker: 'LIQUIDATION RISK · REAL MORPHO BORROWER', verdict: 'REVIEW', vColor: AMBER, lean: 'Distance to liquidation below 10%',
+        text: 'This borrower is 5.16% away from liquidation (health factor 1.054). FAULTLINE puts the chance of liquidation at 0.34% over the horizon, but PT price volatility is not modelled, so the position is flagged for review rather than called safe.',
+        metrics: [['HEALTH FACTOR', '1.054', 'Liquidation at 1.000', AMBER], ['DISTANCE', '5.16%', 'Collateral price drop to liquidation', AMBER], ['P(LIQUIDATION)', '0.34%', 'Over the horizon', INK], ['BORROWER LOSS', '$11,500', 'Expected, if liquidated', INK], ['LENDER BAD DEBT', '$12,700', 'Expected', INK], ['DELEVERAGE COST', '$76,700', 'To step back from the threshold', INK]],
+        driversTitle: 'MARKET DEPENDENCIES · SAME PT MARKET', drivers,
+        flags: [{ t: 'Liquidation sits 5.16% away and the PT oracle has no staleness guard.', c: EMBER }, { t: 'The liquidation formula was checked against a real Morpho liquidation (error 4.2e-11).', c: CYAN }],
+        prot: { chip: chip('PREVIEW ONLY'), short: 'Configure and validate a policy. Nothing can execute: no RescueVault is deployed for it.', text: 'You can configure and validate a protection policy for this borrower. Nothing can execute: no RescueVault is deployed, funded or monitored for this position.', cta: 'Configure protection', go: () => this.go('countermove', { armTab: 'preview' }) },
+        simShort: 'Shock a dependency of this market. Losses shown are from the $1M unlevered run.'
+      },
+      fork: {
+        kicker: 'COUNTERMOVE · LOCAL FORK · TEST FUNDS', verdict: 'WATCHING', vColor: INK, lean: 'Recorded state before the shock',
+        text: 'On the fork, user A borrows 20,838.10 USDC against 10 weETH at 75.00% LTV. The owner\'s policy triggers at 82%; the market liquidates at 86%. A keeper watches the position and can act only inside that policy.',
+        metrics: [['LTV', '75.00%', 'Trigger 82% · LLTV 86%', INK], ['DEBT', '20,838.10', 'USDC', INK], ['COLLATERAL', '10', 'weETH', INK], ['RESCUE RESERVE', '5,000', 'USDC, plus 0.05 weETH', CYAN], ['POLICY', '30 d', 'Expiry · cooldown 1 h', INK], ['KEEPER', 'WATCHING', 'Recorded keeper state', INK]],
+        driversTitle: 'DEPENDENCIES', drivers: [], noDrivers: 'This fork position is used to demonstrate Countermove. Its dependency chain is shown in the incident replay.',
+        flags: [{ t: 'Environment is a local Anvil fork with test funds. Nothing here touches mainnet.', c: AMBER }, { t: 'The recorded run S1 shows a simulated −9% feed shock and the defense that followed.', c: CYAN }],
+        prot: { chip: chip('FORK DEMONSTRATION'), short: 'Armed on a local fork with test funds. Not protecting anything on mainnet.', text: 'This policy is armed on a local fork with test funds. It demonstrates the mechanism; it does not protect any mainnet position.', cta: 'Replay the recorded incident', go: () => this.go('xray', { xrMode: 'replay' }) },
+        simShort: 'Replay recorded fork scenario S1, from shock to verified repayment.'
+      }
+    };
+    const d = D[p.kind];
+    return { dash: Object.assign({}, d, { metrics: d.metrics.map(m => ({ k: m[0], v: m[1], s: m[2], c: m[3] })), noDrivers: d.noDrivers || null }) };
+  }
+
+  posVals(F) {
+    const st = this.state;
+    const id = st.pvId || st.posId;
+    const p = F.POS[id];
+    const VC = { REVIEW: AMBER, WATCHING: INK };
+    const posRows = ['pt', 'vault', 'borrow', 'fork'].map(k => { const q = F.POS[k]; const on = k === id; return { name: q.name, sub: q.sub, verdict: q.verdict, vc: VC[q.verdict] || INK, bg: on ? 'rgba(233,237,242,.04)' : 'transparent', bar: on ? CYAN : 'transparent', view: () => this.setState({ pvId: k }) }; });
+    const R = (name, val, note, c) => ({ name, val, note, chip: chip(c) });
+    const PV = {
+      pt: { facts: [['MARKET ID', '0x1e9d6146…fc64'], ['LLTV', '91.5%'], ['UTILIZATION', '88.1%'], ['MARKET SUPPLY', '$120.6M'], ['BORROWED', '$106.3M'], ['AVAILABLE LIQUIDITY', '$14.3M'], ['BAD DEBT', '$0'], ['PT MATURITY', '10 Dec 2026'], ['PENDLE POOL LIQUIDITY', '$12.41M'], ['SUPPLYING VAULTS', 'Smokehouse USDC $12.75M · Clearstar $1.25M']],
+        routesTitle: 'EXIT AND WITHDRAWAL ROUTES', routes: [R('Sell PT on Pendle for USDC', '$1,316 · 0.13%', '1,018,352 PT → 999,007 USDC via the Pendle SDK (KyberSwap), eth_call at block 26,162,782. No transaction sent.', 'SIMULATED'), R('Hold to maturity', '—', 'Not computed by the backend yet. Needs a redemption-value model for 10 Dec 2026.', 'UNAVAILABLE')] },
+      vault: { facts: [['VERSION', 'Vault V2 (factory-verified)'], ['ASSET', 'EURCV'], ['TOTAL ASSETS', '4.71M EURCV'], ['SHARE PRICE', '1.000924 EURCV'], ['ADAPTER', 'MorphoMarketV1AdapterV2'], ['RECONCILIATION', '100% of assets'], ['FORCE-DEALLOCATE PENALTY', '0'], ['SOURCES', '113 live reads · 0 cached']],
+        markets: [['cbBTC', '86%', '13.40M EURCV', 0.895], ['WBTC', '86%', '4.62M EURCV', 0.891], ['mGLOeuro', '77%', '4.04M EURCV', 0.910], ['wstETH', '86%', '1.75M EURCV', 0.897], ['steakEURCV', '91.5%', '2.03 EURCV', 0.508], ['oTFYe', '77%', '1.50 EURCV', 0.300]].map(m => ({ c: m[0], l: m[1], s: m[2], u: (m[3] * 100).toFixed(1) + '%', uc: m[3] > 0.89 ? AMBER : INK })),
+        routesTitle: 'WITHDRAWAL ROUTES', routes: [R('Ordinary redeem', 'partial · gas $0.07', 'Limited by idle and market liquidity at the pinned block.', 'SIMULATED'), R('Force-deallocate, then redeem', 'full · gas $0.11', 'VaultV2.multicall([forceDeallocate…, redeem…]) as eth_call with a state override. Penalty 0.', 'SIMULATED'), R('Convert EURCV to USDC', '$13,849', 'KyberSwap public route. Indicative only, not simulated on-chain.', 'INDICATIVE')] },
+      borrow: { facts: [['BORROWER', '0xAa34d20b…5Dd5'], ['MARKET', 'PT-reUSD / USDC'], ['HEALTH FACTOR', '1.05438'], ['COLLATERAL', '$12.17M'], ['DISTANCE TO LIQUIDATION', '5.16%'], ['P(LIQUIDATION)', '0.34%'], ['MODEL CHECK', 'Replayed real liquidation, error 4.2e-11']],
+        routesTitle: 'DEFENSIVE ROUTES', routes: [R('Deleverage', '$76,700', 'Cost to step back from the liquidation threshold, from the backend.', 'RECORDED LIVE RUN'), R('Automated protection', '—', 'Policy preview only. No RescueVault exists for this position.', 'PREVIEW ONLY')] },
+      fork: { facts: [['ENVIRONMENT', 'Anvil fork · chain 31337'], ['FORKED AT', 'Ethereum block 26,164,248'], ['MORPHO BLUE', '0xBBBB…FFCb (real code, forked)'], ['MARKET', 'weETH / USDC · 0x8525…a16e'], ['RESCUEVAULT', '0x0b4a…90a6 (fork only)'], ['KEEPER', '0x7099…79C8 (test account)'], ['FUNDS', 'Test balances written to storage']],
+        routesTitle: 'COUNTERMOVE STRATEGIES', routes: [R('REPAY from the USDC reserve', 'cap 5,000 USDC / action', 'executeRepay on the RescueVault, repaying Morpho on behalf of the owner.', 'FORK CONFIRMED'), R('TOP_UP from the weETH reserve', 'cap 1 weETH / action', 'executeTopUp, supplying collateral on behalf of the owner.', 'FORK CONFIRMED'), R('FULL_REPAY', 'cap 25,000 USDC', 'executeFullRepay closes the debt when the reserve can cover it.', 'FORK CONFIRMED')] }
+    };
+    const v = PV[id];
+    return { posRows, pv: { kicker: (id === st.posId ? 'CURRENT CONTEXT · ' : '') + p.protocol.toUpperCase(), name: p.name, sub: p.sub, notCurrent: id !== st.posId, use: () => this.setState({ posId: id, pvId: null, section: 'dashboard' }), facts: v.facts.map(f => ({ k: f[0], v: f[1] })), markets: v.markets || null, routes: v.routes, routesTitle: v.routesTitle } };
+  }
+
+  xrayVals(F, p) {
+    const st = this.state, mode = st.xrMode, N = {};
+    F.NODES.forEach(n => N[n.id] = n);
+    const edgeD = (a, b) => { const dx = b.x - a.x; if (Math.abs(dx) < 20) { const o = 64; return `M${a.x} ${a.y} C${a.x + o} ${a.y}, ${b.x + o} ${b.y}, ${b.x} ${b.y}`; } const k = dx * 0.5; return `M${a.x} ${a.y} C${a.x + k} ${a.y}, ${b.x - k} ${b.y}, ${b.x} ${b.y}`; };
+    const sim = mode === 'simulate';
+    const ord = sim ? this.simOrder() : {};
+    const step = st.simStep;
+    const hit = id => sim && step >= 0 && ord[id] != null && ord[id] <= step;
+    const targets = sim ? this.simTargets() : (st.selNode ? [st.selNode] : []);
+    const pathE = new Set();
+    targets.forEach(t => { const P = N[t].path || []; for (let i = 0; i < P.length - 1; i++) pathE.add(P[i] + '>' + P[i + 1]); });
+    const alt = sim && st.simKind === 'node' ? this.allPaths(st.simNode).slice(1) : [];
+    const altE = new Set(); alt.forEach(a => { for (let i = 0; i < a.p.length - 1; i++) { const k = a.p[i] + '>' + a.p[i + 1]; if (!pathE.has(k)) altE.add(k); } });
+    const vis = id => st.revealed || !N[id].hidden;
+    const tLabels = [];
+    const edges = F.EDGES.map(e => {
+      const a = N[e[0]], b = N[e[1]], k = e[0] + '>' + e[1], v = vis(e[0]) && vis(e[1]);
+      let stroke = 'rgba(233,237,242,.22)', w = 1.2, dash = 'none', op = v ? 1 : 0;
+      if (sim) {
+        if (pathE.has(k)) { const h = hit(e[0]) && hit(e[1]); stroke = h ? EMBER : 'rgba(255,106,61,.35)'; w = h ? 2.6 : 1.6; dash = h ? 'none' : '5 5'; if (h) tLabels.push({ x: (a.x + b.x) / 2 + (Math.abs(b.x - a.x) < 20 ? 52 : 0), y: (a.y + b.y) / 2 - 6, t: '×' + e[2].toFixed(2), c: EMBER }); }
+        else if (altE.has(k)) { stroke = 'rgba(138,148,163,.7)'; dash = '2 6'; w = 1.4; }
+        else op = v ? 0.3 : 0;
+      } else if (st.selNode) {
+        if (pathE.has(k)) { stroke = CYAN; w = 2.4; tLabels.push({ x: (a.x + b.x) / 2 + (Math.abs(b.x - a.x) < 20 ? 52 : 0), y: (a.y + b.y) / 2 - 6, t: '×' + e[2].toFixed(2), c: CYAN }); }
+        else op = v ? 0.4 : 0;
+      }
+      return { d: edgeD(a, b), stroke, w, dash, op };
+    });
+    const nodes = F.NODES.map(n => {
+      const isPos = n.id === 'pos', v = vis(n.id), sel = !sim && st.selNode === n.id;
+      let fill = '#0a0e14', stroke = n.hidden ? MUTE : INK, halo = 0, haloC = 'transparent', lc = INK, sub = '';
+      if (isPos) { fill = INK; stroke = INK; sub = p.kind === 'borrow' ? 'HF 1.054' : '$1M PT'; }
+      else sub = (n.hidden ? 'HIDDEN' : 'DIRECT') + ' · ×' + n.T.toFixed(2);
+      if (sim) {
+        if (hit(n.id)) { fill = EMBER; stroke = EMBER; halo = isPos ? 30 : 22; haloC = 'rgba(255,106,61,.18)'; lc = INK; sub = targets.indexOf(n.id) >= 0 ? 'SHOCKED · sev ' + (n.sev < 0.1 ? n.sev.toFixed(4) : n.sev.toFixed(2)) : isPos ? 'REACHED' : 'TRANSMITS ×' + n.T.toFixed(2); }
+        else if (ord[n.id] != null) { stroke = EMBER; }
+        else { lc = MUTE; }
+      } else if (sel) { stroke = CYAN; halo = 20; haloC = 'rgba(43,184,255,.16)'; }
+      return { lx: (n.x / 1010 * 100).toFixed(2) + '%', ly: ((n.y + (isPos ? 20 : 15)) / 520 * 100).toFixed(2) + '%', x: n.x, y: n.y, r: isPos ? 12 : n.hidden ? 7 : 9, fill, stroke, halo, haloC, op: v ? 1 : 0, short: n.short, sub, lc, subC: n.hidden && !sim ? EMBER : MUTE, ty: n.y + (isPos ? 34 : 28), sy: n.y + (isPos ? 49 : 43),
+        click: () => { if (isPos) return; if (sim) { if (st.simKind === 'node' && (st.simStep < 0 || st.simDone)) this.setState({ simNode: n.id, simStep: -1, simDone: false }); } else this.setState({ selNode: st.selNode === n.id ? null : n.id, revealed: true }); } };
+    });
+    const LAYER = ['Position', 'Settlement chain', 'Yield source / issuer', 'Oracle', 'PT market / AMM', 'Lending'];
+    const sn = st.selNode ? N[st.selNode] : null;
+    const pct = (v, d) => (v * 100).toFixed(d) + '%';
+    const node = sn ? {
+      label: sn.label, layer: 'LAYER ' + sn.layer + ' · ' + LAYER[sn.layer].toUpperCase(), hiddenChip: sn.hidden ? 'HIDDEN DEPENDENCY' : 'DIRECT DEPENDENCY', hc: sn.hidden ? EMBER : INK, role: sn.role, why: sn.why,
+      rows: [['Failure probability · 30 d', sn.p === 0 ? '0 (carried by parents)' : pct(sn.p, 3)], ['Loss given failure', pct(sn.lgf, sn.lgf < 0.1 ? 2 : 0)], ['Best-path transmission', '×' + sn.T.toFixed(2)], ['Share of expected loss', usd(sn.contrib)], ['If it fails (conditional)', usd(sn.cond) + ' → EXIT']].map(r => ({ k: r[0], v: r[1] })),
+      path: sn.path.map(id => N[id].short).join(' → '),
+      reasons: F.EDGES.filter(e => e[0] === sn.id || e[1] === sn.id).map(e => ({ t: N[e[0]].short + ' → ' + N[e[1]].short + ' · ×' + e[2].toFixed(2), r: e[3] })),
+      shock: () => this.setState({ xrMode: 'simulate', simKind: 'node', simNode: sn.id, simStep: -1, simDone: false })
+    } : null;
+    const list = F.NODES.filter(n => n.id !== 'pos').sort((a, b) => b.layer - a.layer).map(n => ({ layer: n.layer + ' · ' + LAYER[n.layer], label: n.label, vis: n.hidden ? 'Hidden' : 'Direct', vc: n.hidden ? EMBER : INK, p: n.p === 0 ? '0' : pct(n.p, 3), t: '×' + n.T.toFixed(2), c: usd(n.contrib), cond: usd(n.cond), go: () => this.setState({ selNode: n.id, revealed: true }) }));
+
+    // simulate panel
+    const r = this.simResult();
+    const maxO = Math.max.apply(null, Object.values(this.simOrder()));
+    const log = [];
+    if (sim && step >= 0) {
+      for (let s = 0; s <= Math.min(step, maxO); s++) {
+        Object.keys(ord).filter(id => ord[id] === s).forEach(id => {
+          const n = N[id];
+          let t = '';
+          if (s === 0) t = n.label + ' fails at severity ' + (n.sev < 0.1 ? n.sev.toFixed(4) : n.sev.toFixed(2));
+          else if (id === 'pos') t = 'The failure reaches your position';
+          else t = 'Passes through ' + n.label;
+          log.push({ t, k: 'T+' + s, c: s === 0 ? EMBER : id === 'pos' ? INK : '#b4bcc8' });
+        });
+      }
+    }
+    const simList = F.NODES.filter(n => n.id !== 'pos').map(n => { const on = st.simNode === n.id; return { label: n.label, sub: 'layer ' + n.layer + ' · ×' + n.T.toFixed(2) + ' · sev ' + (n.sev < 0.1 ? n.sev.toFixed(4) : n.sev.toFixed(2)), bg: on ? 'rgba(255,106,61,.08)' : 'transparent', bar: on ? EMBER : 'transparent', pick: () => { if (st.simStep >= 0 && !st.simDone) return; this.setState({ simNode: n.id, simStep: -1, simDone: false }); } }; });
+    const scenList = F.SCEN.map((s, i) => { const on = st.simScen === i; return { label: s.name, sub: s.desc, bg: on ? 'rgba(255,106,61,.08)' : 'transparent', bar: on ? EMBER : 'transparent', pick: () => { if (st.simStep >= 0 && !st.simDone) return; this.setState({ simScen: i, simStep: -1, simDone: false }); } }; });
+    const running = st.simStep >= 0 && !st.simDone;
+    const altRows = alt.map(a => ({ t: a.p.map(id => N[id].short).join(' → '), v: '×' + a.t.toFixed(2) }));
+    const bestT = st.simKind === 'node' ? N[st.simNode].T : null;
+    const result = {
+      verdict: r.verdict, name: r.name,
+      stay: usd(r.loss), stayPct: (r.loss / 1e6 * 100).toFixed(2) + '% of the $1,000,000 position', exit: usd(r.exit), exitSub: usd(r.exec) + ' execution + ' + usd(r.carry) + ' carry forgone' + (r.exec > 2000 ? ' (stressed: liquidity ×0.5)' : ''),
+      mult: '×' + r.mult.toFixed(1),
+      reason: 'If this shock happens, staying is expected to lose ' + usd(r.loss) + ' over 30 days. Leaving costs ' + usd(r.exit) + '. Staying costs ' + r.mult.toFixed(1) + ' times the exit side, so under this shock the recommendation is EXIT.',
+      alt: altRows, hasAlt: altRows.length > 0, altNote: bestT != null ? 'Not counted. The model keeps the strongest path (×' + bestT.toFixed(2) + ') and ignores weaker routes to the same dependency.' : '',
+      zeroNote: st.simKind === 'node' && st.simNode === 'base' ? 'In the baseline this node adds $0: its risk is already carried by reUSD and USDC. Only a what-if shock moves it.' : st.simKind === 'node' && st.simNode === 'usd_usdc' ? 'USDC carries the largest baseline share ($434) yet the smallest shock: past depegs averaged 3.9% deep.' : '',
+      borrowNote: p.kind === 'borrow' ? 'Values are from the $1M unlevered run on this market. A borrower-specific shock needs ?borrower= with ?shock=.' : ''
+    };
+    // replay
+    const RP = F.REPLAY, rs = Math.min(st.rpStep, RP.length - 1), cur = RP[rs];
+    const RN = {}; F.RNODES.forEach(n => RN[n.id] = n);
+    const SC = { threat: [EMBER, EMBER, 'rgba(255,106,61,.18)'], defense: [CYAN, CYAN, 'rgba(43,184,255,.16)'], hypo: ['#0a0e14', AMBER, 'transparent'], calm: ['#0a0e14', 'rgba(233,237,242,.5)', 'transparent'] };
+    const rnodes = F.RNODES.map(n => { const s = cur.nodes[n.id] || 'calm', c = SC[s]; return { lx: (n.x / 860 * 100).toFixed(2) + '%', ly: ((n.y + 16) / 400 * 100).toFixed(2) + '%', x: n.x, y: n.y, label: n.label, sub: n.sub, fill: c[0], stroke: c[1], haloC: c[2], halo: s === 'threat' || s === 'defense' ? 24 : 0, ty: n.y + 32, sy: n.y + 47, lc: s === 'calm' ? '#b4bcc8' : INK }; });
+    const ES = { threat: [EMBER, 2.6, 'none'], defense: [CYAN, 2.6, 'none'], hypo: [AMBER, 1.6, '5 5'] };
+    const redges = F.REDGES.map(e => { const a = RN[e[0]], b = RN[e[1]], s = cur.edges[e[0] + '-' + e[1]], c = ES[s] || ['rgba(233,237,242,.2)', 1.2, 'none']; return { d: edgeD(a, b), stroke: c[0], w: c[1], dash: c[2] }; });
+    const rpScens = [
+      { id: 'S1', name: 'S1 · weETH / USDC · USDC reserve', sub: 'Recorded local-fork run: shock, decision, repayment, proof.', chip: chip('FORK CONFIRMED') },
+      { id: 'S5', name: 'S5 · Pendle PT on Morpho', sub: 'The Belem-relevant case. No S5 recording exists in data/countermove yet.', chip: chip('UNAVAILABLE') },
+      { id: 'SVB', name: 'USDC depeg · March 2023', sub: 'A real event, used to check the risk model without look-ahead.', chip: chip('HISTORICAL DATA') }
+    ].map(s => Object.assign(s, { bg: st.rpScen === s.id ? 'rgba(233,237,242,.05)' : 'transparent', bar: st.rpScen === s.id ? CYAN : 'transparent', pick: () => { clearInterval(this.rpT); this.setState({ rpScen: s.id, rpPlaying: false, rpStep: 0 }); } }));
+    const replay = {
+      isS1: st.rpScen === 'S1', isS5: st.rpScen === 'S5', isSVB: st.rpScen === 'SVB',
+      t: cur.t, title: cur.title, block: cur.block, body: cur.body, chip: chip(cur.chip), ltv: cur.ltv, debt: cur.debt, reserve: cur.reserve, state: cur.state,
+      steps: RP.map((x, i) => ({ t: x.t, title: x.title, c: i === rs ? INK : i < rs ? CYAN : MUTE, bar: i <= rs ? (i === rs ? INK : CYAN) : 'rgba(233,237,242,.15)', go: () => { clearInterval(this.rpT); this.setState({ rpStep: i, rpPlaying: false }); } })),
+      playLabel: st.rpPlaying ? 'Playing…' : rs === RP.length - 1 ? 'Replay again' : 'Replay incident',
+      play: () => this.playReplay(),
+      prev: () => { clearInterval(this.rpT); this.setState({ rpStep: Math.max(0, rs - 1), rpPlaying: false }); },
+      next: () => { clearInterval(this.rpT); this.setState({ rpStep: Math.min(RP.length - 1, rs + 1), rpPlaying: false }); },
+      ltvC: parseFloat(cur.ltv) >= 82 ? EMBER : rs >= 5 ? CYAN : INK
+    };
+    const tabs = [['inspect', 'Inspect'], ['simulate', 'Simulate attack'], ['replay', 'Replay incident']].map(t => { const on = mode === t[0]; return { label: t[1], c: on ? '#05070b' : '#b4bcc8', bg: on ? (t[0] === 'inspect' ? INK : t[0] === 'simulate' ? EMBER : AMBER) : 'transparent', bd: on ? 'transparent' : 'rgba(233,237,242,.2)', go: () => { this.stopSim(); this.setState({ xrMode: t[0], simStep: -1, simDone: false, revealed: t[0] !== 'inspect' ? true : st.revealed }); } }; });
+    const hiddenCount = F.NODES.filter(n => n.hidden).length;
+    return {
+      xr: {
+        tabs, inspect: mode === 'inspect', simulate: mode === 'simulate', replay: mode === 'replay', simBanner: mode !== 'inspect',
+        noGraph: !p.graph && mode !== 'replay', graphOk: p.graph && mode !== 'replay',
+        isGraph: st.xrView === 'graph', isList: st.xrView === 'list',
+        viewGraph: () => this.setState({ xrView: 'graph' }), viewList: () => this.setState({ xrView: 'list' }),
+        gC: st.xrView === 'graph' ? INK : MUTE, lC: st.xrView === 'list' ? INK : MUTE,
+        cols: F.COLS.map(c => ({ label: c.label, lx: (c.x / 1010 * 100).toFixed(2) + '%' })), edges, nodes, tLabels: tLabels.map(l => Object.assign(l, { lx: (l.x / 1010 * 100).toFixed(2) + '%', ly: (l.y / 520 * 100).toFixed(2) + '%' })), list, node, noNode: !node,
+        revealed: st.revealed, notRevealed: !st.revealed, reveal: () => this.setState({ revealed: true }), hide: () => this.setState({ revealed: false, selNode: null }),
+        revealLabel: 'Reveal ' + hiddenCount + ' hidden dependencies', hiddenCount,
+        kindNode: st.simKind === 'node', kindScen: st.simKind !== 'node',
+        kN: st.simKind === 'node' ? INK : MUTE, kS: st.simKind !== 'node' ? INK : MUTE,
+        setKindNode: () => { if (running) return; this.setState({ simKind: 'node', simStep: -1, simDone: false }); },
+        setKindScen: () => { if (running) return; this.setState({ simKind: 'scen', simStep: -1, simDone: false }); },
+        simList, scenList, sev: r.sev, launch: () => this.launchSim(), launchLabel: running ? 'Propagating…' : st.simDone ? 'Run again' : 'Launch simulation', launchBg: running ? 'rgba(255,106,61,.3)' : EMBER,
+        log, hasLog: log.length > 0, done: st.simDone, result,
+        idle: sim && st.simStep < 0,
+        rpScens, rp: replay, rpNodes: rnodes, rpEdges: redges,
+        toPt: () => this.setState({ posId: 'pt', xrMode: 'inspect' }), toReplay: () => this.setState({ xrMode: 'replay' })
+      }
+    };
+  }
+  armVals(F, p) {
+    const st = this.state;
+    const eligible = p.kind === 'fork' || p.kind === 'borrow';
+    const pol = st.policy && st.policy.pid === p.id ? st.policy : Object.assign({ pid: p.id }, this.defaultPolicy(p.id));
+    const set = (k, v) => this.setState({ policy: Object.assign({}, pol, { [k]: v }), dry: null });
+    const fork = p.kind === 'fork';
+    const ctx = fork ? { lltv: 86, ltv: 75.0, coll: 'weETH', debt: 20838.10 } : { lltv: 91.5, ltv: 86.78, coll: 'PT', debt: null };
+    const tabs = [['preview', '1', 'Policy preview', 'AVAILABLE'], ['fork', '2', 'Fork demonstration', 'SIMULATED'], ['deployed', '3', 'Autonomous protection', 'UNAVAILABLE']].map(t => { const on = st.armTab === t[0]; const c = chip(t[3]); return { num: t[1], label: t[2], chip: c, bd: on ? INK : 'rgba(233,237,242,.14)', bg: on ? 'rgba(233,237,242,.04)' : 'transparent', go: () => this.setState({ armTab: t[0] }) }; });
+    const A = { REPAY: ['Repay debt', 'From the USDC reserve', 'repayCap', 'USDC / action'], TOP_UP: ['Add collateral', 'From the ' + ctx.coll + ' reserve', 'topupCap', ctx.coll + ' / action'], FULL_REPAY: ['Close the debt', 'Emergency full repayment', 'fullCap', 'USDC max'] };
+    const actions = pol.order.map((k, i) => ({ rank: String(i + 1), key: k, label: A[k][0], sub: A[k][1] + ' · cap ' + pol[A[k][2]].toLocaleString('en-US') + ' ' + A[k][3], on: pol.on[k], onLabel: pol.on[k] ? 'ALLOWED' : 'OFF', onC: pol.on[k] ? CYAN : MUTE, onBd: pol.on[k] ? 'rgba(43,184,255,.5)' : 'rgba(233,237,242,.2)',
+      toggle: () => set('on', Object.assign({}, pol.on, { [k]: !pol.on[k] })),
+      up: () => { if (i === 0) return; const o = pol.order.slice(); o.splice(i - 1, 0, o.splice(i, 1)[0]); set('order', o); },
+      down: () => { if (i === pol.order.length - 1) return; const o = pol.order.slice(); o.splice(i + 1, 0, o.splice(i, 1)[0]); set('order', o); } }));
+    const num = (k, label, unit, step, note) => ({ label, unit, value: String(pol[k]), step: String(step), note: note || '', onInput: e => set(k, Math.max(0, parseFloat(e.target.value) || 0)) });
+    const fields = [num('loanRes', 'Loan reserve', 'USDC', 100, 'Minimum 100'), num('collRes', 'Collateral reserve', ctx.coll, 0.01, 'Minimum 0.01'), num('repayTotal', 'Total repay limit', 'USDC', 1000, 'Across the policy lifetime'), num('topupTotal', 'Total top-up limit', ctx.coll, 0.1, ''), num('expiry', 'Policy expires after', 'days', 1, 'Maximum 90'), num('cooldown', 'Cooldown between actions', 'hours', 1, '')];
+    const scale = v => Math.max(0, Math.min(100, (v - 50) / 50 * 100)).toFixed(1) + '%';
+    let dry = null;
+    if (st.dry) {
+      const C = [];
+      const ok = (t, d) => C.push({ s: 'PASS', c: CYAN, t, d }), warn = (t, d) => C.push({ s: 'WARN', c: AMBER, t, d }), block = (t, d) => C.push({ s: 'BLOCKED', c: EMBER, t, d });
+      pol.trigger < ctx.lltv ? ok('Trigger below liquidation', 'Trigger ' + pol.trigger + '% is below the ' + ctx.lltv + '% LLTV.') : block('Trigger below liquidation', 'Trigger must be lower than the ' + ctx.lltv + '% LLTV.');
+      if (ctx.lltv - pol.trigger < 2) warn('Room to act', 'Less than 2 points between trigger and LLTV leaves little time to act.');
+      pol.minAfter < pol.trigger ? ok('Repayment floor', 'Actions stop at ' + pol.minAfter + '% LTV, below the trigger.') : block('Repayment floor', 'The LTV floor must be below the trigger.');
+      const anyOn = Object.values(pol.on).some(Boolean);
+      anyOn ? ok('At least one action allowed', pol.order.filter(k => pol.on[k]).join(' → ')) : warn('No action allowed', 'Only HOLD and alert would remain.');
+      ctx.ltv < pol.trigger ? ok('Current position', 'LTV ' + ctx.ltv.toFixed(2) + '% is below the trigger.') : warn('Current position', 'LTV ' + ctx.ltv.toFixed(2) + '% is already above the trigger. The policy would act at the first check.');
+      if (pol.on.REPAY) pol.loanRes >= 100 ? ok('REPAY fundable', fork ? 'Recorded need under −' + pol.followOn + '% follow-on: 1,086.50 USDC, inside the reserve and the per-action cap.' : 'Reserve meets the 100 USDC minimum. Exact need comes from the backend plan.') : warn('REPAY fundable', 'Reserve is below the 100 USDC minimum: REPAY would be rejected at feasibility.');
+      if (pol.on.TOP_UP) (fork && pol.collRes < 0.543) || (!fork && pol.collRes < 0.01) ? warn('TOP_UP fundable', fork ? pol.collRes + ' weETH in reserve vs 0.543 needed to hold the buffer. TOP_UP would be rejected.' : 'No collateral reserve. TOP_UP would be rejected.') : ok('TOP_UP fundable', 'Reserve covers the planned top-up.');
+      if (pol.on.FULL_REPAY) ctx.debt == null ? warn('FULL_REPAY fundable', 'Debt size is not loaded in this prototype.') : pol.loanRes < ctx.debt ? warn('FULL_REPAY fundable', pol.loanRes.toLocaleString('en-US') + ' USDC cannot close the 20,838.10 USDC debt. FULL_REPAY would be rejected.') : ok('FULL_REPAY fundable', 'Reserve can close the debt.');
+      pol.expiry >= 1 && pol.expiry <= 90 ? ok('Expiry', pol.expiry + ' days.') : warn('Expiry', 'Use 1 to 90 days.');
+      block('Execution', fork ? 'Executes only on the local fork. No RescueVault exists on mainnet.' : 'No RescueVault is deployed, funded or monitored for this position.');
+      const n = s => C.filter(c => c.s === s).length;
+      dry = { checks: C, summary: n('PASS') + ' passed · ' + n('WARN') + ' warnings · ' + n('BLOCKED') + ' blocked' };
+    }
+    const runDry = () => {
+      this.setState(s => ({ dry: { at: Date.now() }, session: [{ id: 'd' + Date.now(), kind: 'policy', title: 'Policy preview · ' + p.name, meta: 'This session · no signature, no transaction', status: 'DRY RUN', result: 'Validated preview', fields: [['Trigger', pol.trigger + '% LTV'], ['Actions', pol.order.filter(k => pol.on[k]).join(' → ') || 'none'], ['Reserves', pol.loanRes + ' USDC · ' + pol.collRes + ' ' + ctx.coll], ['Expiry', pol.expiry + ' days · cooldown ' + pol.cooldown + ' h'], ['Armed', 'No']] }].concat(s.session) }));
+    };
+    return {
+      arm: {
+        eligible, notEligible: !eligible, tabs, isPreview: st.armTab === 'preview', isFork: st.armTab === 'fork', isDeployed: st.armTab === 'deployed',
+        posName: p.name, ctxLine: fork ? 'weETH / USDC · LLTV 86% · current LTV 75.00% · local fork' : 'PT-reUSD / USDC · LLTV 91.5% · current LTV 86.78% (HF 1.054)',
+        pol, trigMax: String(ctx.lltv - 0.5), minMax: String(Math.max(10, pol.trigger - 1)),
+        onTrigger: e => set('trigger', parseFloat(e.target.value)), onFollow: e => set('followOn', parseFloat(e.target.value)), onBuffer: e => set('buffer', parseFloat(e.target.value)), onMin: e => set('minAfter', parseFloat(e.target.value)),
+        ltvL: scale(ctx.ltv), trigL: scale(pol.trigger), lltvL: scale(ctx.lltv), ltvTxt: ctx.ltv.toFixed(2) + '%', lltvTxt: ctx.lltv + '%',
+        actions, fields, runDry, dry, hasDry: !!dry, reset: () => this.setState({ policy: null, dry: null }),
+        useFork: () => this.setState({ posId: 'fork', armTab: 'preview', policy: null, dry: null }),
+        useBorrow: () => this.setState({ posId: 'borrow', armTab: 'preview', policy: null, dry: null }),
+        toReplay: () => this.go('xray', { xrMode: 'replay', rpScen: 'S1' }),
+        coll: ctx.coll, loanRes: pol.loanRes.toLocaleString('en-US'), collRes: String(pol.collRes)
+      }
+    };
+  }
+
+  actVals(F) {
+    const st = this.state;
+    const all = st.session.concat(F.ACTIVITY);
+    const FL = [['all', 'All'], ['analysis', 'Analyses'], ['sim', 'Simulations'], ['policy', 'Policy'], ['fork', 'Fork executions'], ['history', 'Historical'], ['monitoring', 'Monitoring']];
+    const counts = k => k === 'all' ? all.length : all.filter(a => a.kind === k).length;
+    const filters = FL.map(f => { const on = st.actFilter === f[0]; return { label: f[1] + ' · ' + counts(f[0]), c: on ? '#05070b' : '#b4bcc8', bg: on ? INK : 'transparent', bd: on ? INK : 'rgba(233,237,242,.18)', go: () => this.setState({ actFilter: f[0] }) }; });
+    const rows = (st.actFilter === 'all' ? all : all.filter(a => a.kind === st.actFilter)).map(a => ({ title: a.title, meta: a.meta, result: a.result, chip: chip(a.status), bg: st.actSel === a.id ? 'rgba(233,237,242,.04)' : 'transparent', bar: st.actSel === a.id ? CYAN : 'transparent', go: () => this.setState({ actSel: a.id }) }));
+    const s = all.find(a => a.id === st.actSel) || all[0];
+    const sel = s ? { title: s.title, meta: s.meta, chip: chip(s.status), result: s.result, fields: s.fields.map(f => ({ k: f[0], v: f[1] })), tx: s.tx || null } : null;
+    const emptyMsg = st.actFilter === 'monitoring' ? 'No monitoring events. No monitoring service is deployed, so nothing has been watched or detected on mainnet. Events will appear here only once a keeper is running against a deployed RescueVault.' : st.actFilter === 'sim' ? 'No simulations yet in this session. Run one from Simulate attack. Sessions are not persisted: there is no account storage yet.' : st.actFilter === 'policy' ? 'No policy previews yet. Validate one in Countermove. Nothing is stored after you leave.' : null;
+    const legend = ['RECORDED LIVE RUN', 'SIMULATED', 'DRY RUN', 'FORK CONFIRMED', 'MAINNET CONFIRMED', 'HISTORICAL DATA', 'PENDING', 'UNAVAILABLE'].map(chip);
+    return { act: { filters, rows, hasRows: rows.length > 0, empty: rows.length === 0 ? (emptyMsg || 'Nothing here yet.') : null, sel, hasSel: !!sel && rows.length > 0, legend } };
+  }
+}
+</script>
+</body>
+</html>

@@ -3,13 +3,13 @@
 DeFi risk dependency analyzer: discover a position's dependency graph, simulate failures, output STAY/EXIT.
 Start with the [documentation index](docs/README.md) for the core, feature specifications and Belem brief. `PLAN.md` retains the earlier project plan.
 
-## UI direction: Pendle X-Ray node graph (hosted on Vercel)
-The main view is an interactive node graph (nodes = chain, yield source, oracle, PT market/AMM, lending, position pockets).
-Click a node to simulate its failure and watch it propagate; the side panel shows STAY vs EXIT.
-- `public/index.html` (dashboard) and `public/xray.html` (node graph): fed by `/api/analyze`; a badge shows whether numbers are live, replayed from cache, or MOCK
-- `api/analyze.py`: Python serverless function returning the model output as JSON
-- `public/vault.html` (Vault analyzer): enter any Ethereum Morpho vault address (V1/V2) and an amount; fed by `/api/vault` (`api/vault.py`)
-- `docs/core/dependency-graph/mockup.html`: untouched copy of the original prototype
+## UI: Claude Design v2 (hosted on Vercel)
+The frontend renders the approved Claude Design v2 export (`docs/design/claude-design-v2/`) on its own runtime, wired to the real backend. See [docs/frontend/README.md](docs/frontend/README.md).
+- `/` (`public/index.html`): landing. Its recorded figures come from `public/data/recorded/analyze-pt.json` and the recorded fork run, checked at build time.
+- `/app.html`: select a position (demonstration positions = recorded live runs, labelled RECORDED LIVE RUN; or paste a Morpho market id / vault address for a LIVE run), then Dashboard, Positions & Vaults, Dependency X-Ray (inspect, simulate attack, replay S1/S5), Countermove (policy preview validated by `/api/countermove`, live dry run for real borrowers, fork demonstration) and Activity & Evidence.
+- APIs: `api/analyze.py` (`ref=auto|pendle:1:<market>|morpho:1:<market id>`, `lookup=1`), `api/vault.py` (`address=`, `lookup=1`), `api/countermove.py`.
+- Build: `node tools/frontend/dc-build.mjs`; recordings: `python scripts/record_demo_payloads.py`; QA: `node tools/frontend/dc-qa.mjs`.
+- Earlier pages (`/analyze.html`, `/vault.html`, `/countermove.html`) remain reachable by URL but are no longer linked; the design gaps they cover are listed in `docs/frontend/DESIGN_COVERAGE_GAPS.md`.
 
 ## Demo: Belem vault risk (Phase 1)
 1. `python scripts/dev_server.py 8000`, open http://localhost:8000/vault.html

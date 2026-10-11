@@ -1,6 +1,7 @@
 """Vercel Python serverless function - Phase 1 Vault Risk Analyzer.
 
 GET /api/vault?address=0x..|url=<morpho/etherscan link>&value_usd=100000&chain_id=1&horizon_days=30&shock=<node id>&severity=0.4
+GET /api/vault?lookup=1&address=0x.. -> cheap identification (factory check, name, symbol, asset); no analysis
 
 200 -> faultline.vault/1 payload (mode live | cache | mixed | offline; never mock)
 4xx/5xx -> {"error": {"code", "status", "message", ...}}; no traceback, no fallback demo data.
@@ -13,13 +14,15 @@ from urllib.parse import parse_qs, urlparse
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from defirisk.vault_input import VaultError, parse_request  # noqa: E402
-from defirisk import vault_model  # noqa: E402
+from defirisk.vault_input import VaultError, parse_address, parse_request  # noqa: E402
+from defirisk import vault_model, vault_reader  # noqa: E402
 
 
 def respond(path: str) -> tuple[int, dict]:
     q = {k: v[0] for k, v in parse_qs(urlparse(path).query).items() if v}
     try:
+        if q.get("lookup") == "1":  # cheap identification for the app's select screen: factory check + labels, no analysis
+            return 200, vault_reader.lookup(parse_address(q.get("address"))["address"])
         return 200, vault_model.analyze(parse_request(q))
     except VaultError as e:
         return e.status, e.to_dict()

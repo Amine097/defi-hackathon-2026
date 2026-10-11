@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#05070b;color:#e9edf2;-webkit-font-smoothing:antialiased;}
+*{box-sizing:border-box;}
+a{color:#e9edf2;text-decoration:none;}
+a:hover{color:#2bb8ff;}
+::selection{background:#2bb8ff;color:#05070b;}
+@keyframes flPulse{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+</helmet>
+<div style="position:relative; background:#05070b; color:#e9edf2; font-family:'Archivo', sans-serif; min-height:100vh;">
+
+  <div ref="{{ mountRef }}" style="position:fixed; inset:0; z-index:0;"></div>
+  <sc-if value="{{ noGL }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; z-index:0; display:flex; align-items:center; justify-content:flex-end; padding-right:8vw; background:radial-gradient(60% 60% at 70% 45%, #0c1a2a 0%, #05070b 70%);">
+      <img src="assets/logo-mark.png" alt="" style="width:min(38vw,460px); opacity:.9;">
+    </div>
+  </sc-if>
+  <div style="position:fixed; inset:0; z-index:1; pointer-events:none; background:radial-gradient(120% 90% at 55% 40%, rgba(5,7,11,0) 45%, rgba(5,7,11,.85) 100%);"></div>
+
+  <div ref="{{ labelsRef }}" style="position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden;">
+    <div ref="{{ lb0 }}" style="position:absolute; left:0; top:0; opacity:0; will-change:transform;">
+      <div ref="{{ ld0 }}" style="position:absolute; left:-3px; top:-3px; width:6px; height:6px; background:#8a94a3;"></div>
+      <div style="position:absolute; left:12px; top:-14px; white-space:nowrap; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; line-height:1.5;">
+        <div style="color:#e9edf2;">weETH</div>
+        <div ref="{{ ls0 }}" style="color:#8a94a3;">COLLATERAL</div>
+      </div>
+    </div>
+    <div ref="{{ lb1 }}" style="position:absolute; left:0; top:0; opacity:0; will-change:transform;">
+      <div ref="{{ ld1 }}" style="position:absolute; left:-3px; top:-3px; width:6px; height:6px; background:#8a94a3;"></div>
+      <div style="position:absolute; left:12px; top:-14px; white-space:nowrap; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; line-height:1.5;">
+        <div style="color:#e9edf2;">ORACLE</div>
+        <div ref="{{ ls1 }}" style="color:#8a94a3;">weETH / ETH</div>
+      </div>
+    </div>
+    <div ref="{{ lb2 }}" style="position:absolute; left:0; top:0; opacity:0; will-change:transform;">
+      <div ref="{{ ld2 }}" style="position:absolute; left:-3px; top:-3px; width:6px; height:6px; background:#8a94a3;"></div>
+      <div style="position:absolute; left:12px; top:-14px; white-space:nowrap; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; line-height:1.5;">
+        <div style="color:#e9edf2;">MORPHO BLUE</div>
+        <div ref="{{ ls2 }}" style="color:#8a94a3;">LENDING MARKET</div>
+      </div>
+    </div>
+    <div ref="{{ lb3 }}" style="position:absolute; left:0; top:0; opacity:0; will-change:transform;">
+      <div ref="{{ ld3 }}" style="position:absolute; left:-3px; top:-3px; width:6px; height:6px; background:#2bb8ff;"></div>
+      <div style="position:absolute; left:12px; top:-14px; white-space:nowrap; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; line-height:1.5;">
+        <div style="color:#e9edf2;">YOUR POSITION</div>
+        <div ref="{{ ls3 }}" style="color:#8a94a3;">LTV 75.0%</div>
+      </div>
+    </div>
+    <div ref="{{ lb4 }}" style="position:absolute; left:0; top:0; opacity:0; will-change:transform;">
+      <div ref="{{ ld4 }}" style="position:absolute; left:-3px; top:-3px; width:6px; height:6px; background:#8a94a3;"></div>
+      <div style="position:absolute; left:12px; top:-14px; white-space:nowrap; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; line-height:1.5;">
+        <div style="color:#e9edf2;">RESCUE RESERVE</div>
+        <div ref="{{ ls4 }}" style="color:#8a94a3;">5,000 USDC</div>
+      </div>
+    </div>
+  </div>
+
+  <header style="position:fixed; top:0; left:0; right:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:24px; padding:22px clamp(20px,4vw,56px); pointer-events:none;">
+    <a href="#top" onClick="{{ goTop }}" style="display:flex; align-items:center; gap:12px; pointer-events:auto;">
+      <img src="assets/logo-mark.png" alt="" style="width:34px; height:34px; display:block;">
+      <img src="assets/wordmark-light.png" alt="FAULTLINE" style="height:14px; width:auto; display:block;">
+    </a>
+    <nav style="display:flex; gap:32px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.16em; pointer-events:auto;">
+      <a href="#layers" onClick="{{ goLayers }}" style="color:#8a94a3;" style-hover="color:#e9edf2;">DEPENDENCIES</a>
+      <a href="#arm" onClick="{{ goArm }}" style="color:#8a94a3;" style-hover="color:#e9edf2;">ARM</a>
+      <a href="#defend" onClick="{{ goDefend }}" style="color:#8a94a3;" style-hover="color:#e9edf2;">DEFEND</a>
+      <a href="#prove" onClick="{{ goProve }}" style="color:#8a94a3;" style-hover="color:#e9edf2;">PROVE</a>
+      <a href="#enter" onClick="{{ goEnter }}" style="color:#8a94a3;" style-hover="color:#e9edf2;">ENTER</a>
+    </nav>
+    <a href="Faultline App.dc.html" style="pointer-events:auto; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.14em; color:#e9edf2; background:rgba(5,7,11,.4); border:1px solid rgba(233,237,242,.28); padding:11px 16px; backdrop-filter:blur(8px); white-space:nowrap;" style-hover="border-color:#e9edf2; color:#e9edf2;">LAUNCH APP</a>
+  </header>
+
+  <main style="position:relative; z-index:3;">
+
+    <section id="top" style="position:relative; height:100vh; min-height:560px; display:flex; flex-direction:column; justify-content:flex-end; padding:104px clamp(20px,4vw,56px) clamp(96px,14vh,128px); background:linear-gradient(0deg, rgba(5,7,11,.94) 0%, rgba(5,7,11,.45) 34%, rgba(5,7,11,0) 58%), linear-gradient(90deg, rgba(5,7,11,.7) 0%, rgba(5,7,11,0) 50%);">
+      <div ref="{{ eyebrowRef }}" style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.2em; color:#8a94a3; margin-bottom:28px;">AUTONOMOUS RISK PROTECTION FOR DEFI LENDING</div>
+      <h1 ref="{{ h1Ref }}" style="margin:0; text-transform:uppercase; font-weight:800; font-stretch:125%; font-size:clamp(38px,min(7.4vw,11vh),138px); line-height:.86; letter-spacing:-.025em; text-wrap:balance;">
+        <span style="display:block; font-weight:300; font-stretch:100%; font-size:.38em; letter-spacing:.02em; line-height:1.1; margin-bottom:.18em; color:#c7ced8;">When DeFi breaks,</span>
+        <span style="display:block;">Fault<span style="color:#2bb8ff;">line</span></span>
+        <span style="display:block;">moves first.</span>
+      </h1>
+      <div ref="{{ heroRowRef }}" style="display:flex; flex-wrap:wrap; align-items:center; gap:28px 48px; margin-top:clamp(24px,5vh,44px);">
+        <p style="margin:0; max-width:470px; font-size:16px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">FAULTLINE maps the hidden dependencies behind a DeFi position, prices what a failure would cost you, and tells you whether to stay or exit. Countermove, in development, executes a defense you authorized in advance and records the proof.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+          <a href="Faultline App.dc.html" style="font-family:'Archivo', sans-serif; font-weight:600; font-size:15px; color:#05070b; background:#e9edf2; border:1px solid #e9edf2; padding:17px 26px; cursor:pointer; white-space:nowrap; display:inline-block;" style-hover="background:#2bb8ff; border-color:#2bb8ff; color:#05070b;">Launch app</a>
+          <a href="Faultline App.dc.html#demo" style="font-family:'Archivo', sans-serif; font-weight:600; font-size:15px; color:#e9edf2; background:transparent; border:1px solid rgba(233,237,242,.32); padding:17px 26px; cursor:pointer; white-space:nowrap; display:inline-block;" style-hover="border-color:#e9edf2; color:#e9edf2;">Explore demo</a>
+        </div>
+        <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.06em; color:#8a94a3; line-height:1.6; max-width:240px;">The demo runs on recorded on-chain data. No wallet needed.</div>
+      </div>
+    </section>
+
+    <section id="layers" style="position:relative; min-height:100vh; display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr)); gap:48px 6vw; align-items:center; padding:120px clamp(20px,4vw,56px); background:linear-gradient(90deg, rgba(5,7,11,.94) 0%, rgba(5,7,11,.84) 55%, rgba(5,7,11,.6) 100%);">
+      <div style="display:flex; flex-direction:column; gap:24px; min-width:0;">
+        <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.2em; color:#ff6a3d;">THE HIDDEN PROBLEM</div>
+        <h2 style="margin:0; text-transform:uppercase; font-weight:800; font-stretch:125%; font-size:clamp(36px,5vw,84px); line-height:.9; letter-spacing:-.025em; text-wrap:balance;">One position. Five layers deep.</h2>
+        <p style="margin:0; max-width:520px; font-size:16px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">A Pendle PT on Morpho looks like one asset. It depends on a lending market, an AMM, an oracle, a yield issuer and a chain. A failure in any of them can reach you, and most of them never show up in your wallet.</p>
+        <p style="margin:0; max-width:520px; font-size:16px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">FAULTLINE reads each layer on-chain, estimates how much of a failure would actually travel to the position, and compares that with what it costs to leave. Every figure carries its source and block.</p>
+        <div style="display:flex; flex-direction:column; gap:6px; padding-top:8px; font-family:'IBM Plex Mono', monospace; font-size:12px; line-height:1.6;">
+          <div style="color:#8a94a3; font-size:10.5px; letter-spacing:.16em;">RECORDED LIVE RUN · ETHEREUM BLOCK 26,162,781 · $1M PT-reUSD</div>
+          <div><span style="color:#ffb547;">REVIEW</span> <span style="color:#8a94a3;">·</span> expected loss $1,657 <span style="color:#8a94a3;">($171 to $27,532)</span> vs exit side $4,996</div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; min-width:0; font-family:'IBM Plex Mono', monospace;">
+        <div style="display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:20px 0; border-top:1px solid rgba(233,237,242,.14);"><span style="color:#8a94a3; font-size:12px;">05</span><span style="display:flex; flex-direction:column; gap:4px;"><span style="font-family:'Archivo', sans-serif; font-size:22px; font-weight:600;">Lending market</span><span style="font-size:12px; color:#8a94a3;">Morpho PT-reUSD / USDC · LLTV 91.5% · 88% utilized</span></span><span style="font-size:10.5px; letter-spacing:.14em; color:#e9edf2;">VISIBLE</span></div>
+        <div style="display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:20px 0; border-top:1px solid rgba(233,237,242,.14);"><span style="color:#8a94a3; font-size:12px;">04</span><span style="display:flex; flex-direction:column; gap:4px;"><span style="font-family:'Archivo', sans-serif; font-size:22px; font-weight:600;">PT market and AMM</span><span style="font-size:12px; color:#8a94a3;">Pendle PT-reUSD-10DEC2026 · the exit route</span></span><span style="font-size:10.5px; letter-spacing:.14em; color:#e9edf2;">VISIBLE</span></div>
+        <div style="display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:20px 0; border-top:1px solid rgba(233,237,242,.14);"><span style="color:#8a94a3; font-size:12px;">03</span><span style="display:flex; flex-direction:column; gap:4px;"><span style="font-family:'Archivo', sans-serif; font-size:22px; font-weight:600;">Oracle</span><span style="font-size:12px; color:#8a94a3;">One Ojo feed, computed on read, no staleness guard</span></span><span style="font-size:10.5px; letter-spacing:.14em; color:#ff6a3d;">HIDDEN</span></div>
+        <div style="display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:20px 0; border-top:1px solid rgba(233,237,242,.14);"><span style="color:#8a94a3; font-size:12px;">02</span><span style="display:flex; flex-direction:column; gap:4px;"><span style="font-family:'Archivo', sans-serif; font-size:22px; font-weight:600;">Yield source and issuer</span><span style="font-size:12px; color:#8a94a3;">reUSD by re.xyz · 0% traced to base assets</span></span><span style="font-size:10.5px; letter-spacing:.14em; color:#ff6a3d;">HIDDEN</span></div>
+        <div style="display:grid; grid-template-columns:44px minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:20px 0; border-top:1px solid rgba(233,237,242,.14); border-bottom:1px solid rgba(233,237,242,.14);"><span style="color:#8a94a3; font-size:12px;">01</span><span style="display:flex; flex-direction:column; gap:4px;"><span style="font-family:'Archivo', sans-serif; font-size:22px; font-weight:600;">Settlement chain</span><span style="font-size:12px; color:#8a94a3;">Ethereum</span></span><span style="font-size:10.5px; letter-spacing:.14em; color:#ff6a3d;">HIDDEN</span></div>
+      </div>
+    </section>
+
+    <section ref="{{ storyRef }}" style="position:relative; height:420vh;">
+      <div style="position:sticky; top:0; height:100vh; overflow:hidden; background:linear-gradient(270deg, rgba(5,7,11,.9) 0%, rgba(5,7,11,.55) 34%, rgba(5,7,11,0) 58%);">
+        <div id="arm" style="position:absolute; top:0;"></div>
+        <div style="position:absolute; top:112px; left:clamp(20px,4vw,56px); display:flex; flex-direction:column; gap:10px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.18em;">
+          <div ref="{{ r0 }}" style="color:#8a94a3; display:flex; gap:14px;"><span>01</span><span>ARM</span></div>
+          <div ref="{{ r1 }}" style="color:#8a94a3; display:flex; gap:14px;"><span>02</span><span>DEFEND</span></div>
+          <div ref="{{ r2 }}" style="color:#8a94a3; display:flex; gap:14px;"><span>03</span><span>PROVE</span></div>
+        </div>
+
+        <div ref="{{ p0 }}" style="position:absolute; inset:0; opacity:0; pointer-events:none;">
+          <div style="position:absolute; left:clamp(12px,2.6vw,40px); bottom:84px; font-weight:800; font-stretch:125%; font-size:17vw; line-height:.78; letter-spacing:-.03em; color:transparent; -webkit-text-stroke:1.2px rgba(233,237,242,.24);">ARM</div>
+          <div style="position:absolute; right:clamp(20px,4vw,56px); top:50%; transform:translateY(-50%); width:min(430px,42vw); pointer-events:auto;">
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.2em; color:#2bb8ff; margin-bottom:20px;">01 / BEFORE THE CRISIS</div>
+            <h2 style="margin:0 0 18px; font-weight:700; font-stretch:112%; font-size:clamp(28px,2.7vw,42px); line-height:1.02; letter-spacing:-.015em; text-wrap:balance;">Decide the defense before the crisis.</h2>
+            <p style="margin:0 0 24px; font-size:15px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">Choose which protective actions FAULTLINE may take, fund a restricted rescue reserve, and set hard limits. The RescueVault contract refuses anything outside them.</p>
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.04em;">
+              <div style="font-size:10.5px; letter-spacing:.18em; color:#8a94a3; padding-bottom:10px;">PERMITTED ACTIONS</div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:12px; padding:8px 0; border-top:1px solid rgba(233,237,242,.12);"><span>AUTO-REPAY</span><span style="color:#8a94a3;">USDC reserve</span><span style="color:#2bb8ff;">ON</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:12px; padding:8px 0; border-top:1px solid rgba(233,237,242,.12);"><span>AUTO-TOP-UP</span><span style="color:#8a94a3;">weETH reserve</span><span style="color:#2bb8ff;">ON</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:12px; padding:8px 0; border-top:1px solid rgba(233,237,242,.12);"><span>FULL REPAY</span><span style="color:#8a94a3;">up to 25,000 USDC</span><span style="color:#2bb8ff;">ON</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:12px; padding:8px 0; border-top:1px solid rgba(233,237,242,.12);"><span>HOLD / ALERT</span><span style="color:#8a94a3;">fallback</span><span style="color:#2bb8ff;">ALWAYS</span></div>
+              <div style="font-size:10.5px; letter-spacing:.18em; color:#8a94a3; padding:20px 0 8px;">HARD LIMITS</div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; padding:8px 0; border-top:1px solid rgba(233,237,242,.12);"><span style="color:#8a94a3;">Trigger</span><span>LTV above 82%</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; padding:8px 0; border-top:1px solid rgba(233,237,242,.12);"><span style="color:#8a94a3;">Buffer in every scenario</span><span>250 USDC</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; padding:8px 0; border-top:1px solid rgba(233,237,242,.12);"><span style="color:#8a94a3;">Max repay per action</span><span>5,000 USDC</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; padding:8px 0; border-top:1px solid rgba(233,237,242,.12); border-bottom:1px solid rgba(233,237,242,.12);"><span style="color:#8a94a3;">Expiry · cooldown</span><span>30 days · 1 h</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div ref="{{ p1 }}" style="position:absolute; inset:0; opacity:0; pointer-events:none;">
+          <div style="position:absolute; left:clamp(12px,2.6vw,40px); bottom:84px; font-weight:800; font-stretch:125%; font-size:15vw; line-height:.78; letter-spacing:-.03em; color:transparent; -webkit-text-stroke:1.2px rgba(233,237,242,.24);">DEFEND</div>
+          <div style="position:absolute; right:clamp(20px,4vw,56px); top:50%; transform:translateY(-50%); width:min(430px,42vw); pointer-events:auto;">
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.2em; color:#ff6a3d; margin-bottom:20px;">02 / DURING THE CRISIS</div>
+            <h2 style="margin:0 0 18px; font-weight:700; font-stretch:112%; font-size:clamp(28px,2.7vw,42px); line-height:1.02; letter-spacing:-.015em; text-wrap:balance;">Detect the shock. Compare the moves. Act.</h2>
+            <p style="margin:0 0 24px; font-size:15px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">On a local fork, the weETH/ETH feed drops 9% and the position's LTV crosses its 82% trigger. Countermove scores every allowed action against a further 8% ETH drop, rejects what the reserve can't fund, and sends the smallest move that keeps a 250 USDC buffer.</p>
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.04em;">
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; font-size:10.5px; letter-spacing:.18em; color:#8a94a3; padding-bottom:10px;"><span>STRATEGY</span><span>LTV IF ETH −8%</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:14px; align-items:center; padding:11px 0; border-top:1px solid rgba(233,237,242,.12);"><span>REPAY · 1,086.50 USDC</span><span style="font-size:10px; letter-spacing:.16em; color:#05070b; background:#2bb8ff; padding:3px 7px;">SELECTED</span><span style="font-size:16px; color:#2bb8ff;">84.9%</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:14px; padding:11px 0; border-top:1px solid rgba(233,237,242,.12);"><span>TOP-UP · needs 0.543 weETH, has 0.05</span><span style="font-size:12px; color:#8a94a3;">REJECTED</span></div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:14px; padding:11px 0; border-top:1px solid rgba(233,237,242,.12); border-bottom:1px solid rgba(233,237,242,.12);"><span>HOLD</span><span style="font-size:16px; color:#ff6a3d;">89.6% · liquidatable</span></div>
+              <div style="margin-top:16px; font-size:11px; color:#8a94a3; line-height:1.6;">Recorded fork scenario S1. The shock is simulated; no mainnet transaction was sent. Market LLTV 86%.</div>
+            </div>
+          </div>
+        </div>
+
+        <div ref="{{ p2 }}" style="position:absolute; inset:0; opacity:0; pointer-events:none;">
+          <div style="position:absolute; left:clamp(12px,2.6vw,40px); bottom:84px; font-weight:800; font-stretch:125%; font-size:16vw; line-height:.78; letter-spacing:-.03em; color:transparent; -webkit-text-stroke:1.2px rgba(233,237,242,.24);">PROVE</div>
+          <div style="position:absolute; right:clamp(20px,4vw,56px); top:50%; transform:translateY(-50%); width:min(430px,42vw); pointer-events:auto;">
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.2em; color:#e9edf2; margin-bottom:20px;">03 / AFTER THE CRISIS</div>
+            <h2 style="margin:0 0 18px; font-weight:700; font-stretch:112%; font-size:clamp(28px,2.7vw,42px); line-height:1.02; letter-spacing:-.015em; text-wrap:balance;">Every move leaves a receipt.</h2>
+            <p style="margin:0 0 24px; font-size:15px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">After execution, FAULTLINE re-reads the position and records what was sent, why, and what changed, so anyone can check it.</p>
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.03em;">
+              <div style="display:grid; grid-template-columns:76px minmax(0,1fr); gap:14px; padding:10px 0; border-top:1px solid rgba(233,237,242,.12);"><span style="color:#8a94a3;">#…284</span><span>Trigger met<br><span style="color:#8a94a3;">LTV 82.42% above 82.00%</span></span></div>
+              <div style="display:grid; grid-template-columns:76px minmax(0,1fr); gap:14px; padding:10px 0; border-top:1px solid rgba(233,237,242,.12);"><span style="color:#8a94a3;">#…284</span><span>Validated<br><span style="color:#8a94a3;">5 of 5 pre-send checks</span></span></div>
+              <div style="display:grid; grid-template-columns:76px minmax(0,1fr); gap:14px; padding:10px 0; border-top:1px solid rgba(233,237,242,.12);"><span style="color:#8a94a3;">#…285</span><span>executeRepay(1,086.50 USDC)<br><span style="color:#8a94a3;">tx 0x4b92…87e2 · keeper-signed</span></span></div>
+              <div style="display:grid; grid-template-columns:76px minmax(0,1fr); gap:14px; padding:10px 0; border-top:1px solid rgba(233,237,242,.12); border-bottom:1px solid rgba(233,237,242,.12);"><span style="color:#8a94a3;">#…285</span><span>Verified from events<br><span style="color:#2bb8ff;">LTV 82.42% → 78.12%</span></span></div>
+              <div style="margin-top:16px; font-size:11px; color:#8a94a3; line-height:1.6;">Fork evidence (chain 31337). Block numbers are on the local fork of Ethereum block 26,164,248.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section ref="{{ enterRef }}" id="enter" style="position:relative; min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:120px clamp(20px,4vw,56px) 28px; background:radial-gradient(70% 55% at 50% 50%, rgba(5,7,11,.82) 0%, rgba(5,7,11,.35) 100%);">
+      <img src="assets/logo-mark.png" alt="" style="width:76px; height:76px; margin-bottom:28px;">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.22em; color:#8a94a3; margin-bottom:18px;">ENTER THE APPLICATION</div>
+      <h2 style="margin:0; font-weight:800; font-stretch:125%; text-transform:uppercase; font-size:clamp(44px,8.6vw,160px); line-height:.86; letter-spacing:-.03em;">Counter<span style="color:#2bb8ff;">move</span></h2>
+      <p style="margin:30px 0 40px; max-width:520px; font-size:16px; line-height:1.6; color:#b4bcc8; text-wrap:pretty;">Choose a position, read its dependencies, then arm protection or simulate an attack. The demo runs on recorded data and needs no wallet.</p>
+      <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+        <button onClick="{{ enterApp }}" style="font-family:'Archivo', sans-serif; font-weight:600; font-size:15px; color:#05070b; background:#2bb8ff; border:1px solid #2bb8ff; padding:18px 30px; cursor:pointer; white-space:nowrap;" style-hover="background:#e9edf2; border-color:#e9edf2;">Launch app</button>
+        <button onClick="{{ enterDemo }}" style="font-family:'Archivo', sans-serif; font-weight:600; font-size:15px; color:#e9edf2; background:transparent; border:1px solid rgba(233,237,242,.32); padding:18px 30px; cursor:pointer; white-space:nowrap;" style-hover="border-color:#e9edf2;">Explore demo</button>
+      </div>
+      <footer style="align-self:stretch; margin-top:96px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.1em; color:#8a94a3; text-align:left;">
+        <span>FAULTLINE · EPFL × BELEM CAPITAL HACKATHON 2026</span>
+        <span>Countermove execution is in development. Every demonstration on this page is simulated.</span>
+      </footer>
+    </section>
+  </main>
+
+  <div ref="{{ hudRef }}" style="position:fixed; left:0; right:0; bottom:0; z-index:10; padding:0 clamp(20px,4vw,56px) 26px; pointer-events:none; display:grid; grid-template-columns:minmax(180px,260px) minmax(0,1fr); gap:40px; align-items:end;">
+    <div style="display:flex; gap:10px; align-items:center; font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.14em; color:#8a94a3; line-height:1.5;">
+      <span style="width:6px; height:6px; background:#ff6a3d; flex:none; animation:flPulse 1.6s ease-in-out infinite;"></span>
+      <span>SIMULATION · BASED ON FORK SCENARIO S1 · NOT A MAINNET EVENT</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.16em;">
+      <div style="display:flex; flex-direction:column; gap:10px;"><div style="height:1px; background:rgba(233,237,242,.16);"><div ref="{{ hf0 }}" style="height:2px; margin-top:-.5px; width:0%; background:#e9edf2;"></div></div><span ref="{{ hl0 }}" style="color:#8a94a3;">01 STABLE</span></div>
+      <div style="display:flex; flex-direction:column; gap:10px;"><div style="height:1px; background:rgba(233,237,242,.16);"><div ref="{{ hf1 }}" style="height:2px; margin-top:-.5px; width:0%; background:#ff6a3d;"></div></div><span ref="{{ hl1 }}" style="color:#8a94a3;">02 SIGNAL</span></div>
+      <div style="display:flex; flex-direction:column; gap:10px;"><div style="height:1px; background:rgba(233,237,242,.16);"><div ref="{{ hf2 }}" style="height:2px; margin-top:-.5px; width:0%; background:#ff6a3d;"></div></div><span ref="{{ hl2 }}" style="color:#8a94a3;">03 PROPAGATION</span></div>
+      <div style="display:flex; flex-direction:column; gap:10px;"><div style="height:1px; background:rgba(233,237,242,.16);"><div ref="{{ hf3 }}" style="height:2px; margin-top:-.5px; width:0%; background:#2bb8ff;"></div></div><span ref="{{ hl3 }}" style="color:#8a94a3;">04 COUNTERMOVE</span></div>
+      <div style="display:flex; flex-direction:column; gap:10px;"><div style="height:1px; background:rgba(233,237,242,.16);"><div ref="{{ hf4 }}" style="height:2px; margin-top:-.5px; width:0%; background:#e9edf2;"></div></div><span ref="{{ hl4 }}" style="color:#8a94a3;">05 STABILISED</span></div>
+    </div>
+  </div>
+
+  <sc-if value="{{ walletOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:20px; background:rgba(3,4,7,.72); backdrop-filter:blur(10px);">
+      <div style="position:relative; width:min(480px,100%); background:#0a0e14; border:1px solid rgba(233,237,242,.14); padding:34px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:22px;">
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <span style="align-self:flex-start; font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.18em; color:#05070b; background:#ffb547; padding:4px 8px;">PREVIEW · NOT CONNECTED</span>
+            <h3 style="margin:0; font-weight:700; font-stretch:112%; font-size:26px; letter-spacing:-.01em;">Connection preview</h3>
+          </div>
+          <button onClick="{{ closeWallet }}" aria-label="Close" style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.14em; color:#8a94a3; background:none; border:1px solid rgba(233,237,242,.18); padding:8px 10px; cursor:pointer; white-space:nowrap;" style-hover="color:#e9edf2; border-color:#e9edf2;">ESC</button>
+        </div>
+        <p style="margin:0 0 24px; font-size:14px; line-height:1.6; color:#b4bcc8;">Wallet integration is not part of this prototype. In the product, connecting only reads your address. It never authorizes spending or moves funds.</p>
+        <div style="display:flex; flex-direction:column;">
+          <sc-for list="{{ wallets }}" as="w" hint-placeholder-count="3">
+            <button onClick="{{ w.pick }}" style="display:flex; justify-content:space-between; align-items:center; gap:12px; text-align:left; background:none; color:#e9edf2; border:none; border-top:1px solid rgba(233,237,242,.12); padding:16px 0; cursor:pointer; font-family:'Archivo', sans-serif;" style-hover="color:#2bb8ff;">
+              <span style="font-size:16px; font-weight:600;">{{ w.name }}</span>
+              <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a94a3;">{{ w.note }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ walletPick }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:8px; padding:16px; background:rgba(255,181,71,.08); border:1px solid rgba(255,181,71,.35); font-size:13px; line-height:1.6; color:#e9edf2;">
+            <div style="font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.16em; color:#ffb547; margin-bottom:6px;">NOTHING WAS CONNECTED</div>
+            No request was sent to {{ walletPick }}. No address was read and nothing was authorized. This step only previews the flow.
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ entered }}" hint-placeholder-val="{{ false }}">
+    <div ref="{{ diveRef }}" style="position:fixed; inset:0; z-index:50; opacity:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:22px; padding:24px; background:#05070b;">
+      <img src="assets/logo-mark.png" alt="" style="width:64px; height:64px;">
+      <div style="font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.22em; color:#2bb8ff;">FAULTLINE</div>
+      <p style="margin:0; max-width:440px; font-size:16px; line-height:1.6; color:#b4bcc8;">Opening the application…</p>
+      <button onClick="{{ exitApp }}" style="font-family:'Archivo', sans-serif; font-weight:600; font-size:15px; color:#e9edf2; background:transparent; border:1px solid rgba(233,237,242,.32); padding:16px 26px; cursor:pointer; white-space:nowrap;" style-hover="border-color:#e9edf2;">Back to the landing page</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;reduceMotion&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;loopSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.5,&quot;max&quot;:1.6,&quot;step&quot;:0.1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Motion&quot;},&quot;showLabels&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Scene&quot;}}">
+class Component extends DCLogic {
+  state = { walletOpen: false, walletPick: null, entered: false, noGL: false };
+  mountRef = React.createRef(); storyRef = React.createRef(); enterRef = React.createRef();
+  diveRef = React.createRef(); hudRef = React.createRef(); labelsRef = React.createRef(); h1Ref = React.createRef(); eyebrowRef = React.createRef(); heroRowRef = React.createRef();
+  constructor(p) {
+    super(p);
+    const R = () => React.createRef();
+    ['p0','p1','p2','r0','r1','r2','hf0','hf1','hf2','hf3','hf4','hl0','hl1','hl2','hl3','hl4',
+     'lb0','lb1','lb2','lb3','lb4','ls0','ls1','ls2','ls3','ls4','ld0','ld1','ld2','ld3','ld4'].forEach(k => this[k] = R());
+    this.dive = 0; this.diveTarget = 0;
+  }
+  componentDidMount() {
+    this.onKey = e => { if (e.key === 'Escape') this.setState({ walletOpen: false, walletPick: null }); };
+    addEventListener('keydown', this.onKey);
+    this.init().catch(e => { console.warn('WebGL init failed', e); this.setState({ noGL: true }); });
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf); clearInterval(this.watch);
+    removeEventListener('keydown', this.onKey);
+    if (this.cleanup) this.cleanup();
+  }
+  reduced() {
+    return !!this.props.reduceMotion || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+  dive2(url) {
+    if (this.reduced()) { location.href = url; return; }
+    this.diveTarget = 1; this.setState({ entered: true }); document.body.style.overflow = 'hidden';
+    setTimeout(() => { location.href = url; }, 1500);
+  }
+  scrollToStory(f) {
+    const el = this.storyRef.current; if (!el) return;
+    const top = el.getBoundingClientRect().top + scrollY;
+    const y = top + (el.offsetHeight - innerHeight) * f;
+    scrollTo({ top: y, behavior: this.reduced() ? 'auto' : 'smooth' });
+  }
+
+  async init() {
+    const THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js');
+    const mount = this.mountRef.current; if (!mount) return;
+    const mobile = innerWidth < 760;
+    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.3 : 1.75));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+    renderer.shadowMap.enabled = !mobile; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.domElement.style.cssText = 'display:block;width:100%;height:100%';
+    mount.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const BG = new THREE.Color(0x05070b);
+    scene.background = BG; scene.fog = new THREE.FogExp2(0x05070b, 0.026);
+    const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 220);
+
+    const CYAN = new THREE.Color(0x2bb8ff), EMBER = new THREE.Color(0xff5a24), WHITE = new THREE.Color(0xe9edf2);
+    scene.add(new THREE.HemisphereLight(0x8fb4d9, 0x05070b, 0.4));
+    const key = new THREE.DirectionalLight(0xdfe8f5, 1.7); key.position.set(-14, 24, 12);
+    key.castShadow = !mobile; key.shadow.mapSize.set(2048, 2048);
+    Object.assign(key.shadow.camera, { left: -24, right: 24, top: 24, bottom: -24, near: 1, far: 70 });
+    key.shadow.bias = -0.0006; scene.add(key);
+    const rim = new THREE.DirectionalLight(0x2a7fff, 1.1); rim.position.set(12, 7, -20); scene.add(rim);
+    const cursorLight = new THREE.PointLight(0x9fd8ff, 0, 8, 2); scene.add(cursorLight);
+    const threatLight = new THREE.PointLight(0xff5a24, 0, 11, 2); scene.add(threatLight);
+
+    // fault polyline (zig-zag echoing the logo's crack)
+    const FP = [[-2.6,-16],[-1.2,-9],[-3.0,-5.2],[0.4,-1.2],[-1.6,2.6],[1.4,6.4],[-0.2,10.5],[0.8,16]];
+    const faultX = z => { for (let i = 0; i < FP.length - 1; i++) { const a = FP[i], b = FP[i+1]; if (z >= a[1] && z <= b[1]) return a[0] + (b[0]-a[0]) * (z-a[1]) / (b[1]-a[1]); } return 0; };
+    const segD = (px,pz,ax,az,bx,bz) => { const dx=bx-ax, dz=bz-az; const t=Math.max(0,Math.min(1,((px-ax)*dx+(pz-az)*dz)/(dx*dx+dz*dz))); return Math.hypot(ax+dx*t-px, az+dz*t-pz); };
+    const fD = (x,z) => { let m = 1e9; for (let i = 0; i < FP.length-1; i++) m = Math.min(m, segD(x,z,FP[i][0],FP[i][1],FP[i+1][0],FP[i+1][1])); return m; };
+    let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+    const N = [
+      { x:-11, z:-6, h:2.6 }, { x:-7, z:-1, h:3.6 }, { x:-5, z:5, h:3.0 }, { x:-10, z:3, h:2.2 },
+      { x:-6, z:-7, h:2.4 }, { x:4, z:2, h:4.2 }, { x:9, z:-2, h:2.8 }, { x:10, z:5, h:2.0 },
+      { x:5, z:-6, h:3.0 }, { x:11, z:-8, h:1.8 }, { x:-12, z:8, h:1.9 }
+    ];
+    const NX = mobile ? 27 : 37, NZ = mobile ? 21 : 27;
+    const cells = [];
+    for (let ix = 0; ix < NX; ix++) for (let iz = 0; iz < NZ; iz++) {
+      const x = ix - (NX-1)/2, z = iz - (NZ-1)/2;
+      const d = fD(x, z); if (d < 0.62) continue;
+      const side = x > faultX(z) ? 1 : -1;
+      let h = 0.35 + 0.9 * (0.5+0.5*Math.sin(x*0.42 + Math.cos(z*0.3)*2)) * (0.5+0.5*Math.cos(z*0.37 - x*0.12));
+      if (rnd() < 0.07) h += 0.6 + rnd() * 1.4;
+      if (d < 2.2) h += 0.25 + rnd() * 0.5;
+      cells.push({ x, z, h, base: side > 0 ? -0.34 : 0, side, node: -1, l: 0 });
+    }
+    N.forEach((n, k) => {
+      let c = cells.find(c => c.x === n.x && c.z === n.z);
+      if (!c) { c = { x: n.x, z: n.z, base: n.x > faultX(n.z) ? -0.34 : 0, l: 0 }; cells.push(c); }
+      c.h = n.h; c.node = k; n.base = c.base;
+      n.top = new THREE.Vector3(n.x, c.base + n.h + 0.95, n.z);
+    });
+    cells.forEach(c => { c.dn = N.map(n => Math.hypot(c.x - n.x, c.z - n.z)); });
+
+    const geo = new THREE.BoxGeometry(0.92, 1, 0.92); geo.translate(0, 0.5, 0);
+    const glowArr = new Float32Array(cells.length * 3);
+    const glowAttr = new THREE.InstancedBufferAttribute(glowArr, 3); glowAttr.setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute('aGlow', glowAttr);
+    const mat = new THREE.MeshStandardMaterial({ color: 0x141b25, roughness: 0.46, metalness: 0.42 });
+    mat.onBeforeCompile = sh => {
+      sh.vertexShader = 'attribute vec3 aGlow;\nvarying vec3 vGlow;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvGlow = aGlow * (0.35 + 0.65 * step(0.5, normal.y));');
+      sh.fragmentShader = 'varying vec3 vGlow;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += vGlow;');
+    };
+    const mesh = new THREE.InstancedMesh(geo, mat, cells.length);
+    mesh.castShadow = !mobile; mesh.receiveShadow = !mobile;
+    const tmpC = new THREE.Color();
+    cells.forEach((c, i) => {
+      const v = 0.85 + rnd() * 0.3;
+      tmpC.setRGB(v * (c.side > 0 ? 0.92 : 1), v, v * (c.side > 0 ? 1.08 : 1));
+      if (c.node >= 0) tmpC.setRGB(1.55, 1.6, 1.7);
+      mesh.setColorAt(i, tmpC);
+    });
+    mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+    scene.add(mesh);
+
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshStandardMaterial({ color: 0x030407, roughness: 1 }));
+    floor.rotation.x = -Math.PI/2; floor.position.y = -1.6; floor.receiveShadow = !mobile; scene.add(floor);
+
+    // crack light wall
+    const wallPts = []; for (let z = -16; z <= 16; z += 0.25) wallPts.push([faultX(z), z]);
+    const wp = [], wu = [], wi = [];
+    wallPts.forEach((p, i) => { wp.push(p[0], -1.6, p[1], p[0], 1.8, p[1]); wu.push(i/(wallPts.length-1), 0, i/(wallPts.length-1), 1); if (i) { const a = (i-1)*2; wi.push(a, a+1, a+2, a+1, a+3, a+2); } });
+    const wg = new THREE.BufferGeometry(); wg.setAttribute('position', new THREE.Float32BufferAttribute(wp, 3)); wg.setAttribute('uv', new THREE.Float32BufferAttribute(wu, 2)); wg.setIndex(wi);
+    const wallU = { uI: { value: 1 }, uT: { value: 0 }, uC: { value: CYAN.clone() } };
+    const wall = new THREE.Mesh(wg, new THREE.ShaderMaterial({
+      uniforms: wallU, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+      vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+      fragmentShader: 'uniform float uI; uniform float uT; uniform vec3 uC; varying vec2 vUv; void main(){ float y=vUv.y; float a=pow(1.0-y,3.0)*0.9 + exp(-pow((y-0.44)*18.0,2.0))*0.6; float f=0.75+0.25*sin(vUv.x*90.0+uT*2.0)*sin(vUv.x*37.0-uT*3.1); a*=f*uI; a*=smoothstep(0.0,0.08,vUv.x)*smoothstep(1.0,0.92,vUv.x); vec3 col=mix(uC, vec3(1.0), clamp(a*0.35,0.0,0.6)); gl_FragColor=vec4(col*a,1.0); }'
+    }));
+    scene.add(wall);
+    const crackLights = [-8, -1, 6].map(z => { const l = new THREE.PointLight(0x2bb8ff, 0, 7, 2); l.position.set(faultX(z), -0.2, z); scene.add(l); return l; });
+
+    // glow sprite texture
+    const gc = document.createElement('canvas'); gc.width = gc.height = 64;
+    const gx = gc.getContext('2d'); const gr = gx.createRadialGradient(32,32,0,32,32,32);
+    gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(0.25,'rgba(255,255,255,.45)'); gr.addColorStop(1,'rgba(255,255,255,0)');
+    gx.fillStyle = gr; gx.fillRect(0,0,64,64);
+    const glowTex = new THREE.CanvasTexture(gc);
+    const mkSprite = (s, c) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: c, blending: THREE.AdditiveBlending, depthWrite: false, transparent: true })); sp.scale.setScalar(s); scene.add(sp); return sp; };
+
+    // pins (logo circuit motif)
+    const pinGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.95, 6); pinGeo.translate(0, 0.475, 0);
+    const headGeo = new THREE.SphereGeometry(0.1, 16, 12);
+    N.forEach(n => {
+      n.pinMat = new THREE.MeshBasicMaterial({ color: CYAN.clone() });
+      const pin = new THREE.Mesh(pinGeo, n.pinMat); pin.position.set(n.x, n.base + n.h, n.z); scene.add(pin);
+      n.headMat = new THREE.MeshBasicMaterial({ color: CYAN.clone() });
+      const head = new THREE.Mesh(headGeo, n.headMat); head.position.copy(n.top); scene.add(head);
+      n.glow = mkSprite(0.9, CYAN.clone()); n.glow.position.copy(n.top);
+    });
+
+    // edges
+    const THREAT = [[0,1],[1,2],[1,3],[0,4],[2,5],[4,8],[5,6]];
+    const CALM = [[7,6],[8,9],[3,10],[5,8],[2,3]];
+    const PATH = new Set(['0-1','1-2','2-5','5-6','7-6']);
+    const SEG = 64;
+    const edges = [...THREAT.map(e => ({ a:e[0], b:e[1], threat:true })), ...CALM.map(e => ({ a:e[0], b:e[1], threat:false }))];
+    edges.forEach(e => {
+      const A = N[e.a].top, B = N[e.b].top, d = A.distanceTo(B);
+      const mid = A.clone().add(B).multiplyScalar(0.5); mid.y += d * 0.24;
+      const curve = new THREE.QuadraticBezierCurve3(A, mid, B);
+      e.curve = curve; e.len = Math.hypot(N[e.a].x - N[e.b].x, N[e.a].z - N[e.b].z);
+      const g = new THREE.BufferGeometry().setFromPoints(curve.getPoints(SEG - 1));
+      e.col = new Float32Array(SEG * 3); g.setAttribute('color', new THREE.BufferAttribute(e.col, 3));
+      e.line = new THREE.Line(g, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+      scene.add(e.line);
+      e.packet = mkSprite(0.75, EMBER.clone()); e.packet.visible = false;
+      e.path = PATH.has(e.a + '-' + e.b);
+    });
+
+    // timing
+    const V = 6.5, inf = N.map(() => Infinity); inf[0] = 2.4;
+    for (let it = 0; it < 6; it++) THREAT.forEach(([a,b]) => { if (b === 6) return; const e = edges.find(x => x.a === a && x.b === b); inf[b] = Math.min(inf[b], inf[a] + e.len / V); });
+    const TC = inf[5] + 0.2, L = TC + 6.2;
+    this.TC = TC;
+
+    // shields (hex = logo cube silhouette)
+    const shellMat = () => new THREE.ShaderMaterial({
+      uniforms: { uI: { value: 0 }, uT: { value: 0 }, uC: { value: CYAN.clone() } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+      vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+      fragmentShader: 'uniform float uI; uniform float uT; uniform vec3 uC; varying vec2 vUv; void main(){ float a=pow(1.0-vUv.y,1.6)*0.55 + smoothstep(0.96,1.0,fract(vUv.y*7.0-uT*0.6))*0.25*(1.0-vUv.y); gl_FragColor=vec4(uC*a*uI,1.0); }'
+    });
+    const mkShield = (k, r, h) => {
+      const n = N[k]; const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 6, 1, true), shellMat());
+      m.position.set(n.x, n.base + h/2 - 0.05, n.z); m.rotation.y = Math.PI/6; scene.add(m);
+      const ringM = new THREE.MeshBasicMaterial({ color: CYAN.clone(), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+      const ring = new THREE.Mesh(new THREE.RingGeometry(r + 0.18, r + 0.24, 6), ringM);
+      ring.rotation.x = -Math.PI/2; ring.rotation.z = Math.PI/6; ring.position.set(n.x, n.base + 0.03, n.z); scene.add(ring);
+      return { m, ringM };
+    };
+    const sh6 = mkShield(6, 1.45, 4.6), sh7 = mkShield(7, 1.1, 3.2);
+    const waveM = new THREE.MeshBasicMaterial({ color: CYAN.clone(), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+    const wave = new THREE.Mesh(new THREE.RingGeometry(0.97, 1, 6), waveM);
+    wave.rotation.x = -Math.PI/2; wave.rotation.z = Math.PI/6; wave.position.set(N[6].x, 0.9, N[6].z); scene.add(wave);
+
+    // camera keys: [pos, target]
+    const K = mobile ? [
+      [[2,22,34],[-1,0,0]], [[20,11,12],[8,1,1]], [[0,14,30],[1,1,0]], [[4,46,10],[2,0,0]], [[0.6,7,14],[-0.3,-1,-1]]
+    ] : [
+      [[-1,19,35],[-5.6,0.2,-1.4]], [[24.5,9.8,7.8],[9.8,1.6,-4.3]], [[3,15,32],[8.5,0.4,0.6]], [[11,50,11],[11.5,0,0.4]], [[1.2,11,7],[-0.6,-1.4,-1.2]]
+    ];
+    const DIVE = [[-0.5,0.2,1.4],[-0.8,-3,-2.4]];
+    const camPos = new THREE.Vector3(...K[0][0]), camTgt = new THREE.Vector3(...K[0][1]);
+    const tp = new THREE.Vector3(), tt = new THREE.Vector3(), v3 = new THREE.Vector3();
+    const dummy = new THREE.Object3D();
+    const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0,1,0), -0.8), ndc = new THREE.Vector2(9, 9);
+    const pointer = new THREE.Vector3(999, 0, 999); let pointerAct = 0, lastMove = -10;
+
+    const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+    const ss = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+    const lerpA = (a, b, f) => [a[0]+(b[0]-a[0])*f, a[1]+(b[1]-a[1])*f, a[2]+(b[2]-a[2])*f];
+
+    const onMove = e => { ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); lastMove = performance.now() / 1000; };
+    const onResize = () => { renderer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); };
+    addEventListener('pointermove', onMove); addEventListener('resize', onResize);
+    this.cleanup = () => { removeEventListener('pointermove', onMove); removeEventListener('resize', onResize); renderer.dispose(); };
+
+    const LBL = [1, 2, 5, 6, 7];
+    const lastTxt = {};
+    const setTxt = (i, txt, col) => { const el = this['ls' + i].current; if (!el) return; if (lastTxt[i] !== txt) { el.textContent = txt; lastTxt[i] = txt; } el.style.color = col; };
+    const phases = [[0,2],[2,2.4],[2.4,TC],[TC,TC+1.8],[TC+1.8,L]];
+    let last = 0, time = 0, loopT = 0.0, simT = 0, scripted = false;
+    const col = new THREE.Color();
+    const addC = (c, s) => { col.r += c.r * s; col.g += c.g * s; col.b += c.b * s; };
+
+    let rw = 0, rh = 0;
+    const tick = now => {
+      this.raf = requestAnimationFrame(tick);
+      const W = Math.max(1, mount.clientWidth || innerWidth), H = Math.max(1, mount.clientHeight || innerHeight);
+      if (W !== rw || H !== rh) { rw = W; rh = H; renderer.setSize(W, H); camera.aspect = W / H; camera.updateProjectionMatrix(); }
+      try { frame(now); window.__flErr = null; } catch (err) { window.__flErr = String(err && err.stack || err); }
+    };
+    const frame = now => {
+      window.__flN = (window.__flN || 0) + 1;
+      const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016); last = now; time += dt;
+      const reduce = this.reduced();
+      const speed = this.props.loopSpeed ?? 1;
+      const vh = Math.max(1, innerHeight);
+      const st = this.storyRef.current, en = this.enterRef.current; if (!st || !en) return;
+      const sr = st.getBoundingClientRect(), er = en.getBoundingClientRect();
+      const heroP = clamp(scrollY / vh);
+      const local = clamp(-sr.top / (sr.height - vh)); const u0 = local * 3;
+      const enterP = clamp((vh - er.top) / vh);
+      let c;
+      if (sr.top > 0) c = ss(0.1, 1, heroP);
+      else { const i = Math.min(2, Math.floor(u0)); c = 1 + i + (i < 2 ? ss(0.7, 1, u0 - i) : 0); }
+      c = Math.min(4, c + enterP);
+      if (window.__flForceC != null) c = window.__flForceC;
+      if (!isFinite(c)) c = 0;
+      const uu0 = window.__flForceU; const u = uu0 != null ? uu0 : u0;
+      const pinned = uu0 != null ? true : sr.top <= 1;
+      const arm = clamp(1 - Math.abs(c - 1) * 1.6), proof = clamp(1 - Math.abs(c - 3) * 1.6), enterF = clamp(c - 3);
+
+      // sim time
+      if (c < 0.5) {
+        loopT += dt * speed; scripted = false;
+        simT = reduce ? TC + 0.9 : loopT % L;
+      } else {
+        let target = u < 1 ? 0.6 : u < 2 ? 1.6 + clamp((u - 1) / 0.72) * (TC + 3 - 1.6) : L - 0.4;
+        if (!scripted) { scripted = true; if (simT > TC + 1.8 && target < 1) simT = target; }
+        simT += (target - simT) * (reduce ? 1 : 1 - Math.exp(-dt * 5));
+      }
+      if (window.__flForceT != null) simT = window.__flForceT;
+      const t = simT;
+      const calm = ss(TC + 1.6, TC + 3.6, t);
+      const heat = N.map((n, k) => (k === 6 || k === 7 || !isFinite(inf[k])) ? 0 : ss(inf[k], inf[k] + 0.3, t) * (1 - calm));
+      const hf = 1.38 - ss(inf[2], TC, t) * 0.30 + ss(TC + 0.5, TC + 1.4, t) * 0.33;
+      const ltv = 75 + ss(inf[2], TC, t) * 7.42 - ss(TC + 0.5, TC + 1.4, t) * 4.30;
+      const rW = (t - TC) * 9;
+      const flareT = Math.exp(-Math.pow((t - 2.15) / 0.16, 2)) * 2.6 + ss(2, 2.3, t) * (1 - ss(2.3, 3.6, t)) * 0.5;
+
+      // camera
+      const ci = Math.min(3, Math.floor(c)), cf = ss(0, 1, c - ci);
+      let P = lerpA(K[ci][0], K[ci + 1][0], cf), T = lerpA(K[ci][1], K[ci + 1][1], cf);
+      this.dive += reduce ? (this.diveTarget - this.dive) : clamp(this.diveTarget - this.dive, -dt * 0.9, dt * 0.75);
+      const de = ss(0, 1, this.dive);
+      P = lerpA(P, DIVE[0], de); T = lerpA(T, DIVE[1], de);
+      tp.set(...P); tt.set(...T);
+      if (!reduce) { tp.x += ndc.x > 5 ? 0 : ndc.x * 1.4; tp.y += ndc.x > 5 ? 0 : ndc.y * 0.7; }
+      const k = (reduce || window.__flInstant) ? 1 : 1 - Math.exp(-dt * 2.6);
+      camPos.lerp(tp, k); camTgt.lerp(tt, k);
+      camera.position.copy(camPos); camera.lookAt(camTgt);
+
+      // pointer
+      if (ndc.x < 5) { ray.setFromCamera(ndc, camera); if (ray.ray.intersectPlane(plane, v3)) pointer.copy(v3); }
+      pointerAct += ((performance.now() / 1000 - lastMove < 2.5 && !reduce ? 1 : 0) - pointerAct) * Math.min(1, dt * 3);
+      cursorLight.position.set(pointer.x, 2.2, pointer.z); cursorLight.intensity = 9 * pointerAct;
+
+      // cells
+      for (let i = 0; i < cells.length; i++) {
+        const cl = cells[i];
+        let stress = 0, flash = 0;
+        if (cl.node < 0) {
+          for (let n = 0; n < N.length; n++) if (heat[n] > 0) { const R = Math.min(3.8, (t - inf[n]) * 5); const d = cl.dn[n]; if (d < R) stress += heat[n] * (1 - d / R); }
+          stress = Math.min(1, stress);
+          if (t > TC) { stress *= ss(rW - 2.5, rW, cl.dn[6]); flash = Math.exp(-Math.pow(cl.dn[6] - rW, 2) / 1.4) * (1 - ss(TC + 1.2, TC + 2.6, t)); }
+          const pl = reduce ? 0 : ss(3.4, 0, Math.hypot(cl.x - pointer.x, cl.z - pointer.z)) * 0.5 * pointerAct;
+          cl.l += (pl - cl.l) * Math.min(1, dt * 7);
+        }
+        dummy.position.set(cl.x, cl.base - stress * 0.24 + flash * 0.3 + cl.l, cl.z);
+        dummy.scale.set(1, cl.h, 1); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix);
+        const a6 = arm * 0.22 * Math.exp(-cl.dn[6] * cl.dn[6] / 5) + arm * 0.14 * Math.exp(-cl.dn[7] * cl.dn[7] / 3);
+        const cur = cl.l * 0.12;
+        glowArr[i*3]   = EMBER.r * stress * 0.7 + CYAN.r * (flash * 0.6 + a6 + cur);
+        glowArr[i*3+1] = EMBER.g * stress * 0.7 + CYAN.g * (flash * 0.6 + a6 + cur);
+        glowArr[i*3+2] = EMBER.b * stress * 0.7 + CYAN.b * (flash * 0.6 + a6 + cur);
+      }
+      mesh.instanceMatrix.needsUpdate = true; glowAttr.needsUpdate = true;
+      mat.color.setRGB(0.078 + proof * 0.05, 0.106 + proof * 0.05, 0.145 + proof * 0.06);
+
+      // edges
+      edges.forEach(e => {
+        let p = 0, front = -1;
+        if (e.threat && isFinite(inf[e.a])) {
+          const raw = clamp((t - inf[e.a]) / (e.len / V));
+          if (e.b === 6) {
+            const pTC = clamp((TC - inf[e.a]) / (e.len / V));
+            p = t < TC ? raw : (pTC + 0.12 * (1 - Math.exp(-(t - TC) * 5))) * (1 - ss(TC + 0.6, TC + 1.8, t));
+          } else p = raw;
+          front = p > 0 && p < 1 ? p : -1;
+        }
+        const tA = e.threat ? 1 - calm : 0;
+        const cy = (e.a === 7 && e.b === 6) ? clamp((t - TC) / 0.45) : 0;
+        const cyF = 1 - ss(TC + 2.8, TC + 4.5, t) * 0.65;
+        const seal = (e.b === 6 && e.threat) ? ss(TC, TC + 0.3, t) * (1 - 0.7 * calm) : 0;
+        const dim = 1 - (e.path ? 0 : proof * 0.75);
+        for (let s = 0; s < SEG; s++) {
+          const uu = s / (SEG - 1);
+          col.setRGB(0.11, 0.17, 0.25).multiplyScalar(dim * (1 + proof * (e.path ? 0 : -0.3)));
+          if (uu < p) addC(EMBER, (0.35 + 1.7 * Math.exp(-(p - uu) * 14)) * tA);
+          if (cy > 0 && uu < cy) addC(CYAN, (0.45 + 1.8 * Math.exp(-(cy - uu) * 10)) * cyF);
+          if (seal > 0) addC(CYAN, seal * ss(0.55, 1, uu) * 1.3);
+          if (e.a === 7 && e.b === 6) addC(CYAN, arm * 0.7);
+          if (e.path) addC(WHITE, proof * 1.1);
+          e.col[s*3] = col.r; e.col[s*3+1] = col.g; e.col[s*3+2] = col.b;
+        }
+        e.line.geometry.attributes.color.needsUpdate = true;
+        if (front > 0 && tA > 0.05) { e.packet.visible = true; e.curve.getPoint(front, e.packet.position); e.packet.material.opacity = tA; }
+        else if (cy > 0 && cy < 1) { e.packet.visible = true; e.curve.getPoint(cy, e.packet.position); e.packet.material.color.copy(CYAN); }
+        else e.packet.visible = false;
+      });
+
+      // nodes
+      let maxH = 0, maxK = 0;
+      N.forEach((n, k) => {
+        const hh = heat[k]; if (hh > maxH && t - inf[k] < 3) { maxH = hh; maxK = k; }
+        col.copy(CYAN).lerp(EMBER, hh);
+        if (k === 6 && t > TC) col.lerp(WHITE, ss(TC, TC + 0.4, t) * (1 - calm) * 0.6);
+        if (proof > 0 && [0,1,2,5,6,7].includes(k)) col.lerp(WHITE, proof * 0.8);
+        n.headMat.color.copy(col); n.pinMat.color.copy(col);
+        n.glow.material.color.copy(col);
+        const pulse = (k === 6 ? 1.2 : 0.9) + hh * 0.6 + (k === 6 ? ss(TC, TC + 0.3, t) * (1 - calm) * 1.4 : 0);
+        n.glow.scale.setScalar(pulse * (1 + 0.06 * Math.sin(time * 2 + k)));
+      });
+      threatLight.position.copy(N[maxK].top); threatLight.intensity = 14 * maxH;
+
+      // shields
+      wallU.uT.value = time; wallU.uI.value = 0.8 + flareT + enterF * 0.9 + de * 3.5;
+      crackLights.forEach(l => l.intensity = (0.8 + flareT + enterF + de * 3) * 9);
+      const shield = ss(TC + 0.15, TC + 0.5, t) * (1 - 0.8 * calm);
+      sh6.m.material.uniforms.uI.value = Math.max(arm * 0.75, shield * 1.2); sh6.m.material.uniforms.uT.value = time;
+      sh6.ringM.opacity = Math.max(arm, shield) * 0.85;
+      const fire = ss(TC, TC + 0.2, t) * (1 - ss(TC + 0.6, TC + 1.6, t));
+      sh7.m.material.uniforms.uI.value = arm * 0.6 + fire; sh7.m.material.uniforms.uT.value = time;
+      sh7.ringM.opacity = Math.max(arm, fire) * 0.7;
+      if (t > TC && rW < 22) { wave.visible = true; wave.scale.setScalar(Math.max(0.01, rW)); waveM.opacity = (1 - ss(TC + 0.9, TC + 2.4, t)) * 0.9; } else wave.visible = false;
+
+      renderer.render(scene, camera);
+
+      // DOM: labels
+      const showL = (this.props.showLabels ?? true) ? 1 : 0;
+      const lyEl = document.getElementById('layers'); const lyR = lyEl ? lyEl.getBoundingClientRect() : null;
+      const lyVis = lyR ? clamp(Math.min(vh - lyR.top, lyR.bottom) / (vh * 0.35)) : 0;
+      const lblBase = (1 - ss(3.15, 3.5, c)) * (1 - de) * showL * (1 - lyVis);
+const avoid = [];
+      if (c < 0.9) {
+        if (this.eyebrowRef.current) avoid.push(this.eyebrowRef.current.getBoundingClientRect());
+        [this.h1Ref, this.heroRowRef].forEach(rf => { const n = rf.current; if (n) [...n.children].forEach(ch => { if (ch.children.length && rf === this.heroRowRef) [...ch.children].forEach(g => avoid.push(g.getBoundingClientRect())); else avoid.push(ch.getBoundingClientRect()); }); });
+      }
+      const hit = box => avoid.some(b => b.width > 0 && box.right > b.left - 12 && box.left < b.right + 12 && box.bottom > b.top - 12 && box.top < b.bottom + 12);
+      LBL.forEach((k, i) => {
+        const el = this['lb' + i].current; if (!el) return;
+        v3.copy(N[k].top); v3.y += 0.32; v3.project(camera);
+        const x = (v3.x * 0.5 + 0.5) * rw, y = (-v3.y * 0.5 + 0.5) * rh;
+        if (!isFinite(x) || !isFinite(y)) { el.style.opacity = '0'; return; }
+        let o = lblBase * (v3.z < 1 ? 1 : 0);
+        if (k !== 6 && k !== 7) o *= 1 - arm * 0.8;
+        if (![2,6,7].includes(k)) o *= 1 - proof * 0.85;
+        if (x > innerWidth * 0.54 && c > 0.6 && c < 3.4) o *= 0.08;
+el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+        const tb = el.children[1]; if (tb) tb.style.transform = x > rw - 190 ? 'translateX(calc(-100% - 24px))' : 'none';
+        if (avoid.length && tb) { const bx = tb.getBoundingClientRect(); if (hit(bx) || hit({ left: x - 6, right: x + 6, top: y - 6, bottom: y + 6 }) || bx.right > rw - 8) o = 0; }
+        el.style.opacity = o.toFixed(3);
+        const dot = this['ld' + i].current; const hh = heat[k];
+        let dc = hh > 0.35 ? '#ff6a3d' : '#8a94a3';
+        if (k === 6) dc = t > TC && calm < 1 ? '#2bb8ff' : ltv > 80 ? '#ff6a3d' : '#2bb8ff';
+        if (k === 7 && t > TC) dc = '#2bb8ff';
+        if (proof > 0.5) dc = '#e9edf2';
+        if (dot) dot.style.background = dc;
+        const hot = hh > 0.35;
+        if (proof > 0.5) {
+          const pt = { 2: 'TRIGGER MET · LTV 82.42%', 6: 'VERIFIED · LTV 82.42% → 78.12%', 7: 'REPAY 1,086.50 USDC · FORK TX' };
+          setTxt(i, pt[k] || '', '#e9edf2');
+        } else if (k === 1) setTxt(i, hot ? 'PRICE SHOCK' : 'COLLATERAL', hot ? '#ff6a3d' : '#8a94a3');
+        else if (k === 2) setTxt(i, hot ? 'SHOCK −9.0%' : 'weETH / ETH', hot ? '#ff6a3d' : '#8a94a3');
+        else if (k === 5) setTxt(i, hot ? 'UNDER STRESS' : 'LENDING MARKET', hot ? '#ff6a3d' : '#8a94a3');
+        else if (k === 6) setTxt(i, 'LTV ' + ltv.toFixed(1) + '%' + (t > TC + 0.3 && calm < 0.95 ? ' · DEFENDED' : ''), ltv > 80 ? '#ff6a3d' : t > TC ? '#2bb8ff' : '#8a94a3');
+        else if (k === 7) setTxt(i, t > TC + 0.2 ? '1,086.50 USDC SENT' : arm > 0.5 ? '5,000 USDC · ARMED' : '5,000 USDC', t > TC + 0.2 || arm > 0.5 ? '#2bb8ff' : '#8a94a3');
+      });
+
+      // HUD
+      const hud = this.hudRef.current;
+      const rowB = this.heroRowRef.current ? this.heroRowRef.current.getBoundingClientRect().bottom : 0;
+      const hudClash = rowB > innerHeight - 64 && rowB > 0 ? 0 : 1;
+      if (hud) hud.style.opacity = hudClash * (Math.max(1 - ss(0.3, 0.7, c), clamp(1 - Math.abs(c - 2) * 2.2)) * (1 - de)).toFixed(3);
+      const ph = phases.findIndex(([a, b]) => t >= a && t < b);
+      phases.forEach(([a, b], i) => {
+        const f = this['hf' + i].current, l = this['hl' + i].current;
+        if (f) f.style.width = (clamp((t - a) / (b - a)) * 100).toFixed(1) + '%';
+        if (l) l.style.color = i === ph ? (i === 1 || i === 2 ? '#ff6a3d' : i === 3 ? '#2bb8ff' : '#e9edf2') : '#8a94a3';
+      });
+
+      // story panels + rail
+      const stage = c < 0.6 ? -1 : Math.min(2, Math.floor(u));
+      [0, 1, 2].forEach(i => {
+        const p = this['p' + i].current, r = this['r' + i].current;
+        let o = ss(i - 0.12, i + 0.12, u) * (i < 2 ? 1 - ss(i + 0.72, i + 0.9, u) : 1) * (pinned ? 1 : 0);
+        if (i === 0) o = Math.max(o * 1, 0) * (pinned ? 1 : 0);
+        if (i === 2) o *= 1 - ss(0, 0.35, enterP);
+        if (p) { p.style.opacity = o.toFixed(3); p.style.transform = `translateY(${((1 - o) * 26).toFixed(1)}px)`; p.style.pointerEvents = o > 0.5 ? 'auto' : 'none'; }
+        if (r) r.style.color = stage === i ? (i === 1 ? '#ff6a3d' : i === 0 ? '#2bb8ff' : '#e9edf2') : 'rgba(138,148,163,.6)';
+      });
+
+      const dv = this.diveRef.current;
+      if (dv) dv.style.opacity = ss(0.55, 1, this.dive).toFixed(3);
+      if (this.diveTarget === 0 && this.dive <= 0.001 && this.state.entered) { this.setState({ entered: false }); document.body.style.overflow = ''; }
+    };
+    this.raf = requestAnimationFrame(tick);
+    window.__flFrame = () => { last = performance.now() - 16; frame(performance.now()); };
+    this.watch = setInterval(() => { if (performance.now() - last > 250) { cancelAnimationFrame(this.raf); tick(performance.now()); } }, 120);
+  }
+
+  renderVals() {
+    const pick = name => () => this.setState({ walletPick: name });
+    return {
+      walletOpen: this.state.walletOpen,
+      walletPick: this.state.walletPick,
+      entered: this.state.entered,
+      noGL: this.state.noGL,
+      wallets: [
+        { name: 'Browser wallet', note: 'MetaMask, Rabby…', pick: pick('Browser wallet') },
+        { name: 'WalletConnect', note: 'QR / mobile', pick: pick('WalletConnect') },
+        { name: 'Coinbase Wallet', note: 'Extension / mobile', pick: pick('Coinbase Wallet') }
+      ],
+      openWallet: () => this.setState({ walletOpen: true, walletPick: null }),
+      closeWallet: () => this.setState({ walletOpen: false, walletPick: null }),
+      goTop: e => { e && e.preventDefault(); scrollTo({ top: 0, behavior: this.reduced() ? 'auto' : 'smooth' }); },
+      goArm: e => { e && e.preventDefault && e.preventDefault(); this.scrollToStory(0.1); },
+      goDefend: e => { e && e.preventDefault(); this.scrollToStory(0.56); },
+      goProve: e => { e && e.preventDefault(); this.scrollToStory(0.9); },
+      goEnter: e => { e && e.preventDefault(); const el = this.enterRef.current; if (el) scrollTo({ top: el.getBoundingClientRect().top + scrollY, behavior: this.reduced() ? 'auto' : 'smooth' }); },
+      enterApp: () => this.dive2('Faultline App.dc.html'),
+      enterDemo: () => this.dive2('Faultline App.dc.html#demo'),
+      goLayers: e => { e && e.preventDefault(); const el = document.getElementById('layers'); if (el) scrollTo({ top: el.getBoundingClientRect().top + scrollY, behavior: this.reduced() ? 'auto' : 'smooth' }); },
+      exitApp: () => { this.diveTarget = 0; },
+      mountRef: this.mountRef, storyRef: this.storyRef, enterRef: this.enterRef, diveRef: this.diveRef, hudRef: this.hudRef, labelsRef: this.labelsRef, h1Ref: this.h1Ref, eyebrowRef: this.eyebrowRef, heroRowRef: this.heroRowRef,
+      p0: this.p0, p1: this.p1, p2: this.p2, r0: this.r0, r1: this.r1, r2: this.r2,
+      hf0: this.hf0, hf1: this.hf1, hf2: this.hf2, hf3: this.hf3, hf4: this.hf4,
+      hl0: this.hl0, hl1: this.hl1, hl2: this.hl2, hl3: this.hl3, hl4: this.hl4,
+      lb0: this.lb0, lb1: this.lb1, lb2: this.lb2, lb3: this.lb3, lb4: this.lb4,
+      ls0: this.ls0, ls1: this.ls1, ls2: this.ls2, ls3: this.ls3, ls4: this.ls4,
+      ld0: this.ld0, ld1: this.ld1, ld2: this.ld2, ld3: this.ld3, ld4: this.ld4
+    };
+  }
+}
+</script>
+</body>
+</html>

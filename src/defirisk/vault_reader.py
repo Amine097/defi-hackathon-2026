@@ -545,6 +545,21 @@ def max_withdraw_v1(vault: str, total_supply: int, block: int) -> dict:
             "method": "eth_call maxWithdraw(0xdEaD) with balanceOf(0xdEaD) = totalSupply (state override)"}
 
 
+def lookup(address: str) -> dict:
+    """Cheap identification for the app's select screen: factory check plus labels at the latest block. No markets,
+    borrowers, prices or simulations (snapshot() does those). Raises VaultError 404 / 422 / 503 like snapshot()."""
+    blk = sources.eth_block("latest")
+    if not blk:
+        raise SourceDown("Ethereum JSON-RPC (eth_getBlockByNumber)")
+    block = blk["number"]
+    kind = detect(address, block)
+    asset = _addr(_one(address, "asset()", block))
+    return {"kind": "vault", "lookup": True, "chain_id": 1, "address": address, "block": block, **kind,
+            "name": _string(address, "name()", block), "symbol": _string(address, "symbol()", block),
+            "asset": asset, "asset_symbol": _string(asset, "symbol()", block),
+            "source": "eth_getCode + Morpho factory registries + ERC-20 labels at one block; analysis not run yet"}
+
+
 def snapshot(address: str) -> dict:
     """Full read of a vault at one pinned block. Raises VaultError (404 / 422 / 503)."""
     blk = sources.eth_block("latest")

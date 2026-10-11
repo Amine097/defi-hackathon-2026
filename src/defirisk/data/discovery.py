@@ -3,6 +3,7 @@
 position_ref:
   'auto'                      -> biggest Morpho Blue market (mainnet) that takes a Pendle PT as collateral
   'pendle:1:<market address>' -> that Pendle market, paired with its biggest Morpho market
+  'morpho:1:<market id>'      -> that Morpho Blue market, if it takes a Pendle PT as collateral (listed, supply >= $1M)
 
 Pipeline (the five layers of the Belem brief + hidden second-order dependencies):
   L4 Pendle API   market -> SY -> underlying / accounting asset, liquidity, expiry
@@ -26,6 +27,34 @@ from ..core.models import DepGraph, Edge, Node, Position
 MOCK = Path(__file__).resolve().parents[3] / "data" / "mock_graph.json"
 STABLES = {"USDC", "USDT", "DAI", "USDS", "USDE", "PYUSD", "FRAX", "LUSD", "GHO", "USD0"}
 LOAN_ISSUERS = {"USDC": "circle usdc", "USDT": "tether", "DAI": "makerdao", "USDS": "sky", "PYUSD": "paypal", "GHO": "aave"}
+_MARKET_ID = re.compile(r"0x[0-9a-f]{64}")
+
+
+class UnsupportedMarket(RuntimeError):
+    """The ref is well formed but the market is not in the supported set (listed Morpho market, Pendle PT collateral)."""
+
+
+def _check_ref(ref: str, chain_id: int) -> None:
+    parts = ref.split(":")
+    if ref.startswith("pendle:") and (len(parts) != 3 or parts[1] != str(chain_id)):
+        raise ValueError(f"unsupported ref '{ref}': use pendle:1:<market address> (Ethereum mainnet only for now: other "
+                         "chains need their own RPC, Morpho deployment and gas pricing)")
+    if ref.startswith("morpho:") and (len(parts) != 3 or parts[1] != str(chain_id) or not _MARKET_ID.fullmatch(parts[2].lower())):
+        raise ValueError(f"unsupported ref '{ref}': use morpho:1:<Morpho Blue market id, 0x + 64 hex> (Ethereum mainnet only)")
+    if parts[0] not in ("auto", "pendle", "morpho"):
+        raise ValueError(f"unsupported ref '{ref}': use auto, pendle:1:<market address> or morpho:1:<market id>")
+
+
+def lookup(ref: str, chain_id: int = 1) -> dict:
+    """Cheap identification for the app's select screen: is this Morpho market id in the supported set, and what is it?
+    Uses the same market lists as discover_real (Pendle API active markets x Morpho API PT-collateral markets)."""
+    _check_ref(ref, chain_id)
+    pm, mm, _all, _by_pt = _select(ref, chain_id)
+    return {"kind": "pt_market", "lookup": True, "chain_id": chain_id, "market_id": mm["marketId"].lower(), "ref": f"morpho:{chain_id}:{mm['marketId'].lower()}",
+            "pt_symbol": mm["collateralAsset"]["symbol"], "loan_symbol": mm["loanAsset"]["symbol"], "lltv": int(mm["lltv"]) / 1e18,
+            "supply_usd": (mm.get("state") or {}).get("supplyAssetsUsd"), "pendle_market": pm["address"], "expiry": pm.get("expiry"),
+            "label": f"{mm['collateralAsset']['symbol']} / {mm['loanAsset']['symbol']}",
+            "source": "Pendle API active markets x Morpho Blue API (listed, supply >= $1M); analysis not run yet"}
 
 
 def discover(position_ref: str = "auto", use_mock: bool = True, value_usd: float = 1_000_000, horizon_days: int = 30) -> DepGraph:
@@ -42,6 +71,13 @@ def _select(ref: str, chain_id: int):
     morpho = [m for m in morpho if m.get("listed") and m["collateralAsset"]["address"].lower() in by_pt]
     if not morpho:
         raise RuntimeError("no listed Morpho market with a Pendle PT as collateral")
+    if ref.startswith("morpho:"):
+        mid = ref.split(":")[-1].lower()
+        mm = next((m for m in morpho if str(m.get("marketId", "")).lower() == mid), None)
+        if mm is None:
+            raise UnsupportedMarket(f"{mid} is not a listed Morpho Blue market (supply >= $1M) that takes an active Pendle PT "
+                                    f"as collateral on chain {chain_id}")
+        return by_pt[mm["collateralAsset"]["address"].lower()], mm, morpho, by_pt
     if ref.startswith("pendle:"):
         addr = ref.split(":")[-1].lower()
         pm = next((m for m in pendle_ms if m["address"].lower() == addr), None)
@@ -332,10 +368,7 @@ def _attach_lineage(nodes: list[Node], edges: list[Edge], lin, lt: dict, pegs: d
 # ---------------------------------------------------------------------------
 def discover_real(ref: str, value_usd: float, horizon_days: int) -> DepGraph:
     chain_id = 1
-    parts = ref.split(":")
-    if ref.startswith("pendle:") and (len(parts) != 3 or parts[1] != str(chain_id)):
-        raise ValueError(f"unsupported ref '{ref}': use pendle:1:<market address> (Ethereum mainnet only for now: other "
-                         "chains need their own RPC, Morpho deployment and gas pricing)")
+    _check_ref(ref, chain_id)
     pm, mm, morpho_all, by_pt = _select(ref, chain_id)
     pend = sources.pendle_market(pm["address"], chain_id)
     pdata = sources.pendle_market_data(pm["address"], chain_id)
