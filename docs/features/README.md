@@ -8,7 +8,7 @@ These modules rely on the [Core Risk Engine](../core/README.md). Their priority 
 
 ## P1 — Threat Intelligence
 
-- [Leverage Hunter](leverage-hunter/README.md): highly indebted positions and risk of cascade. Documented proposal.
+- [Leverage Hunter](cascade-radar/README.md) (folder renamed `cascade-radar/`): highly indebted positions and risk of cascade. Documented proposal.
 - [Whale Impact](whale-impact/README.md): large transactions and potential effect on positions. Specified.
 - [Chain of Blame](chain-of-blame/README.md): propagation and responsibilities of an incident. Partial simulation present.
 

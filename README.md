@@ -47,17 +47,36 @@ no real funds, no personal key; the contract is **not audited**.
 
 ## Deploying on Vercel (from the git repo)
 1. Import the GitHub repo in Vercel; no framework preset, no build command, leave root directory as `/`.
-2. `public/` is served as the site; `api/analyze.py` becomes `/api/analyze` (deps from `requirements.txt`).
-3. Env vars go in Project Settings (`.env` is gitignored): `ETH_RPC_URL`, `ETHERSCAN_API_KEY`, `DEFIRISK_OFFLINE=1` for the demo.
-4. Commit `data/cache/` (pre-warmed responses) so the deployed API works without live calls.
-5. Vercel's filesystem is read-only: the cache is read there, never written.
+2. `public/` is served as the site; `api/analyze.py`, `api/vault.py` and `api/countermove.py` become `/api/analyze`, `/api/vault` and `/api/countermove` (deps from `requirements.txt`; `vercel.json` bundles `src/` and `data/`).
+3. Env vars go in Project Settings (`.env` is gitignored): `ETH_RPC_URL` (optional; public RPCs are the fallback) and `ETHERSCAN_API_KEY` (optional).
+4. `data/cache/` is **gitignored**, so it is not deployed. With no cache, `DEFIRISK_OFFLINE=1` has nothing to replay and live requests fail; leave it unset (or `0`) on Vercel. The demonstration positions in the UI read the committed recordings in `public/data/recorded/` instead.
+5. Vercel's filesystem is read-only: the HTTP cache is never written there.
+6. `deploy-vercel.cmd` / `deploy-vercel.sh` push an empty commit authored by the Vercel project owner (Hobby plan requirement). They are specific to the owner's machine (WSL path, Git email) and are not needed by other contributors.
+
+## Hosted keeper on Railway
+`railway.json` builds `Dockerfile.keeper` and runs `scripts/railway_keeper.py`: one container with a local Anvil test chain, a simulated ETH/USD feed, the `RescueVault`, one armed test position, the keeper and a read-only status API (`/healthz`). It never touches Ethereum mainnet and signs with a public Anvil test account. Setup (volume at `/data`, variables, domain): [docs/backend/RAILWAY_KEEPER_DEPLOYMENT.md](docs/backend/RAILWAY_KEEPER_DEPLOYMENT.md).
+
+## What is real and what is demonstration
+| Surface | Data | Notes |
+|---|---|---|
+| `/api/analyze`, `/api/vault` LIVE runs | Real Ethereum mainnet reads and public APIs (Morpho, Pendle, DefiLlama, Chainlink) at a pinned block | Position size is a **hypothetical** notional chosen by the user, not a real holder's balance |
+| Demonstration positions (RECORDED LIVE RUN) | Saved live API responses in `public/data/recorded/` | Real data at the recorded block, replayed |
+| Failure probabilities, LGF, transmission | Mix of calibrated (DefiLlama exploit cohort, depeg history) and structural assumptions | See [docs/backend/FIGURE_TRACEABILITY.md](docs/backend/FIGURE_TRACEABILITY.md) |
+| Countermove S1–S5 | Local Anvil fork run, recorded in `data/countermove/demo/latest/` | Simulated shocks, no mainnet transaction, contract not audited |
+| Railway keeper | Local Anvil test chain inside the container | Shows 24/7 operation; does not protect a real position |
+| `python -m defirisk.cli mock` | `data/mock_graph.json` | Offline mock, not real data |
+
+Known limitations: [docs/backend/BACKEND_GAPS.md](docs/backend/BACKEND_GAPS.md).
 
 ## Layout
 - `src/defirisk/core/`: shared graph models, failure propagation, scenarios, exit decisions, and portfolio evaluation.
 - `src/defirisk/data/`: live discovery, token lineage and exposure, failure priors, price checks, HTTP clients, and cache.
 - `src/defirisk/cli.py`: command-line entry point; `api_payload.py` builds JSON for the web UI.
 - `src/defirisk/*.py`: compatibility imports for existing callers; new code should import from `core` or `data`.
-- `api/analyze.py`: Vercel function exposing `/api/analyze`.
+- `api/`: Vercel functions (`analyze.py`, `vault.py`, `countermove.py`).
+- `public/`: static site (Claude Design v2 frontend) and `public/data/recorded/` demo recordings.
+- `data/fixtures/`: dated vault fixtures for the offline regression tests; `data/calibration/`: LGF calibration output.
+- `audit/`: evidence JSON and Slither output; `docs/audit/`: repository cleanup report and open questions for Belem.
 - `src/defirisk/countermove/`: Phase 2 keeper (watcher, dependency engine, countermove engine, guarded executor, verifier, journal); `api/countermove.py` exposes `/api/countermove`.
 - `contracts/`: Foundry project — `RescueVault.sol`, test-only simulation contracts (`src/sim/`), unit / fuzz / invariant / fork tests; dependencies pinned by `install_deps.ps1`.
 - `data/mock_graph.json`: offline fixture.

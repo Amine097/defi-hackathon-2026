@@ -3,7 +3,7 @@
 Usage: from .http import get_json
 - Live call succeeds -> response saved to data/cache/<hash>.json
 - Live call fails (or DEFIRISK_OFFLINE=1) -> last saved response is returned
-Pre-warm before the demo: run the app once with internet, then commit data/cache.
+Pre-warm before an offline demo: run the app once with internet (data/cache/ is gitignored, so the cache stays local).
 """
 import hashlib
 import json
