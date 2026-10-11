@@ -18,6 +18,9 @@ GET /api/countermove?action=policy-status&vault=<0x..>[&<policy draft fields>][&
                                          -> faultline.countermove.lifecycle/1: ARM state DERIVED from the vault read on
                                             the server-configured chain (FAULTLINE_ARM_RPC_URL) + keeper heartbeat +
                                             journal; UNAVAILABLE (with the reason) when that evidence is missing
+keeper-status / policy-status / evidence are read server-side from the hosted keeper (Railway) when
+FAULTLINE_KEEPER_URL is set; the answer carries `hosted` (test chain label, host, latency). Without vault=, policy-status
+then reports the hosted keeper's own test vault.
 Errors are JSON {"error": {"code", "status", "message", ...}} (400 invalid input, 404 unknown market / borrower,
 503 mainnet RPC or Morpho API unavailable), never HTML.
 This endpoint never signs or sends a transaction: the keeper is a separate local process (python -m defirisk.countermove).
@@ -32,6 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from defirisk.countermove import api as cm  # noqa: E402
 from defirisk.countermove import dryrun  # noqa: E402
+from defirisk.countermove import remote  # noqa: E402
 from defirisk.countermove import status as cms  # noqa: E402
 
 ACTIONS = ("policy-draft", "dry-run", "evidence", "keeper-status", "policy-status")
@@ -47,6 +51,15 @@ def respond(path: str) -> tuple[int, dict]:
         if u.path.rstrip("/").endswith("/dry-run") or q.get("action") == "dry-run":
             return 200, dryrun.run(q)
         if q.get("action") in _STATUS:
+            try:
+                hosted = remote.fetch(q["action"], q)
+            except remote.HostedError as e:
+                try:
+                    return 200, remote.unreachable(_STATUS[q["action"]](q), str(e))
+                except (ValueError, KeyError):
+                    return 503, {"error": {"code": "keeper_unreachable", "status": 503, "message": str(e)}}
+            if hosted is not None:
+                return hosted
             return 200, _STATUS[q["action"]](q)
         if "action" in q:
             return 400, {"error": {"code": "invalid_input", "status": 400, "field": "action",

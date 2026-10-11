@@ -11,7 +11,7 @@ const CH = {
   mute: ['#8a94a3', 'rgba(138,148,163,.4)', 'transparent'],
   solid: ['#05070b', '#e9edf2', '#e9edf2']
 };
-const CHMAP = { 'RECORDED LIVE RUN': 'ink', 'FORK STATE': 'ink', 'HISTORICAL DATA': 'ink', 'LOCAL FORK': 'amber', 'SIMULATED': 'amber', 'SIMULATED SHOCK': 'ember', 'MODELLED': 'amber', 'DRY RUN': 'amber', 'PREVIEW ONLY': 'amber', 'POLICY PREVIEW': 'amber', 'THIS SESSION': 'amber', 'INDICATIVE': 'amber', 'FORK CONFIRMED': 'cyan', 'VERIFIED ON FORK': 'cyan', 'FORK OBSERVATION': 'cyan', 'MODEL DECISION': 'cyan', 'AVAILABLE': 'cyan', 'FORK DEMONSTRATION': 'cyan', 'MAINNET CONFIRMED': 'solid', 'UNAVAILABLE': 'mute', 'NOT APPLICABLE': 'mute', 'PENDING': 'mute', 'DESIGN TARGET': 'mute', 'NOT MONITORING': 'mute', 'LIVE': 'cyan', 'RECOGNIZED': 'cyan' };
+const CHMAP = { 'RECORDED LIVE RUN': 'ink', 'FORK STATE': 'ink', 'HISTORICAL DATA': 'ink', 'LOCAL FORK': 'amber', 'SIMULATED': 'amber', 'SIMULATED SHOCK': 'ember', 'MODELLED': 'amber', 'DRY RUN': 'amber', 'PREVIEW ONLY': 'amber', 'POLICY PREVIEW': 'amber', 'THIS SESSION': 'amber', 'INDICATIVE': 'amber', 'FORK CONFIRMED': 'cyan', 'VERIFIED ON FORK': 'cyan', 'FORK OBSERVATION': 'cyan', 'MODEL DECISION': 'cyan', 'AVAILABLE': 'cyan', 'FORK DEMONSTRATION': 'cyan', 'MAINNET CONFIRMED': 'solid', 'UNAVAILABLE': 'mute', 'NOT APPLICABLE': 'mute', 'PENDING': 'mute', 'DESIGN TARGET': 'mute', 'NOT MONITORING': 'mute', 'LIVE': 'cyan', 'RECOGNIZED': 'cyan', 'LOCAL TEST': 'amber', 'HASH CHAIN VALID': 'cyan', 'HASH CHAIN BROKEN': 'ember' };
 const chip = l => { const c = CH[CHMAP[l] || 'mute']; return { label: l, fg: c[0], bd: c[1], bg: c[2] }; };
 const X = window.FLX, Fm = X.F;
 const usd = Fm.usd;
@@ -28,13 +28,14 @@ class Component extends DCLogic {
     xrMode: 'inspect', xrView: 'graph', revealed: false, selNode: null,
     simKind: 'node', simNode: null, simScen: 0, simStep: -1, simDone: false,
     rpStep: 0, rpPlaying: false, rpScen: 'S1',
-    armTab: 'preview', armPos: null, policy: null, dry: null, dryBusy: false,
+    armTab: 'preview', armPos: null, policy: null, dry: null, dryBusy: false, dep: null,
     session: [], actFilter: 'all', actSel: 'f-S1'
   };
 
   componentDidMount() {
     this.onResize = () => this.setState({ width: innerWidth });
     addEventListener('resize', this.onResize);
+    this.depLoad();
     X.loadDemo().then(({ ctx, cm, errors }) => {
       this.setState({ ready: true, ctxs: ctx, cm, demoErr: errors });
       const h = (location.hash || '').replace('#', '');
@@ -46,17 +47,82 @@ class Component extends DCLogic {
   fixSvg() { try { document.querySelectorAll('svg[data-vb]').forEach(s => { if (s.getAttribute('viewBox') !== s.dataset.vb) s.setAttribute('viewBox', s.dataset.vb); }); } catch (e) {} }
   componentWillUnmount() {
     removeEventListener('resize', this.onResize);
-    clearInterval(this.loadT); clearTimeout(this.lkT); clearTimeout(this.lkT2); clearInterval(this.simT); clearInterval(this.rpT); clearInterval(this.tickT);
+    clearInterval(this.loadT); clearTimeout(this.lkT); clearTimeout(this.lkT2); clearInterval(this.simT); clearInterval(this.rpT); clearInterval(this.tickT); clearInterval(this.depT);
   }
   reduced() { return !!this.props.reduceMotion || (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches); }
   ctx(id) { return this.state.ctxs[id || this.state.posId] || null; }
   jump(where) {
-    const map = { demo: ['pt', 'dashboard'], dashboard: ['pt', 'dashboard'], positions: ['vault', 'positions'], xray: ['pt', 'xray'], simulate: ['pt', 'xray', 'simulate'], replay: ['fork', 'xray', 'replay'], arm: ['fork', 'countermove'], activity: ['pt', 'activity'] };
+    const map = { demo: ['pt', 'dashboard'], dashboard: ['pt', 'dashboard'], positions: ['vault', 'positions'], xray: ['pt', 'xray'], simulate: ['pt', 'xray', 'simulate'], replay: ['fork', 'xray', 'replay'], arm: ['fork', 'countermove'], autonomous: ['fork', 'countermove'], activity: ['pt', 'activity'] };
     const m = map[where] || map.demo;
     const id = this.state.ctxs[m[0]] ? m[0] : DEMO_IDS.find(k => this.state.ctxs[k]);
     if (!id) return;
     if (where === 'demo') { this.setState({ posId: id, candId: id }, () => this.startAnalysis()); return; }
+    if (where === 'autonomous') { this.setState({ armTab: 'deployed' }); this.depWatch(); }
     this.setState({ screen: 'app', posId: id, section: m[1], xrMode: m[2] || 'inspect', revealed: !!m[2] });
+  }
+  // ---------- autonomous protection: hosted keeper status, read server-side by /api/countermove (G18-G20) ----------
+  depLoad() {
+    if (this.depBusy) return;
+    this.depBusy = true;
+    const B = '/api/countermove?action=', o = { timeout: 15000 };
+    const KINDS = 'lifecycle,transition,trigger,decision,rejected_strategy,validation,execution_attempt,receipt,verification,finality,failure,error';
+    Promise.all([X.getJson(B + 'keeper-status', o), X.getJson(B + 'policy-status', o), X.getJson(B + 'evidence&source=store&limit=500&kinds=' + KINDS, o)])
+      .then(([k, p, e]) => this.setState({ dep: { k, p, e, at: Date.now() } }))
+      .catch(() => {})
+      .then(() => { this.depBusy = false; });
+  }
+  depWatch() {
+    clearInterval(this.depT);
+    this.depLoad();
+    this.depT = setInterval(() => {
+      if (this.state.armTab !== 'deployed' || this.state.section !== 'countermove') { clearInterval(this.depT); return; }
+      if (!document.hidden) this.depLoad();
+    }, 5000);
+  }
+  depVals() {
+    const d = this.state.dep, F = Fm;
+    const body = r => (r && r.ok && r.body ? r.body : null);
+    const k = body(d && d.k), p = body(d && d.p), e = body(d && d.e);
+    const hosted = !!(k && k.hosted && k.hosted.status === 'ok');
+    const h = (k && k.health) || {};
+    const live = hosted && !!p && !!p.state;
+    const stC = s => /^(MONITORING|VERIFIED|ARMED|CONFIRMED)$/.test(s) ? CYAN : /^(DETECTED|EXECUTING|PLANNING|VALIDATING|SUBMITTED|AWAITING|ARMED_NOT)/.test(s) ? AMBER : /^(FAILED|PAUSED|REVOKED|EXPIRED)$/.test(s) ? EMBER : MUTE;
+    const why = (k && k.reason) || (k && k.hosted && k.hosted.reason) || 'No keeper service answered.';
+    if (!live) {
+      const no = t => ({ t, d: '', v: 'NO', c: EMBER });
+      return { live: false, kicker: 'DESIGN TARGET · NOT AVAILABLE YET', kC: MUTE, bd: '1px dashed rgba(233,237,242,.25)', op: '.55',
+        text: 'In the deployed product, this view shows the live policy, the reserve, the last block checked and every action taken. The status reads as protected only when all four requirements below are verified on-chain. Today none of them are met.',
+        gates: [no('RescueVault deployed and source-verified on mainnet'), no('Reserves funded by the owner'), no('Keeper monitoring running and reporting'), no('Owner policy and keeper confirmed on-chain')],
+        panelTitle: 'WIREFRAME OF THE FUTURE STATUS PANEL', rows: [['Status', 'UNAVAILABLE'], ['Last block checked', '—'], ['Reserve', '—'], ['Remaining limits', '—'], ['Policy expires', '—']].map(r => ({ k: r[0], v: r[1], c: MUTE })),
+        note: 'Keeper: ' + F.sentence(why), events: [], hasEvents: false, integ: chip('UNAVAILABLE'), integText: '' };
+    }
+    const A = p.assets || {}, L = A.loan || { symbol: 'loan', decimals: 18 }, C = A.collateral || { symbol: 'collateral', decimals: 18 };
+    const u = (v, t) => (Number(v || 0) / Math.pow(10, t.decimals)).toLocaleString('en-US', { maximumFractionDigits: t.decimals > 8 ? 4 : 2 }) + ' ' + t.symbol;
+    const v = p.vault || {}, pol = v.policy || {};
+    const GL = { vault_code: 'RescueVault contract deployed (test chain)', not_revoked: 'Owner has not revoked the policy', policy_signed: 'Owner policy signed on-chain', not_paused: 'Vault not paused', not_expired: 'Policy not expired', keeper_authorized: 'This keeper is authorized by the owner', reserves_sufficient: 'Reserves sufficient for a requested action', keeper_heartbeat: 'Keeper monitoring running and reporting' };
+    const GD = { not_expired: () => 'valid until ' + F.date(pol.valid_until), keeper_heartbeat: g => (g.detail || '') + ' · last heartbeat ' + F.ago(h.heartbeat_age_s) + ', stale after ' + (h.stale_after_s || '—') + ' s' };
+    const gates = (p.gates || []).map(g => ({ t: GL[g.gate] || (g.gate.charAt(0).toUpperCase() + g.gate.slice(1).replace(/_/g, ' ')), d: GD[g.gate] ? GD[g.gate](g) : g.detail || '', v: g.ok === true ? 'YES' : g.ok === false ? 'NO' : 'NOT CHECKED', c: g.ok === true ? CYAN : g.ok === false ? EMBER : MUTE }));
+    gates.push({ t: 'RescueVault deployed on Ethereum mainnet', d: 'Not deployed. This keeper only acts on its own test chain.', v: 'NO', c: EMBER });
+    const head = h.head || {};
+    const rows = [
+      { k: 'Status', v: p.state.replace(/_/g, ' '), c: stC(p.state) },
+      { k: 'Keeper', v: k.status + ' · heartbeat ' + F.ago(h.heartbeat_age_s), c: k.status === 'OK' ? CYAN : EMBER },
+      { k: 'Last block checked', v: F.blk(head.number) + ' · chain ' + (h.chain_id || '—'), c: INK },
+      { k: 'Reserve', v: u(v.loan_reserve, L) + ' · ' + u(v.collateral_reserve, C), c: INK },
+      { k: 'Remaining limits', v: 'repay ' + u(Number(pol.max_repay_total || 0) - Number(v.repaid_total || 0), L) + ' · top-up ' + u(Number(pol.max_top_up_total || 0) - Number(v.topped_up_total || 0), C), c: INK },
+      { k: 'Actions executed', v: String(v.action_count != null ? v.action_count : '—'), c: INK },
+      { k: 'Policy expires', v: F.date(pol.valid_until), c: INK }
+    ];
+    const st = (e && e.store) || {}, ig = st.integrity || {};
+    const now = Date.now() / 1000;
+    const events = (st.events || []).slice(-8).reverse().map(r => ({ t: (r.kind || 'event').replace(/_/g, ' '), s: r.state || '', c: stC(r.state || ''),
+      m: '#' + r.seq + ' · ' + (r.block != null ? 'block ' + F.blk(r.block) + ' · ' : '') + (r.tx_hash ? 'tx ' + F.short(r.tx_hash, 10) + ' · ' : '') + F.ago(now - r.ts) }));
+    return { live: true, kicker: 'LOCAL TEST CHAIN · HOSTED KEEPER', kC: AMBER, bd: '1px solid rgba(255,181,71,.4)', op: '1',
+      text: 'A keeper runs around the clock on a hosted test chain (chain ' + (h.chain_id || 31337) + ', test tokens, a simulated ETH/USD feed) and watches one RescueVault test position the owner authorized once. Every state below is read from that chain now. This is not Ethereum mainnet: no real position is protected.',
+      gates, panelTitle: 'STATUS · ' + (k.hosted.host || 'hosted keeper'), rows,
+      note: F.sentence(p.reason || '', 2).replace(/([^.])$/, '$1.') + ' Updated ' + F.ago((Date.now() - d.at) / 1000) + ', refreshed every 5 s.',
+      events, hasEvents: events.length > 0, integ: chip(ig.ok ? 'HASH CHAIN VALID' : ig.ok === false ? 'HASH CHAIN BROKEN' : 'UNAVAILABLE'),
+      integText: (ig.rows != null ? ig.rows + ' evidence rows' : st.reason || '') + (ig.head ? ' · head ' + F.short(ig.head, 10) : '') };
   }
   scrollTop() { try { scrollTo({ top: 0 }); } catch (e) {} }
   go(section, extra) { this.stopSim(); this.setState(Object.assign({ section }, extra || {})); this.scrollTop(); }
@@ -465,9 +531,10 @@ class Component extends DCLogic {
     const st = this.state;
     const A0 = p.arm || {}, eligible = !!A0.eligible;
     const fk = (st.cm && X.forkTab(st.cm, 'S1')) || {};
-    const tabsDef = [['preview', '1', 'Policy preview', 'AVAILABLE'], ['fork', '2', 'Fork demonstration', 'SIMULATED'], ['deployed', '3', 'Autonomous protection', 'UNAVAILABLE']];
-    const tabs = tabsDef.map(t => { const on = st.armTab === t[0]; const c = chip(t[3]); return { num: t[1], label: t[2], chip: c, bd: on ? INK : 'rgba(233,237,242,.14)', bg: on ? 'rgba(233,237,242,.04)' : 'transparent', go: () => this.setState({ armTab: t[0] }) }; });
-    const common = { tabs, isPreview: st.armTab === 'preview', isFork: st.armTab === 'fork', isDeployed: st.armTab === 'deployed', posName: p.name, fk,
+    const dep = this.depVals();
+    const tabsDef = [['preview', '1', 'Policy preview', 'AVAILABLE'], ['fork', '2', 'Fork demonstration', 'SIMULATED'], ['deployed', '3', 'Autonomous protection', dep.live ? 'LOCAL TEST' : 'UNAVAILABLE']];
+    const tabs = tabsDef.map(t => { const on = st.armTab === t[0]; const c = chip(t[3]); return { num: t[1], label: t[2], chip: c, bd: on ? INK : 'rgba(233,237,242,.14)', bg: on ? 'rgba(233,237,242,.04)' : 'transparent', go: () => this.setState({ armTab: t[0] }, () => { if (t[0] === 'deployed') this.depWatch(); }) }; });
+    const common = { tabs, dep, isPreview: st.armTab === 'preview', isFork: st.armTab === 'fork', isDeployed: st.armTab === 'deployed', posName: p.name, fk,
       useFork: () => this.setState({ posId: 'fork', armTab: 'preview', policy: null, dry: null }), useBorrow: () => this.setState({ posId: 'borrow', armTab: 'preview', policy: null, dry: null }),
       toReplay: () => this.go('xray', { xrMode: 'replay', rpScen: 'S1' }) };
     if (!eligible) return { arm: Object.assign(common, { eligible: false, notEligible: true, pol: {}, actions: [], fields: [], dry: { checks: [], summary: '', note: '' }, hasDry: false }) };

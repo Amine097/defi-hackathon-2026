@@ -248,7 +248,12 @@ class Handler(BaseHTTPRequestHandler):
                                                       "message": "accepted: " + ", ".join(STATUS_ACTIONS)}})
                 if action == "policy-status" and not q.get("vault"):
                     q["vault"] = SVC.world.get("vault")
-                return self._send(200, STATUS_ACTIONS[action](q))
+                out = STATUS_ACTIONS[action](q)
+                if action == "policy-status" and str(q["vault"]).lower() == str(SVC.world.get("vault")).lower():
+                    out["assets"] = {"loan": {"symbol": "USDC", "decimals": 6, "test_token": True},
+                                     "collateral": {"symbol": "WETH", "decimals": 18, "test_token": True}}
+                    out["environment_label"] = ENVIRONMENT_LABEL
+                return self._send(200, out)
             return self._send(404, {"error": {"code": "not_found", "status": 404}})
         except (ValueError, KeyError) as e:
             return self._send(400, {"error": {"code": "invalid_input", "status": 400, "message": str(e)[:300]}})

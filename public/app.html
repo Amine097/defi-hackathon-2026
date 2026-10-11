@@ -908,29 +908,34 @@ input[type=range]{accent-color:#2bb8ff;}
 
               <sc-if value="{{ arm.isDeployed }}" hint-placeholder-val="{{ false }}">
                 <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr)); gap:20px; align-items:start;">
-                  <div style="display:flex; flex-direction:column; gap:14px; padding:24px; border:1px dashed rgba(233,237,242,.25);">
-                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">DESIGN TARGET · NOT AVAILABLE YET</span>
+                  <div style="display:flex; flex-direction:column; gap:14px; padding:24px; border:{{ arm.dep.bd }};">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:{{ arm.dep.kC }};">{{ arm.dep.kicker }}</span>
                     <span style="font-size:22px; font-weight:600; line-height:1.3;">Authorize once, then let FAULTLINE watch in the background</span>
-                    <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8;">In the deployed product, this view shows the live policy, the reserve, the last block checked and every action taken. The status reads as protected only when all four requirements below are verified on-chain. Today none of them are met.</p>
+                    <p style="margin:0; font-size:14.5px; line-height:1.6; color:#b4bcc8;">{{ arm.dep.text }}</p>
                     <div style="display:flex; flex-direction:column; border-top:1px solid rgba(233,237,242,.1);">
-                      <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span>RescueVault deployed and source-verified on mainnet</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#ff6a3d;">NO</span></div>
-                      <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span>Reserves funded by the owner</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#ff6a3d;">NO</span></div>
-                      <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span>Keeper monitoring running and reporting</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#ff6a3d;">NO</span></div>
-                      <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span>Owner policy and keeper confirmed on-chain</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:#ff6a3d;">NO</span></div>
+                      <sc-for list="{{ arm.dep.gates }}" as="g" hint-placeholder-count="4">
+                        <div style="display:flex; justify-content:space-between; gap:12px; padding:11px 0; border-bottom:1px solid rgba(233,237,242,.1); font-size:14px;"><span style="display:flex; flex-direction:column; gap:3px; min-width:0;"><span>{{ g.t }}</span><span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a94a3; overflow-wrap:anywhere;">{{ g.d }}</span></span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:{{ g.c }}; white-space:nowrap;">{{ g.v }}</span></div>
+                      </sc-for>
                     </div>
                   </div>
-                  <div style="display:flex; flex-direction:column; gap:12px; padding:24px; border:1px solid rgba(233,237,242,.08); opacity:.55;">
-                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">WIREFRAME OF THE FUTURE STATUS PANEL</span>
-                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Status</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">UNAVAILABLE</span></div>
-                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Last block checked</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">—</span></div>
-                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Reserve</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">—</span></div>
-                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Remaining limits</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">—</span></div>
-                    <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>Policy expires</span><span style="font-family:'IBM Plex Mono', monospace; color:#8a94a3;">—</span></div>
+                  <div style="display:flex; flex-direction:column; gap:12px; padding:24px; border:1px solid rgba(233,237,242,.08); opacity:{{ arm.dep.op }};">
+                    <span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">{{ arm.dep.panelTitle }}</span>
+                    <sc-for list="{{ arm.dep.rows }}" as="r" hint-placeholder-count="5">
+                      <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px; padding:10px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span>{{ r.k }}</span><span style="font-family:'IBM Plex Mono', monospace; color:{{ r.c }}; text-align:right;">{{ r.v }}</span></div>
+                    </sc-for>
+                    <span style="font-size:12.5px; line-height:1.55; color:#8a94a3;">{{ arm.dep.note }}</span>
+                    <sc-if value="{{ arm.dep.live }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex; flex-direction:column; gap:10px; padding-top:8px;">
+                        <span style="display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap;"><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.16em; color:#8a94a3;">EVIDENCE LOG · LATEST FIRST</span><span style="font-family:'IBM Plex Mono', monospace; font-size:9.5px; letter-spacing:.14em; padding:3px 6px; white-space:nowrap; border:1px solid {{ arm.dep.integ.bd }}; color:{{ arm.dep.integ.fg }};">{{ arm.dep.integ.label }}</span></span>
+                        <span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a94a3; overflow-wrap:anywhere;">{{ arm.dep.integText }}</span>
+                        <sc-for list="{{ arm.dep.events }}" as="ev" hint-placeholder-count="4">
+                          <div style="display:flex; flex-direction:column; gap:3px; padding:8px 0; border-bottom:1px solid rgba(233,237,242,.1);"><span style="display:flex; justify-content:space-between; gap:10px; font-size:13.5px;"><span>{{ ev.t }}</span><span style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.12em; color:{{ ev.c }};">{{ ev.s }}</span></span><span style="font-family:'IBM Plex Mono', monospace; font-size:11px; color:#8a94a3; overflow-wrap:anywhere;">{{ ev.m }}</span></div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
                   </div>
                 </div>
               </sc-if>
-            </div>
-          </sc-if>
 
           <sc-if value="{{ sec.activity }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex; flex-direction:column; gap:20px; min-width:0;">

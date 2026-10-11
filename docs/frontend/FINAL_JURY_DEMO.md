@@ -33,7 +33,10 @@ Arc: **DISCOVER → QUANTIFY → DECIDE → DEFEND → PROVE.** Open the tabs be
   MONITORING → EXECUTING → VERIFIED in about 15 s. This runs on a test chain inside the container, with a simulated feed.
 - **Laptop:** the same flow with Anvil and the keeper locally (tested 11 Oct: AWAITING_AUTHORIZATION → ARMED →
   MONITORING → EXECUTING → VERIFIED, 43 hash-chained evidence rows).
-- The app's "Autonomous protection" tab stays UNAVAILABLE in both cases. That is intentional and honest.
+- **In the app** (only if `FAULTLINE_KEEPER_URL` is set on Vercel and Railway answers): open `/app.html#autonomous`.
+  Tab 3 shows **LOCAL TEST**, the gate checklist, keeper heartbeat, reserve and the evidence log. It refreshes every
+  5 s, so after the shock you can watch it go to VERIFIED with the tx rows. Say: "This is a test chain, not mainnet:
+  the last gate says so." If the keeper is not reachable, the tab stays UNAVAILABLE. That is intentional and honest.
 
 ## Do not say
 

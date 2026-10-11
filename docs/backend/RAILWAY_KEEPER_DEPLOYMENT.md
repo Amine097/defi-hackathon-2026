@@ -73,11 +73,28 @@ Demo (about 15 s): `curl -X POST -H "Authorization: Bearer $TOKEN" https://<doma
 - `docker restart`: graceful SIGTERM shutdown, the chain reloads from `/data`, the state stays VERIFIED, the evidence
   chain stays valid.
 
+## Showing it in the app (Vercel)
+
+The browser cannot call the Railway domain (CSP `connect-src 'self'`). Instead, `/api/countermove` on Vercel reads it
+server-side (`src/defirisk/countermove/remote.py`) for `keeper-status`, `policy-status` and `evidence`:
+
+1. In Railway, generate a public domain for the service.
+2. In Vercel → Project → Settings → Environment Variables (Production), set
+   `FAULTLINE_KEEPER_URL=https://<railway-domain>` (https only; no path or query). Then redeploy.
+3. Open `/app.html#autonomous`. Tab 3 "Autonomous protection" shows **LOCAL TEST** and polls every 5 s:
+   - the lifecycle state and gate checklist (G18)
+   - keeper health with heartbeat age (G19)
+   - the latest evidence rows with the hash-chain integrity badge (G20)
+   - a permanent row "RescueVault deployed on Ethereum mainnet: NO"
+
+Without the variable, or if Railway does not answer, the tab falls back to **UNAVAILABLE** and shows the original design
+target. The payload carries `hosted.status = UNREACHABLE` and never reports a fabricated OK. The proxy is read-only:
+admin routes are never proxied.
+
 ## Limits and recovery
 
-- **Not mainnet.** The live app tab "Autonomous protection" still shows UNAVAILABLE: it is hard-coded in
-  `public/assets/dc/app.js`, and Vercel's CSP `connect-src 'self'` blocks direct browser calls to the Railway domain.
-  Showing it in the app would need a Vercel proxy route (not done).
+- **Not mainnet.** Even when the tab shows LOCAL TEST, it is a test chain inside the container with a simulated feed.
+  No real position is protected.
 - If `/data/anvil-state.json` is lost or corrupted, the service archives the old `/data/keeper` to
   `keeper-archived-<ts>` and bootstraps a fresh test world. It never mixes a journal with a different chain.
 - If Anvil or the keeper exits, the process exits with code 1 and Railway restarts it.

@@ -33,6 +33,18 @@ presentation) · **IMPORTANT** (implemented and valuable for the Belem criteria,
 | G20 | Evidence timeline: `?action=evidence` (recorded fork journal with sha256 + keeper SQLite store with hash-chain verification, environment labels) | Countermove › Fork tab / Replay | A paginated event timeline (kind, state, tx, block) with an integrity badge and the `fork` / `local-test` label | The replay shows a fixed T1–T5 story, not the raw evidence rows or their integrity | `recorded.events[]`, `recorded.integrity`, `store.events[]`, `store.integrity`, `next_since` | IMPORTANT | "Evidence: timeline view with integrity badge" |
 | G21 | Field-level policy errors and risk mapping: `policy-draft/2` `error_details[]` (field + code), `warnings[]`, `risk_mapping` (trigger / floor as health factor), `lifecycle_state` | Countermove › policy form | Inline error under each field, a warnings list, and "trigger = HF x.xx" hints | The form shows a single message line; it cannot attach errors to fields | `error_details[].field/code/message`, `warnings[]`, `risk_mapping.*` | IMPORTANT | "Policy form: inline field errors and HF hints" |
 
+Update (11 Oct 2026): G18–G20 are now shown in Countermove › tab 3 "Autonomous protection". There is no new design: the
+existing design-target card and status-panel markup are reused and driven by data. The tab reads the hosted keeper
+through `/api/countermove` (`FAULTLINE_KEEPER_URL`, see
+[RAILWAY_KEEPER_DEPLOYMENT.md](../backend/RAILWAY_KEEPER_DEPLOYMENT.md)) and shows:
+
+- the lifecycle state and gate checklist (G18)
+- keeper health with heartbeat age (G19)
+- the latest evidence rows with the hash-chain integrity badge (G20)
+
+It is labelled LOCAL TEST and includes a permanent "RescueVault deployed on Ethereum mainnet: NO" row. Without a
+reachable keeper, it falls back to the UNAVAILABLE design target. A dedicated design for these states is still open.
+
 Frontend data gap (not a design gap): `fl-live.js` `qs()` drops empty parameters, so an ARM form with no strategy
 selected sends no `strategies` key and the backend applies its default `REPAY,TOP_UP` instead of rejecting the draft.
 The request should send `strategies=` explicitly (see [docs/backend/BACKEND_GAPS.md](../backend/BACKEND_GAPS.md)).
